@@ -1,0 +1,24 @@
+{
+  "name": "dagitnews",
+  "version": "1.0.0",
+  "description": "AI-generated newspaper for builders — trending GitHub projects as rich, readable stories",
+  "main": "generate.js",
+  "homepage": "https://christopherharris.github.io/dagitnews",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/christopherharris/dagitnews.git"
+  },
+  "scripts": {
+    "generate": "node generate.js",
+    "publish": "node publish-edition.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "feed": "^4.2.2",
+    "marked": "^17.0.3",
+    "openai": "^4.77.0",
+    "p-limit": "^7.3.0",
+    "p-retry": "^7.1.1"
+  }
+}

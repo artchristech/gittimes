@@ -1,0 +1,57 @@
+name: Daily Edition
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # Noon UTC daily
+  workflow_dispatch: # Manual trigger
+
+concurrency:
+  group: daily-edition
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Checkout gh-pages into site/
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+        continue-on-error: true # First run won't have gh-pages yet
+
+      - name: Generate and publish edition
+        run: node publish-edition.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          PUBLISH_DIR: ./site
+          SITE_BASE_URL: https://christopherharris.github.io
+          BASE_PATH: /dagitnews
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          keep_files: true
