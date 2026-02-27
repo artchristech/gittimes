@@ -218,4 +218,76 @@ function getRecentRepoNames(outDir, lookback = 3) {
   return names;
 }
 
-module.exports = { publish, toDateStr, readManifest, writeManifest, getRecentRepoNames };
+/**
+ * Validate generated content before publishing.
+ * @param {object} content - { sections: { frontPage, ai, ... }, tagline }
+ * @returns {{ valid: boolean, errors: string[], warnings: string[], summary: { sections: number, articles: number, fallbacks: number, emptyCount: number } }}
+ */
+function validateContent(content) {
+  const errors = [];
+  const warnings = [];
+  let sections = 0;
+  let articles = 0;
+  let fallbacks = 0;
+  let emptyCount = 0;
+
+  if (!content || !content.sections) {
+    return {
+      valid: false,
+      errors: ["Content is null or missing sections"],
+      warnings,
+      summary: { sections: 0, articles: 0, fallbacks: 0, emptyCount: 0 },
+    };
+  }
+
+  let hasNonFallbackLead = false;
+
+  for (const [id, section] of Object.entries(content.sections)) {
+    sections++;
+
+    if (!section || section.isEmpty) {
+      emptyCount++;
+      continue;
+    }
+
+    if (section.lead) {
+      articles++;
+      if (section.lead._isFallback) {
+        fallbacks++;
+      } else {
+        hasNonFallbackLead = true;
+      }
+    }
+
+    if (section.secondary) {
+      for (const s of section.secondary) {
+        articles++;
+        if (s._isFallback) fallbacks++;
+      }
+    }
+
+    if (section.quickHits) {
+      articles += section.quickHits.length;
+    }
+  }
+
+  if (!hasNonFallbackLead) {
+    errors.push("No non-fallback lead article in any section");
+  }
+
+  const fp = content.sections.frontPage;
+  if (fp && !fp.isEmpty) {
+    if (!fp.secondary || fp.secondary.length === 0) {
+      errors.push("Front page has no secondary articles");
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    summary: { sections, articles, fallbacks, emptyCount },
+  };
+}
+
+module.exports = { publish, toDateStr, readManifest, writeManifest, getRecentRepoNames, validateContent };

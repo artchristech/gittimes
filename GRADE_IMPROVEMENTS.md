@@ -54,13 +54,13 @@ Specific edge cases or gotchas that are easy to miss.
 The quick-hit dedup uses `repo.full_name + "_used"` suffix in the same Set — could theoretically collide with a real repo name ending in `_used`.
 → Files: `src/github.js:114`
 
-**[tp-003]** `open` · added 2026-02-26
+**[tp-003]** `resolved` · added 2026-02-26 · resolved 2026-02-27
 HEADLINE regex `/HEADLINE:\s*(.+)/` matches inside "SUBHEADLINE:" because the string contains "HEADLINE:". Combined with `lastMatch`, this causes every article with a SUBHEADLINE to get its headline replaced by the subheadline value.
-→ Files: `src/xai.js:94`, `test/unit.test.js:383-385`
+→ Files: `src/xai.js:27,93` — replaced `(?<!SUB)` lookbehind with `\b` word boundary. Regression tests added in `test/unit.test.js`.
 
-**[tp-004]** `open` · added 2026-02-26
+**[tp-004]** `resolved` · added 2026-02-26 · resolved 2026-02-27
 Dead `generateContent` function at `xai.js:284-343` duplicates `generateSectionContent` logic but lacks X sentiment, X Pulse, and multi-section support. Exported but never called.
-→ Files: `src/xai.js:284-345`
+→ Files: `src/xai.js:284-345` — function removed; file now ends at line 283 with `module.exports`.
 
 **[tp-005]** `open` · added 2026-02-27
 No custom 404 page — non-existent URLs return GitHub's default 404 page instead of branded "The Git Times" page. GitHub Pages auto-serves `404.html` from the site root if present.

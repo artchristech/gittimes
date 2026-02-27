@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const { toDateStr, readManifest, publish, getRecentRepoNames } = require("../src/publish");
+const { toDateStr, readManifest, publish, getRecentRepoNames, validateContent } = require("../src/publish");
 
 // --------------- toDateStr ---------------
 
@@ -200,5 +200,105 @@ describe("getRecentRepoNames", () => {
     assert.ok(result.has("b/two"));
     assert.ok(result.has("c/three"));
     assert.ok(!result.has("d/four"));
+  });
+});
+
+// --------------- validateContent ---------------
+
+describe("validateContent", () => {
+  function makeArticle(headline, isFallback = false) {
+    return {
+      headline,
+      subheadline: "Sub",
+      body: "Body",
+      buildersTake: "",
+      _isFallback: isFallback,
+      repo: { name: "org/repo" },
+    };
+  }
+
+  it("valid content passes", () => {
+    const content = {
+      sections: {
+        frontPage: {
+          lead: makeArticle("Lead"),
+          secondary: [makeArticle("Sec1")],
+          quickHits: [],
+          isEmpty: false,
+        },
+        ai: {
+          lead: makeArticle("AI Lead"),
+          secondary: [],
+          quickHits: [],
+          isEmpty: false,
+        },
+      },
+      tagline: "Test tagline",
+    };
+    const result = validateContent(content);
+    assert.equal(result.valid, true);
+    assert.equal(result.errors.length, 0);
+  });
+
+  it("null content fails", () => {
+    const result = validateContent(null);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some((e) => e.includes("null")));
+  });
+
+  it("no non-fallback lead fails", () => {
+    const content = {
+      sections: {
+        frontPage: {
+          lead: makeArticle("Fallback Lead", true),
+          secondary: [makeArticle("Sec1")],
+          quickHits: [],
+          isEmpty: false,
+        },
+      },
+    };
+    const result = validateContent(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some((e) => e.includes("non-fallback lead")));
+  });
+
+  it("missing front page secondary articles fails", () => {
+    const content = {
+      sections: {
+        frontPage: {
+          lead: makeArticle("Lead"),
+          secondary: [],
+          quickHits: [],
+          isEmpty: false,
+        },
+      },
+    };
+    const result = validateContent(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some((e) => e.includes("secondary")));
+  });
+
+  it("summary counts correctly", () => {
+    const content = {
+      sections: {
+        frontPage: {
+          lead: makeArticle("Lead"),
+          secondary: [makeArticle("Sec1"), makeArticle("Sec2", true)],
+          quickHits: [{ name: "qh1" }, { name: "qh2" }],
+          isEmpty: false,
+        },
+        ai: {
+          lead: null,
+          secondary: [],
+          quickHits: [],
+          isEmpty: true,
+        },
+      },
+    };
+    const result = validateContent(content);
+    assert.equal(result.summary.sections, 2);
+    assert.equal(result.summary.articles, 5); // 1 lead + 2 secondary + 2 quickHits
+    assert.equal(result.summary.fallbacks, 1);
+    assert.equal(result.summary.emptyCount, 1);
   });
 });

@@ -24,7 +24,7 @@ function sanitizePrompt(text) {
   return text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 }
 
-const ARTICLE_MARKERS = /(?<!SUB)HEADLINE:|BODY:/;
+const ARTICLE_MARKERS = /\bHEADLINE:|BODY:/;
 
 function pickStructuredOutput(msg) {
   const content = (msg.content || "").trim();
@@ -90,7 +90,7 @@ function lastMatch(text, pattern) {
 function parseArticle(text, repo) {
   // Use LAST occurrence of each marker — reasoning models echo the format
   // instructions early in their thinking, then produce the real output later.
-  const headlineMatch = lastMatch(text, /(?:^|\n)(?<!SUB)HEADLINE:\s*(.+)/);
+  const headlineMatch = lastMatch(text, /(?:^|\n)\bHEADLINE:\s*(.+)/);
   const subheadlineMatch = lastMatch(text, /SUBHEADLINE:\s*(.+)/);
   const buildersTakeMatch = lastMatch(text, /BUILDERS_TAKE:\s*([\s\S]*?)$/);
 

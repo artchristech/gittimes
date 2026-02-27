@@ -438,6 +438,29 @@ describe("parseArticle", () => {
     assert.equal(result.body, "Some body text");
     assert.equal(result.buildersTake, "A take");
   });
+
+  it("does not confuse SUBHEADLINE for HEADLINE when both present", () => {
+    const text = [
+      "SUBHEADLINE: sub value",
+      "HEADLINE: real headline",
+      "BODY: body text",
+      "BUILDERS_TAKE: take",
+    ].join("\n");
+    const result = parseArticle(text, null);
+    assert.equal(result.headline, "real headline");
+    assert.equal(result.subheadline, "sub value");
+  });
+
+  it("produces fallback when only SUBHEADLINE is present (no HEADLINE)", () => {
+    const text = [
+      "SUBHEADLINE: just a sub",
+      "BODY: body text",
+      "BUILDERS_TAKE: take",
+    ].join("\n");
+    const result = parseArticle(text, null);
+    assert.equal(result._isFallback, true);
+    assert.equal(result.headline, "Untitled");
+  });
 });
 
 // --------------- parseQuickHits ---------------

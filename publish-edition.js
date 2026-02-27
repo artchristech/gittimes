@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const { fetchAllSections } = require("./src/github");
 const { generateAllContent } = require("./src/xai");
-const { publish, getRecentRepoNames } = require("./src/publish");
+const { publish, getRecentRepoNames, validateContent } = require("./src/publish");
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -32,7 +32,29 @@ async function main() {
   // Step 2: Generate articles via xAI Grok (all sections)
   const content = await generateAllContent(sections, xaiKey);
 
-  // Step 3: Publish edition
+  // Step 3: Validate content
+  const dryRun = process.argv.includes("--dry-run");
+  const validation = validateContent(content);
+  const s = validation.summary;
+
+  console.log("\n--- Content Summary ---");
+  console.log(`  Sections:  ${s.sections}`);
+  console.log(`  Articles:  ${s.articles}`);
+  console.log(`  Fallbacks: ${s.fallbacks}`);
+  console.log(`  Empty:     ${s.emptyCount}`);
+
+  if (validation.errors.length > 0) {
+    console.error("\nValidation FAILED:");
+    for (const err of validation.errors) console.error(`  - ${err}`);
+    process.exit(1);
+  }
+
+  if (dryRun) {
+    console.log("\n--dry-run: skipping publish.");
+    return;
+  }
+
+  // Step 4: Publish edition
   await publish(content, outDir, { siteUrl, basePath });
 
   console.log("\nDone! Edition published.");
