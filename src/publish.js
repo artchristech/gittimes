@@ -39,7 +39,7 @@ function writeManifest(outDir, manifest) {
  * @param {object} [options] - { siteUrl?: string, basePath?: string, date?: Date }
  */
 async function publish(content, outDir, options = {}) {
-  const siteUrl = options.siteUrl || "https://example.github.io";
+  const siteUrl = options.siteUrl || "https://gittimes.com";
   const basePath = options.basePath || "";
   const date = options.date || new Date();
   const dateStr = toDateStr(date);
@@ -164,18 +164,34 @@ async function publish(content, outDir, options = {}) {
   manifest.unshift(newEntry);
   writeManifest(outDir, manifest);
 
-  // 8. Generate archive page
+  // 9. Generate archive page
   const archiveDir = path.join(outDir, "archive");
   if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
   const archiveHtml = renderArchivePage(manifest, basePath);
   fs.writeFileSync(path.join(archiveDir, "index.html"), archiveHtml);
 
-  // 9. Generate feeds
+  // 10. Generate feeds
   const feeds = generateFeed(manifest, siteUrl + basePath);
   fs.writeFileSync(path.join(outDir, "feed.xml"), feeds.rss);
   fs.writeFileSync(path.join(outDir, "feed.atom"), feeds.atom);
 
-  // 10. Write .nojekyll and CNAME
+  // 11. Generate custom 404 page
+  const fourOhFourTemplatePath = path.join(__dirname, "..", "templates", "404.html");
+  if (fs.existsSync(fourOhFourTemplatePath)) {
+    const fourOhFourTemplate = fs.readFileSync(fourOhFourTemplatePath, "utf-8");
+    const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
+    const css = fs.readFileSync(cssPath, "utf-8");
+    const latestUrl = basePath + "/";
+    const archiveUrl = basePath + "/archive/";
+    const fourOhFourHtml = fourOhFourTemplate
+      .replace("{{STYLES}}", css)
+      .replace(/\{\{BASE_PATH\}\}/g, basePath)
+      .replace("{{LATEST_URL}}", latestUrl)
+      .replace("{{ARCHIVE_URL}}", archiveUrl);
+    fs.writeFileSync(path.join(outDir, "404.html"), fourOhFourHtml);
+  }
+
+  // 12. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
   fs.writeFileSync(path.join(outDir, "CNAME"), "gittimes.com");
 

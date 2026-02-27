@@ -1,5 +1,5 @@
 # Grade Improvements Playbook
-_Scope: xAI/Grok Integration | Last graded: 2026-02-26_
+_Scope: Deployment & Status | Last graded: 2026-02-27_
 
 ## Strategies & Hard Rules
 Principles that should always/never apply in this codebase.
@@ -23,6 +23,10 @@ Always verify that prompt-building functions receive the correct object shape (r
 **[shr-005]** `open` · added 2026-02-26
 Regex patterns for structured output markers must not accidentally match substrings of longer markers (e.g., `HEADLINE:` matching inside `SUBHEADLINE:`).
 → Files: `src/xai.js:94`
+
+**[shr-006]** `open` · added 2026-02-27
+Fallback defaults in inner functions must match production values — `publish()` has its own `siteUrl` fallback (`src/publish.js:42`) independent of the caller's default in `publish-edition.js:21`.
+→ Files: `src/publish.js:42`
 
 ## Common Failure Patterns
 Recurring mistake types observed across multiple files.
@@ -57,3 +61,11 @@ HEADLINE regex `/HEADLINE:\s*(.+)/` matches inside "SUBHEADLINE:" because the st
 **[tp-004]** `open` · added 2026-02-26
 Dead `generateContent` function at `xai.js:284-343` duplicates `generateSectionContent` logic but lacks X sentiment, X Pulse, and multi-section support. Exported but never called.
 → Files: `src/xai.js:284-345`
+
+**[tp-005]** `open` · added 2026-02-27
+No custom 404 page — non-existent URLs return GitHub's default 404 page instead of branded "The Git Times" page. GitHub Pages auto-serves `404.html` from the site root if present.
+→ Files: `src/publish.js` (missing 404.html generation)
+
+**[tp-006]** `open` · added 2026-02-27
+CNAME file at `src/publish.js:180` has no comment explaining its purpose. It must be re-written on every deploy because `peaceiris/actions-gh-pages` with `keep_files: true` preserves it, but without the write it would be lost if the gh-pages branch is ever force-pushed.
+→ Files: `src/publish.js:180`
