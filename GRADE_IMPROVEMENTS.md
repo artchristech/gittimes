@@ -1,5 +1,5 @@
 # Grade Improvements Playbook
-_Scope: Deployment & Status | Last graded: 2026-02-27_
+_Scope: Full Application | Last graded: 2026-02-27_
 
 ## Strategies & Hard Rules
 Principles that should always/never apply in this codebase.
@@ -20,13 +20,21 @@ Always guard array access on API response fields (e.g., `choices[0]`) before der
 Always verify that prompt-building functions receive the correct object shape (repo vs article) — mismatched shapes produce "undefined" in prompts.
 → Files: `src/xai.js:260-269`, `src/prompts.js:72`
 
-**[shr-005]** `open` · added 2026-02-26
+**[shr-005]** `resolved` · added 2026-02-26 · resolved 2026-02-27
 Regex patterns for structured output markers must not accidentally match substrings of longer markers (e.g., `HEADLINE:` matching inside `SUBHEADLINE:`).
-→ Files: `src/xai.js:94`
+→ Files: `src/xai.js:27,93` — fixed with `\b` word boundary; see tp-003.
 
 **[shr-006]** `open` · added 2026-02-27
 Fallback defaults in inner functions must match production values — `publish()` has its own `siteUrl` fallback (`src/publish.js:42`) independent of the caller's default in `publish-edition.js:21`.
 → Files: `src/publish.js:42`
+
+**[shr-007]** `open` · added 2026-02-27
+Always escape single quotes in `escapeHtml()` — without `&#39;` escaping, LLM content could break out of single-quoted HTML attributes.
+→ Files: `src/render.js:13-19`
+
+**[shr-008]** `open` · added 2026-02-27
+Scoring model weights must sum to 1.0 — `scoreRepo` weights total 0.85 (0.35+0.25+0.15+0.10), leaving 15% of score range unused.
+→ Files: `src/github.js:135-139`
 
 ## Common Failure Patterns
 Recurring mistake types observed across multiple files.
@@ -39,9 +47,9 @@ Missing defensive checks on external API response shapes — GitHub API (`github
 Inconsistent HTML escaping — `escapeHtml()` is applied to most fields but the `bodyToHtml()` marked path relies on `sanitizeArticleHtml` regex stripping rather than proper escaping.
 → Files: `src/render.js:17-23`, `src/render.js:37`, `src/render.js:55`
 
-**[cfp-003]** `open` · added 2026-02-26
+**[cfp-003]** `resolved` · added 2026-02-26 · resolved 2026-02-27
 Object shape mismatches between pipeline stages — article objects (`{headline, body, repo}`) are passed where repo objects (`{name, language}`) are expected, producing "undefined" in LLM prompts.
-→ Files: `src/xai.js:260-269`
+→ Files: `src/prompts.js:71-76` — `editionTaglinePrompt` is now dead code (replaced by `mastheadQuote`); shape mismatch can't occur at runtime.
 
 ## Troubleshooting Pitfalls
 Specific edge cases or gotchas that are easy to miss.
@@ -62,10 +70,18 @@ HEADLINE regex `/HEADLINE:\s*(.+)/` matches inside "SUBHEADLINE:" because the st
 Dead `generateContent` function at `xai.js:284-343` duplicates `generateSectionContent` logic but lacks X sentiment, X Pulse, and multi-section support. Exported but never called.
 → Files: `src/xai.js:284-345` — function removed; file now ends at line 283 with `module.exports`.
 
-**[tp-005]** `open` · added 2026-02-27
+**[tp-005]** `resolved` · added 2026-02-27 · resolved 2026-02-27
 No custom 404 page — non-existent URLs return GitHub's default 404 page instead of branded "The Git Times" page. GitHub Pages auto-serves `404.html` from the site root if present.
-→ Files: `src/publish.js` (missing 404.html generation)
+→ Files: `src/publish.js:178-192` — 404.html now generated from `templates/404.html`.
 
 **[tp-006]** `open` · added 2026-02-27
-CNAME file at `src/publish.js:180` has no comment explaining its purpose. It must be re-written on every deploy because `peaceiris/actions-gh-pages` with `keep_files: true` preserves it, but without the write it would be lost if the gh-pages branch is ever force-pushed.
-→ Files: `src/publish.js:180`
+CNAME file at `src/publish.js:196` has no comment explaining its purpose. It must be re-written on every deploy because `peaceiris/actions-gh-pages` with `keep_files: true` preserves it, but without the write it would be lost if the gh-pages branch is ever force-pushed.
+→ Files: `src/publish.js:196`
+
+**[tp-007]** `open` · added 2026-02-27
+`readManifest` at `publish.js:21` has no try/catch around `JSON.parse` — a corrupt or truncated `manifest.json` (e.g., from interrupted write) crashes the entire publish pipeline with an unhandled exception.
+→ Files: `src/publish.js:21`
+
+**[tp-008]** `open` · added 2026-02-27
+Dead `editionTaglinePrompt` function in `prompts.js:71-76` is exported but never called — replaced by `mastheadQuote()` in `quotes.js`. Dead code that could mislead future developers.
+→ Files: `src/prompts.js:71-76,82`

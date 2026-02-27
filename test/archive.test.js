@@ -18,7 +18,7 @@ describe("renderArchivePage", () => {
   it("lists all editions", () => {
     const html = renderArchivePage(sampleManifest, "");
     assert.ok(html.includes("Big News Today"));
-    assert.ok(html.includes("Yesterday's News"));
+    assert.ok(html.includes("Yesterday&#39;s News"));
     assert.ok(html.includes("/editions/2026-02-23/"));
     assert.ok(html.includes("/editions/2026-02-22/"));
   });

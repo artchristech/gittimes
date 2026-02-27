@@ -18,7 +18,12 @@ function toDateStr(d) {
 function readManifest(outDir) {
   const manifestPath = path.join(outDir, "editions", "manifest.json");
   if (fs.existsSync(manifestPath)) {
-    return JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+    try {
+      return JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+    } catch (e) {
+      console.warn(`Warning: corrupt manifest.json, starting fresh: ${e.message}`);
+      return [];
+    }
   }
   return [];
 }
