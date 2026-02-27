@@ -1,5 +1,5 @@
 function leadArticlePrompt(repo) {
-  return `You are a senior technology journalist writing for DAGitNews, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
+  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -25,7 +25,7 @@ BUILDERS_TAKE: [2-3 sentences of practical advice for developers considering thi
 }
 
 function secondaryArticlePrompt(repo) {
-  return `You are a technology journalist writing for DAGitNews, a broadsheet newspaper for builders. Write a tight 150-200 word article about this GitHub project.
+  return `You are a technology journalist writing for The Git Times, a broadsheet newspaper for builders. Write a tight 150-200 word article about this GitHub project.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -70,7 +70,7 @@ ${repos.map((_, i) => `${i + 1}. [single sentence summary]`).join("\n")}`;
 
 function editionTaglinePrompt(lead, secondary) {
   const names = [lead, ...secondary].map((r) => `${r.name} (${r.language})`).join(", ");
-  return `You write pithy taglines for DAGitNews, a tech newspaper. Today's trending repos are: ${names}.
+  return `You write pithy taglines for The Git Times, a tech newspaper. Today's trending repos are: ${names}.
 
 Write a single tagline (max 15 words) that captures today's theme — witty, observational, like a newspaper edition subtitle. No quotes, no hype. Just the tagline, nothing else.`;
 }

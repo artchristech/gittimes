@@ -6,7 +6,7 @@ const { escapeHtml } = require("./render");
 /**
  * Render the archive page listing all editions.
  * @param {Array} manifest - Array of { date, headline, tagline, url }
- * @param {string} basePath - Base path for links (e.g. "" or "/dagitnews")
+ * @param {string} basePath - Base path for links (e.g. "")
  * @returns {string} Complete HTML string
  */
 function renderArchivePage(manifest, basePath) {

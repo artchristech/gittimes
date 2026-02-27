@@ -17,7 +17,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("=== DAGitNews Generator ===\n");
+  console.log("=== The Git Times Generator ===\n");
 
   // Step 1: Fetch and enrich repo data from GitHub (all sections)
   const sections = await fetchAllSections(githubToken);

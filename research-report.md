@@ -12,7 +12,7 @@
 | **Architecture** | CLI pipeline: fetch trending repos -> enrich with README/releases -> LLM article generation -> render static HTML -> publish to archive with RSS/Atom feeds |
 | **Current Dependencies** | 3 direct (`dotenv`, `feed`, `openai`) |
 
-DAGitNews is a Node.js CLI tool that fetches trending GitHub repositories via the GitHub Search API, scores and ranks them using a star-velocity algorithm, enriches them with README and release data, generates newspaper-style articles using the Cerebras LLM API (via OpenAI-compatible client), and renders the output as a beautifully styled static HTML broadsheet. The project features a complete publishing pipeline with an edition archive, inter-edition navigation, RSS 2.0 and Atom 1.0 feeds, a customizable display toolbar (theme, font, size, width, color sliders), and a daily GitHub Actions workflow deploying to GitHub Pages. Tests use Node.js built-in test runner across 4 test files. The project is minimal by design with only 3 direct dependencies, a hand-rolled HTTP client, and custom string-based HTML templating.
+The Git Times is a Node.js CLI tool that fetches trending GitHub repositories via the GitHub Search API, scores and ranks them using a star-velocity algorithm, enriches them with README and release data, generates newspaper-style articles using the Cerebras LLM API (via OpenAI-compatible client), and renders the output as a beautifully styled static HTML broadsheet. The project features a complete publishing pipeline with an edition archive, inter-edition navigation, RSS 2.0 and Atom 1.0 feeds, a customizable display toolbar (theme, font, size, width, color sliders), and a daily GitHub Actions workflow deploying to GitHub Pages. Tests use Node.js built-in test runner across 4 test files. The project is minimal by design with only 3 direct dependencies, a hand-rolled HTTP client, and custom string-based HTML templating.
 
 ---
 
@@ -99,7 +99,7 @@ Packages and modules that solve problems the project currently handles manually 
 | **License** | MPL-2.0 |
 | **Integration Effort** | Moderate |
 
-**Why it's relevant:** The generated newspaper HTML currently has no Open Graph metadata or social sharing images. When a DAGitNews edition URL is shared on Twitter, Slack, or Discord, there is no preview card. Satori can generate OG images programmatically from HTML/CSS -- the project already has CSS styling for the masthead and headlines, so generating a card-style preview image (headline + date + "DAGitNews" branding) for each edition would be straightforward. The image could be written to the edition directory alongside `index.html`.
+**Why it's relevant:** The generated newspaper HTML currently has no Open Graph metadata or social sharing images. When a The Git Times edition URL is shared on Twitter, Slack, or Discord, there is no preview card. Satori can generate OG images programmatically from HTML/CSS -- the project already has CSS styling for the masthead and headlines, so generating a card-style preview image (headline + date + "The Git Times" branding) for each edition would be straightforward. The image could be written to the edition directory alongside `index.html`.
 
 **What it replaces/enhances:** Adds social sharing previews to each edition. The `publish()` function in `src/publish.js` would gain an additional step after assembling HTML: generate an OG image, write it to the edition directory, and inject an `<meta property="og:image">` tag into the HTML template.
 
@@ -153,9 +153,9 @@ Open-source projects with comparable goals, architecture, or domain.
 | **Last Updated** | July 2025 |
 | **License** | MIT |
 
-**Why it's relevant:** Auto-news is the closest architectural parallel to DAGitNews. It takes the same core concept -- LLM-powered news curation -- and extends it across multiple sources: Tweets, RSS, YouTube, Web Articles, Reddit, and Journal notes. It uses LangChain for LLM orchestration and supports ChatGPT, Gemini, and Ollama. This represents what DAGitNews could evolve toward if it expanded beyond GitHub as a data source.
+**Why it's relevant:** Auto-news is the closest architectural parallel to The Git Times. It takes the same core concept -- LLM-powered news curation -- and extends it across multiple sources: Tweets, RSS, YouTube, Web Articles, Reddit, and Journal notes. It uses LangChain for LLM orchestration and supports ChatGPT, Gemini, and Ollama. This represents what The Git Times could evolve toward if it expanded beyond GitHub as a data source.
 
-**Key patterns to study:** Multi-source aggregation architecture, LangChain integration for multi-model support (DAGitNews is currently locked to Cerebras via the OpenAI SDK), content deduplication strategies across heterogeneous sources, and their Notion integration for output delivery -- an interesting alternative distribution channel beyond static HTML and RSS.
+**Key patterns to study:** Multi-source aggregation architecture, LangChain integration for multi-model support (The Git Times is currently locked to Cerebras via the OpenAI SDK), content deduplication strategies across heterogeneous sources, and their Notion integration for output delivery -- an interesting alternative distribution channel beyond static HTML and RSS.
 
 ---
 
@@ -169,9 +169,9 @@ Open-source projects with comparable goals, architecture, or domain.
 | **Last Updated** | February 2026 |
 | **License** | GNU AGPLv3 |
 
-**Why it's relevant:** daily.dev is the largest open-source developer content platform, serving as the aspirational end-state for a project like DAGitNews. While vastly different in scale (full platform vs. static site generator), studying their content ranking algorithms and source curation strategies provides valuable architectural insights. Their approach to solving the "what's trending in developer world" problem at scale is directly applicable.
+**Why it's relevant:** daily.dev is the largest open-source developer content platform, serving as the aspirational end-state for a project like The Git Times. While vastly different in scale (full platform vs. static site generator), studying their content ranking algorithms and source curation strategies provides valuable architectural insights. Their approach to solving the "what's trending in developer world" problem at scale is directly applicable.
 
-**Key patterns to study:** Content scoring and ranking algorithms (comparable to DAGitNews's `_score` calculation in `src/github.js:92-106`), content freshness vs. quality trade-offs, developer interest categorization, and their browser extension as a distribution mechanism beyond web pages.
+**Key patterns to study:** Content scoring and ranking algorithms (comparable to The Git Times's `_score` calculation in `src/github.js:92-106`), content freshness vs. quality trade-offs, developer interest categorization, and their browser extension as a distribution mechanism beyond web pages.
 
 ---
 
@@ -185,9 +185,9 @@ Open-source projects with comparable goals, architecture, or domain.
 | **Last Updated** | April 2025 |
 | **License** | GNU AGPLv3 |
 
-**Why it's relevant:** Nook is the most directly comparable project in terms of scope and approach. It scrapes GitHub Trending (the actual trending page, not the Search API like DAGitNews), plus Hacker News and Reddit, then uses an LLM to summarize everything into a daily digest. This is essentially DAGitNews with multiple data sources and a web app frontend. The key architectural difference is that nook scrapes the trending page directly while DAGitNews uses the Search API with a custom scoring algorithm.
+**Why it's relevant:** Nook is the most directly comparable project in terms of scope and approach. It scrapes GitHub Trending (the actual trending page, not the Search API like The Git Times), plus Hacker News and Reddit, then uses an LLM to summarize everything into a daily digest. This is essentially The Git Times with multiple data sources and a web app frontend. The key architectural difference is that nook scrapes the trending page directly while The Git Times uses the Search API with a custom scoring algorithm.
 
-**Key patterns to study:** Their GitHub Trending scraping approach (comparing with DAGitNews's Search API + scoring approach in `src/github.js`), multi-source aggregation, Gemini LLM integration with retry logic, and their web app frontend for serving digests (compared to DAGitNews's static HTML approach).
+**Key patterns to study:** Their GitHub Trending scraping approach (comparing with The Git Times's Search API + scoring approach in `src/github.js`), multi-source aggregation, Gemini LLM integration with retry logic, and their web app frontend for serving digests (compared to The Git Times's static HTML approach).
 
 ---
 
@@ -201,7 +201,7 @@ Open-source projects with comparable goals, architecture, or domain.
 | **Last Updated** | February 2026 |
 | **License** | MIT |
 
-**Why it's relevant:** Hunter is essentially a Chinese-language equivalent of DAGitNews with additional features: it scrapes GitHub Trending, Twitter, HackerNews, and Reddit; uses AI to judge which topics are worth writing about (editorial intelligence); generates articles with illustrations; and auto-publishes. The "editorial judgment" step -- using AI to filter what is newsworthy -- is a pattern DAGitNews does not currently have. DAGitNews relies purely on star velocity scoring in `src/github.js:92-106`.
+**Why it's relevant:** Hunter is essentially a Chinese-language equivalent of The Git Times with additional features: it scrapes GitHub Trending, Twitter, HackerNews, and Reddit; uses AI to judge which topics are worth writing about (editorial intelligence); generates articles with illustrations; and auto-publishes. The "editorial judgment" step -- using AI to filter what is newsworthy -- is a pattern The Git Times does not currently have. The Git Times relies purely on star velocity scoring in `src/github.js:92-106`.
 
 **Key patterns to study:** Their AI-based editorial judgment (deciding which repos are newsworthy beyond raw metrics), illustration generation for articles, multi-platform publishing pipeline, and their approach to combining multiple data sources for richer trending analysis.
 
@@ -217,7 +217,7 @@ Open-source projects with comparable goals, architecture, or domain.
 | **Last Updated** | February 2026 |
 | **License** | MIT |
 
-**Why it's relevant:** GitHubTrendingRSS provides a complementary data source. It scrapes the actual GitHub Trending page and generates RSS feeds for trending repos, filterable by language and time range. DAGitNews currently relies solely on the GitHub Search API with a custom scoring formula to approximate "trending." Consuming the RSS feeds from GitHubTrendingRSS (or adopting a similar scraping approach) would give DAGitNews access to GitHub's actual trending algorithm, which considers factors the Search API cannot expose.
+**Why it's relevant:** GitHubTrendingRSS provides a complementary data source. It scrapes the actual GitHub Trending page and generates RSS feeds for trending repos, filterable by language and time range. The Git Times currently relies solely on the GitHub Search API with a custom scoring formula to approximate "trending." Consuming the RSS feeds from GitHubTrendingRSS (or adopting a similar scraping approach) would give The Git Times access to GitHub's actual trending algorithm, which considers factors the Search API cannot expose.
 
 **Key patterns to study:** Their GitHub Trending page scraping methodology, how they structure trending data as RSS items, their language-specific feed generation, and their GitHub Actions-based automated scraping workflow.
 
@@ -251,7 +251,7 @@ Developer tools, testing frameworks, CI/CD helpers, or infrastructure that would
 | **Last Updated** | February 2026 |
 | **License** | Apache-2.0 |
 
-**Why it's relevant:** OSSInsight provides a free Trending Repos API (`ossinsight.io/docs/api/list-trending-repos/`) that DAGitNews could use as a complementary or alternative data source to the GitHub Search API. The API returns trending repos with richer metadata than the Search API, including engagement metrics over configurable time periods. This would improve the repo scoring in `src/github.js:92-106` by providing signals beyond star count and push date. The API is free, requires no authentication, and returns JSON.
+**Why it's relevant:** OSSInsight provides a free Trending Repos API (`ossinsight.io/docs/api/list-trending-repos/`) that The Git Times could use as a complementary or alternative data source to the GitHub Search API. The API returns trending repos with richer metadata than the Search API, including engagement metrics over configurable time periods. This would improve the repo scoring in `src/github.js:92-106` by providing signals beyond star count and push date. The API is free, requires no authentication, and returns JSON.
 
 ---
 
@@ -265,7 +265,7 @@ Developer tools, testing frameworks, CI/CD helpers, or infrastructure that would
 | **Last Updated** | February 2026 |
 | **License** | ISC |
 
-**Why it's relevant:** This project maintains automatically-updated issues tracking GitHub Trending repos by language. While not directly a library to integrate, it provides a curated, machine-readable record of what repos were actually trending on GitHub on any given day. DAGitNews could cross-reference its own Search API results against this data to validate its scoring algorithm and catch repos that are trending but might not appear in the Search API results. The project's approach to GitHub Trending -- using GitHub Issues as a structured data store -- is a creative pattern worth studying.
+**Why it's relevant:** This project maintains automatically-updated issues tracking GitHub Trending repos by language. While not directly a library to integrate, it provides a curated, machine-readable record of what repos were actually trending on GitHub on any given day. The Git Times could cross-reference its own Search API results against this data to validate its scoring algorithm and catch repos that are trending but might not appear in the Search API results. The project's approach to GitHub Trending -- using GitHub Issues as a structured data store -- is a creative pattern worth studying.
 
 ---
 
@@ -293,7 +293,7 @@ Developer tools, testing frameworks, CI/CD helpers, or infrastructure that would
 | **Last Updated** | February 2026 |
 | **License** | MIT |
 
-**Why it's relevant:** Star-history provides an API and embeddable widget for GitHub repo star history over time. DAGitNews's scoring algorithm in `src/github.js:92-106` currently uses a simple `stargazers_count / ageDays` formula for star velocity, which does not account for star growth trends. A repo that gained 90% of its stars in the last week is far more "trending" than one with steady linear growth. Star-history's approach to tracking star velocity over time could inspire improvements to DAGitNews's scoring algorithm, even without directly integrating their API.
+**Why it's relevant:** Star-history provides an API and embeddable widget for GitHub repo star history over time. The Git Times's scoring algorithm in `src/github.js:92-106` currently uses a simple `stargazers_count / ageDays` formula for star velocity, which does not account for star growth trends. A repo that gained 90% of its stars in the last week is far more "trending" than one with steady linear growth. Star-history's approach to tracking star velocity over time could inspire improvements to The Git Times's scoring algorithm, even without directly integrating their API.
 
 ---
 

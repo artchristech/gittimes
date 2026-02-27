@@ -151,7 +151,7 @@ async function publish(content, outDir, options = {}) {
   const frontPageLead = content.sections
     ? (content.sections.frontPage && content.sections.frontPage.lead)
     : content.lead;
-  const headline = frontPageLead ? frontPageLead.headline : "DAGitNews Edition";
+  const headline = frontPageLead ? frontPageLead.headline : "The Git Times Edition";
   const subheadline = frontPageLead ? frontPageLead.subheadline : "";
   const newEntry = {
     date: dateStr,
@@ -175,8 +175,9 @@ async function publish(content, outDir, options = {}) {
   fs.writeFileSync(path.join(outDir, "feed.xml"), feeds.rss);
   fs.writeFileSync(path.join(outDir, "feed.atom"), feeds.atom);
 
-  // 10. Write .nojekyll
+  // 10. Write .nojekyll and CNAME
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
+  fs.writeFileSync(path.join(outDir, "CNAME"), "gittimes.com");
 
   console.log(`Edition ${dateStr} published to ${outDir}`);
   return { dateStr, editionDir, outDir };

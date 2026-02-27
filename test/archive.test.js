@@ -37,9 +37,9 @@ describe("renderArchivePage", () => {
   });
 
   it("uses basePath in links", () => {
-    const html = renderArchivePage(sampleManifest, "/dagitnews");
-    assert.ok(html.includes('href="/dagitnews/"'));
-    assert.ok(html.includes("/dagitnews/feed.xml"));
+    const html = renderArchivePage(sampleManifest, "/gittimes");
+    assert.ok(html.includes('href="/gittimes/"'));
+    assert.ok(html.includes("/gittimes/feed.xml"));
   });
 
   it("handles empty manifest", () => {

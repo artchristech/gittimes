@@ -12,7 +12,7 @@ function _request(url, token) {
       hostname: parsed.hostname,
       path: parsed.pathname + parsed.search,
       headers: {
-        "User-Agent": "DAGitNews/1.0",
+        "User-Agent": "GitTimes/1.0",
         Accept: "application/vnd.github+json",
       },
     };

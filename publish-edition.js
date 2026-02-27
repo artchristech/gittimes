@@ -18,10 +18,10 @@ async function main() {
   }
 
   const outDir = process.env.PUBLISH_DIR || "./site";
-  const siteUrl = process.env.SITE_BASE_URL || "https://christopherharris.github.io";
-  const basePath = process.env.BASE_PATH || "/dagitnews";
+  const siteUrl = process.env.SITE_BASE_URL || "https://gittimes.com";
+  const basePath = process.env.BASE_PATH || "";
 
-  console.log("=== DAGitNews Publisher ===\n");
+  console.log("=== The Git Times Publisher ===\n");
   console.log(`Output: ${outDir}`);
   console.log(`Site URL: ${siteUrl}${basePath}\n`);
 

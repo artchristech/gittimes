@@ -3,7 +3,7 @@ const { Feed } = require("feed");
 /**
  * Generate RSS 2.0 and Atom 1.0 feed strings from an editions manifest.
  * @param {Array} manifest - Array of { date, headline, subheadline, tagline, url }
- * @param {string} siteUrl - Base URL of the site (e.g. "https://user.github.io/dagitnews")
+ * @param {string} siteUrl - Base URL of the site (e.g. "https://gittimes.com")
  * @param {object} [options] - { limit?: number }
  * @returns {{ rss: string, atom: string }}
  */
@@ -12,7 +12,7 @@ function generateFeed(manifest, siteUrl, options = {}) {
   const entries = manifest.slice(0, limit);
 
   const feed = new Feed({
-    title: "DAGitNews",
+    title: "The Git Times",
     description: "AI-generated newspaper for builders — trending GitHub projects as rich, readable stories",
     id: siteUrl + "/",
     link: siteUrl + "/",
@@ -26,7 +26,7 @@ function generateFeed(manifest, siteUrl, options = {}) {
 
   for (const entry of entries) {
     feed.addItem({
-      title: entry.headline || `DAGitNews — ${entry.date}`,
+      title: entry.headline || `The Git Times — ${entry.date}`,
       id: entry.url || `${siteUrl}/editions/${entry.date}/`,
       link: entry.url || `${siteUrl}/editions/${entry.date}/`,
       description: entry.subheadline || entry.tagline || "",

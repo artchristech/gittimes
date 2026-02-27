@@ -26,7 +26,7 @@ describe("readManifest", () => {
   let tmpDir;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "dag-test-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "gittimes-test-"));
   });
 
   afterEach(() => {
@@ -77,7 +77,7 @@ describe("publish", () => {
   };
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "dag-pub-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "gittimes-pub-"));
   });
 
   afterEach(() => {
@@ -86,7 +86,7 @@ describe("publish", () => {
 
   it("creates full site structure on first publish", async () => {
     const date = new Date(2026, 1, 23);
-    await publish(mockContent, tmpDir, { siteUrl: "https://example.github.io", basePath: "/dagitnews", date });
+    await publish(mockContent, tmpDir, { siteUrl: "https://example.github.io", basePath: "", date });
 
     // Edition file
     assert.ok(fs.existsSync(path.join(tmpDir, "editions", "2026-02-23", "index.html")));
@@ -161,7 +161,7 @@ describe("getRecentRepoNames", () => {
   let tmpDir;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "dag-recent-"));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "gittimes-recent-"));
   });
 
   afterEach(() => {

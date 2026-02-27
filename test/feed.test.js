@@ -10,30 +10,30 @@ const sampleManifest = [
 
 describe("generateFeed", () => {
   it("returns rss and atom strings", () => {
-    const result = generateFeed(sampleManifest, "https://example.github.io/dagitnews");
+    const result = generateFeed(sampleManifest, "https://gittimes.com");
     assert.equal(typeof result.rss, "string");
     assert.equal(typeof result.atom, "string");
   });
 
   it("RSS contains correct XML structure", () => {
-    const { rss } = generateFeed(sampleManifest, "https://example.github.io/dagitnews");
+    const { rss } = generateFeed(sampleManifest, "https://gittimes.com");
     assert.ok(rss.includes("<rss"));
     assert.ok(rss.includes("<channel>"));
-    assert.ok(rss.includes("DAGitNews"));
+    assert.ok(rss.includes("The Git Times"));
     assert.ok(rss.includes("Big News Today"));
     assert.ok(rss.includes("Yesterday's News"));
   });
 
   it("Atom contains correct XML structure", () => {
-    const { atom } = generateFeed(sampleManifest, "https://example.github.io/dagitnews");
+    const { atom } = generateFeed(sampleManifest, "https://gittimes.com");
     assert.ok(atom.includes("<feed"));
-    assert.ok(atom.includes("DAGitNews"));
+    assert.ok(atom.includes("The Git Times"));
     assert.ok(atom.includes("Big News Today"));
   });
 
   it("includes correct URLs", () => {
-    const { rss } = generateFeed(sampleManifest, "https://example.github.io/dagitnews");
-    assert.ok(rss.includes("https://example.github.io/dagitnews/feed.xml"));
+    const { rss } = generateFeed(sampleManifest, "https://gittimes.com");
+    assert.ok(rss.includes("https://gittimes.com/feed.xml"));
   });
 
   it("respects limit parameter", () => {
