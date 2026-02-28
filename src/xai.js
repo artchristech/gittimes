@@ -55,7 +55,7 @@ async function _chat(client, model, prompt, maxTokens = 1024, options = {}) {
     const msg = response.choices[0].message;
     const result = pickStructuredOutput(msg);
     if (!result) {
-      console.warn(`Warning: Empty response from ${model}`);
+      throw new Error(`Empty response from ${model}`);
     }
     return result;
   } catch (err) {
@@ -140,15 +140,20 @@ function parseQuickHits(text, repos) {
  * If the first LLM response fails to parse, re-prompt once before giving up.
  */
 async function generateArticleWithRetry(client, model, promptFn, repo, maxTokens, llmLimit) {
-  const raw = await llmLimit(() => chat(client, model, promptFn(repo), maxTokens));
-  const article = { ...parseArticle(raw, repo), repo };
-  if (!article._isFallback) return article;
+  try {
+    const raw = await llmLimit(() => chat(client, model, promptFn(repo), maxTokens));
+    const article = { ...parseArticle(raw, repo), repo };
+    if (!article._isFallback) return article;
 
-  // Retry once with a nudge to use the required format
-  console.warn(`Retrying article generation for ${repo.name} after parse failure`);
-  const retryRaw = await llmLimit(() => chat(client, model, promptFn(repo), maxTokens));
-  const retryArticle = { ...parseArticle(retryRaw, repo), repo };
-  return retryArticle;
+    // Retry once with a nudge to use the required format
+    console.warn(`Retrying article generation for ${repo.name} after parse failure`);
+    const retryRaw = await llmLimit(() => chat(client, model, promptFn(repo), maxTokens));
+    const retryArticle = { ...parseArticle(retryRaw, repo), repo };
+    return retryArticle;
+  } catch (err) {
+    console.warn(`Article generation failed for ${repo.name}: ${err.message}, using fallback`);
+    return { ...parseArticle("", repo), repo };
+  }
 }
 
 /**
