@@ -47,6 +47,15 @@ describe("generateFeed", () => {
     assert.equal(itemCount, 5);
   });
 
+  it("item links are absolute URLs even when manifest has relative paths", () => {
+    const { rss } = generateFeed(sampleManifest, "https://gittimes.com");
+    // Should NOT contain relative-only links like <link>/editions/...
+    assert.ok(!rss.match(/<link>\/editions\//), "item links must not be relative paths");
+    // Should contain full absolute URLs
+    assert.ok(rss.includes("https://gittimes.com/editions/2026-02-23/"));
+    assert.ok(rss.includes("https://gittimes.com/editions/2026-02-22/"));
+  });
+
   it("handles empty manifest", () => {
     const result = generateFeed([], "https://example.github.io");
     assert.ok(result.rss.includes("<rss"));

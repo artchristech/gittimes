@@ -25,10 +25,13 @@ function generateFeed(manifest, siteUrl, options = {}) {
   });
 
   for (const entry of entries) {
+    const entryUrl = entry.url
+      ? entry.url.startsWith("http") ? entry.url : siteUrl + entry.url
+      : `${siteUrl}/editions/${entry.date}/`;
     feed.addItem({
       title: entry.headline || `The Git Times — ${entry.date}`,
-      id: entry.url || `${siteUrl}/editions/${entry.date}/`,
-      link: entry.url || `${siteUrl}/editions/${entry.date}/`,
+      id: entryUrl,
+      link: entryUrl,
       description: entry.subheadline || entry.tagline || "",
       date: new Date(entry.date + "T12:00:00Z"),
     });
