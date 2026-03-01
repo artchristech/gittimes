@@ -18,6 +18,11 @@
   box-sizing: border-box;
 }
 
+::selection {
+  background-color: var(--accent);
+  color: var(--paper);
+}
+
 :root {
   --paper: #faf8f5;
   --ink: #1a1a1a;
@@ -93,9 +98,12 @@ body {
 /* === LEAD STORY === */
 
 .lead-story {
-  padding: 32px 0;
+  padding: 32px 24px;
+  border: 1px solid var(--rule-light);
   border-bottom: 2px solid var(--rule);
   margin-bottom: 32px;
+  contain: content;
+  isolation: isolate;
 }
 
 .lead-headline {
@@ -177,6 +185,9 @@ body {
 
 .secondary-section {
   margin-bottom: 32px;
+  padding: 20px 24px 24px;
+  background-color: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+  border-top: 2px solid var(--rule);
 }
 
 .section-header {
@@ -201,6 +212,8 @@ body {
 .secondary-article {
   background-color: var(--paper);
   padding: 20px 16px;
+  contain: content;
+  isolation: isolate;
 }
 
 .secondary-headline {
@@ -265,6 +278,8 @@ body {
 .featured-article {
   background-color: var(--paper);
   padding: 20px 16px;
+  contain: content;
+  isolation: isolate;
 }
 
 .featured-headline {
@@ -330,6 +345,8 @@ body {
 .compact-article {
   background-color: var(--paper);
   padding: 12px 16px;
+  contain: content;
+  isolation: isolate;
 }
 
 .compact-headline {
@@ -370,7 +387,7 @@ body {
 
 .quick-hits-section {
   border-top: 2px solid var(--rule);
-  padding-top: 20px;
+  padding: 20px 24px 0;
   margin-bottom: 40px;
 }
 
@@ -385,6 +402,8 @@ body {
   display: flex;
   gap: 10px;
   align-items: baseline;
+  contain: layout paint;
+  isolation: isolate;
 }
 
 .quick-hit:nth-child(n+4) {
@@ -1153,666 +1172,661 @@ body {
   <nav class="edition-nav"><a href="/editions/2026-02-28/">&larr; Previous Edition</a> · <a href="/archive/">Archive</a> · <a href="/feed.xml">RSS</a></nav>
 
   <div class="section-panel active" data-section="frontPage"><article class="lead-story">
-    <h2 class="lead-headline">OpenCode Hits 113k Stars as Open Source AI Coding Agent Matures</h2>
-    <p class="lead-subheadline">TypeScript project delivers stable terminal UI and desktop app, fixing key platform bugs in latest v1.2.15 release.</p>
+    <h2 class="lead-headline">LobeHub Hits 72K Stars as Multi-Agent Collaboration Platform Matures</h2>
+    <p class="lead-subheadline">TypeScript project enables agent teams for work, with fresh Discord and Slack integrations in latest release.</p>
     <div class="lead-meta">
-      <span><a href="https://github.com/anomalyco/opencode" target="_blank">anomalyco/opencode</a></span>
-      <span>113.4k stars</span>
+      <span><a href="https://github.com/lobehub/lobehub" target="_blank">lobehub/lobehub</a></span>
+      <span>72.8k stars</span>
       <span>TypeScript</span>
-      <span>Latest: v1.2.15</span>
+      <span>Latest: v2.1.34</span>
     </div>
     <div class="lead-body">
-      <p>Developers have a new heavyweight in AI-assisted coding: <strong>anomalyco/opencode</strong>, an open source coding agent now boasting 113,376 GitHub stars. Launched in April 2025 and actively maintained through a push as recent as March 2026, the TypeScript-based tool positions itself as a free alternative to proprietary agents like GitHub Copilot or Cursor.</p>
-<p>At its core, OpenCode integrates AI directly into the developer workflow via a <strong>terminal UI (TUI)</strong> and desktop application. A prominent screenshot in the README showcases its sleek interface, while installation is dead simple: a one-liner <code>curl -fsSL https</code> script for &quot;YOLO&quot; mode, alongside npm availability as the <code>opencode-ai</code> package. It supports a sidecar server model, with configurations now split between TUI and server in the latest release for better flexibility.</p>
-<p>Multilingual documentation underscores its global reach, with READMEs in 20+ languages including <strong>简体中文</strong>, <strong>Español</strong>, <strong>日本語</strong>, <strong>العربية</strong>, and <strong>Українська</strong>. Community badges highlight an active Discord server and reliable CI/CD workflows.</p>
-<p>The v1.2.15 release, dated recently, addresses critical stability issues that plagued early adopters:</p>
+      <p>LobeHub, from lobehub/lobehub, positions itself as a platform for developers to discover, construct, and team up with AI agents that evolve alongside users. Launched in May 2023, the TypeScript repository has amassed <strong>72,827 stars</strong>, signaling strong interest among builders in agentic workflows. Topics span <code>agent</code>, <code>agent-collaboration</code>, <code>ai</code>, and models like <code>gpt</code>, <code>claude</code>, and <code>gemini</code>, underscoring its focus on LLM-powered systems.</p>
+<p>At its core, LobeHub treats <strong>agents as the unit of work</strong>. The README pitches it as &quot;the ultimate space for work and life,&quot; fostering a human-agent co-evolving network. Key features include:</p>
 <ul>
-<li><strong>Fixed most segfaults on Windows</strong> using Bun v1.3.10 stable.</li>
-<li><strong>macOS desktop hangs resolved</strong> by removing interactive shell flags in sidecar spawns (thanks to @kilhyeonjun).</li>
-<li>Improved keyboard navigation for message history (@neriousy) and middle-click tab closing (@choephix).</li>
-<li>Better permissions handling in child sessions and corrected Copilot provider descriptions in i18n files.</li>
+<li><strong>Create</strong>: Design agents effortlessly, with knowledge bases and multi-model support.</li>
+<li><strong>Collaborate</strong>: Scale via multi-agent teams, now enhanced by &quot;agent harness&quot; for seamless interaction.</li>
 </ul>
-<p>Five community contributors drove these changes, including docs updates across languages (@OpeOginni). This iteration signals production readiness, especially for cross-platform teams.</p>
-<p>What sets OpenCode apart now? In an era of vendor-locked AI tools, its open source license and rapid iteration—evidenced by consistent releases and 113k stars—democratize advanced coding assistance. Builders weary of black-box LLMs get full visibility into the agent’s TypeScript codebase, enabling custom forks or audits. With desktop polish and TUI reliability improving, it&#39;s gaining traction among pros seeking sovereignty over their stack.</p>
+<p>Badges highlight robustness: Vercel deployment, Docker images, <strong>99%+ code coverage</strong>, and active CI/CD. The project maintains docs, a blog, changelog, and Discord community, with multilingual READMEs in English and Chinese.</p>
+<p>The v2.1.34 release, pushed March 1, 2026, advances production readiness. Pulled from PR #12532, it introduces:</p>
+<ul>
+<li><strong>Agent bot provider database schema</strong>: Stores per-agent bindings to external platforms, with encrypted credentials for Discord and Slack.</li>
+<li><strong>Agency configuration</strong>: Persists bot settings like Discord/Slack integrations.</li>
+<li><strong>User-scoped evaluation benchmarks</strong>: Ties benchmarks to <code>userId</code>, restricting CRUD ops to owners while exposing system-wide ones.</li>
+</ul>
+<p>Bug fixes ensure isolation between users, with expanded tests covering multi-tenant behavior. Enhancements export new schemas via index barrels, easing integration.</p>
+<p>Why now? As agentic AI shifts from solo bots to teams, LobeHub&#39;s infrastructure for external chat platforms addresses a key pain point: bridging isolated agents to real-world tools. With 72k stars and trending shields, it&#39;s no toy—forks and contributors indicate a growing ecosystem. Builders eyeing MCP (multi-agent collaboration protocols) will find signal in its focus on scalable, secure agent teams, distinct from chat UIs like ChatGPT wrappers.</p>
+<p>For developers, the project&#39;s Vercel OSS badge and GitHub Actions promise deployable reliability, though its breadth demands reviewing the full docs before committing.</p>
+<p>(Word count: 362)</p>
 
       <div class="builders-take">
         <span class="builders-take-label">Builder's Take</span>
-        Start with the `curl` installer on a test machine to evaluate the TUI firsthand, but verify Bun v1.3.10+ for Windows to avoid segfaults. Review the split TUI/server configs before production deployment, and join Discord for real-time troubleshooting. Expect strong macOS/Windows support post-v1.2.15, but audit i18n if using non-English setups.
+        Start with the official docs and changelog to grasp the agent agency config and DB schemas before prototyping. Expect a TypeScript-heavy stack with Prisma-like models; test user isolation in benchmarks early if multi-tenancy matters. Prioritize Discord/Slack bindings if external integrations are your hook, but audit credential encryption for prod use.
       </div>
       
     </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
       <article class="featured-article">
-        <h3 class="featured-headline">Claude Context Mode Compresses Outputs by 98%</h3>
-        <p class="featured-subheadline">MCP server preserves context window amid large Claude Code tool dumps</p>
+        <h3 class="featured-headline">ClickHouse Open-Source DBMS Tops 46k GitHub Stars</h3>
+        <p class="featured-subheadline">Column-oriented system powers real-time analytics on big data workloads</p>
         <div class="featured-meta">
-          <a href="https://github.com/mksglu/claude-context-mode" target="_blank">mksglu/claude-context-mode</a> · 827 stars · JavaScript
+          <a href="https://github.com/ClickHouse/ClickHouse" target="_blank">ClickHouse/ClickHouse</a> · 46.1k stars · C++
         </div>
         <div class="featured-body">
-          <p>Developers using Claude Code face rapid context erosion from verbose tool outputs. A single Playwright snapshot consumes 56 KB, 20 GitHub issues 59 KB, and an access log 45 KB. Within 30 minutes, 40% of the 200K token window vanishes.</p>
-<p>The GitHub project <code>mksglu/claude-context-mode</code> (827 stars, JavaScript) addresses this with an MCP server that intercepts and compresses outputs. It shrinks 315 KB of data to 5.4 KB—a <strong>98% reduction</strong>—inspired by Cloudflare&#39;s Code Mode, which compresses tool definitions.</p>
-<p>Created February 23, 2026, with latest push March 1 and release v0.8.1, it installs via Claude Code&#39;s marketplace:</p>
-<pre><code>/plugin marketplace add mksglu/claude-context-mode
-/plugin install context-mode@claude-context-mode
+          <p>The GitHub repository <strong>ClickHouse/ClickHouse</strong>, a C++-built column-oriented database management system, has amassed 46,116 stars since its creation on June 2, 2016. Its latest push occurred March 1, 2026, with release <strong>v26.2.2.9-stable</strong> available.</p>
+<p>Designed for generating analytical reports in real time, ClickHouse supports topics including <code>ai</code>, <code>analytics</code>, <code>big-data</code>, <code>olap</code>, <code>mpp</code>, and <code>lakehouse</code>. It runs on Linux, macOS, and FreeBSD via a single command:</p>
+<pre><code>curl https://clickhouse.com/ | sh
 </code></pre>
-<p>Restart required. Includes a PreToolUse hook for automatic routing and slash commands:</p>
+<p>Key resources include:</p>
 <ul>
-<li><code>/context-mode:stats</code>: Session breakdown of savings, tokens, ratios.</li>
-<li><code>/context-mode:doctor</code>: Runtime diagnostics, now supporting 11 languages including Elixir.</li>
+<li><a href="https://clickhouse.com/docs/">Official docs</a> for setup and queries.</li>
+<li><a href="https://clickhouse.com/docs/getting_started/tutorial/">Tutorial</a> for small cluster deployment.</li>
+<li><a href="https://clickhouse.cloud">ClickHouse Cloud</a> managed service.</li>
+<li>Active communities on <a href="https://clickhouse.com/slack">Slack</a> and <a href="https://telegram.me/clickhouse_en">Telegram</a>.</li>
+<li><a href="https://clickhouse.com/blog/">Blog</a> for updates.</li>
 </ul>
-<p>Recent fixes: Skips <code>console.clear()</code> in non-TTY environments to prevent Bash tool failures; updates doctor language count.</p>
-<p>Available on npm and VS Code Marketplace, licensed MIT.</p>
+<p>Apache 2.0 licensed, it emphasizes distributed, embedded, and self-hosted deployments, blending <code>cpp</code> and <code>rust</code> elements for high-performance OLAP tasks. The project maintains a <a href="https://www.youtube.com/c/ClickHouseDB">YouTube channel</a> and <a href="https://presentations.clickhouse.com/">Theater</a> for video content.</p>
 
         </div>
         <div class="builders-take">
           <span class="builders-take-label">Builder's Take</span>
-          Install via marketplace commands and run `/context-mode:stats` to monitor savings in active sessions. Use `/context-mode:doctor` for setup verification before heavy tool use.
+          Install with `curl https://clickhouse.com/ | sh` on Linux to test queries immediately. Follow the tutorial for a basic cluster and explore docs for SQL optimizations.
         </div>
         
       </article>
 
       <article class="featured-article">
-        <h3 class="featured-headline">Star Office UI Pixelates AI Agent States</h3>
-        <p class="featured-subheadline">GitHub project visualizes multi-agent workflows in animated office dashboard for team monitoring.</p>
+        <h3 class="featured-headline">GPT Researcher Tops 25K Stars in Latest Update</h3>
+        <p class="featured-subheadline">Python agent automates factual research reports using any LLM across web and local sources</p>
         <div class="featured-meta">
-          <a href="https://github.com/ringhyacinth/Star-Office-UI" target="_blank">ringhyacinth/Star-Office-UI</a> · 501 stars · HTML
+          <a href="https://github.com/assafelovic/gpt-researcher" target="_blank">assafelovic/gpt-researcher</a> · 25.5k stars · Python
         </div>
         <div class="featured-body">
-          <p>Developers at ringhyacinth have released <strong>Star Office UI</strong> (github.com/ringhyacinth/Star-Office-UI), a pixel-art dashboard that maps AI agent activities to a virtual office. Launched February 26, 2026, with v0.1.0 on March 1, the MIT-licensed code (501 stars) uses <strong>Flask</strong> backend and <strong>Phaser</strong> for rendering. Art assets are non-commercial only.</p>
-<p>Agents like OpenClaw appear as characters moving between zones—rest area for <code>idle</code>, work desk for <code>writing</code>, bug corner for <code>error</code>. States include <code>researching</code>, <code>executing</code>, <code>syncing</code>. Daily notes pull from <code>memory/*.md</code> files, displaying sanitized &quot;yesterday&#39;s memo&quot; cards.</p>
-<p>Guest agents join via <code>/join-agent</code> keys, pushing updates through <code>/agent-push</code>. Mobile-friendly design supports public access via Cloudflare Tunnel or proxies.</p>
-<p>Setup is straightforward:</p>
+          <p><strong>GPT Researcher</strong>, an open-source Python project by assafelovic, has reached 25,479 GitHub stars since its creation on May 12, 2023. The tool functions as an autonomous agent for deep research, generating detailed, factual, and unbiased reports with citations from web scraping or local data.</p>
+<p>Supporting any LLM provider, it handles tasks via a CLI or server mode. Key topics include <code>agent</code>, <code>ai</code>, <code>automation</code>, <code>llms</code>, <code>research</code>, and <code>webscraping</code>. The repository&#39;s last push was March 1, 2026, with the latest release <strong>v3.4.1</strong>.</p>
+<p>Recent changes in v3.4.1 include:</p>
 <ul>
-<li><code>git clone</code> repo, <code>pip install -r backend/requirements.txt</code></li>
-<li>Copy <code>state.sample.json</code> to <code>state.json</code></li>
-<li>Run <code>python3 backend/app.py</code> for <a href="http://127.0.0.1:18791">http://127.0.0.1:18791</a></li>
-<li>Test states: <code>python3 set_state.py writing &quot;正在整理文档&quot;</code></li>
+<li>Added Bocha search tool and OpenRouter embeddings support.</li>
+<li>Integrated Forge LLM provider and Claude project analysis.</li>
+<li>Fixed file handling, config loading from env vars, and list context errors in deep research.</li>
+<li>Welcomed new contributors like @MaxAkaAltmer, @weijintaocode, and @Joly0.</li>
 </ul>
-<p>Recent updates added multi-agent APIs, fuller state visuals, and refined animations. Topics span agent-collaboration, pixel-art, and status-visualization.</p>
+<p>Resources cover a website at <a href="https://gptr.dev">gptr.dev</a>, full docs, Discord community, PyPI install (<code>pip install gpt-researcher</code>), Colab notebook, and Docker image. Multi-language READMEs support English, Chinese, Japanese, and Korean.</p>
+<p>(178 words)</p>
 
         </div>
         <div class="builders-take">
           <span class="builders-take-label">Builder's Take</span>
-          Clone and run locally to monitor your AI workflows; integrate via state.json and set_state.py for custom agents. Extend with guest joins for team dashboards.
+          Install via `pip install gpt-researcher` and set LLM API keys in a YAML config; test with CLI command `gpt-researcher --task &quot;Research quantum computing advancements&quot; --output-dir ./reports`. Use Docker for server deployment in production workflows.
         </div>
         
       </article></div><div class="compact-grid">
       <article class="compact-article">
-        <h3 class="compact-headline">Kibitz Tracks Claude Code Sessions in Real Time</h3>
-        <p class="compact-subheadline">VS Code extension and CLI monitor multiple AI agents, enable prompt dispatch across sessions</p>
+        <h3 class="compact-headline">3X-UI Xray Panel Tops 31K Stars on GitHub</h3>
+        <p class="compact-subheadline">Web-based control panel manages multi-protocol VPNs with user limits and traffic controls</p>
         <div class="compact-meta">
-          <a href="https://github.com/kibitzsh/kibitz" target="_blank">kibitzsh/kibitz</a> · 384 stars · TypeScript
+          <a href="https://github.com/MHSanaei/3x-ui" target="_blank">MHSanaei/3x-ui</a> · 31k stars · HTML
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">Chinese Repo Curates 37 OpenClaw AI Agent Use Cases</h3>
-        <p class="compact-subheadline">Beginner guide adapts global examples with Feishu, DingTalk integrations for domestic workflows</p>
+        <h3 class="compact-headline">Renovate CLI Automates Dependency Updates Across Repos</h3>
+        <p class="compact-subheadline">Mend.io&#39;s TypeScript tool scans codebases and generates pull requests for newer versions</p>
         <div class="compact-meta">
-          <a href="https://github.com/AlexAnys/awesome-openclaw-usecases-zh" target="_blank">AlexAnys/awesome-openclaw-usecases-zh</a> · 357 stars · Unknown
+          <a href="https://github.com/renovatebot/renovate" target="_blank">renovatebot/renovate</a> · 21k stars · TypeScript
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">FastAPI Tops 95k Stars with SSE Addition</h3>
-        <p class="compact-subheadline">Python API framework releases version 0.135.0, matching NodeJS speeds via Starlette and Pydantic</p>
+        <h3 class="compact-headline">Elementor WordPress Builder Releases Version 4.0</h3>
+        <p class="compact-subheadline">Open-source PHP plugin with drag-and-drop editor surpasses 6,700 GitHub stars since 2016 launch.</p>
         <div class="compact-meta">
-          <a href="https://github.com/fastapi/fastapi" target="_blank">fastapi/fastapi</a> · 95.7k stars · Python
+          <a href="https://github.com/elementor/elementor" target="_blank">elementor/elementor</a> · 6.8k stars · PHP
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">GitHub Tool Decrypts WeChat 4.0 Windows Databases</h3>
-        <p class="compact-subheadline">Python script scans process memory for keys, enables SQLCipher decryption and real-time message monitoring</p>
+        <h3 class="compact-headline">Zig Book Refactored for Compiler 0.16 in v1.6.0</h3>
+        <p class="compact-subheadline">Pedro Duarte Faria&#39;s project-based tutorial updates code examples to match latest Zig standard library changes.</p>
         <div class="compact-meta">
-          <a href="https://github.com/ylytdeng/wechat-decrypt" target="_blank">ylytdeng/wechat-decrypt</a> · 829 stars · Python
+          <a href="https://github.com/pedropark99/zig-book" target="_blank">pedropark99/zig-book</a> · 2.4k stars · Zig
         </div>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/ForLoopCodes/contextplus" target="_blank">contextplus</a></span>
-        <span class="quick-hit-summary">Context+ turns massive codebases into 99% accurate, searchable feature graphs via AST parsing and clustering, revolutionizing large-scale engineering.</span>
-        <span class="quick-hit-stars">868</span>
+        <span class="quick-hit-name"><a href="https://github.com/lucasdillmann/nginx-ignition" target="_blank">nginx-ignition</a></span>
+        <span class="quick-hit-summary">Nginx-Ignition delivers a slick Go-based UI for configuring nginx without manual config files, easing devs amid rising web server complexity.</span>
+        <span class="quick-hit-stars">2.1k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/HIllya51/LunaTranslator" target="_blank">LunaTranslator</a></span>
-        <span class="quick-hit-summary">LunaTranslator delivers fast, accurate translations for visual novels, captivating 10k+ stars in the growing VN localization scene.</span>
-        <span class="quick-hit-stars">10.8k</span>
-      </div>
-
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/catlog22/Claude-Code-Workflow" target="_blank">Claude-Code-Workflow</a></span>
-        <span class="quick-hit-summary">Claude-Code-Workflow powers JSON-driven multi-agent AI teams for automated code dev with top LLMs, streamlining complex workflows.</span>
+        <span class="quick-hit-name"><a href="https://github.com/mursor1985/LIVE" target="_blank">LIVE</a></span>
+        <span class="quick-hit-summary">Mursor1985/LIVE mysteriously amasses 1,414 stars in unknown tech, intriguing builders hunting the next big undisclosed tool.</span>
         <span class="quick-hit-stars">1.4k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/3DCF-Labs/safepilot" target="_blank">safepilot</a></span>
-        <span class="quick-hit-summary">SafePilot unleashes Rust-built AI to execute real tasks securely, making practical automation safe amid AI hype.</span>
-        <span class="quick-hit-stars">375</span>
+        <span class="quick-hit-name"><a href="https://github.com/CocoaPods/Specs" target="_blank">Specs</a></span>
+        <span class="quick-hit-summary">CocoaPods/Specs serves as the master repo for iOS/macOS pod specs, fueling 6.8k-star dependency empire for app builders.</span>
+        <span class="quick-hit-stars">6.8k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/fastapi/full-stack-fastapi-template" target="_blank">full-stack-fastapi-template</a></span>
-        <span class="quick-hit-summary">Full-stack FastAPI template launches production-ready web apps with React, Postgres, Docker, and CI/CD in one go.</span>
-        <span class="quick-hit-stars">41.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/steveclarke/real-world-rails" target="_blank">real-world-rails</a></span>
+        <span class="quick-hit-summary">Real-World Rails crams 200+ production Rails apps into one repo with AI searches for architectural patterns, revolutionizing Ruby learning.</span>
+        <span class="quick-hit-stars">371</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/NVIDIA/TensorRT-LLM" target="_blank">TensorRT-LLM</a></span>
-        <span class="quick-hit-summary">TensorRT-LLM optimizes LLM inference on NVIDIA GPUs via simple Python API, delivering peak performance for AI builders now.</span>
-        <span class="quick-hit-stars">13k</span>
+        <span class="quick-hit-name"><a href="https://github.com/whyzhow/PersonalStyleAI-Framework-" target="_blank">PersonalStyleAI-Framework-</a></span>
+        <span class="quick-hit-summary">PersonalStyleAI-Framework mimics your chat style in AI via noise-filtered records, model switching, and LoRA tuning in Python.</span>
+        <span class="quick-hit-stars">468</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/mgechev/skills-best-practices" target="_blank">skills-best-practices</a></span>
-        <span class="quick-hit-summary">Skills Best Practices crafts LLM-validated pro skills for agents while slashing context windows for efficient AI dev.</span>
-        <span class="quick-hit-stars">918</span>
+        <span class="quick-hit-name"><a href="https://github.com/evilsocket/cake" target="_blank">cake</a></span>
+        <span class="quick-hit-summary">Cake powers distributed AI inference across mobile, desktop, and servers in Rust, scaling ML for 2.9k-starred efficiency.</span>
+        <span class="quick-hit-stars">2.9k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/anthropics/financial-services-plugins" target="_blank">financial-services-plugins</a></span>
-        <span class="quick-hit-summary">Anthropic&#39;s financial-services-plugins integrate Claude AI into banking apps, fueling the finance-AI boom with secure Python tools.</span>
-        <span class="quick-hit-stars">5k</span>
+        <span class="quick-hit-name"><a href="https://github.com/bioconda/bioconda-recipes" target="_blank">bioconda-recipes</a></span>
+        <span class="quick-hit-summary">Bioconda-Recipes provides shell scripts for Conda bioinformatics packages, streamlining scientific builds with 1.8k stars.</span>
+        <span class="quick-hit-stars">1.8k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/buildroot/buildroot" target="_blank">buildroot</a></span>
+        <span class="quick-hit-summary">Buildroot mirror eases custom embedded Linux builds via Makefiles, drawing 3.3k stars for IoT and edge devs now.</span>
+        <span class="quick-hit-stars">3.3k</span>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="ai"><article class="lead-story">
-    <h2 class="lead-headline">Supabase Surpasses 98K Stars as Open Source Postgres Platform Matures</h2>
-    <p class="lead-subheadline">Firebase alternative delivers enterprise Postgres with auth, realtime APIs, and fresh AI-blockchain integrations for developers.</p>
+    <h2 class="lead-headline">Microsoft&#39;s AI-For-Beginners Repo Delivers 12-Week AI Curriculum to 45K Developers</h2>
+    <p class="lead-subheadline">Free Jupyter-based lessons on machine learning, deep learning, NLP and computer vision lower barriers for builders entering AI.</p>
     <div class="lead-meta">
-      <span><a href="https://github.com/supabase/supabase" target="_blank">supabase/supabase</a></span>
-      <span>98.3k stars</span>
-      <span>TypeScript</span>
-      <span>Latest: v1.26.02</span>
+      <span><a href="https://github.com/microsoft/AI-For-Beginners" target="_blank">microsoft/AI-For-Beginners</a></span>
+      <span>45.7k stars</span>
+      <span>Jupyter Notebook</span>
+      
     </div>
     <div class="lead-body">
-      <p>Supabase, the open source Postgres development platform from supabase/supabase, has amassed <strong>98,339 GitHub stars</strong> since its 2019 launch. Billed as &quot;the Postgres development platform,&quot; it replicates Firebase&#39;s feature set using enterprise-grade open source tools, targeting web, mobile, and AI apps. Written in TypeScript, its latest release is <code>v1.26.02</code>, with pushes as recent as March 2026.</p>
-<p>At its core, Supabase provides a <strong>hosted Postgres database</strong> with built-in authentication and authorization. Developers get auto-generated APIs: REST via PostgREST, GraphQL, and realtime subscriptions over WebSockets. Storage handles files, while functions support both database-stored procedures and edge functions deployable globally.</p>
-<p>AI capabilities stand out with a vector/embeddings toolkit powered by <code>pgvector</code> and PostGIS support. A sleek dashboard offers visual management. All docs live at <a href="https://supabase.com/docs">supabase.com/docs</a>, covering everything from OAuth2 integration to Next.js examples.</p>
-<p>Recent updates underscore its momentum. <strong>Supabase PrivateLink</strong> now enables secure AWS VPC Lattice connections, keeping database traffic off public internet—critical for compliance-heavy builds.</p>
-<p>For AI agents, &quot;Postgres Best Practices for AI Agents&quot; delivers 30 rules across eight categories, optimized for tools like Claude Code, Cursor, and GitHub Copilot. It teaches LLMs to generate correct Postgres SQL.</p>
-<p>Blockchain devs can now <strong>query Ethereum directly from Postgres</strong> using the Infura foreign data wrapper (<code>fdw</code>), pulling realtime chain data via SQL. Supabase also became an <strong>official Claude connector</strong>, letting users manage databases conversationally.</p>
-<p>These moves position Supabase as a Firebase alternative with Postgres&#39;s SQL power, realtime edges, and AI-native tools. Topics like <code>ai</code>, <code>vectors</code>, <code>realtime</code>, and <code>firebase</code> reflect its broad appeal. Community support thrives via GitHub Discussions for best practices and Issues for bugs.</p>
-<p>With Deno support and self-hosting options, it&#39;s no vendor lock-in trap. Watch the repo for major releases to stay ahead.</p>
-<p>(Word count: 348)</p>
+      <p>Microsoft&#39;s <strong>AI-For-Beginners</strong> repository on GitHub offers a structured, 12-week curriculum comprising 24 lessons designed to introduce artificial intelligence fundamentals to novices. Launched in March 2021, the project has amassed <strong>45,712 stars</strong>, signaling strong developer interest amid the AI surge. Written primarily in <code>Jupyter Notebook</code> format, it spans core topics including <strong>machine learning</strong>, <strong>deep learning</strong>, <strong>computer vision</strong> (CNNs), <strong>NLP</strong> (RNNs), and generative models (<strong>GANs</strong>).</p>
+<p>The curriculum emphasizes hands-on learning through self-contained notebooks. Lessons progress from AI overviews to advanced applications, with visual aids like sketchnotes by <a href="https://twitter.com/girlie_mac">@girlie_mac</a>. Developers can run code instantly via <strong>Binder</strong> integration—no local setup required—making it accessible for experimentation.</p>
+<p>Community metrics underscore its vibrancy: active <strong>GitHub issues</strong> and <strong>pull requests</strong> invite contributions, with a <strong>PRs Welcome</strong> badge and shields displaying watchers, forks, and contributors. Support channels include <strong>Gitter</strong> chat and the <strong>Microsoft Foundry Discord</strong> server (discord.gg/nTYy5BXMWG), fostering discussion. The repo remains under maintenance, with the last push on February 28, 2026, ensuring relevance as AI evolves.</p>
+<p>For builders, this project matters because it distills complex fields into digestible modules without prerequisites beyond basic programming. Microsoft&#39;s backing via the &quot;Microsoft for Beginners&quot; initiative guarantees quality and updates, contrasting fragmented online tutorials. In an era where AI skills command premiums—yet talent shortages persist—this repo equips developers to prototype models efficiently.</p>
+<p>Noteworthy now: With AI integration accelerating in software stacks (e.g., via libraries like TensorFlow or PyTorch, implicitly used here), <strong>AI-For-Beginners</strong> bridges the gap for full-stack engineers. Its open <strong>MIT license</strong> encourages forking and adaptation, while topics align with production demands like image recognition and text processing.</p>
+<p>Key features at a glance:</p>
+<ul>
+<li><strong>24 Jupyter lessons</strong> over 12 weeks</li>
+<li>Topics: <code>ai</code>, <code>computer-vision</code>, <code>deep-learning</code>, <code>nlp</code>, <code>gan</code></li>
+<li>Zero-cost execution via Binder</li>
+<li>Active community: Gitter, Discord, PR-friendly</li>
+</ul>
+<p>This isn&#39;t a superficial overview; it&#39;s a builder&#39;s toolkit for AI literacy.</p>
+<p>(Word count: 362)</p>
 
       <div class="builders-take">
         <span class="builders-take-label">Builder's Take</span>
-        Start with the dashboard for quick Postgres setup and auth; test realtime subscriptions early for reactive apps. Evaluate PrivateLink if on AWS for security; integrate AI vectors only if embeddings are core—leverage the Claude connector for rapid prototyping. Self-host via Docker for production control, but hosted scales effortlessly for most teams.
+        Start with the AI overview lesson to gauge fit—expect 5-10 hours weekly commitment. Install Jupyter locally for offline work, but leverage Binder for quick tests; prerequisites are Python basics only. Fork early if customizing, and join Discord for real-world troubleshooting before production use.
       </div>
       
     </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
       <article class="featured-article">
-        <h3 class="featured-headline">Microsoft&#39;s MCP-for-Beginners Repo Draws 14k Stars</h3>
-        <p class="featured-subheadline">Open-source curriculum teaches Model Context Protocol across six languages for secure AI workflows.</p>
+        <h3 class="featured-headline">DeepSpeed v0.18.6 Fixes Bugs, Adds AutoTP Patterns</h3>
+        <p class="featured-subheadline">Microsoft tool updates support Python 3.14 and custom partitioning for large-scale model training.</p>
         <div class="featured-meta">
-          <a href="https://github.com/microsoft/mcp-for-beginners" target="_blank">microsoft/mcp-for-beginners</a> · 14.5k stars · Jupyter Notebook
+          <a href="https://github.com/deepspeedai/DeepSpeed" target="_blank">deepspeedai/DeepSpeed</a> · 41.7k stars · Python
         </div>
         <div class="featured-body">
-          <p>Microsoft’s <strong>mcp-for-beginners</strong> GitHub repository delivers an open-source curriculum on <strong>Model Context Protocol (MCP)</strong> fundamentals. Created April 4, 2025, and last pushed February 28, 2026, it has amassed 14,520 stars. Built primarily in <code>Jupyter Notebook</code>, the project covers topics including <code>csharp</code>, <code>java</code>, <code>javascript</code>, <code>mcp-client</code>, <code>mcp-security</code>, <code>mcp-server</code>, <code>python</code>, <code>rust</code>, and <code>typescript</code>.</p>
-<p>Aimed at developers, it provides real-world examples in <strong>.NET</strong>, <strong>Java</strong>, <strong>TypeScript</strong>, <strong>JavaScript</strong>, <strong>Rust</strong>, and <strong>Python</strong>. Content emphasizes practical techniques for modular, scalable, secure AI workflows, spanning session setup to service orchestration.</p>
-<p>The README displays badges for GitHub contributors, open issues, pull requests, watchers, forks, and stars. It invites PRs and links to Microsoft Foundry Discord for collaboration.</p>
-<p>To start:</p>
+          <p>DeepSpeed, a Python library for optimizing distributed deep learning, has released <strong>v0.18.6</strong>. With <strong>41,707 GitHub stars</strong> since its 2020 launch, it enables efficient training and inference of billion- and trillion-parameter models via techniques like <strong>ZeRO</strong>, model parallelism, and pipeline parallelism.</p>
+<p>The update, pushed March 1, 2026, addresses key issues:</p>
 <ul>
-<li>Fork the repo.</li>
-<li>Clone via <code>git clone https://github.com/microsoft/mcp-for-beginners.git</code>.</li>
-<li>Join Discord at discord.gg/nTYy5BXMWG.</li>
+<li>Fixed leaf module race conditions and bf16 gradient norm divergence in <strong>ZeRO stage 0</strong>.</li>
+<li>Added custom partitioning patterns for <strong>AutoTP</strong> and skipped sequence parallel ops during evaluation.</li>
+<li>Replaced deprecated <code>torch.jit.script</code> with <code>torch.compile</code> and supported Python 3.14 annotations.</li>
 </ul>
-<p>Automated GitHub Actions ensure multi-language READMEs, including Arabic, Bengali, and Bulgarian, keeping translations current.</p>
+<p>Recent news highlights include December 2025 <strong>Core API</strong> updates for PyTorch-style backward passes and low-precision states. In November, <strong>ZeRO++</strong> powered LinkedIn&#39;s LLM distillation for recommendation systems. October&#39;s Ray x DeepSpeed meetup covered <strong>SuperOffload</strong>, <strong>ZenFlow</strong>, and <strong>Arctic</strong> long-sequence training.</p>
+<p>New contributors <strong>@jp1924</strong> and <strong>@Mr-Neutr0n</strong> joined, with full changelog at <a href="https://github.com/deepspeedai/DeepSpeed/compare/v0.18.5...v0.18.6">v0.18.5...v0.18.6</a>. Available via PyPI, it integrates with <strong>PyTorch</strong> for GPU clusters.</p>
 <p>(168 words)</p>
 
         </div>
         <div class="builders-take">
           <span class="builders-take-label">Builder's Take</span>
-          Fork and clone the repo to run Jupyter notebooks in your language of choice. Engage via Discord and submit PRs to contribute examples.
+          Integrate DeepSpeed&#39;s ZeRO for memory-efficient training on multi-GPU setups. Test v0.18.6&#39;s AutoTP patterns for custom large-model partitioning before production.
         </div>
         
       </article></div><div class="compact-grid">
       <article class="compact-article">
-        <h3 class="compact-headline">OpenCV 4.13.0 Released for Computer Vision Library</h3>
-        <p class="compact-subheadline">C++ project with 86,358 GitHub stars updates core image processing toolkit</p>
+        <h3 class="compact-headline">Streamlit Releases 1.54.0 with Dynamic Widget Updates</h3>
+        <p class="compact-subheadline">Open-source Python tool evolves data apps, adds input flexibility and pandas 3.0 prep in latest version.</p>
         <div class="compact-meta">
-          <a href="https://github.com/opencv/opencv" target="_blank">opencv/opencv</a> · 86.4k stars · C++
+          <a href="https://github.com/streamlit/streamlit" target="_blank">streamlit/streamlit</a> · 43.7k stars · Python
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">Deep-Live-Cam 2.6 Adds Virtual Camera Support</h3>
-        <p class="compact-subheadline">Python repository reaches 79,729 stars with faster rendering and OBS integration for real-time face swaps.</p>
+        <h3 class="compact-headline">Anthropic&#39;s Claude Cookbooks Repo Tops 33k Stars</h3>
+        <p class="compact-subheadline">Jupyter Notebook collection delivers Python code snippets for Claude API projects</p>
         <div class="compact-meta">
-          <a href="https://github.com/hacksider/Deep-Live-Cam" target="_blank">hacksider/Deep-Live-Cam</a> · 79.7k stars · Python
+          <a href="https://github.com/anthropics/claude-cookbooks" target="_blank">anthropics/claude-cookbooks</a> · 33.8k stars · Jupyter Notebook
         </div>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/pytorch/pytorch" target="_blank">pytorch</a></span>
-        <span class="quick-hit-summary">PyTorch delivers tensors and dynamic neural nets in Python with GPU acceleration, fueling the AI revolution with record 97k stars.</span>
-        <span class="quick-hit-stars">97.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/microsoft/Data-Science-For-Beginners" target="_blank">Data-Science-For-Beginners</a></span>
+        <span class="quick-hit-summary">Microsoft&#39;s 10-week Jupyter course teaches data science basics to all, riding the AI skills boom with 34k stars.</span>
+        <span class="quick-hit-stars">34.1k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/google-gemini/gemini-fullstack-langgraph-quickstart" target="_blank">gemini-fullstack-langgraph-quickstart</a></span>
-        <span class="quick-hit-summary">This quickstart builds fullstack agents using hot Gemini 2.5 and LangGraph, exploding to 18k stars amid agentic AI hype.</span>
-        <span class="quick-hit-stars">17.9k</span>
+        <span class="quick-hit-name"><a href="https://github.com/ray-project/ray" target="_blank">ray</a></span>
+        <span class="quick-hit-summary">Ray scales AI/ML workloads via Python distributed runtime and libraries, fueling massive training runs now.</span>
+        <span class="quick-hit-stars">41.5k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/DataTalksClub/data-engineering-zoomcamp" target="_blank">data-engineering-zoomcamp</a></span>
-        <span class="quick-hit-summary">Free 9-week Data Engineering Zoomcamp builds production pipelines, with January 2026 cohort drawing crowds in booming data jobs.</span>
-        <span class="quick-hit-stars">38.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/netdata/netdata" target="_blank">netdata</a></span>
+        <span class="quick-hit-summary">Netdata&#39;s C-based tool delivers instant AI-powered observability for lean teams monitoring modern stacks.</span>
+        <span class="quick-hit-stars">77.9k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/OpenBB-finance/OpenBB" target="_blank">OpenBB</a></span>
-        <span class="quick-hit-summary">OpenBB equips analysts, quants, and AI agents with financial data, surging as AI transforms trading at 62k stars.</span>
-        <span class="quick-hit-stars">62.4k</span>
+        <span class="quick-hit-name"><a href="https://github.com/tesseract-ocr/tesseract" target="_blank">tesseract</a></span>
+        <span class="quick-hit-summary">Tesseract&#39;s C++ OCR engine extracts text from images open-source style, powering today&#39;s AI vision surge.</span>
+        <span class="quick-hit-stars">72.6k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/keras-team/keras" target="_blank">keras</a></span>
-        <span class="quick-hit-summary">Keras makes deep learning human-friendly via simple APIs, thriving in the accessible AI era with 64k stars.</span>
-        <span class="quick-hit-stars">63.9k</span>
+        <span class="quick-hit-name"><a href="https://github.com/JuliaLang/julia" target="_blank">julia</a></span>
+        <span class="quick-hit-summary">Julia&#39;s fast scientific language hits 48k stars, blending Python ease with C speed for AI research.</span>
+        <span class="quick-hit-stars">48.5k</span>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="robotics"><article class="lead-story">
-    <h2 class="lead-headline">Kornia Advances Spatial AI with Differentiable Vision Tools on PyTorch</h2>
-    <p class="lead-subheadline">Open-source library shifts focus to vision-language models amid active maintenance and 11k stars</p>
+    <h2 class="lead-headline">Open-Source 6-Axis Robotic Arm Unlocks Affordable ROS2 Development</h2>
+    <p class="lead-subheadline">Jelatine&#39;s mockway_robotics bundles 3D-printable hardware, electronics, and MoveIt2 software for collaborative arm replication at 4,200 RMB.</p>
     <div class="lead-meta">
-      <span><a href="https://github.com/kornia/kornia" target="_blank">kornia/kornia</a></span>
-      <span>11.1k stars</span>
+      <span><a href="https://github.com/Jelatine/mockway_robotics" target="_blank">Jelatine/mockway_robotics</a></span>
+      <span>77 stars</span>
       <span>Python</span>
-      <span>Latest: v0.8.2</span>
+      
     </div>
     <div class="lead-body">
-      <p>Developers building spatial AI applications now have a robust tool in <strong>Kornia</strong>, a Python library for geometric computer vision. Launched in August 2018, the <code>kornia/kornia</code> repository has amassed 11,097 stars and covers topics from <strong>computer-vision</strong> and <strong>deep-learning</strong> to <strong>robotics</strong> and <strong>spatial-ai</strong>. Its latest release, v0.8.2, underscores ongoing momentum, with the last push dated March 1, 2026.</p>
-<p>At its core, Kornia delivers a suite of <strong>differentiable</strong> image processing and geometric algorithms, built directly on <strong>PyTorch</strong>. This enables seamless integration into AI pipelines, supporting <strong>batch transformations</strong>, <strong>auto-differentiation</strong>, and <strong>GPU acceleration</strong>. Need to warp images, apply augmentations, or handle feature matching? Kornia provides gradient-friendly primitives that flow backprop through neural networks—essential for end-to-end training in vision tasks.</p>
-<p>Key strengths include:</p>
+      <p>Developers now have a complete blueprint for building a 6-axis collaborative robotic arm, courtesy of Jelatine&#39;s <strong>mockway_robotics</strong> GitHub repository. Launched on Christmas Day 2025 and actively updated through February 2026, the project has garnered 77 stars. It spans mechanical design, electrical schematics, and Python-based software, targeting ROS2 Jazzy on Ubuntu 24.04.</p>
+<p>The mechanical structure uses <strong>JellyCAD</strong> for parametric modeling—download v0.3.10 from Jelatine&#39;s releases. All structural parts are 3D-printable, with files hosted on <a href="https://makerworld.com.cn/zh/models/2037149-mockway-kai-yuan-liu-zhou-xie-zuo-ji-jie-bi#profileId-2273199">MakerWorld</a>. Printing costs tally around 20 RMB, keeping barriers low for prototyping.</p>
+<p>Electronics rely on a CAN bus at 1M baud via a Weite USB-CAN module (921600 serial baud). The bill of materials (BOM.md) lists servos dominating at <del>4,000 RMB, plus 73 RMB for the CAN adapter, 100 RMB power supply, and under 40 RMB for screws/tools—total replication under 4,200 RMB (</del>$590 USD). Electrical topology diagrams guide wiring.</p>
+<p>Software stands out for its practicality. Debug single motors or calibrate joints with <code>tools/motor_gui/motor_gui.py</code>, featuring a graphical interface. Real-time torque compensation runs via <code>tools/dynamics_test/realtime_torque_compensation.py</code>, with gravity modes in <code>inverse_dynamics_test.py</code>. Full motion planning integrates <strong>MoveIt2</strong> and <strong>Pinocchio</strong>:</p>
 <ul>
-<li><strong>Image transformations</strong>: Resizing, cropping, and affine warps with full differentiability.</li>
-<li><strong>Geometric vision</strong>: Tools for epipolar geometry, homographies, and optical flow.</li>
-<li><strong>Augmentations</strong>: Random flips, color jitter, and elastic transforms for robust model training.</li>
+<li>Clone into <code>~/mockway_ws/src</code>.</li>
+<li>Install deps: <code>rosdep install --from-paths src/mockway_robotics/moveit_mockway_config/ src/mockway_robotics/mockway_description/ --ignore-src -r -y</code>.</li>
+<li>Build: <code>colcon build --symlink-install --packages-select moveit_mockway_config mockway_description</code>.</li>
+<li>Launch: <code>ros2 launch moveit_mockway_config demo.launch.py</code>.</li>
 </ul>
-<p>The library stands out for builders tackling <strong>spatial AI</strong>, where traditional OpenCV falls short on gradients. Kornia&#39;s PyTorch-native design lets you compose vision ops inside models, accelerating workflows in robotics, AR/VR, and autonomous systems.</p>
-<p>Recent activity signals evolution. An announcement highlights a pivot toward <strong>end-to-end vision models</strong>, integrating <strong>Vision Language Models (VLMs)</strong> and <strong>Vision Language Agents (VLAs)</strong>. This aligns with the multimodal AI surge, positioning Kornia for comprehensive vision solutions beyond pixel-level ops.</p>
-<p>Release notes for v0.8.2 reveal steady maintenance: migration to <strong>Discord</strong> for community chat (discord.gg/HfnywwpBnD), dependency bumps like <code>pytest</code> to 8.3.5, docstring additions for GPU tensor handling, and SEO-optimized module docs. Minor fixes, such as correcting the Sold2Detector link and removing erroneous logging, ensure reliability. Pre-commit CI runs keep code clean across 20+ PRs.</p>
-<p>Resources abound: full docs at kornia.readthedocs.io, Colab notebooks for quick starts, tutorials, examples repo, and a blog. PyPI downloads are strong, with Apache 2.0 licensing for commercial use.</p>
-<p>For PyTorch users in vision-heavy projects, Kornia matters now as differentiable CV bridges classic algorithms to modern LLMs, cutting custom kernel needs.</p>
+<p>A Bilibili demo showcases dynamics testing. Topics like <code>moveit2</code>, <code>pinocchio</code>, <code>robot</code>, and <code>ros2</code> signal tight integration for advanced kinematics.</p>
+<p>This project matters amid rising demand for accessible robotics in warehouses, labs, and education. At this price, it undercuts commercial arms by orders of magnitude, empowering builders to iterate on collaborative systems without vendor lock-in. Fresh 2026 commits ensure relevance as ROS2 matures, making it a timely fork for hardware-software fusion.</p>
 <p>(Word count: 378)</p>
 
       <div class="builders-take">
         <span class="builders-take-label">Builder's Take</span>
-        Start with the &quot;hello_world_tutorial.ipynb&quot; Colab for hands-on feel—verify PyTorch 2.x compatibility first. Join Discord for real-time support, as maintainers emphasize VLM integrations. Audit docs for your use case, as the shift from pure geometric tools may affect legacy pipelines.
+        Target Ubuntu 24.04 with ROS2 Jazzy for seamless MoveIt2 setup; verify CAN module compatibility and calibrate joints before torque modes to avoid damage. Review BOM.md and ⚠️注意事项 for safety—force control demands precise prep. Start with `motor_gui.py` for low-risk motor testing before full assembly.
       </div>
       
     </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
       <article class="featured-article">
-        <h3 class="featured-headline">UBC Thunderbots Open-Sources Robot Soccer Control Software</h3>
-        <p class="featured-subheadline">C++ codebase drives autonomous fleet in RoboCup Small Size League since 2018</p>
+        <h3 class="featured-headline">Copper-RS Delivers Deterministic Robot Operating System</h3>
+        <p class="featured-subheadline">Rust runtime enables bit-for-bit replay of robotic applications across simulation and production</p>
         <div class="featured-meta">
-          <a href="https://github.com/UBC-Thunderbots/Software" target="_blank">UBC-Thunderbots/Software</a> · 63 stars · C++
+          <a href="https://github.com/copper-project/copper-rs" target="_blank">copper-project/copper-rs</a> · 1.2k stars · Rust
         </div>
         <div class="featured-body">
-          <p>The UBC-Thunderbots/Software repository delivers C++ code for controlling a fleet of autonomous soccer-playing robots in the <a href="https://ssl.robocup.org/">RoboCup Small Size League</a>. With 63 stars and active maintenance—last pushed March 1, 2026—the project reached <strong>v1.2.0</strong> recently.</p>
-<p>Hosted on GitHub since July 2018, it includes firmware and main software. Developers must follow the <a href="docs/getting-started.md">Getting Started</a> guide and <a href="docs/code-style-guide.md">style guide</a> for contributions. The <a href="docs/software-architecture-and-design.md">architecture docs</a> detail key systems.</p>
-<p>Recent v1.2.0 changes address practical issues:</p>
+          <p>The GitHub repository <strong>copper-project/copper-rs</strong>, launched in August 2020, has garnered 1,170 stars as a Rust-based operating system tailored for robotics. Its last update arrived on March 1, 2026, underscoring ongoing development.</p>
+<p>Copper functions as a runtime and SDK, likened to a game engine for robots. Developers can <strong>build, run, and replay</strong> entire robotic systems deterministically—ensuring bit-for-bit identical executions every time.</p>
+<p>Key attributes include:</p>
 <ul>
-<li>Sync Raspberry Pi time before setup scripts.</li>
-<li>Remove <code>hardware_challenge_plays</code> and adjust builds.</li>
-<li>Kill existing processes in binary context managers.</li>
-<li>Add <code>--suite</code> flag to <code>tbots.py</code> for test suites.</li>
-<li>Introduce module for full-system stats recording.</li>
-<li>Fix WiFi driver task in Ansible playbook.</li>
-<li>Correct CLI <code>-t</code> tag usage.</li>
+<li><strong>Rust-first</strong> design for safety and ergonomics, targeting Rust 1.80+.</li>
+<li><strong>Sub-microsecond latency</strong> via zero-allocation, data-oriented runtime.</li>
+<li><strong>ROS2 interoperability</strong> through Zenoh bridging, easing migration from ROS.</li>
+<li>Cross-platform support: Linux servers, workstations, single-board computers, and bare-metal microprocessors.</li>
+<li>Unified stack from simulation to production deployment.</li>
 </ul>
-<p>CI badges track workflows on the master branch. Documentation editing guide supports diagram updates.</p>
-<p>The project targets builders integrating AI with robotics hardware, emphasizing reliable deployment on devices like Raspberry Pi.</p>
-
-        </div>
-        <div class="builders-take">
-          <span class="builders-take-label">Builder's Take</span>
-          Clone and review the getting-started guide before contributing; adhere to the code style guide to match C++ conventions. Test with `tbots.py --suite` for comprehensive validation.
-        </div>
-        
-      </article></div><div class="compact-grid">
-      <article class="compact-article">
-        <h3 class="compact-headline">Drake Robotics Toolkit Releases v1.50.0 with SNOPT Integration</h3>
-        <p class="compact-subheadline">Model-based design project, active since 2014, enhances math solvers for verification tasks</p>
-        <div class="compact-meta">
-          <a href="https://github.com/RobotLocomotion/drake" target="_blank">RobotLocomotion/drake</a> · 3.9k stars · C++
-        </div>
-      </article>
-
-      <article class="compact-article">
-        <h3 class="compact-headline">RobotGo Hits v1.0.1 with macOS Stability Fixes</h3>
-        <p class="compact-subheadline">Go library for cross-platform GUI automation adds mouse helpers and crash patches after eight years</p>
-        <div class="compact-meta">
-          <a href="https://github.com/go-vgo/robotgo" target="_blank">go-vgo/robotgo</a> · 10.6k stars · Go
-        </div>
-      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/OGRECave/ogre" target="_blank">ogre</a></span>
-        <span class="quick-hit-summary">Ogre powers high-performance 3D rendering across C++, Python, C#, and Java, fueling VR/AR and game devs amid explosive graphics demands.</span>
-        <span class="quick-hit-stars">4.5k</span>
-      </div>
-
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/introlab/rtabmap" target="_blank">rtabmap</a></span>
-        <span class="quick-hit-summary">RTAB-Map delivers real-time 3D mapping from RGB-D sensors, supercharging robots and AR as SLAM tech dominates autonomy.</span>
-        <span class="quick-hit-stars">3.6k</span>
-      </div>
-
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/borglab/gtsam" target="_blank">gtsam</a></span>
-        <span class="quick-hit-summary">GTSAM optimizes robotics SLAM with factor graphs and Bayes nets, critical for self-driving cars and drones in today&#39;s AI surge.</span>
-        <span class="quick-hit-stars">3.3k</span>
-      </div>
-
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/mavlink/mavros" target="_blank">mavros</a></span>
-        <span class="quick-hit-summary">MAVROS gateways MAVLink drone comms to ROS, accelerating UAV builds as drone swarms and robotics explode.</span>
-        <span class="quick-hit-stars">1.1k</span>
-      </div>
-
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/projectchrono/chrono" target="_blank">chrono</a></span>
-        <span class="quick-hit-summary">Chrono simulates multiphysics and multibody dynamics at blistering speeds, powering vehicle and robot design in simulation-first engineering.</span>
-        <span class="quick-hit-stars">2.7k</span>
-      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
-<div class="section-panel" data-section="cyber"><article class="lead-story">
-    <h2 class="lead-headline">GitHub Repo Curates Vast Archive of CVE Proofs-of-Concept</h2>
-    <p class="lead-subheadline">Trickest&#39;s cve project automates collection of latest vulnerabilities with public exploits for security teams.</p>
-    <div class="lead-meta">
-      <span><a href="https://github.com/trickest/cve" target="_blank">trickest/cve</a></span>
-      <span>7.6k stars</span>
-      <span>HTML</span>
-      
-    </div>
-    <div class="lead-body">
-      <p>Developers and security builders now have a centralized hub for CVE proofs-of-concept (PoCs). The <strong>trickest/cve</strong> repository on GitHub aggregates nearly every publicly available PoC, pulling from official sources and scanning references. With <strong>7,573 stars</strong> since its launch on January 31, 2022, and a push as recent as March 1, 2026, it stands as a go-to resource amid escalating software vulnerabilities.</p>
-<p>The project targets pentesters, red teams, and infosec pros. It lists &quot;current hottest CVEs&quot; like <strong>CVE-2022-0001</strong>, <strong>CVE-2022-25297</strong>, <strong>CVE-2022-1388</strong>, and <strong>CVE-2022-25451</strong>, each linking to dedicated Markdown files with PoC details. A full historical ranking lives in <a href="https://github.com/trickest/cve/blob/main/hot_cves.csv"><code>hot_cves.csv</code></a>, enabling trend analysis.</p>
-<p>Built on <strong>Trickest</strong>&#39;s workflow architecture—a no-code automation platform—the repo automates discovery:</p>
-<ul>
-<li>Fetches CVE details from the <strong><a href="https://github.com/CVEProject/cvelist">CVEProject/cvelist</a></strong> repository.</li>
-<li>Organizes entries by year (e.g., <code>/2022/CVE-2022-0001.md</code>).</li>
-<li>Hunts PoCs via references using <strong><code>ffuf</code></strong> (a fast web fuzzer) against keyword patterns.</li>
-</ul>
-<p>The regex <code>(?i)[^a-z0-9]+(poc|proof of concept|proof[-_]of[-_]concept)[^a-z0-9]+</code> flags potential exploits in links, crediting contributor <a href="https://github.com/joohoi">@joohoi</a>. This yields a searchable HTML-based collection tagged with #cve, #exploit, #pentesting, and more.</p>
-<p>What sets it apart? Unlike scattered GitHub searches or NVD feeds, <strong>trickest/cve</strong> delivers battle-tested PoCs in one spot, updated dynamically. In an era of Log4Shell (CVE-2021-44228) fallout and zero-days, it accelerates vuln validation—crucial for builders hardening apps against real threats.</p>
-<p>Topics span <strong>software-vulnerabilities</strong>, <strong>red-team</strong>, and <strong>security-tools</strong>, making it indispensable for CI/CD pipelines scanning deps. The Trickest banner promotes their platform for custom workflows, hinting at extensibility.</p>
-<p>For teams, it&#39;s signal amid noise: skip manual hunts, fork and integrate. Yet provenance matters—PoCs are public but unvetted, demanding cautious use.</p>
-<p>(Word count: 347)</p>
-
-      <div class="builders-take">
-        <span class="builders-take-label">Builder's Take</span>
-        Fork the repo and query `hot_cves.csv` for priority triage before patching. Verify PoCs in isolated environments to avoid accidental exploits. Integrate via GitHub API for automated alerts in your security pipeline, but audit references manually for accuracy.
-      </div>
-      
-    </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
-      <article class="featured-article">
-        <h3 class="featured-headline">Azure Sentinel Repo Delivers Cloud SIEM Security Tools</h3>
-        <p class="featured-subheadline">Microsoft&#39;s GitHub project packs 5,502 stars with detections, queries for enterprise threat hunting.</p>
-        <div class="featured-meta">
-          <a href="https://github.com/Azure/Azure-Sentinel" target="_blank">Azure/Azure-Sentinel</a> · 5.5k stars · Python
-        </div>
-        <div class="featured-body">
-          <p>The <code>Azure/Azure-Sentinel</code> repository, launched in August 2018, serves as a unified hub for <strong>Microsoft Sentinel</strong> and <strong>Microsoft 365 Defender</strong> resources. This cloud-native SIEM platform enables intelligent security analytics across enterprises, written primarily in Python.</p>
-<p>With 5,502 stars and topics tagged <em>cybersecurity</em> and <em>sample-code</em>, the repo last saw updates on March 1, 2026. It offers ready-to-deploy content including:</p>
-<ul>
-<li>Out-of-the-box <strong>detections</strong> and <strong>exploration queries</strong>.</li>
-<li><strong>Hunting queries</strong> for advanced scenarios in both Sentinel and 365 Defender.</li>
-<li><strong>Workbooks</strong>, <strong>playbooks</strong>, and additional security tools.</li>
-</ul>
-<p>Users can submit issues for new samples or resources via <a href="https://github.com/Azure/Azure-Sentinel/issues">GitHub issues</a>. Contributions are encouraged; check the <a href="https://aka.ms/threathunters">wiki</a> to start.</p>
-<p>Key resources include:</p>
-<ul>
-<li><a href="https://go.microsoft.com/fwlink/?linkid=2073774&clcid=0x409">Sentinel documentation</a>.</li>
-<li><a href="https://docs.microsoft.com/microsoft-365/security/defender/microsoft-365-defender?view=o365-worldwide">365 Defender docs</a>.</li>
-<li>Tech communities for SIEM/SOAR and XDR Q&amp;A.</li>
-</ul>
-<p>Feedback channels cover product forums and email at <a href="mailto:AzureSentinel@microsoft.com">AzureSentinel@microsoft.com</a>. The repo supports rapid onboarding for threat hunting and environment securing.</p>
+<p>Badges confirm active CI workflows, dependency health via deps.rs, and community channels like Discord. Comprehensive docs are available at the <a href="https://copper-project.github.io/copper-rs-book/">Copper-RS book</a> and API reference.</p>
+<p>Example use cases span drones (flying), vehicles (driving), aquatic robots (swimming), and space systems, with visuals in the README demonstrating real-world applications.</p>
 <p>(Word count: 178)</p>
 
         </div>
         <div class="builders-take">
           <span class="builders-take-label">Builder's Take</span>
-          Fork the repo to customize hunting queries or playbooks for your Azure setup. Submit pull requests via the wiki for vetted contributions to detections.
+          Rust developers building robots should review the Copper-RS book for SDK integration and test deterministic replay on SBCs before production. Join the Discord for ROS2 migration tips.
         </div>
         
       </article></div><div class="compact-grid">
       <article class="compact-article">
-        <h3 class="compact-headline">HackTricks Repo Amasses 10k Stars for Pentesting Tricks</h3>
-        <p class="compact-subheadline">Multilingual wiki aggregates CTF exploits, real-app techniques from research and news since 2020.</p>
+        <h3 class="compact-headline">MissionPlanner 1.3.83 Updates ArduPilot Ground Station</h3>
+        <p class="compact-subheadline">C# tool refines MAVLink params, flight planning, and safety features for UAV developers</p>
         <div class="compact-meta">
-          <a href="https://github.com/HackTricks-wiki/hacktricks" target="_blank">HackTricks-wiki/hacktricks</a> · 10.9k stars · CSS
+          <a href="https://github.com/ArduPilot/MissionPlanner" target="_blank">ArduPilot/MissionPlanner</a> · 2.2k stars · C#
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">BBOT Delivers Recursive Scanning for Reconnaissance</h3>
-        <p class="compact-subheadline">Python tool automates subdomain enumeration and OSINT for pentesters and bug bounty hunters.</p>
+        <h3 class="compact-headline">rest980 Delivers REST API for Roomba 980 Control</h3>
+        <p class="compact-subheadline">JavaScript tool runs local HTTP server using dorita980 for iRobot 900 series robots.</p>
         <div class="compact-meta">
-          <a href="https://github.com/blacklanternsecurity/bbot" target="_blank">blacklanternsecurity/bbot</a> · 9.5k stars · Python
+          <a href="https://github.com/koalazak/rest980" target="_blank">koalazak/rest980</a> · 337 stars · JavaScript
         </div>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/matomo-org/matomo" target="_blank">matomo</a></span>
-        <span class="quick-hit-summary">Matomo delivers a privacy-first open-source Google Analytics rival, surging with 21k stars amid data control demands.</span>
-        <span class="quick-hit-stars">21.3k</span>
+        <span class="quick-hit-name"><a href="https://github.com/ia74/roomba_rest980" target="_blank">roomba_rest980</a></span>
+        <span class="quick-hit-summary">Python tool lets builders integrate iRobot Roombas into Home Assistant via REST API, supercharging smart home automation amid rising IoT trends.</span>
+        <span class="quick-hit-stars">40</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/Lissy93/personal-security-checklist" target="_blank">personal-security-checklist</a></span>
-        <span class="quick-hit-summary">This 20k-star checklist packs 300+ tips to fortify personal digital security and privacy for 2026 threats.</span>
-        <span class="quick-hit-stars">20.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/iory/scikit-robot" target="_blank">scikit-robot</a></span>
+        <span class="quick-hit-summary">Flexible Python framework empowers builders to visualize and program robots effortlessly, riding the wave of accessible robotics development.</span>
+        <span class="quick-hit-stars">148</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/yaklang/yakit" target="_blank">yakit</a></span>
-        <span class="quick-hit-summary">Yakit fuses cyber security tools into one TypeScript platform, ideal for all-in-one threat hunting now.</span>
-        <span class="quick-hit-stars">7.1k</span>
+        <span class="quick-hit-name"><a href="https://github.com/gazebosim/gz-sim" target="_blank">gz-sim</a></span>
+        <span class="quick-hit-summary">Latest open-source Gazebo simulator in C++ accelerates robot testing for builders, vital as AI robotics explodes.</span>
+        <span class="quick-hit-stars">1.2k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/OpenCTI-Platform/opencti" target="_blank">opencti</a></span>
-        <span class="quick-hit-summary">OpenCTI streamlines open-source cyber threat intelligence sharing, booming at 9k stars in escalating attacks.</span>
-        <span class="quick-hit-stars">8.9k</span>
+        <span class="quick-hit-name"><a href="https://github.com/facontidavide/PlotJuggler" target="_blank">PlotJuggler</a></span>
+        <span class="quick-hit-summary">PlotJuggler visualizes time series data like a pro in C++, indispensable for builders debugging robotics amid surging sensor tech.</span>
+        <span class="quick-hit-stars">5.7k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/mytechnotalent/Reverse-Engineering" target="_blank">Reverse-Engineering</a></span>
-        <span class="quick-hit-summary">Free reverse engineering tutorial spans x86 to RISC-V, arming builders against 13k-starred malware surges.</span>
-        <span class="quick-hit-stars">13.3k</span>
+        <span class="quick-hit-name"><a href="https://github.com/dora-rs/dora" target="_blank">dora</a></span>
+        <span class="quick-hit-summary">Rust-based DORA middleware simplifies AI robotic apps via low-latency dataflow graphs, hot for builders tackling distributed robot swarms now.</span>
+        <span class="quick-hit-stars">2.9k</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="cyber"><article class="lead-story">
+    <h2 class="lead-headline">Omar Santos&#39; h4cker Repo Delivers 10,000+ Cybersecurity Resources for Builders</h2>
+    <p class="lead-subheadline">Actively maintained archive covers ethical hacking, DFIR, AI security, and exploit development since 2017.</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/The-Art-of-Hacking/h4cker" target="_blank">The-Art-of-Hacking/h4cker</a></span>
+      <span>25.3k stars</span>
+      <span>Jupyter Notebook</span>
+      
+    </div>
+    <div class="lead-body">
+      <p>Developers and security builders have a goldmine in <strong>The-Art-of-Hacking/h4cker</strong>, a GitHub repository curated by Omar Santos (@santosomar). With <strong>25,305 stars</strong> and Jupyter Notebook as its primary language, it aggregates over <strong>10,000 references</strong>, scripts, tools, and code for offensive and defensive cybersecurity work. Created in June 2017, the repo saw its latest push on February 27, 2026, signaling ongoing relevance amid rising AI threats and cloud vulnerabilities.</p>
+<p>This isn&#39;t a scattershot dump—it&#39;s structured supplemental material tied to Santos&#39; books, video courses, and live training at <a href="https://hackertraining.org">hackertraining.org</a>. Folders organize resources by discipline, enabling targeted deep dives:</p>
+<ul>
+<li><strong>Offensive Security</strong>: <code>exploit-development/</code>, <code>post-exploitation/</code>, <code>metasploit-resources/</code>, and <code>more-payloads/</code> for vulnerability research and exploit crafting.</li>
+<li><strong>Defensive Security</strong>: <code>threat-hunting/</code>, <code>threat-intelligence/</code>, <code>dfir/</code> (digital forensics and incident response), <code>sbom/</code> (software bill of materials), plus <code>linux-hardening/</code> and <code>macos-hardening/</code>.</li>
+<li><strong>Cloud Security</strong>: <code>docker-and-k8s-security/</code> and <code>cloud-resources/</code> address container and infrastructure risks.</li>
+<li><strong>Hardware &amp; IoT</strong>: <code>iot-hacking/</code>, <code>car-hacking/</code>, and <code>game-hacking/</code> tackle embedded systems.</li>
+<li><strong>Training Materials</strong>: <code>certifications/</code>, <code>cheat-sheets/</code>, and <code>who-and-what-to-follow/</code> for skill-building and community intel.</li>
+</ul>
+<p>What sets h4cker apart now? Its <strong>AI security</strong> focus aligns with 2024&#39;s generative AI exploits, while topics like bug bounties and penetration testing support real-world bounty hunting. Builders get practical artifacts—Jupyter notebooks for reproducible analysis, scripts for automation—without reinventing wheels. Clone the repo (<code>git clone https://github.com/The-Art-of-Hacking/h4cker.git</code>) or cherry-pick folders to integrate into pipelines.</p>
+<p>For contributors, <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> outlines standards, ensuring quality amid community input. In an era of supply chain attacks and zero-days, this repo bridges theory and practice, making it indispensable for devs hardening apps or hunting threats. Santos&#39; pedigree—decades at Cisco and authorship—lends credibility, positioning h4cker as a builder&#39;s first stop for cybersecurity signal over noise.</p>
+<p>(Word count: 348)</p>
+
+      <div class="builders-take">
+        <span class="builders-take-label">Builder's Take</span>
+        Start by browsing directories like `dfir/` or `ai-security/` to match your stack—don&#39;t clone the full 10,000+ items unless you need breadth. Pair resources with Santos&#39; training at hackertraining.org for context, as they&#39;re designed as supplements. Review [CONTRIBUTING.md](CONTRIBUTING.md) before forking; focus pulls are prioritized over broad additions.
+      </div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">Berty Releases v2.471.0 with Android Workflow Fixes</h3>
+        <p class="featured-subheadline">Secure P2P messaging app updates focus on mobile stability amid ongoing development since 2018</p>
+        <div class="featured-meta">
+          <a href="https://github.com/berty/berty" target="_blank">berty/berty</a> · 9.1k stars · TypeScript
+        </div>
+        <div class="featured-body">
+          <p>The <code>berty/berty</code> GitHub repository, home to a secure peer-to-peer messaging app, marked its latest release at <strong>v2.471.0</strong> on December 19, 2025. Launched in July 2018, the project has amassed 9,089 stars and supports operation with or without internet, emphasizing <strong>offline-first</strong> and <strong>zero-trust</strong> principles.</p>
+<p>Built as a monorepo in <strong>TypeScript</strong>, Berty leverages <code>IPFS</code>, <code>libp2p</code>, <code>OrbitDB</code>, and <strong>CRDTs</strong> for decentralized communication. It targets <strong>Android</strong> and <strong>iOS</strong> via <code>React Native</code> and <code>GoMobile</code>, addressing topics like <strong>censorship resistance</strong>, <strong>encryption</strong>, and <strong>privacy</strong>.</p>
+<p>CI badges confirm active workflows for <strong>JS</strong>, <strong>Go</strong>, <strong>Protobuf</strong>, <strong>Android</strong>, <strong>iOS</strong>, and integration tests. The v2.471.0 notes detail <strong>10 Android workflow commits</strong>—including manifest updates for push notifications and compilation fixes—plus tweaks to listener APIs and an Expo example app.</p>
+<p>Last pushed March 1, 2026, the repo maintains momentum with Discord, Twitter, and berty.tech links for community engagement.</p>
+<ul>
+<li>Key fixes: Android service manifest (<code>f3fde3e</code>), compilation (<code>f67d711</code>).</li>
+<li>Platforms: Cross-mobile with surveillance-resistant P2P syncing.</li>
+</ul>
+<p>(178 words)</p>
+
+        </div>
+        <div class="builders-take">
+          <span class="builders-take-label">Builder's Take</span>
+          Developers can clone the monorepo to integrate `libp2p` for offline apps; check Android/iOS workflows for mobile builds before contributing fixes.
+```
+        </div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">reconFTW Hits v4.0 After Full Code Refactor</h3>
+        <p class="compact-subheadline">Automated reconnaissance tool scans domains for vulnerabilities with integrated OSINT and pentest workflows</p>
+        <div class="compact-meta">
+          <a href="https://github.com/six2dez/reconftw" target="_blank">six2dez/reconftw</a> · 7.3k stars · Shell
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">PROXY-List Repo Tracks 8,000 Free Public Proxies Daily</h3>
+        <p class="compact-subheadline">TheSpeedX&#39;s GitHub project delivers SOCKS4, SOCKS5 and HTTP lists, last updated March 1, 2026</p>
+        <div class="compact-meta">
+          <a href="https://github.com/TheSpeedX/PROXY-List" target="_blank">TheSpeedX/PROXY-List</a> · 5.3k stars · Unknown
+        </div>
+      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/slimtoolkit/slim" target="_blank">slim</a></span>
+        <span class="quick-hit-summary">SlimToolkit minifies container images up to 30x without changes, slashing costs and boosting security amid exploding cloud usage.</span>
+        <span class="quick-hit-stars">23k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/wazuh/wazuh" target="_blank">wazuh</a></span>
+        <span class="quick-hit-summary">Wazuh unifies XDR-SIEM for endpoints and clouds, surging as open-source shield against rampant cyber threats.</span>
+        <span class="quick-hit-stars">14.8k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/j3ssie/osmedeus" target="_blank">osmedeus</a></span>
+        <span class="quick-hit-summary">Osmedeus orchestrates modern security scans in Go, streamlining pentests for today&#39;s rapid threat landscapes.</span>
+        <span class="quick-hit-stars">6.1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/radareorg/radare2" target="_blank">radare2</a></span>
+        <span class="quick-hit-summary">Radare2 powers UNIX-like reverse engineering, essential now with malware exploding across devices.</span>
+        <span class="quick-hit-stars">23.2k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/bettercap/bettercap" target="_blank">bettercap</a></span>
+        <span class="quick-hit-summary">Bettercap&#39;s Swiss Army knife hacks WiFi, BLE, and networks for recon-MITM, vital for IoT security testing boom.</span>
+        <span class="quick-hit-stars">18.9k</span>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="systems"><article class="lead-story">
-    <h2 class="lead-headline">Memos Surpasses 57,000 Stars as Privacy-Focused Notes Tool Matures</h2>
-    <p class="lead-subheadline">Open-source self-hosted service delivers reliable memo-taking with fresh security fixes and Docker ease for developers.</p>
+    <h2 class="lead-headline">nektos/act Enables Local Execution of GitHub Actions for Swift Workflow Testing</h2>
+    <p class="lead-subheadline">With 69,000 stars and a fresh v0.2.84 release, this Go tool mimics GitHub&#39;s environment using Docker for faster CI feedback.</p>
     <div class="lead-meta">
-      <span><a href="https://github.com/usememos/memos" target="_blank">usememos/memos</a></span>
-      <span>57.4k stars</span>
+      <span><a href="https://github.com/nektos/act" target="_blank">nektos/act</a></span>
+      <span>69.1k stars</span>
       <span>Go</span>
-      <span>Latest: v0.26.2</span>
+      <span>Latest: v0.2.84</span>
     </div>
     <div class="lead-body">
-      <p>In an era of data-hungry cloud services, <strong>usememos/memos</strong> stands out. This open-source, self-hosted note-taking platform—built in Go—lets developers capture thoughts in markdown memos without tracking, ads, or subscriptions. Launched on December 8, 2021, it now boasts <strong>57,372 GitHub stars</strong> and topics like <code>docker</code>, <code>foss</code>, <code>sqlite</code>, <code>react</code>, and <code>self-hosted</code>. The latest push was March 1, 2026, with release <strong>v0.26.2</strong> addressing key stability issues.</p>
-<p>Memos functions as a lightweight microblog for notes, supporting attachments, task lists, calendars, and tags—even compound ones with ampersands. Deploy via Docker (<code>neosmemo/memos</code> image) or binaries; SQLite powers it out-of-box, with PostgreSQL support. A live demo at <strong>demo.usememos.com</strong> showcases the clean React interface: quick memo entry, inline editors, and explore pages for public shares.</p>
-<p>What sets it apart? Full data sovereignty. &quot;Your thoughts, your data, your control,&quot; the README declares. No vendor lock-in, ideal for builders wary of Notion or Evernote. Integration-friendly: webhooks (now SSRF-hardened), Discord community, and docs at <strong>usememos.com/docs</strong>.</p>
-<p>The v0.26.2 release notes signal maturity amid surging self-hosting demand:</p>
-<ul>
-<li><strong>Security</strong>: Patched SSRF in webhook dispatcher.</li>
-<li><strong>Reliability</strong>: Fixed spurious logouts on token expiry, cross-tab session loss via localStorage, and infinite view transitions.</li>
-<li><strong>UI/UX</strong>: Improved calendar navigation (back to 1970), task list scoping, MemoEditor layout, and attachment truncation.</li>
-<li><strong>Edge cases</strong>: Better PAT handling in PostgreSQL, comment invalidation on reactions/deletes, and default visibility application.</li>
-</ul>
-<p>These fixes—plus stats hook tweaks and redundant fetch elimination—make it production-ready. Sponsors like <strong>Warp</strong> (AI terminal), <strong>TestMu AI</strong> (agentic testing), and <strong>SSD Nodes</strong> (VPS hosting) underscore ecosystem buy-in.</p>
-<p>For developers, Memos fills a gap: a <code>sqlite</code>-backed, Dockerized alternative to bloated tools. Its 57k stars reflect trust in FOSS privacy plays, especially post-2024 data scandals. Active maintenance keeps it relevant—no stagnation here.</p>
-<p>(Word count: 362)</p>
+      <p>Developers tweaking GitHub Actions workflows often face a grind: commit, push, wait for remote runners. Enter <code>nektos/act</code>, a Go-based tool that runs those workflows locally. Launched in 2019, it now boasts 69,074 stars and active maintenance, with the latest push in March 2026 and release v0.2.84.</p>
+<p>The pitch is simple: <strong>&quot;Think globally, act locally.&quot;</strong> <code>act</code> parses <code>.github/workflows/</code> files, pulls or builds Docker images for required actions, and replicates GitHub&#39;s environment variables and filesystem. No more endless pushes for testing changes in workflow YAML or embedded actions. It delivers fast feedback loops, crucial for iterating on CI/CD pipelines without cloud delays.</p>
+<p>Beyond testing, <code>act</code> doubles as a local task runner. Tired of <code>Makefile</code> boilerplate? Reuse your Actions definitions for builds, tests, or deployments right on your machine. Its Docker foundation ensures consistency with GitHub-hosted runners, minimizing &quot;works on my machine&quot; surprises.</p>
+<p>Recent release notes highlight reliability gains. Commit b2aee4b8 fixes YAML anchor explosions (#5987), resolving parsing issues in complex workflows. A December 2025 security update (#5984) patches dependencies, while v0.2.84 bumps the version. These tweaks keep <code>act</code> robust for production use.</p>
+<p>Integration shines too. A VS Code extension, <a href="https://sanjulaganepola.github.io/github-local-actions-docs/">GitHub Local Actions</a>, lets you trigger <code>act</code> workflows from your editor. Badges confirm CI health: passing pushes on master, A-grade Go Report Card.</p>
+<p>What sets <code>act</code> apart now? In an era of sprawling monorepos and multi-step Actions, local execution slashes cycle times. With DevOps teams scaling CI budgets, tools like this cut costs—run on your laptop, not GitHub&#39;s dime. Topics like <code>ci</code>, <code>devops</code>, and <code>golang</code> underscore its fit for builder stacks.</p>
+<p>For teams on Docker, adoption is straightforward: <code>brew install act</code> or build from source. It supports custom platforms and secrets, though matrix jobs may need tuning.</p>
+<p><code>nektos/act</code> isn&#39;t reinventing Actions—it&#39;s making them practical offline. At nearly 70k stars, it&#39;s a staple for serious GitHub users chasing efficiency.</p>
+<p>(Word count: 347)</p>
 
       <div class="builders-take">
         <span class="builders-take-label">Builder's Take</span>
-        Start with Docker Compose for quick SQLite setup; scale to PostgreSQL for teams via env vars. Review webhook SSRF mitigations before production. Join the Discord for deployment tips and feature requests before committing.
+        Ensure Docker is running, as `act` relies on it for image management—test simple workflows first to verify compatibility. Review your Actions for Docker-specific assumptions, like runner OS, since `act` defaults to Linux but supports others via flags. For secrets or caches, configure local equivalents to match GitHub behavior before scaling to complex jobs.
       </div>
       
     </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
       <article class="featured-article">
-        <h3 class="featured-headline">Tauri Framework Reaches 103k Stars in Latest Update</h3>
-        <p class="featured-subheadline">Rust-based tool builds compact desktop and mobile apps with web frontends across platforms.</p>
+        <h3 class="featured-headline">Redis 8.6.1 Fixes Error Reply Security Flaw</h3>
+        <p class="featured-subheadline">In-memory store patches vulnerability, RDB loading bug, and HOTKEYS command gaps</p>
         <div class="featured-meta">
-          <a href="https://github.com/tauri-apps/tauri" target="_blank">tauri-apps/tauri</a> · 103.4k stars · Rust
+          <a href="https://github.com/redis/redis" target="_blank">redis/redis</a> · 73.2k stars · C
         </div>
         <div class="featured-body">
-          <p>The <code>tauri-apps/tauri</code> GitHub repository, launched in July 2019, has amassed <strong>103,449 stars</strong> as a Rust framework for desktop and mobile applications. Its v2.10.2 release, pushed March 1, 2026, maintains <strong>stable</strong> status with passing core tests via GitHub Actions.</p>
-<p>Tauri produces small, fast binaries by pairing any HTML/JS/CSS frontend with a Rust backend API. Window handling relies on the <code>tao</code> library for macOS, Windows, Linux, Android, and iOS. Rendering uses <code>WRY</code>, unifying system webviews: WKWebView on macOS/iOS, WebView2 on Windows, WebKitGTK on Linux, and Android System WebView.</p>
-<p>Licensed under MIT or Apache 2.0, it supports plugins like <code>tauri-plugin-log</code> and integrates with frontends via <code>tauri-codegen</code>. A recent Cargo audit flagged an unmaintained <code>atk</code> 0.18.2 dependency in <code>gtk-rs</code> GTK3 bindings (RUSTSEC-2024-0413), tied to <code>wry</code> 0.54.0.</p>
-<p>Community resources include a Discord server and <a href="https://tauri.app">tauri.app</a>. Topics cover <code>desktop-app</code>, <code>high-performance</code>, <code>mobile-app</code>, <code>native-app</code>, <code>rust</code>, <code>web-frontend</code>, and <code>webview</code>.</p>
-<p>Key stats:</p>
+          <p>The <code>redis/redis</code> GitHub repository, home to the open-source Redis in-memory database, has released version <strong>8.6.1</strong>. Launched in 2009 with 73,221 stars and written in C, it supports caches, key-value stores, message brokers, time-series data, and vector search across <strong>distributed systems</strong>.</p>
+<p>The update addresses a security issue where users could inject <code>\r\n</code> sequences into Redis error replies to manipulate data read by connections. Bug fixes include:</p>
 <ul>
-<li><strong>Created</strong>: 2019-07-13</li>
-<li><strong>Stars</strong>: 103,449</li>
-<li><strong>Language</strong>: Rust
-(178 words)</li>
+<li><strong>#14785</strong>: <code>INFO</code> command now shows module information; adds missing <code>HOTKEYS HELP</code> subcommand.</li>
+<li><strong>#14789</strong>: Resolves RDB loading failure to expand hash tables, cutting load times.</li>
 </ul>
+<p>The README offers concrete paths for developers: quick starts via <a href="https://redis.io/docs/">redis.io/docs</a>, client libraries, <code>redis-cli</code>, or <strong>Redis Insight</strong> GUI. Source builds detailed for Ubuntu 20.04/22.04/24.04 and Debian 11/12, enabling all data structures like JSON and vectors.</p>
+<p>Redis powers real-time apps as a NoSQL engine, with cloud-hosted options and active community contributions via <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>. Last push: March 1, 2026.</p>
 
         </div>
         <div class="builders-take">
           <span class="builders-take-label">Builder's Take</span>
-          Developers building cross-platform UIs should prototype with Tauri&#39;s Rust CLI and a familiar web stack like React. Review the Cargo audit output before production deployment to address dependency warnings.
+          Test 8.6.1 in staging to verify security patches before production. Build from source on Ubuntu 22.04 for complete data structure support.
         </div>
         
       </article></div><div class="compact-grid">
       <article class="compact-article">
-        <h3 class="compact-headline">PocketBase Delivers Realtime Backend in Single Go File</h3>
-        <p class="compact-subheadline">Open-source tool embeds SQLite, authentication and admin UI, amassing 56,466 GitHub stars since 2022 launch</p>
+        <h3 class="compact-headline">Microsoft Ships Windows Terminal v1.23 Servicing Update</h3>
+        <p class="compact-subheadline">Bug fixes target IME compatibility, UI stability before upcoming 1.25 release</p>
         <div class="compact-meta">
-          <a href="https://github.com/pocketbase/pocketbase" target="_blank">pocketbase/pocketbase</a> · 56.5k stars · Go
+          <a href="https://github.com/microsoft/terminal" target="_blank">microsoft/terminal</a> · 102k stars · C++
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">Electron Hits v40.6.1 with Platform-Specific Fixes</h3>
-        <p class="compact-subheadline">Framework powers apps like VS Code; update targets Wayland, Windows, macOS bugs</p>
+        <h3 class="compact-headline">whisper.cpp v1.8.3 Adds iGPU Boost, VAD Upgrades</h3>
+        <p class="compact-subheadline">C/C++ port of OpenAI Whisper enhances inference across CPUs, GPUs and bindings.</p>
         <div class="compact-meta">
-          <a href="https://github.com/electron/electron" target="_blank">electron/electron</a> · 120.3k stars · C++
+          <a href="https://github.com/ggml-org/whisper.cpp" target="_blank">ggml-org/whisper.cpp</a> · 47.1k stars · C++
         </div>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/godotengine/godot" target="_blank">godot</a></span>
-        <span class="quick-hit-summary">Godot Engine builds multi-platform 2D/3D games with open-source freedom, exploding past 107K stars as Unity alternatives surge.</span>
-        <span class="quick-hit-stars">107.2k</span>
+        <span class="quick-hit-name"><a href="https://github.com/junegunn/fzf" target="_blank">fzf</a></span>
+        <span class="quick-hit-summary">fzf turbocharges terminal searches with fuzzy matching, Go-built powerhouse at 78k stars for instant dev productivity.</span>
+        <span class="quick-hit-stars">78.2k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/rust-lang/rust" target="_blank">rust</a></span>
-        <span class="quick-hit-summary">Rust crafts reliable, efficient software without crashes, topping 110K stars amid booming systems-level adoption.</span>
-        <span class="quick-hit-stars">110.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/sharkdp/bat" target="_blank">bat</a></span>
+        <span class="quick-hit-summary">Bat reimagines cat(1) with syntax highlighting and git diffs, Rust speedster soaring at 57k stars.</span>
+        <span class="quick-hit-stars">57.4k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/swiftlang/swift" target="_blank">swift</a></span>
-        <span class="quick-hit-summary">Swift powers fast, safe apps for Apple ecosystems, drawing 70K stars as iOS development accelerates.</span>
-        <span class="quick-hit-stars">69.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/prometheus/prometheus" target="_blank">prometheus</a></span>
+        <span class="quick-hit-summary">Prometheus provides scalable monitoring and time-series DB, Go essential hitting 63k stars in cloud-native boom.</span>
+        <span class="quick-hit-stars">63k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/FuelLabs/sway" target="_blank">sway</a></span>
-        <span class="quick-hit-summary">Sway enables reliable Rust-based smart contracts on Fuel, skyrocketing to 62K stars in hot DeFi builds.</span>
-        <span class="quick-hit-stars">61.9k</span>
+        <span class="quick-hit-name"><a href="https://github.com/starship/starship" target="_blank">starship</a></span>
+        <span class="quick-hit-summary">Starship delivers blazing-fast, customizable shell prompts for any CLI, Rust gem at 54k stars.</span>
+        <span class="quick-hit-stars">54.5k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/protocolbuffers/protobuf" target="_blank">protobuf</a></span>
-        <span class="quick-hit-summary">Protocol Buffers serialize data ultra-efficiently across langs, holding 71K stars for Google&#39;s scalable API backbone.</span>
-        <span class="quick-hit-stars">70.8k</span>
+        <span class="quick-hit-name"><a href="https://github.com/FFmpeg/FFmpeg" target="_blank">FFmpeg</a></span>
+        <span class="quick-hit-summary">FFmpeg handles all multimedia formats and streaming, C titan mirroring official repo at 57k stars.</span>
+        <span class="quick-hit-stars">57.5k</span>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="diy"><article class="lead-story">
-    <h2 class="lead-headline">ESPectre Harnesses Wi-Fi CSI for Privacy-First Motion Detection on ESP32</h2>
-    <p class="lead-subheadline">Open-source project delivers Home Assistant integration, ML-based sensing without calibration, and fixes for latest ESP32 chips in v2.5.1 release.</p>
+    <h2 class="lead-headline">mkpl CLI Tool Streamlines M3U Playlist Creation for Developers</h2>
+    <p class="lead-subheadline">Python-based utility scans directories, applies filters, and outputs playlists with new BPM sorting in v1.23.0 release.</p>
     <div class="lead-meta">
-      <span><a href="https://github.com/francescopace/espectre" target="_blank">francescopace/espectre</a></span>
-      <span>6.6k stars</span>
+      <span><a href="https://github.com/MatteoGuadrini/mkpl" target="_blank">MatteoGuadrini/mkpl</a></span>
+      <span>51 stars</span>
       <span>Python</span>
-      <span>Latest: 2.5.1</span>
+      <span>Latest: v1.23.0</span>
     </div>
     <div class="lead-body">
-      <p>Developers and DIY builders have a new tool for invisible motion sensing: <strong>francescopace/espectre</strong>, a Python-based ESP32 project amassing 6,582 GitHub stars since its October 2025 launch. Last updated February 2026, it analyzes Wi-Fi Channel State Information (CSI) to detect movement—without cameras, IR sensors, or batteries—integrating natively with Home Assistant via <strong>ESPHome</strong>.</p>
-<p>At its core, ESPectre sniffs Wi-Fi packets from nearby routers, extracting CSI data that reveals signal distortions caused by human motion. Subcarriers in the Wi-Fi spectrum shift subtly as bodies disrupt multipath propagation, enabling presence detection up to several meters. No line-of-sight needed; it works through walls.</p>
-<p>Version 2.5 introduces an <strong>ML Detector</strong>: an on-device neural network that skips traditional calibration entirely. Experimental but promising, it runs locally on ESP32 with a snapshot build (<code>-ml</code> assets). Feedback is solicited in <a href="https://github.com/francescopace/espectre/discussions/84">discussion #84</a>. For custom setups, see the <a href="SETUP.md#choosing-detection-algorithm">setup guide</a>.</p>
-<p>Recent release notes highlight production hardening:</p>
+      <p>Developers managing music libraries or media archives now have a precise CLI option in <code>mkpl</code>, a Python tool from MatteoGuadrini that generates <strong>M3U playlists</strong> from directory scans. Launched in 2022 with 51 GitHub stars, the project saw its latest push on March 1, 2026, and v1.23.0 release introduces BPM-based sorting.</p>
+<p>At its core, <code>mkpl</code> automates playlist assembly by recursively searching directories for multimedia files. Users specify paths via <code>-d</code> or <code>--directories</code>, exclude subdirs with <code>-e</code>, and enable recursion with <code>-r</code>. It filters ruthlessly: formats like <code>mp3</code> or <code>mkv</code> via <code>-f</code>/<code>--format</code>; additional types with <code>-i</code>/<code>--include</code>; regex patterns for inclusion (<code>-p</code>) or exclusion (<code>-P</code>).</p>
+<p>Size and duration controls add granularity. Set minimum file size (<code>-z</code>/<code>--size</code>, e.g., <code>2mb</code>) or maximum (<code>-A</code>/<code>--max-size</code>). Length filters (<code>-M</code> for minimum, excerpted in docs) ensure only viable tracks make the cut. The v1.23.0 update adds <code>--orderby-bpm</code>, enabling sorted playlists by beats per minute—critical for DJs or algorithmic music tools.</p>
+<p>Installation is straightforward. Recommended: <code>pip install make_playlist</code>. Or clone from GitHub and <code>pip install .</code>. Beyond CLI, import as a Python module for scripted workflows:</p>
+<pre><code class="language-python">from make_playlist import make_playlist
+playlist = make_playlist(directories=[&#39;/music&#39;], format=&#39;mp3&#39;, recursive=True)
+</code></pre>
+<p>This matters for builders scripting media pipelines. Topics like <code>playlist-generator</code> and <code>music-library</code> align with automation needs in home servers, NAS setups, or CI/CD for content apps. No bloat: pure CLI focus, open-source contributions welcome under standard license.</p>
+<p>Key arguments at a glance:</p>
 <ul>
-<li><strong>ESP32-C5/C6 fix</strong> for multi-antenna routers using STBC: Handles doubled HT-LTF fields (256-byte packets), extracting valid 64-subcarrier estimates.</li>
-<li><strong>ESP32-C3 calibration stability</strong>: Resolves OOM crashes in Micro-ESPectre NBVI mode, now succeeding with 59 KB free heap.</li>
-<li><strong>3x faster packet collection</strong> on C3 (28 → 80 pps) via optimized math (skipped sqrts, integer loops).</li>
-<li>ESPHome 2026.2.0+ compatibility and performance benchmarks in <code>PERFORMANCE.md</code>.</li>
+<li><strong>Directories &amp; Search</strong>: <code>-d</code> (paths), <code>-r</code> (recursive), <code>-e</code> (exclude dirs).</li>
+<li><strong>Formats &amp; Patterns</strong>: <code>-f</code> (format), <code>-i</code> (include list), <code>-p</code>/<code>-P</code> (regex).</li>
+<li><strong>Filters</strong>: <code>-z</code>/<code>-A</code> (size), <code>-M</code> (length min), new <code>--orderby-bpm</code>.</li>
 </ul>
-<p>Hardware is minimal: ESP32 (C3/C5/C6 supported), passive Wi-Fi monitor mode. Place near a 2.4 GHz router for best results—docs include a <a href="README.md#where-to-place-the-sensor">sensor placement guide</a>. Architecture splits into <strong>Micro-ESPectre</strong> (firmware) and host processing, with a two-platform strategy for flexibility.</p>
-<p>Privacy stands out: No images or audio captured; data stays local. Security via GPLv3 license. Active CI, 100% codecov, and ongoing evolution (e.g., git_ref substitutions) signal reliability for HA automations like lights or alerts.</p>
-<p>With rising demand for non-visual sensing in smart homes, ESPectre&#39;s broad chip support and calibration-free ML make it noteworthy now—especially as ESPHome matures.</p>
-<p>(Word count: 378)</p>
+<p>With active maintenance—latest release post-2025—the tool signals reliability for production scripts. Developers tired of manual VLC exports or brittle bash one-liners get a maintainable alternative.</p>
+<p>(Word count: 347)</p>
 
       <div class="builders-take">
         <span class="builders-take-label">Builder's Take</span>
-        Target ESP32-C3 for low-power Micro-ESPectre or C6 for advanced CSI; test ML detector via snapshot builds before production. Review `PERFORMANCE.md` for RAM/flash benchmarks and `SECURITY.md` for edge cases. Start with the quick-start YAML in ESPHome for HA integration, calibrating only if skipping ML.
+        Test with a small directory first to verify filters like size and BPM sorting match expectations, as regex patterns demand precision. Review full args in GitHub docs before scripting module usage. Fork if extending for custom formats, given the lean 51-star base.
       </div>
       
     </div></article><section class="secondary-section"><h2 class="section-header">Also Trending</h2><div class="featured-grid">
       <article class="featured-article">
-        <h3 class="featured-headline">OpenC3 COSMOS 7.0 RC2 Adds QuestDB Time Series Database</h3>
-        <p class="featured-subheadline">Ruby tool for embedded systems control updates TSDB tables and fixes bugs in release candidate</p>
+        <h3 class="featured-headline">Glasgow Interface Explorer: FPGA Tool for Electronics Debugging</h3>
+        <p class="featured-subheadline">2,132-star GitHub project resumes activity after maintainer&#39;s health recovery</p>
         <div class="featured-meta">
-          <a href="https://github.com/OpenC3/cosmos" target="_blank">OpenC3/cosmos</a> · 206 stars · Ruby
+          <a href="https://github.com/GlasgowEmbedded/glasgow" target="_blank">GlasgowEmbedded/glasgow</a> · 2.1k stars · Python
         </div>
         <div class="featured-body">
-          <p>The GitHub project <strong>OpenC3/cosmos</strong>, a Ruby-based platform for command, control, and telemetry of embedded systems, has released v7.0.0-rc2. Launched in July 2022 with 206 stars, it supports topics including automation, hardware integration, IoT, and spacecraft testing. Last updated March 1, 2026, it handles TCP/IP, UDP, and serial protocols.</p>
-<p>Core functionality covers telemetry display, graphing, operational scripting, command sending, logging, and log playback. Users configure &quot;targets&quot; for hardware like embedded devices, cell phones, or home automation setups.</p>
-<p>The RC2 builds on v6 with a <strong>QuestDB-powered TSDB</strong> for 10x faster data retrieval, eliminating reducer microservices. Changes since RC1 include SCOPE-prefixed TSDB table names (requiring <code>openc3.sh cleanup</code> on upgrade, which drops data), <code>TEMPLATE_BASE64</code> keyword, new admin themes, and fixes for TSDB, <code>STRUCTURE</code> keyword, Python microservices, and XTCE.</p>
-<p>License shifts from AGPL to the COSMOS Builder&#39;s License. Not for production; testing advised. Badges show passing Playwright, Ruby/Python unit, and API tests, with Codecov coverage.</p>
-<p>Documentation at <a href="https://openc3.com">openc3.com</a>.</p>
+          <p>The <code>Glasgow Interface Explorer</code>, hosted at GlasgowEmbedded/glasgow on GitHub, serves as a versatile &quot;Scots Army Knife&quot; for electronics work. This <strong>open-source hardware and software project</strong> uses Python and FPGA technology for debugging and interfacing tasks. It has garnered 2,132 stars since its creation on January 21, 2018, with the last push on February 27, 2026.</p>
+<p>Tagged as a <code>debugging-tool</code>, <code>fpga</code>, and <code>glasgow-interface-explorer</code>, it targets hardware builders needing precise protocol exploration. Full details reside in the <a href="https://glasgow-embedded.org/">documentation manual</a>.</p>
+<p>Activity slowed due to founder Catherine (@whitequark)&#39;s struggles with disability and social unrest. Now relocated to the UK with improved healthcare, she reports better capacity. The three-maintainer team plans expansion soon, though Crowd Supply orders lag behind.</p>
+<p>Newcomers and backers are urged to exercise patience, as hardware production hinges on human limits post &quot;extreme events.&quot; A <a href="https://patreon.com/whitequark">Patreon</a> supports the maintainer&#39;s living costs, separate from project progress.</p>
+<p>The project emphasizes recovery over rushed timelines, blending technical utility with real-world maintainer context.</p>
 
         </div>
         <div class="builders-take">
           <span class="builders-take-label">Builder's Take</span>
-          Developers testing embedded hardware should clone the repo, run `openc3.sh start` after config, and enable QuestDB console for SQL queries. Upgrade from RC1 requires cleanup to avoid table conflicts.
+          Review the full docs at glasgow-embedded.org before diving in. Support via Patreon if adopting for hardware projects, and anticipate firmware updates as maintainers ramp up.
         </div>
         
       </article></div><div class="compact-grid">
       <article class="compact-article">
-        <h3 class="compact-headline">Node Feature Discovery v0.18.3 Adds PowerPC, IBM Z Support</h3>
-        <p class="compact-subheadline">Kubernetes SIG patches tool to label nodes with hardware features across new architectures</p>
+        <h3 class="compact-headline">ESP32 IoT Clock Fixes Kids&#39; Commercial Timekeepers</h3>
+        <p class="compact-subheadline">GitHub project overcomes power loss, DST woes and readability issues in child sleep aids</p>
         <div class="compact-meta">
-          <a href="https://github.com/kubernetes-sigs/node-feature-discovery" target="_blank">kubernetes-sigs/node-feature-discovery</a> · 1k stars · Go
+          <a href="https://github.com/chrisns/childrens-clock" target="_blank">chrisns/childrens-clock</a> · 44 stars · C
         </div>
       </article>
 
       <article class="compact-article">
-        <h3 class="compact-headline">Venus OS Driver Integrates Serial Batteries into GX Systems</h3>
-        <p class="compact-subheadline">mr-manuel maintains Python tool for BMS data on Victron devices via dbus serial links</p>
+        <h3 class="compact-headline">MakerFrame Delivers Qt-QML Game Framework for RPG Builders</h3>
+        <p class="compact-subheadline">Cross-platform tool with visual editors runs on Windows, Android, Linux and supports hot updates</p>
         <div class="compact-meta">
-          <a href="https://github.com/mr-manuel/venus-os_dbus-serialbattery" target="_blank">mr-manuel/venus-os_dbus-serialbattery</a> · 217 stars · Python
+          <a href="https://github.com/leamus/MakerFrame" target="_blank">leamus/MakerFrame</a> · 102 stars · QML
         </div>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/fabkury/p3a" target="_blank">p3a</a></span>
-        <span class="quick-hit-summary">ESP32-P4 pixel art player brings retro animations to life on the latest Espressif chip for compact, high-res displays.</span>
-        <span class="quick-hit-stars">52</span>
+        <span class="quick-hit-name"><a href="https://github.com/pirate/mac-hardware-toys" target="_blank">mac-hardware-toys</a></span>
+        <span class="quick-hit-summary">Hack your Mac&#39;s brightness, fans, mic, and sensors like modular synths via shell piping for instant hardware experimentation.</span>
+        <span class="quick-hit-stars">231</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/Iron-E/nvim-highlite" target="_blank">nvim-highlite</a></span>
-        <span class="quick-hit-summary">Lite Neovim colorscheme generator slashes dev logic, letting you craft stunning themes in seconds amid Vim editor hype.</span>
-        <span class="quick-hit-stars">247</span>
+        <span class="quick-hit-name"><a href="https://github.com/a1ive/nwinfo" target="_blank">nwinfo</a></span>
+        <span class="quick-hit-summary">Lightweight C utility reveals deep Windows hardware details, essential for builders troubleshooting rigs amid rising PC builds.</span>
+        <span class="quick-hit-stars">502</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/LennartHennigs/ESPRotary" target="_blank">ESPRotary</a></span>
-        <span class="quick-hit-summary">ESPRotary library streamlines rotary encoder reads for Arduino/ESP builders tackling precise UI controls now.</span>
-        <span class="quick-hit-stars">185</span>
+        <span class="quick-hit-name"><a href="https://github.com/francescopace/espectre" target="_blank">espectre</a></span>
+        <span class="quick-hit-summary">ESPectre uses Wi-Fi CSI for ghost-like motion detection with Home Assistant integration, transforming smart homes now.</span>
+        <span class="quick-hit-stars">6.6k</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/omarKmekkawy/Useful-Youtube-Channels" target="_blank">Useful-Youtube-Channels</a></span>
-        <span class="quick-hit-summary">Curated YouTube channels list accelerates electronics and mechanical learning for makers seeking fresh tutorials.</span>
-        <span class="quick-hit-stars">344</span>
+        <span class="quick-hit-name"><a href="https://github.com/21cncstudio/project_aura" target="_blank">project_aura</a></span>
+        <span class="quick-hit-summary">ESP32-S3 air quality station with slick LVGL UI, MQTT, and Home Assistant ties into booming IoT health monitoring.</span>
+        <span class="quick-hit-stars">268</span>
       </div>
 
       <div class="quick-hit">
-        <span class="quick-hit-name"><a href="https://github.com/srg74/WLED-wemos-shield" target="_blank">WLED-wemos-shield</a></span>
-        <span class="quick-hit-summary">Wemos D1 Mini shield supercharges WLED firmware into universal LED controllers riding smart home LED trends.</span>
-        <span class="quick-hit-stars">554</span>
+        <span class="quick-hit-name"><a href="https://github.com/pikvm/pikvm" target="_blank">pikvm</a></span>
+        <span class="quick-hit-summary">Open-source Raspberry Pi IP-KVM delivers cheap remote hardware control, surging for DIY server management today.</span>
+        <span class="quick-hit-stars">9.8k</span>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="xPulse"><div class="section-empty">No X Pulse data available today. Check back tomorrow!</div></div>
 

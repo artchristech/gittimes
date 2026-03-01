@@ -18,6 +18,11 @@
   box-sizing: border-box;
 }
 
+::selection {
+  background-color: var(--accent);
+  color: var(--paper);
+}
+
 :root {
   --paper: #faf8f5;
   --ink: #1a1a1a;
@@ -93,9 +98,12 @@ body {
 /* === LEAD STORY === */
 
 .lead-story {
-  padding: 32px 0;
+  padding: 32px 24px;
+  border: 1px solid var(--rule-light);
   border-bottom: 2px solid var(--rule);
   margin-bottom: 32px;
+  contain: content;
+  isolation: isolate;
 }
 
 .lead-headline {
@@ -177,6 +185,9 @@ body {
 
 .secondary-section {
   margin-bottom: 32px;
+  padding: 20px 24px 24px;
+  background-color: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+  border-top: 2px solid var(--rule);
 }
 
 .section-header {
@@ -201,6 +212,8 @@ body {
 .secondary-article {
   background-color: var(--paper);
   padding: 20px 16px;
+  contain: content;
+  isolation: isolate;
 }
 
 .secondary-headline {
@@ -265,6 +278,8 @@ body {
 .featured-article {
   background-color: var(--paper);
   padding: 20px 16px;
+  contain: content;
+  isolation: isolate;
 }
 
 .featured-headline {
@@ -330,6 +345,8 @@ body {
 .compact-article {
   background-color: var(--paper);
   padding: 12px 16px;
+  contain: content;
+  isolation: isolate;
 }
 
 .compact-headline {
@@ -370,7 +387,7 @@ body {
 
 .quick-hits-section {
   border-top: 2px solid var(--rule);
-  padding-top: 20px;
+  padding: 20px 24px 0;
   margin-bottom: 40px;
 }
 
@@ -385,6 +402,8 @@ body {
   display: flex;
   gap: 10px;
   align-items: baseline;
+  contain: layout paint;
+  isolation: isolate;
 }
 
 .quick-hit:nth-child(n+4) {
@@ -1087,7 +1106,7 @@ body {
     
     <div class="archive-entry">
       <span class="archive-date">Sunday, March 1, 2026</span>
-      <a href="/editions/2026-03-01/" class="archive-headline">OpenCode Hits 113k Stars as Open Source AI Coding Agent Matures</a>
+      <a href="/editions/2026-03-01/" class="archive-headline">LobeHub Hits 72K Stars as Multi-Agent Collaboration Platform Matures</a>
       <span class="archive-tagline">“Premature optimization is the root of all evil.” — Donald Knuth</span>
     </div>
 
