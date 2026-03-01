@@ -302,6 +302,20 @@ async function fetchTrending(token, options = {}) {
   return categorizeDiverse(reScored);
 }
 
+function cleanReadmeExcerpt(raw) {
+  let text = raw;
+  // Strip HTML tags (badge images, divs, tables used for language switchers)
+  text = text.replace(/<[^>]+>/g, " ");
+  // Strip markdown image/badge syntax: ![alt](url)
+  text = text.replace(/!\[[^\]]*\]\([^)]*\)/g, "");
+  // Strip markdown links that are just bare URLs or badge links: [text](url)
+  // Keep the link text, remove the URL
+  text = text.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1");
+  // Collapse whitespace
+  text = text.replace(/\s+/g, " ").trim();
+  return text.slice(0, 2000);
+}
+
 async function enrichRepo(repo, token) {
   const [readmeData, releaseData] = await Promise.all([
     request(
@@ -319,7 +333,7 @@ async function enrichRepo(repo, token) {
   let readmeExcerpt = "";
   if (readmeData && readmeData.content) {
     const decoded = Buffer.from(readmeData.content, "base64").toString("utf-8");
-    readmeExcerpt = decoded.slice(0, 2000);
+    readmeExcerpt = cleanReadmeExcerpt(decoded);
   }
 
   let releaseNotes = "";

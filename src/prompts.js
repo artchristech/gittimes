@@ -15,6 +15,7 @@ ${repo.readmeExcerpt || "(no readme available)"}
 ${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
 
 Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need. Explain what the project does, why it matters, and what makes it noteworthy right now.
+Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
 Output EXACTLY in this format (include the markers):
 
@@ -41,6 +42,7 @@ ${repo.readmeExcerpt || "(no readme available)"}
 ${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
 
 Write in crisp newspaper style. No hype. Concrete details only.
+Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
 Output EXACTLY in this format (include the markers):
 
