@@ -34,15 +34,10 @@ function renderArchivePage(manifest, basePath) {
     </div>`;
   });
 
-  const rssUrl = basePath + "/feed.xml";
-  const atomUrl = basePath + "/feed.atom";
-
   return template
     .replace("{{STYLES}}", css)
     .replace(/\{\{BASE_PATH\}\}/g, basePath)
-    .replace("{{EDITION_LIST}}", rows.join("\n"))
-    .replace("{{RSS_URL}}", escapeHtml(rssUrl))
-    .replace("{{ATOM_URL}}", escapeHtml(atomUrl));
+    .replace("{{EDITION_LIST}}", rows.join("\n"));
 }
 
 module.exports = { renderArchivePage };

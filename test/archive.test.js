@@ -39,7 +39,6 @@ describe("renderArchivePage", () => {
   it("uses basePath in links", () => {
     const html = renderArchivePage(sampleManifest, "/gittimes");
     assert.ok(html.includes('href="/gittimes/"'));
-    assert.ok(html.includes("/gittimes/feed.xml"));
   });
 
   it("handles empty manifest", () => {

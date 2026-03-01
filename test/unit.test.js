@@ -143,15 +143,12 @@ describe("buildNavHtml", () => {
     assert.ok(result.includes("&rarr;"));
   });
 
-  it("renders archive and RSS links", () => {
+  it("renders archive link", () => {
     const result = buildNavHtml({
       archive: "/archive/",
-      rss: "/feed.xml",
     });
     assert.ok(result.includes("Archive"));
-    assert.ok(result.includes("RSS"));
     assert.ok(result.includes("/archive/"));
-    assert.ok(result.includes("/feed.xml"));
   });
 
   it("escapes HTML in URLs and labels", () => {

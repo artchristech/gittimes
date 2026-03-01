@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { assembleHtml, buildNavHtml, escapeHtml } = require("./render");
-const { generateFeed } = require("./feed");
+
 const { renderArchivePage } = require("./archive");
 
 /**
@@ -62,7 +62,6 @@ async function publish(content, outDir, options = {}) {
   const prevEntry = manifest.length > 0 ? manifest[0] : null;
   const nav = {
     archive: basePath + "/archive/",
-    rss: basePath + "/feed.xml",
   };
   if (prevEntry) {
     nav.prev = {
@@ -73,13 +72,9 @@ async function publish(content, outDir, options = {}) {
 
   // 3. Assemble HTML with nav
   const editionUrl = `${basePath}/editions/${dateStr}/`;
-  const rssUrl = basePath + "/feed.xml";
-  const atomUrl = basePath + "/feed.atom";
   const html = await assembleHtml(content, {
     date,
     nav,
-    rssUrl,
-    atomUrl,
   });
 
   // 4. Write edition to outDir/editions/YYYY-MM-DD/index.html
@@ -99,8 +94,7 @@ async function publish(content, outDir, options = {}) {
       const prevPrevEntry = manifest.length > 1 ? manifest[1] : null;
       const prevNav = {
         archive: basePath + "/archive/",
-        rss: basePath + "/feed.xml",
-        next: { url: editionUrl, label: "Next Edition" },
+            next: { url: editionUrl, label: "Next Edition" },
       };
       if (prevPrevEntry) {
         prevNav.prev = {
@@ -175,12 +169,7 @@ async function publish(content, outDir, options = {}) {
   const archiveHtml = renderArchivePage(manifest, basePath);
   fs.writeFileSync(path.join(archiveDir, "index.html"), archiveHtml);
 
-  // 10. Generate feeds
-  const feeds = generateFeed(manifest, siteUrl + basePath);
-  fs.writeFileSync(path.join(outDir, "feed.xml"), feeds.rss);
-  fs.writeFileSync(path.join(outDir, "feed.atom"), feeds.atom);
-
-  // 11. Generate custom 404 page
+  // 10. Generate custom 404 page
   const fourOhFourTemplatePath = path.join(__dirname, "..", "templates", "404.html");
   if (fs.existsSync(fourOhFourTemplatePath)) {
     const fourOhFourTemplate = fs.readFileSync(fourOhFourTemplatePath, "utf-8");

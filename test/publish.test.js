@@ -96,9 +96,6 @@ describe("publish", () => {
     assert.ok(fs.existsSync(path.join(tmpDir, "editions", "manifest.json")));
     // Archive
     assert.ok(fs.existsSync(path.join(tmpDir, "archive", "index.html")));
-    // Feeds
-    assert.ok(fs.existsSync(path.join(tmpDir, "feed.xml")));
-    assert.ok(fs.existsSync(path.join(tmpDir, "feed.atom")));
     // .nojekyll
     assert.ok(fs.existsSync(path.join(tmpDir, ".nojekyll")));
   });
@@ -118,7 +115,7 @@ describe("publish", () => {
     const html = fs.readFileSync(path.join(tmpDir, "editions", "2026-02-23", "index.html"), "utf-8");
     assert.ok(html.includes("edition-nav"));
     assert.ok(html.includes("Archive"));
-    assert.ok(html.includes("RSS"));
+    assert.ok(html.includes("Archive"));
   });
 
   it("second publish adds next link to previous edition", async () => {

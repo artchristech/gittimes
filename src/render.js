@@ -176,7 +176,7 @@ function renderXPulseContent(sectionData, sectionConfig) {
 
 /**
  * Build navigation HTML for edition pages.
- * @param {object} nav - { prev?: { url, label }, next?: { url, label }, archive?: string, rss?: string }
+ * @param {object} nav - { prev?: { url, label }, next?: { url, label }, archive?: string }
  * @returns {string} HTML string (empty string if no nav provided)
  */
 function buildNavHtml(nav) {
@@ -187,9 +187,6 @@ function buildNavHtml(nav) {
   }
   if (nav.archive) {
     links.push(`<a href="${escapeHtml(nav.archive)}">Archive</a>`);
-  }
-  if (nav.rss) {
-    links.push(`<a href="${escapeHtml(nav.rss)}">RSS</a>`);
   }
   if (nav.next) {
     links.push(`<a href="${escapeHtml(nav.next.url)}">${escapeHtml(nav.next.label)} &rarr;</a>`);
@@ -290,8 +287,6 @@ async function assembleMultiSectionHtml(content, options = {}) {
   });
 
   const navHtml = buildNavHtml(options.nav);
-  const rssUrl = options.rssUrl || "";
-  const atomUrl = options.atomUrl || "";
 
   // Build section nav
   const sectionNavHtml = renderSectionNav(SECTION_ORDER, content.sections, SECTIONS);
@@ -315,9 +310,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace("{{LEAD_STORY_SECTION}}", "")
     .replace("{{SECONDARY_SECTION}}", "")
     .replace("{{QUICK_HITS_SECTION}}", "")
-    .replace(/\{\{NAVIGATION\}\}/g, navHtml)
-    .replace("{{RSS_URL}}", escapeHtml(rssUrl))
-    .replace("{{ATOM_URL}}", escapeHtml(atomUrl));
+    .replace(/\{\{NAVIGATION\}\}/g, navHtml);
 
   return html;
 }
@@ -326,7 +319,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
  * Assemble full HTML string from content + options.
  * Detects content shape: if content.sections exists, uses multi-section path.
  * @param {object} content - { lead, secondary, quickHits, tagline } OR { sections: {...}, tagline }
- * @param {object} [options] - { date?: Date, nav?: object, rssUrl?: string, atomUrl?: string }
+ * @param {object} [options] - { date?: Date, nav?: object }
  * @returns {Promise<string>} Complete HTML string
  */
 async function assembleHtml(content, options = {}) {
@@ -351,8 +344,6 @@ async function assembleHtml(content, options = {}) {
     day: "numeric",
   });
   const navHtml = buildNavHtml(options.nav);
-  const rssUrl = options.rssUrl || "";
-  const atomUrl = options.atomUrl || "";
 
   // Build lead section — only render if lead exists
   let leadSectionHtml = "";
@@ -390,8 +381,6 @@ async function assembleHtml(content, options = {}) {
     .replace("{{SECONDARY_SECTION}}", secondarySectionHtml)
     .replace("{{QUICK_HITS_SECTION}}", quickHitsSectionHtml)
     .replace(/\{\{NAVIGATION\}\}/g, navHtml)
-    .replace("{{RSS_URL}}", escapeHtml(rssUrl))
-    .replace("{{ATOM_URL}}", escapeHtml(atomUrl))
     // Clear multi-section placeholders unused in legacy mode
     .replace("{{SECTION_NAV}}", "")
     .replace("{{SECTION_PANELS}}", "");
