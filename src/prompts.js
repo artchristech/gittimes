@@ -1,3 +1,8 @@
+function trajectoryBlock(repo) {
+  if (!repo.starTrajectory?.summary) return "";
+  return `\n${repo.starTrajectory.summary}\n\nIf STAR TRAJECTORY data is provided above, use it to contextualize growth accurately. Do not exaggerate beyond what the trajectory supports.\n`;
+}
+
 function leadArticlePrompt(repo) {
   return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
 
@@ -8,7 +13,7 @@ PROJECT DATA:
 - Topics: ${repo.topics.join(", ") || "none listed"}
 - Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}
-
+${trajectoryBlock(repo)}
 README EXCERPT:
 ${repo.readmeExcerpt || "(no readme available)"}
 
@@ -35,7 +40,7 @@ PROJECT DATA:
 - Topics: ${repo.topics.join(", ") || "none listed"}
 - Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}
-
+${trajectoryBlock(repo)}
 README EXCERPT:
 ${repo.readmeExcerpt || "(no readme available)"}
 
@@ -79,12 +84,17 @@ Write a single tagline (max 15 words) that captures today's theme — witty, obs
 
 function breakoutArticlePrompt(repo, delta) {
   const deltaContext = delta
-    ? `- Star gain: +${(delta.starDelta || 0).toLocaleString()} (from ${(delta.previousStars || 0).toLocaleString()} to ${repo.stars.toLocaleString()})
+    ? `DAILY SNAPSHOT DATA (from automated daily comparison — may contain inaccuracies if snapshot timing is irregular):
+- Star gain: +${(delta.starDelta || 0).toLocaleString()} (from ${(delta.previousStars || 0).toLocaleString()} to ${repo.stars.toLocaleString()})
 - Days since last snapshot: ${delta.daysSinceSnapshot || "unknown"}
 - Star velocity: ${delta.starVelocity ? Math.round(delta.starVelocity) + " stars/day" : "unknown"}`
     : "";
 
-  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 400-500 word BREAKOUT article about this GitHub project that has seen explosive growth.
+  const trajectorySection = repo.starTrajectory?.summary
+    ? `\n${repo.starTrajectory.summary}\n`
+    : "";
+
+  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 400-500 word BREAKOUT article about this GitHub project that has seen notable growth.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -93,8 +103,7 @@ PROJECT DATA:
 - Topics: ${repo.topics.join(", ") || "none listed"}
 - Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}
-
-GROWTH DATA:
+${trajectorySection}
 ${deltaContext}
 
 README EXCERPT:
@@ -102,14 +111,18 @@ ${repo.readmeExcerpt || "(no readme available)"}
 
 ${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
 
-This is a BREAKOUT story — lead with the dramatic change. Convey the magnitude of growth. Explain what triggered the surge if possible. Then explain what the project does and why it matters.
+WRITING GUIDELINES:
+- Use the STAR TRAJECTORY as the authoritative source for growth claims. Describe the actual growth pattern objectively.
+- If daily snapshot data contradicts the trajectory, trust the trajectory.
+- Do not claim thousands of stars were gained "overnight" or "in 24 hours" unless the trajectory clearly supports it.
+- Focus on the project's technical merits and why it is gaining attention, not just raw numbers.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations.
 
 Output EXACTLY in this format (include the markers):
 
-HEADLINE: [A compelling newspaper headline conveying explosive growth, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline with specific numbers, 12-20 words]
-BODY: [400-500 word article body. Lead with the growth numbers. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+HEADLINE: [A compelling newspaper headline about this project's growth story, 8-12 words]
+SUBHEADLINE: [A clarifying subheadline with accurate context, 12-20 words]
+BODY: [400-500 word article body. Contextualize growth using trajectory data. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
 BUILDERS_TAKE: [2-3 sentences of practical advice for developers considering this project.]`;
 }
 

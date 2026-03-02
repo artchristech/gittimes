@@ -32,9 +32,10 @@ function _repoText(repo) {
  * Minimum threshold: 100 stars gained.
  * @param {Array} repos - Raw GitHub repo objects
  * @param {Map} deltas - From computeDeltas
+ * @param {Map} [trajectories] - Optional star trajectory data from fetchTrajectories
  * @returns {{ repo: object, delta: object, reason: string } | null}
  */
-function identifyBreakout(repos, deltas) {
+function identifyBreakout(repos, deltas, trajectories) {
   if (!deltas || deltas.size === 0) return null;
 
   let best = null;
@@ -50,11 +51,20 @@ function identifyBreakout(repos, deltas) {
 
     if (score > bestScore) {
       bestScore = score;
-      best = {
-        repo,
-        delta,
-        reason: `Gained ${absoluteGain.toLocaleString()} stars (${delta.previousStars ? Math.round(relativeGain * 100) + "%" : "new"} growth) in ${delta.daysSinceSnapshot} day(s)`,
-      };
+      let reason = `Gained ${absoluteGain.toLocaleString()} stars (${delta.previousStars ? Math.round(relativeGain * 100) + "%" : "new"} growth) in ${delta.daysSinceSnapshot} day(s)`;
+
+      // Annotate if trajectory data suggests the delta may be inflated
+      if (trajectories) {
+        const trajectory = trajectories.get(repo.full_name);
+        if (trajectory && trajectory.growthPattern) {
+          const pattern = trajectory.growthPattern;
+          if ((pattern === "steady" || pattern === "slow-burn" || pattern === "stagnant") && relativeGain > 1) {
+            reason += ` [NOTE: trajectory shows "${pattern}" growth — delta may reflect snapshot gap, not sudden surge]`;
+          }
+        }
+      }
+
+      best = { repo, delta, reason };
     }
   }
 

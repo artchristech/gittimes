@@ -5,6 +5,65 @@ const GITHUB_API = "https://api.github.com";
 const pRetryP = import("p-retry");
 const pLimitP = import("p-limit");
 
+function _graphqlRequest(query, variables, token) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({ query, variables });
+    const options = {
+      hostname: "api.github.com",
+      path: "/graphql",
+      method: "POST",
+      headers: {
+        "User-Agent": "GitTimes/1.0",
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+      },
+    };
+    if (token) options.headers.Authorization = `Bearer ${token}`;
+
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => {
+        if (res.statusCode >= 400) {
+          reject(new Error(`GitHub GraphQL ${res.statusCode}: ${data.slice(0, 200)}`));
+          return;
+        }
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.errors) {
+            reject(new Error(`GitHub GraphQL error: ${parsed.errors[0].message}`));
+            return;
+          }
+          resolve(parsed);
+        } catch (e) {
+          reject(new Error(`GitHub GraphQL returned invalid JSON (status ${res.statusCode}): ${data.slice(0, 200)}`));
+        }
+      });
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+async function graphqlRequest(query, variables, token) {
+  const { default: pRetry, AbortError } = await pRetryP;
+  return pRetry(() => _graphqlRequest(query, variables, token), {
+    retries: 3,
+    minTimeout: 1000,
+    randomize: true,
+    onFailedAttempt(info) {
+      const msg = info.error?.message || String(info.error);
+      console.warn(
+        `GitHub GraphQL attempt ${info.attemptNumber} failed (${info.retriesLeft} left): ${msg}`
+      );
+      if (/GitHub GraphQL 4\d{2}:/.test(msg)) {
+        throw new AbortError(msg);
+      }
+    },
+  });
+}
+
 function _request(url, token) {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
@@ -487,6 +546,19 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
     [lead, ...secondary].map((r) => enrichLimit(() => enrichRepo(r, token)))
   );
 
+  // Fetch star trajectories for enriched repos
+  try {
+    const { fetchTrajectories } = require("./star-history");
+    console.log(`  Fetching star trajectories (${sectionConfig.label})...`);
+    const trajectories = await fetchTrajectories(enriched, token);
+    for (const repo of enriched) {
+      const t = trajectories.get(repo.name);
+      if (t) repo.starTrajectory = t;
+    }
+  } catch (err) {
+    console.warn(`Star trajectory fetch failed for ${sectionConfig.label} (non-fatal): ${err.message}`);
+  }
+
   return {
     lead: enriched[0],
     secondary: enriched.slice(1),
@@ -553,6 +625,19 @@ async function fetchAndEnrich(token, options = {}) {
   const enrichedSecondary = enriched.slice(1);
   const quickHitsList = quickHits.map(toQuickHit);
 
+  // Fetch star trajectories for enriched repos
+  try {
+    const { fetchTrajectories } = require("./star-history");
+    console.log("Fetching star trajectories (front page)...");
+    const trajectories = await fetchTrajectories(enriched, token);
+    for (const repo of enriched) {
+      const t = trajectories.get(repo.name);
+      if (t) repo.starTrajectory = t;
+    }
+  } catch (err) {
+    console.warn(`Star trajectory fetch failed (non-fatal): ${err.message}`);
+  }
+
   return {
     lead: enrichedLead,
     secondary: enrichedSecondary,
@@ -560,4 +645,4 @@ async function fetchAndEnrich(token, options = {}) {
   };
 }
 
-module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection };
+module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, graphqlRequest };

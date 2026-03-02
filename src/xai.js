@@ -306,6 +306,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
     try {
       console.log(`  Generating breakout article for ${editorialPlan.breakout.repo.full_name || editorialPlan.breakout.repo.name}...`);
       const { enrichRepo } = require("./github");
+      const { fetchStarTrajectory } = require("./star-history");
       // Enrich the breakout repo if it's a raw GitHub object
       let breakoutRepo = editorialPlan.breakout.repo;
       if (!breakoutRepo.readmeExcerpt && breakoutRepo.full_name) {
@@ -314,6 +315,23 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
           if (token) breakoutRepo = await enrichRepo(breakoutRepo, token);
         } catch {
           // Use raw repo data if enrichment fails
+        }
+      }
+
+      // Fetch star trajectory for the breakout repo
+      if (!breakoutRepo.starTrajectory) {
+        try {
+          const token = process.env.GITHUB_TOKEN;
+          const fullName = breakoutRepo.name || breakoutRepo.full_name;
+          if (token && fullName) {
+            const trajectory = await fetchStarTrajectory(fullName, token);
+            if (trajectory) {
+              breakoutRepo.starTrajectory = trajectory;
+              console.log(`  Breakout star trajectory: ${fullName} — ${trajectory.totalStars.toLocaleString()} stars, ${trajectory.growthPattern}`);
+            }
+          }
+        } catch (err) {
+          console.warn(`Breakout trajectory fetch failed (non-fatal): ${err.message}`);
         }
       }
 
