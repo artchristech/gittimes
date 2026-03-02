@@ -186,23 +186,23 @@ describe("generateSectionContent", () => {
       if (prompt.includes("qh1") || prompt.includes("quick")) {
         return "1. Quick summary A";
       }
+      // bad-sec prompt — always returns unparseable (check before lead to avoid "Do not lead with" false match)
+      if (prompt.includes("bad-sec") || prompt.includes("Bad-sec")) {
+        return badResponse();
+      }
       // Lead repo prompt
-      if (prompt.includes("lead") || prompt.includes("Lead")) {
+      if (prompt.includes("org/lead-repo")) {
         return goodArticle("Lead Story");
       }
       // good-sec prompt
       if (prompt.includes("good-sec") || prompt.includes("Good-sec")) {
         return goodArticle("Good Secondary");
       }
-      // bad-sec prompt — always returns unparseable
-      if (prompt.includes("bad-sec") || prompt.includes("Bad-sec")) {
-        return badResponse();
-      }
       return goodArticle("Default");
     });
 
     const sectionData = {
-      lead: makeRepo("lead"),
+      lead: makeRepo("lead-repo"),
       secondary: [makeRepo("good-sec"), makeRepo("bad-sec")],
       quickHits: [makeRepo("qh1")],
     };

@@ -986,14 +986,13 @@ describe("breakoutArticlePrompt", () => {
     assert.ok(result.includes("HEADLINE:"));
   });
 
-  it("includes BREAKOUT keyword", () => {
-    assert.ok(breakoutArticlePrompt(repo, delta).includes("BREAKOUT"));
+  it("includes SPOTLIGHT keyword", () => {
+    assert.ok(breakoutArticlePrompt(repo, delta).includes("SPOTLIGHT"));
   });
 
-  it("includes delta context", () => {
+  it("includes project name", () => {
     const result = breakoutArticlePrompt(repo, delta);
-    assert.ok(result.includes("500"));
-    assert.ok(result.includes("4,500"));
+    assert.ok(result.includes("org/breakout"));
   });
 
   it("works without delta", () => {

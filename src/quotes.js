@@ -63,26 +63,62 @@ const QUOTES = [
 ];
 
 /**
- * Pick a random quote, seeded by the current UTC date so each edition gets
- * a consistent quote for the day but a different one tomorrow.
+ * Load recently used taglines from the edition manifest.
+ * @param {string} [outDir] - Output directory (defaults to ./site)
+ * @returns {Set<string>} Set of recently used quote texts
+ */
+function _recentTaglines(outDir) {
+  const used = new Set();
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const dir = outDir || "./site";
+    const manifestPath = path.join(dir, "editions", "manifest.json");
+    if (fs.existsSync(manifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+      for (const entry of manifest) {
+        if (entry.tagline) used.add(entry.tagline);
+      }
+    }
+  } catch {
+    // Non-fatal — if manifest can't be read, no exclusions
+  }
+  return used;
+}
+
+/**
+ * Pick a quote that hasn't been used in recent editions.
+ * Falls back to date-seeded selection if all quotes have been used.
  * @param {Date} [date] - Optional date override (defaults to now)
+ * @param {string} [outDir] - Output directory for manifest lookup
  * @returns {{ text: string, author: string }}
  */
-function pickQuote(date) {
+function pickQuote(date, outDir) {
   const d = date || new Date();
-  // Simple day-based seed: YYYYMMDD as an integer
   const seed = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-  const index = seed % QUOTES.length;
-  return QUOTES[index];
+
+  const recentTaglines = _recentTaglines(outDir);
+
+  // Filter to quotes not recently used
+  const available = QUOTES.filter(
+    (q) => !recentTaglines.has(`\u201C${q.text}\u201D \u2014 ${q.author}`)
+  );
+
+  // If all quotes have been used, allow any (full cycle reset)
+  const pool = available.length > 0 ? available : QUOTES;
+
+  const index = seed % pool.length;
+  return pool[index];
 }
 
 /**
  * Format a quote for the masthead tagline.
  * @param {Date} [date] - Optional date override
+ * @param {string} [outDir] - Output directory for manifest lookup
  * @returns {string} Formatted quote string
  */
-function mastheadQuote(date) {
-  const { text, author } = pickQuote(date);
+function mastheadQuote(date, outDir) {
+  const { text, author } = pickQuote(date, outDir);
   return `\u201C${text}\u201D \u2014 ${author}`;
 }
 

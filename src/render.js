@@ -51,9 +51,9 @@ function renderLeadStory(article) {
     <p class="lead-subheadline">${escapeHtml(subheadline)}</p>
     <div class="lead-meta">
       <span><a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a></span>
-      <span>${formatStars(repo.stars)} stars</span>
       <span>${escapeHtml(repo.language)}</span>
       ${repo.releaseName ? `<span>Latest: ${escapeHtml(repo.releaseName)}</span>` : ""}
+      <span>${formatStars(repo.stars)} stars</span>
     </div>
     <div class="lead-body">
       ${bodyToHtml(body)}
@@ -72,7 +72,7 @@ function renderSecondaryArticle(article) {
         <h3 class="secondary-headline">${escapeHtml(headline)}</h3>
         <p class="secondary-subheadline">${escapeHtml(subheadline)}</p>
         <div class="secondary-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${formatStars(repo.stars)} stars · ${escapeHtml(repo.language)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars
         </div>
         <div class="secondary-body">
           ${bodyToHtml(body)}
@@ -91,7 +91,7 @@ function renderFeaturedArticle(article) {
         <h3 class="featured-headline">${escapeHtml(headline)}</h3>
         <p class="featured-subheadline">${escapeHtml(subheadline)}</p>
         <div class="featured-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${formatStars(repo.stars)} stars · ${escapeHtml(repo.language)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars
         </div>
         <div class="featured-body">
           ${bodyToHtml(body)}
@@ -111,7 +111,7 @@ function renderCompactArticle(article) {
         <h3 class="compact-headline">${escapeHtml(headline)}</h3>
         <p class="compact-subheadline">${escapeHtml(subheadline)}</p>
         <div class="compact-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${formatStars(repo.stars)} stars · ${escapeHtml(repo.language)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars
         </div>
       </article>`;
 }
@@ -216,7 +216,7 @@ function renderSectionContent(sectionData, sectionConfig) {
     const compact = sectionData.secondary.slice(featuredCount);
 
     html += `<section class="secondary-section">`;
-    html += `<h2 class="section-header">Also Trending</h2>`;
+    html += `<h2 class="section-header">More Stories</h2>`;
     if (featured.length > 0) {
       html += `<div class="featured-grid">${featured.map(renderFeaturedArticle).join("\n")}</div>`;
     }
@@ -332,7 +332,7 @@ async function assembleHtml(content, options = {}) {
     const featured = content.secondary.slice(0, 2);
     const compact = content.secondary.slice(2);
     secondarySectionHtml = `<section class="secondary-section">
-    <h2 class="section-header">Also Trending</h2>
+    <h2 class="section-header">More Stories</h2>
     <div class="featured-grid">${featured.map(renderFeaturedArticle).join("\n")}</div>
     ${compact.length > 0 ? `<div class="compact-grid">${compact.map(renderCompactArticle).join("\n")}</div>` : ""}
   </section>`;
