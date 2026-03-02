@@ -560,4 +560,4 @@ async function fetchAndEnrich(token, options = {}) {
   };
 }
 
-module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection };
+module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection };
