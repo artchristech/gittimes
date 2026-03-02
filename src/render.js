@@ -145,33 +145,8 @@ function renderSentimentBadge(xSentiment) {
   return badgeHtml;
 }
 
-function renderXPulseContent(sectionData, sectionConfig) {
-  if (!sectionData || !sectionData.pulseItems || sectionData.pulseItems.length === 0) {
-    return `<div class="section-empty">No X Pulse data available today. Check back tomorrow!</div>`;
-  }
-
-  let html = `<div class="x-pulse-section">`;
-  html += `<p class="x-pulse-intro">What the tech community is talking about on X right now</p>`;
-
-  for (const item of sectionData.pulseItems) {
-    html += `<article class="x-pulse-item">`;
-    html += `<h3 class="x-pulse-topic">${escapeHtml(item.topic)}</h3>`;
-    if (item.blurb) {
-      html += `<p class="x-pulse-blurb">${escapeHtml(item.blurb)}</p>`;
-    }
-    html += `<div class="x-pulse-meta">`;
-    if (item.sentiment) {
-      html += `<span class="x-sentiment-badge x-sentiment-${escapeHtml(item.sentiment)}">${escapeHtml(item.sentiment)}</span>`;
-    }
-    if (item.handles) {
-      html += `<span class="x-pulse-handles">${escapeHtml(item.handles)}</span>`;
-    }
-    html += `</div>`;
-    html += `</article>`;
-  }
-
-  html += `</div>`;
-  return html;
+function renderMemesContent(sectionData, sectionConfig) {
+  return `<div class="section-empty">Memes section coming soon. Check back tomorrow!</div>`;
 }
 
 /**
@@ -221,7 +196,7 @@ function renderSectionNav(sectionOrder, sections, sectionConfigs) {
  * @returns {string} HTML string
  */
 function renderSectionContent(sectionData, sectionConfig) {
-  if (sectionConfig.isXPulse) return renderXPulseContent(sectionData, sectionConfig);
+  if (sectionConfig.isMemes) return renderMemesContent(sectionData, sectionConfig);
 
   if (!sectionData || sectionData.isEmpty || !sectionData.lead) {
     return `<div class="section-empty">No stories found for ${escapeHtml(sectionConfig.label)} today. Check back tomorrow!</div>`;
@@ -405,4 +380,4 @@ async function render(content) {
   return outPath;
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderSentimentBadge, renderXPulseContent };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderSentimentBadge, renderMemesContent };

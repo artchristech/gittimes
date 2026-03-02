@@ -62,15 +62,15 @@ const SECTIONS = {
       languages: [],
     },
   },
-  xPulse: {
-    id: "xPulse",
-    label: "X Pulse",
+  memes: {
+    id: "memes",
+    label: "Memes",
     budget: { secondary: 0, quickHits: 0 },
     query: null,
-    isXPulse: true,
+    isMemes: true,
   },
 };
 
-const SECTION_ORDER = ["frontPage", "ai", "robotics", "cyber", "systems", "diy", "xPulse"];
+const SECTION_ORDER = ["frontPage", "ai", "robotics", "cyber", "systems", "diy", "memes"];
 
 module.exports = { SECTIONS, SECTION_ORDER };

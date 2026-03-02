@@ -262,6 +262,15 @@ async function fetchTrending(token, options = {}) {
 
   console.log(`Found ${repos.length} unique repos`);
 
+  // Collect raw candidates for editorial pipeline
+  if (options.rawCollector) {
+    for (const repo of repos) {
+      if (!options.rawCollector.some((r) => r.full_name === repo.full_name)) {
+        options.rawCollector.push(repo);
+      }
+    }
+  }
+
   // Score ALL repos (without release info first)
   const now = Date.now();
   const scoreOpts = { recentRepoNames, now };
@@ -414,6 +423,15 @@ async function fetchSectionRepos(token, sectionConfig, options = {}) {
     }
   }
 
+  // Collect raw candidates for editorial pipeline
+  if (options.rawCollector) {
+    for (const repo of repos) {
+      if (!options.rawCollector.some((r) => r.full_name === repo.full_name)) {
+        options.rawCollector.push(repo);
+      }
+    }
+  }
+
   return repos;
 }
 
@@ -485,10 +503,11 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
 async function fetchAllSections(token, options = {}) {
   const { SECTIONS, SECTION_ORDER } = require("./sections");
   const recentRepoNames = options.recentRepoNames || new Set();
+  const rawCollector = [];
 
   // Front Page first — uses existing fetchAndEnrich (unchanged behavior)
   console.log("Fetching Front Page...");
-  const frontPageData = await fetchAndEnrich(token, { recentRepoNames });
+  const frontPageData = await fetchAndEnrich(token, { recentRepoNames, rawCollector });
 
   // Build globalSeen from Front Page lead + secondary only (not quickHits).
   // Only lead repos are hard-excluded to prevent duplicate headlines;
@@ -506,9 +525,10 @@ async function fetchAllSections(token, options = {}) {
     const config = SECTIONS[id];
     if (!config || !config.query) continue;
     console.log(`Fetching section: ${config.label}...`);
-    sections[id] = await fetchAndEnrichSection(token, config, { globalSeen, recentRepoNames });
+    sections[id] = await fetchAndEnrichSection(token, config, { globalSeen, recentRepoNames, rawCollector });
   }
 
+  sections._rawCandidates = rawCollector;
   return sections;
 }
 

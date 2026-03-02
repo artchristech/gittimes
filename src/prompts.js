@@ -77,9 +77,134 @@ function editionTaglinePrompt(lead, secondary) {
 Write a single tagline (max 15 words) that captures today's theme — witty, observational, like a newspaper edition subtitle. No quotes, no hype. Just the tagline, nothing else.`;
 }
 
+function breakoutArticlePrompt(repo, delta) {
+  const deltaContext = delta
+    ? `- Star gain: +${(delta.starDelta || 0).toLocaleString()} (from ${(delta.previousStars || 0).toLocaleString()} to ${repo.stars.toLocaleString()})
+- Days since last snapshot: ${delta.daysSinceSnapshot || "unknown"}
+- Star velocity: ${delta.starVelocity ? Math.round(delta.starVelocity) + " stars/day" : "unknown"}`
+    : "";
+
+  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 400-500 word BREAKOUT article about this GitHub project that has seen explosive growth.
+
+PROJECT DATA:
+- Name: ${repo.name}
+- Description: ${repo.description}
+- Stars: ${repo.stars.toLocaleString()} | Language: ${repo.language}
+- Topics: ${repo.topics.join(", ") || "none listed"}
+- Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
+${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}
+
+GROWTH DATA:
+${deltaContext}
+
+README EXCERPT:
+${repo.readmeExcerpt || "(no readme available)"}
+
+${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
+
+This is a BREAKOUT story — lead with the dramatic change. Convey the magnitude of growth. Explain what triggered the surge if possible. Then explain what the project does and why it matters.
+Write entirely in English. Do not reference multilingual documentation, language badges, or translations.
+
+Output EXACTLY in this format (include the markers):
+
+HEADLINE: [A compelling newspaper headline conveying explosive growth, 8-12 words]
+SUBHEADLINE: [A clarifying subheadline with specific numbers, 12-20 words]
+BODY: [400-500 word article body. Lead with the growth numbers. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+BUILDERS_TAKE: [2-3 sentences of practical advice for developers considering this project.]`;
+}
+
+function trendArticlePrompt(trend) {
+  const repoList = trend.repos
+    .map(
+      (r) =>
+        `  - ${r.full_name || r.name}: ${r.description || "no description"} (${(r.stargazers_count || r.stars || 0).toLocaleString()} stars, ${r.language || "Unknown"})`
+    )
+    .join("\n");
+
+  return `You are a senior technology journalist writing for The Git Times. Write a 250-350 word TREND article about an emerging pattern in open source.
+
+TREND THEME: ${trend.theme}
+
+REPOS IN THIS CLUSTER:
+${repoList}
+
+The story is the PATTERN, not any single repo. Reference individual repos as evidence of the trend. Explain what this cluster tells us about where open source is heading.
+Write entirely in English.
+
+Output EXACTLY in this format (include the markers):
+
+HEADLINE: [A compelling headline about the trend pattern, 8-12 words]
+SUBHEADLINE: [A clarifying subheadline, 12-20 words]
+BODY: [250-350 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+BUILDERS_TAKE: [2-3 sentences about what this trend means for developers.]`;
+}
+
+function sleeperArticlePrompt(sleeper) {
+  const repo = sleeper.repo;
+  const stars = repo.stargazers_count || repo.stars || 0;
+  const name = repo.full_name || repo.name;
+  const description = repo.description || "no description";
+  const language = repo.language || "Unknown";
+  const topics = (repo.topics || []).join(", ") || "none listed";
+
+  return `You are a technology journalist writing for The Git Times "Deep Cuts" section — hidden gems most developers haven't discovered yet. Write a 150-200 word feature.
+
+PROJECT DATA:
+- Name: ${name}
+- Description: ${description}
+- Stars: ${stars.toLocaleString()} | Language: ${language}
+- Topics: ${topics}
+
+WHY SELECTED: ${sleeper.reason}
+
+Frame this as a discovery. Convey why this small project deserves attention. Be enthusiastic but specific.
+Write entirely in English.
+
+Output EXACTLY in this format (include the markers):
+
+HEADLINE: [An intriguing headline, 6-10 words]
+SUBHEADLINE: [A clarifying subheadline, 10-16 words]
+BODY: [150-200 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names.]
+BUILDERS_TAKE: [1-2 sentences of practical advice.]`;
+}
+
+function editorInChiefPrompt(candidateSummary) {
+  return `You are the Editor-in-Chief of The Git Times, a daily tech newspaper. Review today's candidate repos and make editorial decisions.
+
+TOP CANDIDATES:
+${candidateSummary}
+
+Based on this data, respond with:
+1. LEAD: Which repo should be the front page lead and why (1 sentence)
+2. TRENDS: Name up to 3 patterns you see across these repos (1 sentence each)
+3. SLEEPERS: Identify 1-2 under-the-radar repos worth featuring (1 sentence each)
+
+Be specific. Reference repo names. Prioritize signal over noise.`;
+}
+
+const SECTION_VOICE = {
+  ai: "Write with healthy skepticism toward hype. Focus on real, demonstrated capabilities rather than promises. Question benchmarks. Highlight practical applications over theoretical potential.",
+  robotics: "Write with hardware awareness. Acknowledge safety implications. Note real-world deployment status. Distinguish simulation results from physical robot performance.",
+  cyber: "Write with appropriate urgency for active threats. Provide technical depth on vulnerabilities. Include severity context. Note whether patches are available.",
+  systems: "Focus on performance characteristics and benchmarks. Discuss architectural decisions. Compare with existing solutions. Note memory safety and concurrency properties.",
+  diy: "Write with accessible, practical enthusiasm. Assume a maker audience. Note difficulty level and required hardware. Celebrate creative problem-solving.",
+};
+
+function withSectionVoice(prompt, sectionId) {
+  const voice = SECTION_VOICE[sectionId];
+  if (!voice) return prompt;
+  return `${prompt}\n\nSECTION VOICE GUIDANCE: ${voice}`;
+}
+
 module.exports = {
   leadArticlePrompt,
   secondaryArticlePrompt,
   quickHitPrompt,
   editionTaglinePrompt,
+  breakoutArticlePrompt,
+  trendArticlePrompt,
+  sleeperArticlePrompt,
+  editorInChiefPrompt,
+  SECTION_VOICE,
+  withSectionVoice,
 };

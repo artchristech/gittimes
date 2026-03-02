@@ -1,8 +1,10 @@
 require("dotenv").config();
 
 const { fetchAllSections } = require("./src/github");
-const { generateAllContent } = require("./src/xai");
+const { generateAllContent, generateEditorialContent } = require("./src/xai");
 const { render } = require("./src/render");
+const { loadHistory, computeDeltas } = require("./src/history");
+const { makeEditorialPlan } = require("./src/editorial");
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -22,8 +24,29 @@ async function main() {
   // Step 1: Fetch and enrich repo data from GitHub (all sections)
   const sections = await fetchAllSections(githubToken);
 
-  // Step 2: Generate articles via xAI Grok (all sections)
-  const content = await generateAllContent(sections, xaiKey);
+  // Step 2: Editorial pipeline (with graceful fallback)
+  const editorialEnabled = process.env.EDITORIAL !== "false";
+  const rawCandidates = sections._rawCandidates || [];
+  let content;
+
+  if (editorialEnabled && rawCandidates.length > 0) {
+    const outDir = process.env.PUBLISH_DIR || "./site";
+    const history = loadHistory(outDir);
+    const deltas = computeDeltas(rawCandidates, history);
+    const editorialPlan = makeEditorialPlan(rawCandidates, deltas);
+
+    const hasEditorial = editorialPlan.breakout || editorialPlan.trends.length > 0 || editorialPlan.sleepers.length > 0;
+    if (hasEditorial) {
+      console.log("Editorial intelligence active:");
+      if (editorialPlan.breakout) console.log(`  Breakout: ${editorialPlan.breakout.repo.full_name}`);
+      if (editorialPlan.trends.length > 0) console.log(`  Trends: ${editorialPlan.trends.map((t) => t.theme).join(", ")}`);
+      if (editorialPlan.sleepers.length > 0) console.log(`  Sleepers: ${editorialPlan.sleepers.map((s) => s.repo.full_name).join(", ")}`);
+    }
+
+    content = await generateEditorialContent(sections, xaiKey, editorialPlan);
+  } else {
+    content = await generateAllContent(sections, xaiKey);
+  }
 
   // Step 3: Render to static HTML
   const outputPath = await render(content);

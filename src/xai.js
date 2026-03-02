@@ -7,6 +7,9 @@ const {
   leadArticlePrompt,
   secondaryArticlePrompt,
   quickHitPrompt,
+  breakoutArticlePrompt,
+  trendArticlePrompt,
+  sleeperArticlePrompt,
 } = require("./prompts");
 
 const BIG_MODEL = "grok-4-1-fast-reasoning";
@@ -232,7 +235,7 @@ async function generateAllContent(sections, apiKey) {
 
   const result = {};
   for (const id of SECTION_ORDER) {
-    if (SECTIONS[id].isXPulse) continue; // X Pulse has no GitHub data
+    if (SECTIONS[id].isMemes) continue; // Memes section is blank for now
     const sectionData = sections[id];
     if (!sectionData) {
       result[id] = { lead: null, secondary: [], quickHits: [], isEmpty: true };
@@ -243,32 +246,13 @@ async function generateAllContent(sections, apiKey) {
     result[id] = await generateSectionContent(sectionData, config, client, llmLimit);
   }
 
-  // Annotate articles with X.com sentiment
-  const { fetchXSentimentForRepo } = require("./x-sentiment");
-  for (const id of SECTION_ORDER) {
-    const section = result[id];
-    if (!section || section.isEmpty) continue;
-    // Lead
-    if (section.lead?.repo) {
-      section.lead.xSentiment = await fetchXSentimentForRepo(client, llmLimit, section.lead.repo);
-    }
-    // Secondary (parallel, respecting llmLimit)
-    await Promise.all(section.secondary.map(async (article) => {
-      article.xSentiment = await fetchXSentimentForRepo(client, llmLimit, article.repo);
-    }));
-  }
-
-  // Generate X Pulse
-  const { fetchXPulse } = require("./x-sentiment");
-  console.log("  Generating X Pulse...");
-  const xPulseData = await fetchXPulse(client, llmLimit);
-  result["xPulse"] = {
+  // Memes section — blank placeholder
+  result["memes"] = {
     lead: null,
     secondary: [],
     quickHits: [],
-    isEmpty: xPulseData.pulseItems.length === 0,
-    isXPulse: true,
-    pulseItems: xPulseData.pulseItems,
+    isEmpty: true,
+    isMemes: true,
   };
 
   // Pick a daily pioneer quote for the masthead
@@ -285,4 +269,124 @@ async function generateAllContent(sections, apiKey) {
   return { sections: result, tagline };
 }
 
-module.exports = { createClient, generateAllContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat };
+/**
+ * Generate content with editorial intelligence.
+ * Runs existing section generation, then overlays breakout/trend/sleeper articles.
+ * @param {object} sections - { frontPage: {...}, ai: {...}, ... }
+ * @param {string} apiKey - xAI API key
+ * @param {object} editorialPlan - { breakout, trends, sleepers, remaining }
+ * @returns {Promise<object>} Same shape as generateAllContent, with editorialMeta
+ */
+async function generateEditorialContent(sections, apiKey, editorialPlan) {
+  const { SECTIONS, SECTION_ORDER } = require("./sections");
+  const client = createClient(apiKey);
+  const { default: pLimit } = await pLimitP;
+  const llmLimit = pLimit(3);
+
+  console.log("Generating articles for all sections (editorial mode)...");
+
+  // Step 1: Generate standard content for all sections (same as generateAllContent)
+  const result = {};
+  for (const id of SECTION_ORDER) {
+    if (SECTIONS[id].isMemes) continue; // Memes section is blank for now
+    const sectionData = sections[id];
+    if (!sectionData) {
+      result[id] = { lead: null, secondary: [], quickHits: [], isEmpty: true };
+      continue;
+    }
+    const config = SECTIONS[id];
+    console.log(`  Generating ${config.label}...`);
+    result[id] = await generateSectionContent(sectionData, config, client, llmLimit);
+  }
+
+  const editorialMeta = { breakout: null, trends: [], sleepers: [] };
+
+  // Step 2: Generate breakout article and override front page lead
+  if (editorialPlan.breakout) {
+    try {
+      console.log(`  Generating breakout article for ${editorialPlan.breakout.repo.full_name || editorialPlan.breakout.repo.name}...`);
+      const { enrichRepo } = require("./github");
+      // Enrich the breakout repo if it's a raw GitHub object
+      let breakoutRepo = editorialPlan.breakout.repo;
+      if (!breakoutRepo.readmeExcerpt && breakoutRepo.full_name) {
+        try {
+          const token = process.env.GITHUB_TOKEN;
+          if (token) breakoutRepo = await enrichRepo(breakoutRepo, token);
+        } catch {
+          // Use raw repo data if enrichment fails
+        }
+      }
+
+      const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta);
+      const raw = await llmLimit(() => chat(client, BIG_MODEL, breakoutPrompt, 2500));
+      const breakoutArticle = { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo };
+
+      if (!breakoutArticle._isFallback && result.frontPage && result.frontPage.lead) {
+        // Demote current lead to secondary
+        result.frontPage.secondary.unshift(result.frontPage.lead);
+        result.frontPage.lead = breakoutArticle;
+        editorialMeta.breakout = {
+          repo: breakoutRepo.full_name || breakoutRepo.name,
+          reason: editorialPlan.breakout.reason,
+        };
+      }
+    } catch (err) {
+      console.warn(`Breakout article generation failed: ${err.message}`);
+    }
+  }
+
+  // Step 3: Generate trend articles and append to front page secondary
+  for (const trend of editorialPlan.trends || []) {
+    try {
+      console.log(`  Generating trend article: ${trend.theme}...`);
+      const prompt = trendArticlePrompt(trend);
+      const raw = await llmLimit(() => chat(client, SMALL_MODEL, prompt, 1500));
+      const trendArticle = {
+        ...parseArticle(raw, null),
+        repo: {
+          name: `trend/${trend.theme}`,
+          shortName: trend.theme,
+          description: `Trend: ${trend.theme}`,
+          url: "#",
+          stars: 0,
+          language: "Trend",
+          topics: [],
+        },
+        _isTrend: true,
+      };
+
+      if (!trendArticle._isFallback && result.frontPage) {
+        result.frontPage.secondary.push(trendArticle);
+        editorialMeta.trends.push({
+          theme: trend.theme,
+          repoCount: trend.repos.length,
+        });
+      }
+    } catch (err) {
+      console.warn(`Trend article generation failed for ${trend.theme}: ${err.message}`);
+    }
+  }
+
+  // Step 4: Memes section — blank placeholder, tagline
+  result["memes"] = {
+    lead: null,
+    secondary: [],
+    quickHits: [],
+    isEmpty: true,
+    isMemes: true,
+  };
+
+  const { mastheadQuote } = require("./quotes");
+  const tagline = mastheadQuote();
+
+  const totalArticles = SECTION_ORDER.reduce((sum, id) => {
+    const s = result[id];
+    if (!s) return sum;
+    return sum + (s.lead ? 1 : 0) + s.secondary.length + s.quickHits.length;
+  }, 0);
+  console.log(`Generated ${totalArticles} total articles across ${SECTION_ORDER.length} sections (editorial mode)`);
+
+  return { sections: result, tagline, editorialMeta };
+}
+
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat };

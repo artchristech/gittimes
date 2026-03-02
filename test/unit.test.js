@@ -1,11 +1,12 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { escapeHtml, formatStars, bodyToHtml, buildNavHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderSentimentBadge, renderXPulseContent } = require("../src/render");
+const { escapeHtml, formatStars, bodyToHtml, buildNavHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderSentimentBadge, renderMemesContent } = require("../src/render");
 const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection } = require("../src/github");
 const { parseArticle, parseQuickHits, sanitizePrompt } = require("../src/xai");
-const { parseXSentiment, parseXPulse } = require("../src/x-sentiment");
+const { parseXSentiment } = require("../src/x-sentiment");
 const { SECTIONS, SECTION_ORDER } = require("../src/sections");
+const { breakoutArticlePrompt, trendArticlePrompt, sleeperArticlePrompt, editorInChiefPrompt, SECTION_VOICE, withSectionVoice } = require("../src/prompts");
 
 // --------------- escapeHtml ---------------
 
@@ -659,7 +660,7 @@ describe("section config", () => {
 
   it("topic sections have query with topics or languages", () => {
     for (const id of SECTION_ORDER) {
-      if (id === "frontPage" || id === "xPulse") continue;
+      if (id === "frontPage" || id === "memes") continue;
       const config = SECTIONS[id];
       assert.ok(config.query, `${id} should have a query`);
       const hasTopic = config.query.topics && config.query.topics.length > 0;
@@ -852,12 +853,11 @@ describe("renderSectionContent", () => {
     assert.equal(featuredCount, 1);
   });
 
-  it("delegates xPulse to renderXPulseContent", () => {
-    const config = { id: "xPulse", label: "X Pulse", isXPulse: true };
-    const data = { pulseItems: [{ topic: "AI Agents", blurb: "Hot topic", sentiment: "buzzing", handles: "@dev1" }], isEmpty: false };
-    const html = renderSectionContent(data, config);
-    assert.ok(html.includes("x-pulse-section"));
-    assert.ok(html.includes("AI Agents"));
+  it("delegates memes to renderMemesContent", () => {
+    const config = { id: "memes", label: "Memes", isMemes: true };
+    const html = renderSectionContent(null, config);
+    assert.ok(html.includes("section-empty"));
+    assert.ok(html.includes("Memes section coming soon"));
   });
 });
 
@@ -898,42 +898,14 @@ describe("parseXSentiment", () => {
   });
 });
 
-// --------------- parseXPulse ---------------
+// --------------- renderMemesContent ---------------
 
-describe("parseXPulse", () => {
-  it("parses multiple items separated by ---", () => {
-    const text = [
-      "TOPIC: AI Agents",
-      "BLURB: Everyone building agents now",
-      "SENTIMENT: buzzing",
-      "HANDLES: @openai, @anthropic",
-      "---",
-      "TOPIC: Rust Adoption",
-      "BLURB: More companies moving to Rust",
-      "SENTIMENT: positive",
-      "HANDLES: @rustlang",
-    ].join("\n");
-    const items = parseXPulse(text);
-    assert.equal(items.length, 2);
-    assert.equal(items[0].topic, "AI Agents");
-    assert.equal(items[0].sentiment, "buzzing");
-    assert.equal(items[1].topic, "Rust Adoption");
-    assert.equal(items[1].sentiment, "positive");
-  });
-
-  it("caps at 8 items", () => {
-    const blocks = [];
-    for (let i = 0; i < 12; i++) {
-      blocks.push(`TOPIC: Topic ${i}\nBLURB: Blurb ${i}\nSENTIMENT: neutral\nHANDLES: @user`);
-    }
-    const text = blocks.join("\n---\n");
-    const items = parseXPulse(text);
-    assert.ok(items.length <= 8, `Expected max 8 items, got ${items.length}`);
-  });
-
-  it("returns empty array for empty input", () => {
-    const items = parseXPulse("");
-    assert.deepEqual(items, []);
+describe("renderMemesContent", () => {
+  it("returns coming soon placeholder", () => {
+    const config = { id: "memes", label: "Memes", isMemes: true };
+    const html = renderMemesContent(null, config);
+    assert.ok(html.includes("section-empty"));
+    assert.ok(html.includes("Memes section coming soon"));
   });
 });
 
@@ -969,57 +941,176 @@ describe("renderSentimentBadge", () => {
   });
 });
 
-// --------------- renderXPulseContent ---------------
+// --------------- memes section config ---------------
 
-describe("renderXPulseContent", () => {
-  it("shows empty state when no pulse items", () => {
-    const config = { id: "xPulse", label: "X Pulse", isXPulse: true };
-    const html = renderXPulseContent(null, config);
-    assert.ok(html.includes("section-empty"));
+describe("memes section config", () => {
+  it("memes exists in SECTIONS", () => {
+    assert.ok(SECTIONS.memes, "SECTIONS should contain memes");
+    assert.equal(SECTIONS.memes.id, "memes");
   });
 
-  it("shows empty state for empty pulseItems array", () => {
-    const config = { id: "xPulse", label: "X Pulse", isXPulse: true };
-    const html = renderXPulseContent({ pulseItems: [] }, config);
-    assert.ok(html.includes("section-empty"));
+  it("memes has null query and isMemes flag", () => {
+    assert.equal(SECTIONS.memes.query, null);
+    assert.equal(SECTIONS.memes.isMemes, true);
   });
 
-  it("renders pulse items", () => {
-    const config = { id: "xPulse", label: "X Pulse", isXPulse: true };
-    const data = {
-      pulseItems: [
-        { topic: "AI Agents", blurb: "Hot conversation", sentiment: "buzzing", handles: "@dev1, @dev2" },
-        { topic: "Rust 2026", blurb: "New edition hype", sentiment: "positive", handles: "@rustlang" },
-      ],
-    };
-    const html = renderXPulseContent(data, config);
-    assert.ok(html.includes("x-pulse-section"));
-    assert.ok(html.includes("x-pulse-intro"));
-    assert.ok(html.includes("AI Agents"));
-    assert.ok(html.includes("Rust 2026"));
-    assert.ok(html.includes("x-pulse-item"));
-    assert.ok(html.includes("@dev1, @dev2"));
+  it("memes is in SECTION_ORDER", () => {
+    assert.ok(SECTION_ORDER.includes("memes"), "SECTION_ORDER should include memes");
+  });
+
+  it("memes is last in SECTION_ORDER", () => {
+    assert.equal(SECTION_ORDER[SECTION_ORDER.length - 1], "memes");
   });
 });
 
-// --------------- xPulse section config ---------------
+// --------------- editorial prompt functions ---------------
 
-describe("xPulse section config", () => {
-  it("xPulse exists in SECTIONS", () => {
-    assert.ok(SECTIONS.xPulse, "SECTIONS should contain xPulse");
-    assert.equal(SECTIONS.xPulse.id, "xPulse");
+describe("breakoutArticlePrompt", () => {
+  const repo = {
+    name: "org/breakout",
+    description: "A fast growing project",
+    stars: 5000,
+    language: "Rust",
+    topics: ["performance"],
+    createdAt: "2025-01-01",
+    pushedAt: "2026-03-01",
+    releaseName: "v2.0",
+    readmeExcerpt: "A blazing fast tool",
+    releaseNotes: "Major release",
+  };
+  const delta = { starDelta: 500, forkDelta: 50, daysSinceSnapshot: 2, previousStars: 4500, starVelocity: 250 };
+
+  it("returns a string containing HEADLINE marker", () => {
+    const result = breakoutArticlePrompt(repo, delta);
+    assert.equal(typeof result, "string");
+    assert.ok(result.includes("HEADLINE:"));
   });
 
-  it("xPulse has null query and isXPulse flag", () => {
-    assert.equal(SECTIONS.xPulse.query, null);
-    assert.equal(SECTIONS.xPulse.isXPulse, true);
+  it("includes BREAKOUT keyword", () => {
+    assert.ok(breakoutArticlePrompt(repo, delta).includes("BREAKOUT"));
   });
 
-  it("xPulse is in SECTION_ORDER", () => {
-    assert.ok(SECTION_ORDER.includes("xPulse"), "SECTION_ORDER should include xPulse");
+  it("includes delta context", () => {
+    const result = breakoutArticlePrompt(repo, delta);
+    assert.ok(result.includes("500"));
+    assert.ok(result.includes("4,500"));
   });
 
-  it("xPulse is last in SECTION_ORDER", () => {
-    assert.equal(SECTION_ORDER[SECTION_ORDER.length - 1], "xPulse");
+  it("works without delta", () => {
+    const result = breakoutArticlePrompt(repo, null);
+    assert.equal(typeof result, "string");
+    assert.ok(result.includes("HEADLINE:"));
+  });
+});
+
+describe("trendArticlePrompt", () => {
+  const trend = {
+    theme: "ai-agents",
+    repos: [
+      { full_name: "org/agent1", description: "Agent framework", stargazers_count: 1000, language: "Python" },
+      { full_name: "org/agent2", description: "Agent toolkit", stargazers_count: 500, language: "Python" },
+    ],
+  };
+
+  it("returns a string containing HEADLINE marker", () => {
+    const result = trendArticlePrompt(trend);
+    assert.equal(typeof result, "string");
+    assert.ok(result.includes("HEADLINE:"));
+  });
+
+  it("includes TREND keyword", () => {
+    assert.ok(trendArticlePrompt(trend).includes("TREND"));
+  });
+
+  it("includes theme name", () => {
+    assert.ok(trendArticlePrompt(trend).includes("ai-agents"));
+  });
+
+  it("references individual repos", () => {
+    const result = trendArticlePrompt(trend);
+    assert.ok(result.includes("org/agent1"));
+    assert.ok(result.includes("org/agent2"));
+  });
+});
+
+describe("sleeperArticlePrompt", () => {
+  const sleeper = {
+    repo: { full_name: "org/hidden-gem", description: "A useful tool", stargazers_count: 80, language: "Go", topics: ["cli", "devtools"] },
+    reason: "Under-the-radar with 80 stars, gained 25 since last snapshot",
+  };
+
+  it("returns a string containing HEADLINE marker", () => {
+    const result = sleeperArticlePrompt(sleeper);
+    assert.equal(typeof result, "string");
+    assert.ok(result.includes("HEADLINE:"));
+  });
+
+  it("includes Deep Cuts framing", () => {
+    assert.ok(sleeperArticlePrompt(sleeper).includes("Deep Cuts"));
+  });
+
+  it("includes the reason", () => {
+    assert.ok(sleeperArticlePrompt(sleeper).includes("Under-the-radar with 80 stars"));
+  });
+});
+
+describe("editorInChiefPrompt", () => {
+  it("returns a string containing LEAD keyword", () => {
+    const result = editorInChiefPrompt("1. org/repo (5000 stars, +200)");
+    assert.equal(typeof result, "string");
+    assert.ok(result.includes("LEAD"));
+  });
+
+  it("includes the candidate summary", () => {
+    const summary = "1. org/repo (5000 stars)";
+    assert.ok(editorInChiefPrompt(summary).includes(summary));
+  });
+});
+
+describe("SECTION_VOICE", () => {
+  it("covers ai section", () => {
+    assert.ok(SECTION_VOICE.ai);
+    assert.ok(SECTION_VOICE.ai.includes("skepticism") || SECTION_VOICE.ai.includes("hype"));
+  });
+
+  it("covers robotics section", () => {
+    assert.ok(SECTION_VOICE.robotics);
+    assert.ok(SECTION_VOICE.robotics.includes("hardware") || SECTION_VOICE.robotics.includes("safety"));
+  });
+
+  it("covers cyber section", () => {
+    assert.ok(SECTION_VOICE.cyber);
+    assert.ok(SECTION_VOICE.cyber.includes("urgency") || SECTION_VOICE.cyber.includes("threat"));
+  });
+
+  it("covers systems section", () => {
+    assert.ok(SECTION_VOICE.systems);
+    assert.ok(SECTION_VOICE.systems.includes("performance") || SECTION_VOICE.systems.includes("benchmark"));
+  });
+
+  it("covers diy section", () => {
+    assert.ok(SECTION_VOICE.diy);
+    assert.ok(SECTION_VOICE.diy.includes("maker") || SECTION_VOICE.diy.includes("practical"));
+  });
+});
+
+describe("withSectionVoice", () => {
+  it("appends voice guidance for known sections", () => {
+    const result = withSectionVoice("Write an article", "ai");
+    assert.ok(result.includes("Write an article"));
+    assert.ok(result.includes("SECTION VOICE GUIDANCE"));
+    assert.ok(result.includes(SECTION_VOICE.ai));
+  });
+
+  it("no-ops for frontPage", () => {
+    const prompt = "Write an article";
+    const result = withSectionVoice(prompt, "frontPage");
+    assert.equal(result, prompt);
+  });
+
+  it("no-ops for unknown section IDs", () => {
+    const prompt = "Write an article";
+    const result = withSectionVoice(prompt, "nonexistent");
+    assert.equal(result, prompt);
   });
 });
