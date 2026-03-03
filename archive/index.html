@@ -534,13 +534,21 @@ body {
 
 @media (max-width: 768px) {
   .archive-entry {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .archive-date {
+    min-width: 0;
+  }
+  .archive-headline {
+    flex-shrink: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   .archive-tagline {
     margin-left: 0;
     white-space: normal;
     text-align: left;
-    flex-basis: 100%;
     font-size: 11px;
   }
 }
@@ -1060,8 +1068,8 @@ body {
     
     <div class="archive-entry">
       <span class="archive-date">Tuesday, March 3, 2026</span>
-      <a href="/editions/2026-03-03/" class="archive-headline">Brazilian Developers Build Unified Graph from Scattered Public Databases</a>
-      <span class="archive-tagline">“At each increase of knowledge, as well as on the contrivance of every new tool, human labour becomes abridged.” — Charles Babbage</span>
+      <a href="/editions/2026-03-03/" class="archive-headline">Vercel Labs&#39; Agent-Browser Delivers Ultra-Fast CLI for AI-Driven Browsing</a>
+      <span class="archive-tagline">“The only way to discover the limits of the possible is to go beyond them into the impossible.” — Arthur C. Clarke</span>
     </div>
 
     <div class="archive-entry">
