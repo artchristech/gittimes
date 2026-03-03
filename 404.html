@@ -493,9 +493,8 @@ body {
 
 .archive-entry {
   display: flex;
-  flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px 16px;
+  gap: 16px;
   padding: 12px 0;
   border-bottom: 1px solid var(--rule-light);
   font-family: var(--font-meta);
@@ -506,12 +505,14 @@ body {
   color: var(--ink-faint);
   font-size: 12px;
   min-width: 180px;
+  flex-shrink: 0;
 }
 
 .archive-headline {
   color: var(--ink);
   text-decoration: none;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .archive-headline:hover {
@@ -521,7 +522,26 @@ body {
 .archive-tagline {
   color: var(--ink-light);
   font-style: italic;
-  font-size: 13px;
+  font-size: 12px;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .archive-entry {
+    flex-wrap: wrap;
+  }
+  .archive-tagline {
+    margin-left: 0;
+    white-space: normal;
+    text-align: left;
+    flex-basis: 100%;
+    font-size: 11px;
+  }
 }
 
 /* === FOOTER === */
