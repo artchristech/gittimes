@@ -191,10 +191,10 @@ function formatTrajectoryForPrompt(trajectory) {
  * @param {string} token - GitHub token
  * @returns {Promise<Map<string, object>>} Map of fullName -> trajectory
  */
-async function fetchTrajectories(repos, token) {
+async function fetchTrajectories(repos, token, sharedCache) {
   const { default: pLimit } = await pLimitP;
   const limit = pLimit(5);
-  const cache = new Map();
+  const cache = sharedCache || new Map();
 
   const tasks = repos.map((repo) => {
     const fullName = repo.name || repo.full_name;

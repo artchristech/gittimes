@@ -29,8 +29,8 @@ function sanitizeArticleHtml(html) {
     .replace(/<script[\s>][\s\S]*?<\/script>/gi, "")
     .replace(/<iframe[\s>][\s\S]*?<\/iframe>/gi, "")
     .replace(/\bon\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, "")
-    .replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"')
-    .replace(/href\s*=\s*'javascript:[^']*'/gi, "href='#'");
+    .replace(/href\s*=\s*"(?!https?:\/\/)[a-z][a-z0-9+.-]*:[^"]*"/gi, 'href="#"')
+    .replace(/href\s*=\s*'(?!https?:\/\/)[a-z][a-z0-9+.-]*:[^']*'/gi, "href='#'");
 }
 
 function bodyToHtml(text) {
@@ -145,7 +145,15 @@ function renderSentimentBadge(xSentiment) {
   return badgeHtml;
 }
 
-function renderMemesContent(sectionData, sectionConfig) {
+function renderDeepCuts(articles) {
+  if (!articles || articles.length === 0) return "";
+  return `<section class="deep-cuts-section">
+  <h2 class="section-header">Deep Cuts</h2>
+  <div class="deep-cuts-grid">${articles.map(renderFeaturedArticle).join("\n")}</div>
+</section>`;
+}
+
+function renderMemesContent() {
   return `<div class="section-empty">Memes section coming soon. Check back tomorrow!</div>`;
 }
 
@@ -196,7 +204,7 @@ function renderSectionNav(sectionOrder, sections, sectionConfigs) {
  * @returns {string} HTML string
  */
 function renderSectionContent(sectionData, sectionConfig) {
-  if (sectionConfig.isMemes) return renderMemesContent(sectionData, sectionConfig);
+  if (sectionConfig.isMemes) return renderMemesContent();
 
   if (!sectionData || sectionData.isEmpty || !sectionData.lead) {
     return `<div class="section-empty">No stories found for ${escapeHtml(sectionConfig.label)} today. Check back tomorrow!</div>`;
@@ -224,6 +232,11 @@ function renderSectionContent(sectionData, sectionConfig) {
       html += `<div class="compact-grid">${compact.map(renderCompactArticle).join("\n")}</div>`;
     }
     html += `</section>`;
+  }
+
+  // Deep Cuts (sleeper articles)
+  if (sectionData.deepCuts && sectionData.deepCuts.length > 0) {
+    html += renderDeepCuts(sectionData.deepCuts);
   }
 
   // Quick hits
@@ -380,4 +393,4 @@ async function render(content) {
   return outPath;
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderSentimentBadge, renderMemesContent };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent };

@@ -1,3 +1,20 @@
+/**
+ * Sanitize repo-supplied fields to prevent prompt injection.
+ * Strips output markers (HEADLINE:, BODY:, etc.) that could hijack
+ * the structured output parser in xai.js.
+ */
+function sanitizeRepoField(text) {
+  if (!text) return text;
+  return String(text).replace(/\b(HEADLINE|SUBHEADLINE|BODY|BUILDERS_TAKE)\s*:/gi, "$1 -");
+}
+
+function timestampLine(repo) {
+  const parts = [];
+  if (repo.createdAt) parts.push(`Created: ${repo.createdAt}`);
+  if (repo.pushedAt) parts.push(`Last pushed: ${repo.pushedAt}`);
+  return parts.length > 0 ? `- ${parts.join(" | ")}` : "";
+}
+
 function trajectoryContext(repo) {
   if (!repo.starTrajectory) return "";
   const t = repo.starTrajectory;
@@ -10,20 +27,24 @@ function trajectoryContext(repo) {
 }
 
 function leadArticlePrompt(repo) {
+  const desc = sanitizeRepoField(repo.description);
+  const readme = sanitizeRepoField(repo.readmeExcerpt);
+  const release = sanitizeRepoField(repo.releaseNotes);
+  const topics = sanitizeRepoField(repo.topics.join(", ") || "none listed");
   return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
 
 PROJECT DATA:
 - Name: ${repo.name}
-- Description: ${repo.description}
+- Description: ${desc}
 - Language: ${repo.language}
-- Topics: ${repo.topics.join(", ") || "none listed"}
-- Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
+- Topics: ${topics}
+${timestampLine(repo)}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}${trajectoryContext(repo)}
 
 README EXCERPT:
-${repo.readmeExcerpt || "(no readme available)"}
+${readme || "(no readme available)"}
 
-${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
+${release ? `RELEASE NOTES:\n${release}` : ""}
 
 EDITORIAL GUIDELINES:
 - The story is WHAT this project does and WHY it matters to builders — not how many stars it has.
@@ -42,20 +63,24 @@ BUILDERS_TAKE: [2-3 sentences of practical advice for developers considering thi
 }
 
 function secondaryArticlePrompt(repo) {
+  const desc = sanitizeRepoField(repo.description);
+  const readme = sanitizeRepoField(repo.readmeExcerpt);
+  const release = sanitizeRepoField(repo.releaseNotes);
+  const topics = sanitizeRepoField(repo.topics.join(", ") || "none listed");
   return `You are a technology journalist writing for The Git Times, a broadsheet newspaper for builders. Write a tight 150-200 word article about this GitHub project.
 
 PROJECT DATA:
 - Name: ${repo.name}
-- Description: ${repo.description}
+- Description: ${desc}
 - Language: ${repo.language}
-- Topics: ${repo.topics.join(", ") || "none listed"}
-- Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
+- Topics: ${topics}
+${timestampLine(repo)}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}${trajectoryContext(repo)}
 
 README EXCERPT:
-${repo.readmeExcerpt || "(no readme available)"}
+${readme || "(no readme available)"}
 
-${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
+${release ? `RELEASE NOTES:\n${release}` : ""}
 
 EDITORIAL GUIDELINES:
 - Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
@@ -88,28 +113,25 @@ Output EXACTLY in this format — one line per repo, numbered to match:
 ${repos.map((_, i) => `${i + 1}. [single sentence summary]`).join("\n")}`;
 }
 
-function editionTaglinePrompt(lead, secondary) {
-  const names = [lead, ...secondary].map((r) => `${r.name} (${r.language})`).join(", ");
-  return `You write pithy taglines for The Git Times, a tech newspaper. Today's trending repos are: ${names}.
-
-Write a single tagline (max 15 words) that captures today's theme — witty, observational, like a newspaper edition subtitle. No quotes, no hype. Just the tagline, nothing else.`;
-}
-
 function breakoutArticlePrompt(repo, delta) {
+  const desc = sanitizeRepoField(repo.description);
+  const readme = sanitizeRepoField(repo.readmeExcerpt);
+  const release = sanitizeRepoField(repo.releaseNotes);
+  const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
   return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 400-500 word SPOTLIGHT article about this GitHub project that is gaining significant developer attention right now.
 
 PROJECT DATA:
 - Name: ${repo.name}
-- Description: ${repo.description}
+- Description: ${desc}
 - Language: ${repo.language}
-- Topics: ${repo.topics.join(", ") || "none listed"}
-- Created: ${repo.createdAt} | Last pushed: ${repo.pushedAt}
+- Topics: ${topics}
+${timestampLine(repo)}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}${trajectoryContext(repo)}
 
 README EXCERPT:
-${repo.readmeExcerpt || "(no readme available)"}
+${readme || "(no readme available)"}
 
-${repo.releaseNotes ? `RELEASE NOTES:\n${repo.releaseNotes}` : ""}
+${release ? `RELEASE NOTES:\n${release}` : ""}
 
 EDITORIAL GUIDELINES:
 - This project is getting attention. Your job is to explain WHY — what does it do, what problem does it solve, and what makes it technically interesting?
@@ -130,7 +152,7 @@ function trendArticlePrompt(trend) {
   const repoList = trend.repos
     .map(
       (r) =>
-        `  - ${r.full_name || r.name} (${r.language || "Unknown"}): ${r.description || "no description"}`
+        `  - ${r.full_name || r.name} (${r.language || "Unknown"}): ${sanitizeRepoField(r.description) || "no description"}`
     )
     .join("\n");
 
@@ -155,9 +177,9 @@ BUILDERS_TAKE: [2-3 sentences about what this trend means for developers.]`;
 function sleeperArticlePrompt(sleeper) {
   const repo = sleeper.repo;
   const name = repo.full_name || repo.name;
-  const description = repo.description || "no description";
+  const description = sanitizeRepoField(repo.description) || "no description";
   const language = repo.language || "Unknown";
-  const topics = (repo.topics || []).join(", ") || "none listed";
+  const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
 
   return `You are a technology journalist writing for The Git Times "Deep Cuts" section — hidden gems most developers haven't discovered yet. Write a 150-200 word feature.
 
@@ -194,29 +216,13 @@ Based on this data, respond with:
 Be specific. Reference repo names. Prioritize signal over noise.`;
 }
 
-const SECTION_VOICE = {
-  ai: "Write with healthy skepticism toward hype. Focus on real, demonstrated capabilities rather than promises. Question benchmarks. Highlight practical applications over theoretical potential.",
-  robotics: "Write with hardware awareness. Acknowledge safety implications. Note real-world deployment status. Distinguish simulation results from physical robot performance.",
-  cyber: "Write with appropriate urgency for active threats. Provide technical depth on vulnerabilities. Include severity context. Note whether patches are available.",
-  systems: "Focus on performance characteristics and benchmarks. Discuss architectural decisions. Compare with existing solutions. Note memory safety and concurrency properties.",
-  diy: "Write with accessible, practical enthusiasm. Assume a maker audience. Note difficulty level and required hardware. Celebrate creative problem-solving.",
-};
-
-function withSectionVoice(prompt, sectionId) {
-  const voice = SECTION_VOICE[sectionId];
-  if (!voice) return prompt;
-  return `${prompt}\n\nSECTION VOICE GUIDANCE: ${voice}`;
-}
-
 module.exports = {
+  sanitizeRepoField,
   leadArticlePrompt,
   secondaryArticlePrompt,
   quickHitPrompt,
-  editionTaglinePrompt,
   breakoutArticlePrompt,
   trendArticlePrompt,
   sleeperArticlePrompt,
   editorInChiefPrompt,
-  SECTION_VOICE,
-  withSectionVoice,
 };

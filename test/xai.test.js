@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { generateSectionContent, parseArticle } = require("../src/xai");
+const { generateSectionContent, generateEditorialContent, parseArticle, chat } = require("../src/xai");
 
 // --------------- Mock helpers ---------------
 
@@ -246,6 +246,152 @@ describe("generateSectionContent", () => {
     assert.ok(
       result.quickHits.some((qh) => qh.name === "org/bad-lead" || qh.shortName === "bad-lead"),
       "Failed lead should be demoted to quickHits"
+    );
+  });
+});
+
+// --------------- generateEditorialContent — sleeper deep cuts ---------------
+
+describe("generateEditorialContent — sleeper deep cuts", () => {
+  it("produces deepCuts on frontPage when editorial plan has sleepers", async () => {
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Deep Cuts")) {
+        return goodArticle("Hidden Gem Discovered");
+      }
+      // Default for base section generation
+      return goodArticle("Default Article");
+    });
+
+    const sections = {
+      frontPage: {
+        lead: makeRepo("lead"),
+        secondary: [],
+        quickHits: [],
+      },
+    };
+
+    const editorialPlan = {
+      breakout: null,
+      trends: [],
+      sleepers: [
+        {
+          repo: {
+            full_name: "org/hidden-gem",
+            name: "org/hidden-gem",
+            description: "A useful tool",
+            stargazers_count: 80,
+            language: "Go",
+            topics: ["cli", "devtools"],
+            url: "https://github.com/org/hidden-gem",
+          },
+          reason: "Under-the-radar with 80 stars",
+        },
+      ],
+    };
+
+    const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client });
+
+    assert.ok(result.sections.frontPage.deepCuts, "frontPage should have deepCuts");
+    assert.equal(result.sections.frontPage.deepCuts.length, 1);
+    assert.equal(result.sections.frontPage.deepCuts[0].headline, "Hidden Gem Discovered");
+    assert.equal(result.sections.frontPage.deepCuts[0]._isSleeper, true);
+    assert.equal(result.editorialMeta.sleepers.length, 1);
+    assert.equal(result.editorialMeta.sleepers[0].repo, "org/hidden-gem");
+  });
+
+  it("skips fallback sleeper articles from deepCuts", async () => {
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Deep Cuts")) {
+        return badResponse();
+      }
+      return goodArticle("Default Article");
+    });
+
+    const sections = {
+      frontPage: {
+        lead: makeRepo("lead"),
+        secondary: [],
+        quickHits: [],
+      },
+    };
+
+    const editorialPlan = {
+      breakout: null,
+      trends: [],
+      sleepers: [
+        {
+          repo: {
+            full_name: "org/broken-sleeper",
+            name: "org/broken-sleeper",
+            description: "Broken",
+            stargazers_count: 50,
+            language: "Rust",
+            topics: [],
+            url: "https://github.com/org/broken-sleeper",
+          },
+          reason: "Growing",
+        },
+      ],
+    };
+
+    const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client });
+
+    // Should not have deepCuts since article was a fallback
+    assert.ok(!result.sections.frontPage.deepCuts, "Should not have deepCuts when article is fallback");
+    assert.equal(result.editorialMeta.sleepers.length, 0);
+  });
+});
+
+// --------------- chat() retry behavior ---------------
+
+describe("chat", () => {
+  it("retries on transient failure and returns success result", async () => {
+    let callCount = 0;
+    const client = {
+      chat: {
+        completions: {
+          create: async () => {
+            callCount++;
+            if (callCount === 1) {
+              const err = new Error("Server error");
+              err.status = 500;
+              throw err;
+            }
+            return {
+              choices: [{ message: { content: "HEADLINE: Success", reasoning: "" } }],
+            };
+          },
+        },
+      },
+    };
+
+    const result = await chat(client, "test-model", "test prompt", 100);
+    assert.equal(callCount, 2, "Should have retried once");
+    assert.ok(result.includes("Success"));
+  });
+
+  it("aborts on 4xx error without retrying", async () => {
+    let callCount = 0;
+    const client = {
+      chat: {
+        completions: {
+          create: async () => {
+            callCount++;
+            const err = new Error("Bad request");
+            err.status = 400;
+            throw err;
+          },
+        },
+      },
+    };
+
+    await assert.rejects(
+      () => chat(client, "test-model", "test prompt", 100),
+      (err) => {
+        // p-retry wraps AbortError — check that it aborted early
+        assert.equal(callCount, 1, "Should not retry on 4xx");
+        return true;
+      }
     );
   });
 });

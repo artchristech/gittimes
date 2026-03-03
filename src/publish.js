@@ -104,7 +104,7 @@ async function publish(content, outDir, options = {}) {
       }
       const prevNavHtml = buildNavHtml(prevNav);
       // Replace existing nav blocks
-      prevHtml = prevHtml.replace(/<nav class="edition-nav">.*?<\/nav>/g, prevNavHtml);
+      prevHtml = prevHtml.replace(/<nav class="edition-nav">[\s\S]*?<\/nav>/g, prevNavHtml);
       fs.writeFileSync(prevEditionPath, prevHtml);
     }
   }
@@ -185,7 +185,7 @@ async function publish(content, outDir, options = {}) {
     fs.writeFileSync(path.join(outDir, "404.html"), fourOhFourHtml);
   }
 
-  // 12. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
+  // 11. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
   fs.writeFileSync(path.join(outDir, "CNAME"), "gittimes.com");
 

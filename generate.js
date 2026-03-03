@@ -43,7 +43,7 @@ async function main() {
       if (editorialPlan.sleepers.length > 0) console.log(`  Sleepers: ${editorialPlan.sleepers.map((s) => s.repo.full_name).join(", ")}`);
     }
 
-    content = await generateEditorialContent(sections, xaiKey, editorialPlan);
+    content = await generateEditorialContent(sections, xaiKey, editorialPlan, { githubToken });
   } else {
     content = await generateAllContent(sections, xaiKey);
   }

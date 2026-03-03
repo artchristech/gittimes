@@ -12,8 +12,7 @@ const {
   sleeperArticlePrompt,
 } = require("./prompts");
 
-const BIG_MODEL = "grok-4-1-fast-reasoning";
-const SMALL_MODEL = "grok-4-1-fast-reasoning";
+const MODEL = "grok-4-1-fast-reasoning";
 
 function createClient(apiKey) {
   return new OpenAI({
@@ -173,21 +172,20 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
   }
 
   const isFrontPage = sectionConfig.id === "frontPage";
-  const leadModel = isFrontPage ? BIG_MODEL : SMALL_MODEL;
   const leadTokens = isFrontPage ? 2000 : 1200;
 
   // Lead + all secondary articles in parallel (with parse-level retry)
   const [leadArticle, ...allSecondary] = await Promise.all([
-    generateArticleWithRetry(client, leadModel, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit),
+    generateArticleWithRetry(client, MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit),
     ...sectionData.secondary.map((r) =>
-      generateArticleWithRetry(client, SMALL_MODEL, secondaryArticlePrompt, r, 800, llmLimit)
+      generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 800, llmLimit)
     ),
   ]);
 
   // Quick hits
   let quickHits = sectionData.quickHits || [];
   if (quickHits.length > 0) {
-    const quickHitsRaw = await llmLimit(() => chat(client, SMALL_MODEL, quickHitPrompt(quickHits), 600));
+    const quickHitsRaw = await llmLimit(() => chat(client, MODEL, quickHitPrompt(quickHits), 600));
     quickHits = parseQuickHits(quickHitsRaw, quickHits);
   }
 
@@ -220,22 +218,19 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
 }
 
 /**
- * Generate content for all sections.
+ * Internal helper: generate content for all non-memes sections, add memes placeholder,
+ * pick tagline, and log article count.
  * @param {object} sections - { frontPage: { lead, secondary, quickHits }, ai: {...}, ... }
- * @param {string} apiKey - xAI API key
- * @returns {Promise<object>} { sections: { frontPage: {...}, ... }, tagline }
+ * @param {object} client - OpenAI client
+ * @param {function} llmLimit - p-limit limiter
+ * @returns {Promise<{ sections: object, tagline: string }>}
  */
-async function generateAllContent(sections, apiKey) {
+async function _generateBaseSections(sections, client, llmLimit) {
   const { SECTIONS, SECTION_ORDER } = require("./sections");
-  const client = createClient(apiKey);
-  const { default: pLimit } = await pLimitP;
-  const llmLimit = pLimit(3);
-
-  console.log("Generating articles for all sections...");
 
   const result = {};
   for (const id of SECTION_ORDER) {
-    if (SECTIONS[id].isMemes) continue; // Memes section is blank for now
+    if (SECTIONS[id].isMemes) continue;
     const sectionData = sections[id];
     if (!sectionData) {
       result[id] = { lead: null, secondary: [], quickHits: [], isEmpty: true };
@@ -270,6 +265,22 @@ async function generateAllContent(sections, apiKey) {
 }
 
 /**
+ * Generate content for all sections.
+ * @param {object} sections - { frontPage: { lead, secondary, quickHits }, ai: {...}, ... }
+ * @param {string} apiKey - xAI API key
+ * @returns {Promise<object>} { sections: { frontPage: {...}, ... }, tagline }
+ */
+async function generateAllContent(sections, apiKey) {
+  const client = createClient(apiKey);
+  const { default: pLimit } = await pLimitP;
+  const llmLimit = pLimit(3);
+
+  console.log("Generating articles for all sections...");
+
+  return _generateBaseSections(sections, client, llmLimit);
+}
+
+/**
  * Generate content with editorial intelligence.
  * Runs existing section generation, then overlays breakout/trend/sleeper articles.
  * @param {object} sections - { frontPage: {...}, ai: {...}, ... }
@@ -277,27 +288,18 @@ async function generateAllContent(sections, apiKey) {
  * @param {object} editorialPlan - { breakout, trends, sleepers, remaining }
  * @returns {Promise<object>} Same shape as generateAllContent, with editorialMeta
  */
-async function generateEditorialContent(sections, apiKey, editorialPlan) {
-  const { SECTIONS, SECTION_ORDER } = require("./sections");
-  const client = createClient(apiKey);
+async function generateEditorialContent(sections, apiKey, editorialPlan, options = {}) {
+  const { SECTION_ORDER } = require("./sections");
+  const client = options.client || createClient(apiKey);
+  const githubToken = options.githubToken || process.env.GITHUB_TOKEN;
   const { default: pLimit } = await pLimitP;
   const llmLimit = pLimit(3);
 
   console.log("Generating articles for all sections (editorial mode)...");
 
-  // Step 1: Generate standard content for all sections (same as generateAllContent)
-  const result = {};
-  for (const id of SECTION_ORDER) {
-    if (SECTIONS[id].isMemes) continue; // Memes section is blank for now
-    const sectionData = sections[id];
-    if (!sectionData) {
-      result[id] = { lead: null, secondary: [], quickHits: [], isEmpty: true };
-      continue;
-    }
-    const config = SECTIONS[id];
-    console.log(`  Generating ${config.label}...`);
-    result[id] = await generateSectionContent(sectionData, config, client, llmLimit);
-  }
+  // Step 1: Generate standard content for all sections
+  const base = await _generateBaseSections(sections, client, llmLimit);
+  const result = base.sections;
 
   const editorialMeta = { breakout: null, trends: [], sleepers: [] };
 
@@ -311,7 +313,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
       let breakoutRepo = editorialPlan.breakout.repo;
       if (!breakoutRepo.readmeExcerpt && breakoutRepo.full_name) {
         try {
-          const token = process.env.GITHUB_TOKEN;
+          const token = githubToken;
           if (token) breakoutRepo = await enrichRepo(breakoutRepo, token);
         } catch {
           // Use raw repo data if enrichment fails
@@ -321,7 +323,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
       // Fetch star trajectory for the breakout repo
       if (!breakoutRepo.starTrajectory) {
         try {
-          const token = process.env.GITHUB_TOKEN;
+          const token = githubToken;
           const fullName = breakoutRepo.name || breakoutRepo.full_name;
           if (token && fullName) {
             const trajectory = await fetchStarTrajectory(fullName, token);
@@ -336,7 +338,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
       }
 
       const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta);
-      const raw = await llmLimit(() => chat(client, BIG_MODEL, breakoutPrompt, 2500));
+      const raw = await llmLimit(() => chat(client, MODEL, breakoutPrompt, 2500));
       const breakoutArticle = { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo };
 
       if (!breakoutArticle._isFallback && result.frontPage && result.frontPage.lead) {
@@ -358,7 +360,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
     try {
       console.log(`  Generating trend article: ${trend.theme}...`);
       const prompt = trendArticlePrompt(trend);
-      const raw = await llmLimit(() => chat(client, SMALL_MODEL, prompt, 1500));
+      const raw = await llmLimit(() => chat(client, MODEL, prompt, 1500));
       const trendArticle = {
         ...parseArticle(raw, null),
         repo: {
@@ -385,26 +387,59 @@ async function generateEditorialContent(sections, apiKey, editorialPlan) {
     }
   }
 
-  // Step 4: Memes section — blank placeholder, tagline
-  result["memes"] = {
-    lead: null,
-    secondary: [],
-    quickHits: [],
-    isEmpty: true,
-    isMemes: true,
-  };
+  // Step 4: Generate sleeper articles for Deep Cuts section
+  if (editorialPlan.sleepers && editorialPlan.sleepers.length > 0) {
+    const deepCuts = [];
+    for (const sleeper of editorialPlan.sleepers.slice(0, 2)) {
+      try {
+        const repoName = sleeper.repo.full_name || sleeper.repo.name;
+        console.log(`  Generating sleeper article for ${repoName}...`);
+        const { enrichRepo } = require("./github");
+        // Enrich the sleeper repo if it's a raw GitHub object
+        let sleeperRepo = sleeper.repo;
+        if (!sleeperRepo.readmeExcerpt && sleeperRepo.full_name) {
+          try {
+            const token = githubToken;
+            if (token) sleeperRepo = await enrichRepo(sleeperRepo, token);
+          } catch {
+            // Use raw repo data if enrichment fails
+          }
+        }
 
-  const { mastheadQuote } = require("./quotes");
-  const tagline = mastheadQuote();
+        const prompt = sleeperArticlePrompt({ ...sleeper, repo: sleeperRepo });
+        const raw = await llmLimit(() => chat(client, MODEL, prompt, 1000));
+        const sleeperArticle = {
+          ...parseArticle(raw, sleeperRepo),
+          repo: {
+            name: sleeperRepo.full_name || sleeperRepo.name,
+            shortName: sleeperRepo.name ? sleeperRepo.name.split("/").pop() : repoName,
+            description: sleeperRepo.description || `Sleeper: ${repoName}`,
+            url: sleeperRepo.html_url || sleeperRepo.url || `https://github.com/${repoName}`,
+            stars: sleeperRepo.stargazers_count || sleeperRepo.stars || 0,
+            language: sleeperRepo.language || "Unknown",
+            topics: sleeperRepo.topics || [],
+          },
+          _isSleeper: true,
+        };
 
-  const totalArticles = SECTION_ORDER.reduce((sum, id) => {
-    const s = result[id];
-    if (!s) return sum;
-    return sum + (s.lead ? 1 : 0) + s.secondary.length + s.quickHits.length;
-  }, 0);
-  console.log(`Generated ${totalArticles} total articles across ${SECTION_ORDER.length} sections (editorial mode)`);
+        if (!sleeperArticle._isFallback) {
+          deepCuts.push(sleeperArticle);
+          editorialMeta.sleepers.push({
+            repo: repoName,
+            reason: sleeper.reason,
+          });
+        }
+      } catch (err) {
+        console.warn(`Sleeper article generation failed for ${sleeper.repo.full_name || sleeper.repo.name}: ${err.message}`);
+      }
+    }
 
-  return { sections: result, tagline, editorialMeta };
+    if (deepCuts.length > 0 && result.frontPage) {
+      result.frontPage.deepCuts = deepCuts;
+    }
+  }
+
+  return { sections: result, tagline: base.tagline, editorialMeta };
 }
 
 module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat };

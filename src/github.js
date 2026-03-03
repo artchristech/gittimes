@@ -137,8 +137,8 @@ async function fetchOSSInsightTrending() {
       language: row.primary_language || "Unknown",
       description: row.description || "",
       topics: [],
-      created_at: new Date().toISOString(),
-      pushed_at: new Date().toISOString(),
+      created_at: null,
+      pushed_at: null,
       _isOSSInsight: true,
     }));
   } catch (err) {
@@ -158,13 +158,13 @@ function scoreRepo(repo, options = {}) {
   const recentRepoNames = options.recentRepoNames || new Set();
 
   // Star velocity: log-dampen, cap at 1.0
-  const ageMs = now - new Date(repo.created_at).getTime();
+  const ageMs = repo.created_at ? now - new Date(repo.created_at).getTime() : Infinity;
   const ageDays = Math.max(ageMs / 86400000, 1);
   const rawVelocity = repo.stargazers_count / ageDays;
   const velocityScore = Math.min(Math.log1p(rawVelocity) / 5, 1.0);
 
   // Recency: linear decay over 7 days (0-1)
-  const pushedMs = now - new Date(repo.pushed_at).getTime();
+  const pushedMs = repo.pushed_at ? now - new Date(repo.pushed_at).getTime() : Infinity;
   const recencyScore = Math.max(0, 1 - pushedMs / (7 * 86400000));
 
   // Release bonus: linear decay over 30 days (1.0 → 0)
@@ -192,10 +192,10 @@ function scoreRepo(repo, options = {}) {
 
   // Weighted sum
   let score =
-    effectiveVelocity * 0.35 +
-    effectiveRecency * 0.25 +
-    releaseScore * 0.15 +
-    engagementScore * 0.10;
+    effectiveVelocity * 0.40 +
+    effectiveRecency * 0.30 +
+    releaseScore * 0.18 +
+    engagementScore * 0.12;
 
   // History penalty: -0.5 if repo appeared in recent editions
   if (recentRepoNames.has(repo.full_name)) {
@@ -299,7 +299,7 @@ async function fetchTrending(token, options = {}) {
   // Deduplicate by full_name
   const seen = new Set();
   const repos = [];
-  for (const repo of [...resultA.items, ...resultB.items]) {
+  for (const repo of [...(resultA.items || []), ...(resultB.items || [])]) {
     if (!seen.has(repo.full_name)) {
       seen.add(repo.full_name);
       repos.push(repo);
@@ -323,8 +323,10 @@ async function fetchTrending(token, options = {}) {
 
   // Collect raw candidates for editorial pipeline
   if (options.rawCollector) {
+    const seen = options.rawCollectorSeen || new Set(options.rawCollector.map(r => r.full_name));
     for (const repo of repos) {
-      if (!options.rawCollector.some((r) => r.full_name === repo.full_name)) {
+      if (!seen.has(repo.full_name)) {
+        seen.add(repo.full_name);
         options.rawCollector.push(repo);
       }
     }
@@ -484,8 +486,10 @@ async function fetchSectionRepos(token, sectionConfig, options = {}) {
 
   // Collect raw candidates for editorial pipeline
   if (options.rawCollector) {
+    const seen = options.rawCollectorSeen || new Set(options.rawCollector.map(r => r.full_name));
     for (const repo of repos) {
-      if (!options.rawCollector.some((r) => r.full_name === repo.full_name)) {
+      if (!seen.has(repo.full_name)) {
+        seen.add(repo.full_name);
         options.rawCollector.push(repo);
       }
     }
@@ -550,7 +554,7 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
   try {
     const { fetchTrajectories } = require("./star-history");
     console.log(`  Fetching star trajectories (${sectionConfig.label})...`);
-    const trajectories = await fetchTrajectories(enriched, token);
+    const trajectories = await fetchTrajectories(enriched, token, options.trajectoryCache);
     for (const repo of enriched) {
       const t = trajectories.get(repo.name);
       if (t) repo.starTrajectory = t;
@@ -576,10 +580,12 @@ async function fetchAllSections(token, options = {}) {
   const { SECTIONS, SECTION_ORDER } = require("./sections");
   const recentRepoNames = options.recentRepoNames || new Set();
   const rawCollector = [];
+  const rawCollectorSeen = new Set();
+  const trajectoryCache = new Map();
 
   // Front Page first — uses existing fetchAndEnrich (unchanged behavior)
   console.log("Fetching Front Page...");
-  const frontPageData = await fetchAndEnrich(token, { recentRepoNames, rawCollector });
+  const frontPageData = await fetchAndEnrich(token, { recentRepoNames, rawCollector, rawCollectorSeen, trajectoryCache });
 
   // Build globalSeen from Front Page lead + secondary only (not quickHits).
   // Only lead repos are hard-excluded to prevent duplicate headlines;
@@ -597,7 +603,7 @@ async function fetchAllSections(token, options = {}) {
     const config = SECTIONS[id];
     if (!config || !config.query) continue;
     console.log(`Fetching section: ${config.label}...`);
-    sections[id] = await fetchAndEnrichSection(token, config, { globalSeen, recentRepoNames, rawCollector });
+    sections[id] = await fetchAndEnrichSection(token, config, { globalSeen, recentRepoNames, rawCollector, rawCollectorSeen, trajectoryCache });
   }
 
   sections._rawCandidates = rawCollector;
@@ -629,7 +635,7 @@ async function fetchAndEnrich(token, options = {}) {
   try {
     const { fetchTrajectories } = require("./star-history");
     console.log("Fetching star trajectories (front page)...");
-    const trajectories = await fetchTrajectories(enriched, token);
+    const trajectories = await fetchTrajectories(enriched, token, options.trajectoryCache);
     for (const repo of enriched) {
       const t = trajectories.get(repo.name);
       if (t) repo.starTrajectory = t;
