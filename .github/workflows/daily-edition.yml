@@ -2,8 +2,11 @@ name: Daily Edition
 
 on:
   schedule:
-    - cron: '0 12 * * *' # Noon UTC daily
+    - cron: '0 7 * * *' # Midnight MST (7 AM UTC) / 1 AM MDT
   workflow_dispatch: # Manual trigger
+
+env:
+  TZ: America/Denver
 
 concurrency:
   group: daily-edition
