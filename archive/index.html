@@ -488,6 +488,22 @@ body {
 
 /* === ARCHIVE === */
 
+.archive-back {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 24px;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 8px 12px;
+  line-height: 1;
+}
+
+.archive-back:hover {
+  color: var(--accent);
+}
+
 .archive-list {
   margin-bottom: 40px;
 }
@@ -1053,10 +1069,14 @@ body {
 }
 
   </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
 </head>
 <body>
 
   <header class="masthead">
+    <a href="/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
     <h1 class="masthead-title"><a href="/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
     <div class="masthead-meta">
       <span>Archive</span>
@@ -1068,8 +1088,8 @@ body {
     
     <div class="archive-entry">
       <span class="archive-date">Tuesday, March 3, 2026</span>
-      <a href="/editions/2026-03-03/" class="archive-headline">Vercel Labs&#39; Agent-Browser Delivers Ultra-Fast CLI for AI-Driven Browsing</a>
-      <span class="archive-tagline">“The only way to discover the limits of the possible is to go beyond them into the impossible.” — Arthur C. Clarke</span>
+      <a href="/editions/2026-03-03/" class="archive-headline">Reverse-Engineered APIs Enable Neural Training on Apple&#39;s Hidden ANE Powerhouse</a>
+      <span class="archive-tagline">“At each increase of knowledge, as well as on the contrivance of every new tool, human labour becomes abridged.” — Charles Babbage</span>
     </div>
 
     <div class="archive-entry">
