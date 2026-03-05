@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { generateSectionContent, generateEditorialContent, parseArticle, chat } = require("../src/xai");
+const { generateSectionContent, generateEditorialContent, parseArticle, chat, _attachSentiment } = require("../src/xai");
 
 // --------------- Mock helpers ---------------
 
@@ -34,13 +34,30 @@ function goodArticle(headline, body = "Article body text here.") {
     `HEADLINE: ${headline}`,
     "SUBHEADLINE: A subtitle",
     `BODY: ${body}`,
-    "BUILDERS_TAKE: Worth checking out.",
+    "USE_CASES:",
+    "1. Build web apps faster",
+    "2. Replace legacy toolchains",
+    "3. Prototype new ideas",
+    "SIMILAR_PROJECTS:",
+    "1. Vite - faster but less opinionated",
+    "2. Turbopack - similar scope",
+    "3. esbuild - lower-level bundler",
   ].join("\n");
 }
 
 /** Build a bad response that won't parse */
 function badResponse() {
   return "This is just unstructured rambling with no markers at all.";
+}
+
+/** Build a well-formatted sentiment response */
+function goodSentiment(sentiment = "buzzing") {
+  return [
+    `SENTIMENT: ${sentiment}`,
+    "POST_COUNT: 42",
+    "BLURB: Developers love this project",
+    "TOP_POST: This is amazing!",
+  ].join("\n");
 }
 
 /** Create a minimal enriched repo object */
@@ -393,5 +410,219 @@ describe("chat", () => {
         return true;
       }
     );
+  });
+});
+
+// --------------- _attachSentiment ---------------
+
+describe("_attachSentiment", () => {
+  it("attaches sentiment to lead + first 2 featured on frontPage, skips 3rd secondary and quickHits", async () => {
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Search X.com")) return goodSentiment("buzzing");
+      return goodArticle("Default");
+    });
+
+    const sections = {
+      frontPage: {
+        lead: { ...parseArticle(goodArticle("Lead"), makeRepo("lead")), repo: makeRepo("lead") },
+        secondary: [
+          { ...parseArticle(goodArticle("Sec1"), makeRepo("sec1")), repo: makeRepo("sec1") },
+          { ...parseArticle(goodArticle("Sec2"), makeRepo("sec2")), repo: makeRepo("sec2") },
+          { ...parseArticle(goodArticle("Sec3"), makeRepo("sec3")), repo: makeRepo("sec3") },
+        ],
+        quickHits: [{ ...makeRepo("qh1"), summary: "Quick hit" }],
+        isEmpty: false,
+      },
+      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
+    };
+
+    await _attachSentiment(sections, client, llmLimit);
+
+    assert.ok(sections.frontPage.lead.xSentiment, "Lead should have xSentiment");
+    assert.equal(sections.frontPage.lead.xSentiment.sentiment, "buzzing");
+    assert.ok(sections.frontPage.secondary[0].xSentiment, "1st secondary should have xSentiment");
+    assert.ok(sections.frontPage.secondary[1].xSentiment, "2nd secondary should have xSentiment");
+    assert.ok(!sections.frontPage.secondary[2].xSentiment, "3rd secondary should NOT have xSentiment");
+    assert.ok(!sections.frontPage.quickHits[0].xSentiment, "quickHits should NOT have xSentiment");
+  });
+
+  it("attaches sentiment to non-frontPage section lead + first 1 featured", async () => {
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Search X.com")) return goodSentiment("positive");
+      return goodArticle("Default");
+    });
+
+    const sections = {
+      ai: {
+        lead: { ...parseArticle(goodArticle("AI Lead"), makeRepo("ai-lead")), repo: makeRepo("ai-lead") },
+        secondary: [
+          { ...parseArticle(goodArticle("AISec1"), makeRepo("ai-sec1")), repo: makeRepo("ai-sec1") },
+          { ...parseArticle(goodArticle("AISec2"), makeRepo("ai-sec2")), repo: makeRepo("ai-sec2") },
+        ],
+        quickHits: [],
+        isEmpty: false,
+      },
+      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
+    };
+
+    await _attachSentiment(sections, client, llmLimit);
+
+    assert.ok(sections.ai.lead.xSentiment, "Lead should have xSentiment");
+    assert.equal(sections.ai.lead.xSentiment.sentiment, "positive");
+    assert.ok(sections.ai.secondary[0].xSentiment, "1st secondary should have xSentiment");
+    assert.ok(!sections.ai.secondary[1].xSentiment, "2nd secondary should NOT have xSentiment (non-frontPage)");
+  });
+
+  it("attaches sentiment to deepCuts articles", async () => {
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Search X.com")) return goodSentiment("quiet");
+      return goodArticle("Default");
+    });
+
+    const sections = {
+      frontPage: {
+        lead: { ...parseArticle(goodArticle("Lead"), makeRepo("lead")), repo: makeRepo("lead") },
+        secondary: [],
+        quickHits: [],
+        deepCuts: [
+          { ...parseArticle(goodArticle("DeepCut1"), makeRepo("dc1")), repo: makeRepo("dc1"), _isSleeper: true },
+        ],
+        isEmpty: false,
+      },
+      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
+    };
+
+    await _attachSentiment(sections, client, llmLimit);
+
+    assert.ok(sections.frontPage.deepCuts[0].xSentiment, "Deep cut should have xSentiment");
+    assert.equal(sections.frontPage.deepCuts[0].xSentiment.sentiment, "quiet");
+  });
+
+  it("handles empty/missing sections without error", async () => {
+    const client = mockClient(() => goodSentiment("neutral"));
+
+    const sections = {
+      frontPage: { lead: null, secondary: [], quickHits: [], isEmpty: true },
+      ai: undefined,
+      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
+    };
+
+    // Should not throw
+    await _attachSentiment(sections, client, llmLimit);
+  });
+
+  it("skips _isTrend articles", async () => {
+    let sentimentCalls = 0;
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Search X.com")) {
+        sentimentCalls++;
+        return goodSentiment("buzzing");
+      }
+      return goodArticle("Default");
+    });
+
+    const trendArticle = {
+      ...parseArticle(goodArticle("Trend Article"), null),
+      repo: { name: "trend/ai-agents", shortName: "ai-agents", url: "#", stars: 0, language: "Trend", topics: [] },
+      _isTrend: true,
+    };
+    const normalArticle = {
+      ...parseArticle(goodArticle("Normal"), makeRepo("normal")),
+      repo: makeRepo("normal"),
+    };
+
+    const sections = {
+      frontPage: {
+        lead: normalArticle,
+        secondary: [trendArticle],
+        quickHits: [],
+        isEmpty: false,
+      },
+      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
+    };
+
+    await _attachSentiment(sections, client, llmLimit);
+
+    assert.ok(normalArticle.xSentiment, "Normal article should have xSentiment");
+    assert.ok(!trendArticle.xSentiment, "Trend article should NOT have xSentiment");
+    assert.equal(sentimentCalls, 1, "Should only fetch sentiment for non-trend articles");
+  });
+});
+
+// --------------- generateEditorialContent — sentiment integration ---------------
+
+describe("generateEditorialContent — sentiment", () => {
+  it("attaches xSentiment to breakout article after it replaces lead", async () => {
+    const client = mockClient((prompt) => {
+      if (prompt.includes("Search X.com")) return goodSentiment("buzzing");
+      return goodArticle("Breakout Story");
+    });
+
+    const sections = {
+      frontPage: {
+        lead: makeRepo("original-lead"),
+        secondary: [],
+        quickHits: [],
+      },
+    };
+
+    const editorialPlan = {
+      breakout: {
+        repo: {
+          full_name: "org/breakout",
+          name: "org/breakout",
+          description: "A breakout project",
+          stargazers_count: 5000,
+          language: "TypeScript",
+          topics: [],
+          url: "https://github.com/org/breakout",
+        },
+        reason: "Massive star growth",
+        delta: { stars: 2000 },
+      },
+      trends: [],
+      sleepers: [],
+    };
+
+    const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client });
+
+    assert.ok(result.sections.frontPage.lead.xSentiment, "Breakout lead should have xSentiment");
+    assert.equal(result.sections.frontPage.lead.xSentiment.sentiment, "buzzing");
+  });
+
+  it("skips sentiment when X_SENTIMENT=false", async () => {
+    const origEnv = process.env.X_SENTIMENT;
+    process.env.X_SENTIMENT = "false";
+
+    try {
+      let sentimentCalls = 0;
+      const client = mockClient((prompt) => {
+        if (prompt.includes("Search X.com")) {
+          sentimentCalls++;
+          return goodSentiment("buzzing");
+        }
+        return goodArticle("Default Article");
+      });
+
+      const sections = {
+        frontPage: {
+          lead: makeRepo("lead"),
+          secondary: [],
+          quickHits: [],
+        },
+      };
+
+      const editorialPlan = { breakout: null, trends: [], sleepers: [] };
+      const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client });
+
+      assert.equal(sentimentCalls, 0, "Should not fetch sentiment when X_SENTIMENT=false");
+      assert.ok(!result.sections.frontPage.lead.xSentiment, "Lead should NOT have xSentiment");
+    } finally {
+      if (origEnv === undefined) {
+        delete process.env.X_SENTIMENT;
+      } else {
+        process.env.X_SENTIMENT = origEnv;
+      }
+    }
   });
 });

@@ -4,6 +4,9 @@ const path = require("path");
 const { assembleHtml, buildNavHtml, escapeHtml } = require("./render");
 
 const { renderArchivePage } = require("./archive");
+const { renderLandingPage } = require("./landing");
+const { renderAccountPage } = require("./account");
+const { generateRss, generateAtom } = require("./feed");
 
 /**
  * Format a Date as YYYY-MM-DD.
@@ -75,6 +78,9 @@ async function publish(content, outDir, options = {}) {
   const html = await assembleHtml(content, {
     date,
     nav,
+    siteUrl,
+    basePath,
+    dateStr,
   });
 
   // 4. Write edition to outDir/editions/YYYY-MM-DD/index.html
@@ -82,8 +88,10 @@ async function publish(content, outDir, options = {}) {
   if (!fs.existsSync(editionDir)) fs.mkdirSync(editionDir, { recursive: true });
   fs.writeFileSync(path.join(editionDir, "index.html"), html);
 
-  // 5. Copy to outDir/index.html (latest edition)
-  fs.writeFileSync(path.join(outDir, "index.html"), html);
+  // 5. Copy to outDir/latest/index.html (latest edition)
+  const latestDir = path.join(outDir, "latest");
+  if (!fs.existsSync(latestDir)) fs.mkdirSync(latestDir, { recursive: true });
+  fs.writeFileSync(path.join(latestDir, "index.html"), html);
 
   // 6. Update previous edition's HTML to add "Next Edition" link
   if (prevEntry) {
@@ -163,29 +171,51 @@ async function publish(content, outDir, options = {}) {
   manifest.unshift(newEntry);
   writeManifest(outDir, manifest);
 
-  // 9. Generate archive page
+  // 9. Generate RSS and Atom feeds
+  fs.writeFileSync(path.join(outDir, "feed.xml"), generateRss(manifest, siteUrl));
+  fs.writeFileSync(path.join(outDir, "feed.atom"), generateAtom(manifest, siteUrl));
+
+  // 10. Generate archive page
   const archiveDir = path.join(outDir, "archive");
   if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
   const archiveHtml = renderArchivePage(manifest, basePath);
   fs.writeFileSync(path.join(archiveDir, "index.html"), archiveHtml);
 
-  // 10. Generate custom 404 page
+  // 11. Generate custom 404 page
   const fourOhFourTemplatePath = path.join(__dirname, "..", "templates", "404.html");
   if (fs.existsSync(fourOhFourTemplatePath)) {
     const fourOhFourTemplate = fs.readFileSync(fourOhFourTemplatePath, "utf-8");
     const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
     const css = fs.readFileSync(cssPath, "utf-8");
-    const latestUrl = basePath + "/";
+    const latestUrl = basePath + "/latest/";
     const archiveUrl = basePath + "/archive/";
+    const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
+    const analyticsScript = plausibleDomain
+      ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
+      : "";
+    const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
+    const cspConnectSrc = plausibleDomain ? " https://plausible.io" : "";
     const fourOhFourHtml = fourOhFourTemplate
       .replace("{{STYLES}}", css)
       .replace(/\{\{BASE_PATH\}\}/g, basePath)
       .replace("{{LATEST_URL}}", latestUrl)
-      .replace("{{ARCHIVE_URL}}", archiveUrl);
+      .replace("{{ARCHIVE_URL}}", archiveUrl)
+      .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
+      .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
+      .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc);
     fs.writeFileSync(path.join(outDir, "404.html"), fourOhFourHtml);
   }
 
-  // 11. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
+  // 12. Generate landing page at root
+  const landingHtml = renderLandingPage(manifest, { basePath, siteUrl });
+  fs.writeFileSync(path.join(outDir, "index.html"), landingHtml);
+
+  // 13. Generate account page
+  const accountDir = path.join(outDir, "account");
+  if (!fs.existsSync(accountDir)) fs.mkdirSync(accountDir, { recursive: true });
+  fs.writeFileSync(path.join(accountDir, "index.html"), renderAccountPage({ basePath, siteUrl }));
+
+  // 14. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
   fs.writeFileSync(path.join(outDir, "CNAME"), "gittimes.com");
 

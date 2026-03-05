@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent } = require("../src/render");
+const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent } = require("../src/render");
 const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection } = require("../src/github");
 const { parseArticle, parseQuickHits, sanitizePrompt } = require("../src/xai");
 const { parseXSentiment } = require("../src/x-sentiment");
@@ -368,7 +368,14 @@ describe("parseArticle", () => {
     "HEADLINE: Big New Framework",
     "SUBHEADLINE: A subtitle here",
     "BODY: First paragraph of the body.",
-    "BUILDERS_TAKE: This is useful for devs.",
+    "USE_CASES:",
+    "1. Build web apps faster",
+    "2. Replace legacy toolchains",
+    "3. Prototype new ideas quickly",
+    "SIMILAR_PROJECTS:",
+    "1. Vite - faster but less opinionated",
+    "2. Turbopack - similar scope, different approach",
+    "3. esbuild - lower-level bundler",
   ].join("\n");
 
   it("parses all structured markers", () => {
@@ -376,7 +383,16 @@ describe("parseArticle", () => {
     assert.equal(result.headline, "Big New Framework");
     assert.equal(result.subheadline, "A subtitle here");
     assert.equal(result.body, "First paragraph of the body.");
-    assert.equal(result.buildersTake, "This is useful for devs.");
+    assert.deepEqual(result.useCases, [
+      "Build web apps faster",
+      "Replace legacy toolchains",
+      "Prototype new ideas quickly",
+    ]);
+    assert.deepEqual(result.similarProjects, [
+      "Vite - faster but less opinionated",
+      "Turbopack - similar scope, different approach",
+      "esbuild - lower-level bundler",
+    ]);
   });
 
   it("uses fallback when markers are missing", () => {
@@ -401,12 +417,16 @@ describe("parseArticle", () => {
       "HEADLINE: The Headline",
       "BODY: Wrong body",
       "BODY: Correct body",
-      "BUILDERS_TAKE: The take",
+      "USE_CASES:",
+      "1. Some use case",
+      "SIMILAR_PROJECTS:",
+      "1. Some project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
     assert.equal(result.headline, "The Headline");
     assert.equal(result.body, "Correct body");
-    assert.equal(result.buildersTake, "The take");
+    assert.deepEqual(result.useCases, ["Some use case"]);
+    assert.deepEqual(result.similarProjects, ["Some project - comparison"]);
   });
 
   it("sets _isFallback to true when markers are missing", () => {
@@ -419,7 +439,10 @@ describe("parseArticle", () => {
     const text = [
       "HEADLINE: Good Headline",
       "BODY: Good body text",
-      "BUILDERS_TAKE: Good take",
+      "USE_CASES:",
+      "1. A use case",
+      "SIMILAR_PROJECTS:",
+      "1. A project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
     assert.equal(result._isFallback, false);
@@ -429,12 +452,15 @@ describe("parseArticle", () => {
     const text = [
       "HEADLINE: Solo Headline",
       "BODY: Some body text",
-      "BUILDERS_TAKE: A take",
+      "USE_CASES:",
+      "1. A use case",
+      "SIMILAR_PROJECTS:",
+      "1. A project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
     assert.equal(result.headline, "Solo Headline");
     assert.equal(result.body, "Some body text");
-    assert.equal(result.buildersTake, "A take");
+    assert.deepEqual(result.useCases, ["A use case"]);
   });
 
   it("does not confuse SUBHEADLINE for HEADLINE when both present", () => {
@@ -442,7 +468,10 @@ describe("parseArticle", () => {
       "SUBHEADLINE: sub value",
       "HEADLINE: real headline",
       "BODY: body text",
-      "BUILDERS_TAKE: take",
+      "USE_CASES:",
+      "1. A use case",
+      "SIMILAR_PROJECTS:",
+      "1. A project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
     assert.equal(result.headline, "real headline");
@@ -453,7 +482,10 @@ describe("parseArticle", () => {
     const text = [
       "SUBHEADLINE: just a sub",
       "BODY: body text",
-      "BUILDERS_TAKE: take",
+      "USE_CASES:",
+      "1. A use case",
+      "SIMILAR_PROJECTS:",
+      "1. A project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
     assert.equal(result._isFallback, true);
@@ -529,37 +561,16 @@ describe("renderLeadStory", () => {
     repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 1000, language: "JS", releaseName: null },
   };
 
-  it("omits Builder's Take div when buildersTake is empty", () => {
-    const html = renderLeadStory({ ...baseArticle, buildersTake: "" });
-    assert.ok(!html.includes("builders-take"), "Should not contain builders-take div");
+  it("omits article-insights div when useCases and similarProjects are empty", () => {
+    const html = renderLeadStory({ ...baseArticle, useCases: [], similarProjects: [] });
+    assert.ok(!html.includes("article-insights"), "Should not contain article-insights div");
   });
 
-  it("includes Builder's Take div when buildersTake is populated", () => {
-    const html = renderLeadStory({ ...baseArticle, buildersTake: "Great for devs" });
-    assert.ok(html.includes("builders-take"), "Should contain builders-take div");
-    assert.ok(html.includes("Great for devs"));
-  });
-});
-
-// --------------- renderSecondaryArticle ---------------
-
-describe("renderSecondaryArticle", () => {
-  const baseArticle = {
-    headline: "Secondary Headline",
-    subheadline: "Secondary Sub",
-    body: "Secondary body",
-    repo: { url: "https://github.com/test/sec", name: "test/sec", stars: 500, language: "Python" },
-  };
-
-  it("omits Builder's Take div when buildersTake is empty", () => {
-    const html = renderSecondaryArticle({ ...baseArticle, buildersTake: "" });
-    assert.ok(!html.includes("builders-take"), "Should not contain builders-take div");
-  });
-
-  it("includes Builder's Take div when buildersTake is populated", () => {
-    const html = renderSecondaryArticle({ ...baseArticle, buildersTake: "Useful library" });
-    assert.ok(html.includes("builders-take"), "Should contain builders-take div");
-    assert.ok(html.includes("Useful library"));
+  it("includes article-insights div when useCases is populated", () => {
+    const html = renderLeadStory({ ...baseArticle, useCases: ["Build web apps", "Replace tools"], similarProjects: ["Vite - faster"] });
+    assert.ok(html.includes("article-insights"), "Should contain article-insights div");
+    assert.ok(html.includes("Build web apps"));
+    assert.ok(html.includes("Vite - faster"));
   });
 });
 
@@ -574,26 +585,27 @@ describe("renderFeaturedArticle", () => {
   };
 
   it("renders headline and body text", () => {
-    const html = renderFeaturedArticle({ ...baseArticle, buildersTake: "" });
+    const html = renderFeaturedArticle({ ...baseArticle, useCases: [], similarProjects: [] });
     assert.ok(html.includes("Featured Headline"));
     assert.ok(html.includes("featured-headline"));
     assert.ok(html.includes("Featured body text"));
     assert.ok(html.includes("featured-body"));
   });
 
-  it("includes Builder's Take when populated", () => {
-    const html = renderFeaturedArticle({ ...baseArticle, buildersTake: "Worth trying" });
-    assert.ok(html.includes("builders-take"), "Should contain builders-take div");
-    assert.ok(html.includes("Worth trying"));
+  it("includes article-insights when populated", () => {
+    const html = renderFeaturedArticle({ ...baseArticle, useCases: ["Build apps"], similarProjects: ["Vite - faster"] });
+    assert.ok(html.includes("article-insights"), "Should contain article-insights div");
+    assert.ok(html.includes("Build apps"));
+    assert.ok(html.includes("Vite - faster"));
   });
 
-  it("omits Builder's Take when empty", () => {
-    const html = renderFeaturedArticle({ ...baseArticle, buildersTake: "" });
-    assert.ok(!html.includes("builders-take"), "Should not contain builders-take div");
+  it("omits article-insights when empty", () => {
+    const html = renderFeaturedArticle({ ...baseArticle, useCases: [], similarProjects: [] });
+    assert.ok(!html.includes("article-insights"), "Should not contain article-insights div");
   });
 
   it("renders meta with repo info", () => {
-    const html = renderFeaturedArticle({ ...baseArticle, buildersTake: "" });
+    const html = renderFeaturedArticle({ ...baseArticle, useCases: [], similarProjects: [] });
     assert.ok(html.includes("test/feat"));
     assert.ok(html.includes("2k stars"));
     assert.ok(html.includes("TypeScript"));
@@ -624,9 +636,9 @@ describe("renderCompactArticle", () => {
     assert.ok(!html.includes("compact-body"), "Should not have a body div");
   });
 
-  it("does not include Builder's Take", () => {
-    const html = renderCompactArticle({ ...baseArticle, buildersTake: "Should not appear" });
-    assert.ok(!html.includes("builders-take"), "Compact article should not render Builder's Take");
+  it("does not include article-insights", () => {
+    const html = renderCompactArticle({ ...baseArticle, useCases: ["Should not appear"], similarProjects: ["Also hidden"] });
+    assert.ok(!html.includes("article-insights"), "Compact article should not render article-insights");
     assert.ok(!html.includes("Should not appear"));
   });
 
@@ -779,7 +791,8 @@ describe("renderSectionContent", () => {
     headline,
     subheadline: "Sub",
     body: "Body text",
-    buildersTake: "",
+    useCases: [],
+    similarProjects: [],
     repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 100, language: "JS", releaseName: null },
   });
 
@@ -868,7 +881,8 @@ describe("renderDeepCuts", () => {
     headline,
     subheadline: "Sub",
     body: "Body text",
-    buildersTake: "Worth checking out",
+    useCases: ["A use case"],
+    similarProjects: ["A project - comparison"],
     repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 80, language: "Go" },
   });
 
@@ -899,7 +913,8 @@ describe("renderSectionContent with deepCuts", () => {
     headline,
     subheadline: "Sub",
     body: "Body text",
-    buildersTake: "",
+    useCases: [],
+    similarProjects: [],
     repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 100, language: "JS", releaseName: null },
   });
 
@@ -1153,13 +1168,15 @@ describe("sanitizeRepoField", () => {
     assert.equal(sanitizeRepoField("Has BODY: here"), "Has BODY - here");
   });
 
-  it("strips SUBHEADLINE: and BUILDERS_TAKE: markers", () => {
-    const input = "SUBHEADLINE: fake sub BUILDERS_TAKE: fake take";
+  it("strips SUBHEADLINE:, USE_CASES:, and SIMILAR_PROJECTS: markers", () => {
+    const input = "SUBHEADLINE: fake sub USE_CASES: fake cases SIMILAR_PROJECTS: fake projects";
     const result = sanitizeRepoField(input);
     assert.ok(!result.includes("SUBHEADLINE:"));
-    assert.ok(!result.includes("BUILDERS_TAKE:"));
+    assert.ok(!result.includes("USE_CASES:"));
+    assert.ok(!result.includes("SIMILAR_PROJECTS:"));
     assert.ok(result.includes("SUBHEADLINE -"));
-    assert.ok(result.includes("BUILDERS_TAKE -"));
+    assert.ok(result.includes("USE_CASES -"));
+    assert.ok(result.includes("SIMILAR_PROJECTS -"));
   });
 
   it("is case-insensitive", () => {
@@ -1188,7 +1205,7 @@ describe("leadArticlePrompt sanitization", () => {
       topics: ["BODY: injected"],
       createdAt: "2025-01-01",
       pushedAt: "2025-03-01",
-      readmeExcerpt: "BUILDERS_TAKE: fake advice",
+      readmeExcerpt: "USE_CASES: fake cases",
       releaseNotes: "SUBHEADLINE: fake sub",
       releaseName: null,
     };
@@ -1199,7 +1216,7 @@ describe("leadArticlePrompt sanitization", () => {
     // Count occurrences of "HEADLINE:" — only the format instruction should have it
     assert.ok(!dataSection.includes("HEADLINE: Malicious"));
     assert.ok(!dataSection.includes("BODY: injected"));
-    assert.ok(!dataSection.includes("BUILDERS_TAKE: fake"));
+    assert.ok(!dataSection.includes("USE_CASES: fake"));
     assert.ok(!dataSection.includes("SUBHEADLINE: fake"));
   });
 });
@@ -1252,5 +1269,23 @@ describe("sanitizeArticleHtml URI schemes", () => {
     const result = sanitizeArticleHtml(html);
     assert.ok(!result.includes("data:"));
     assert.ok(result.includes("href='#'"));
+  });
+
+  it("strips style tags via allowlist", () => {
+    const result = sanitizeArticleHtml("<style>body{display:none}</style><p>safe</p>");
+    assert.ok(!result.includes("<style"));
+    assert.ok(result.includes("<p>safe</p>"));
+  });
+
+  it("strips object/embed/form tags via allowlist", () => {
+    const result = sanitizeArticleHtml('<object data="x"></object><embed src="y"><form action="z">');
+    assert.ok(!result.includes("<object"));
+    assert.ok(!result.includes("<embed"));
+    assert.ok(!result.includes("<form"));
+  });
+
+  it("preserves safe markdown-generated tags", () => {
+    const html = "<p><strong>bold</strong> and <em>italic</em> and <code>code</code></p>";
+    assert.equal(sanitizeArticleHtml(html), html);
   });
 });

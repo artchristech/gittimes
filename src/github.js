@@ -323,10 +323,10 @@ async function fetchTrending(token, options = {}) {
 
   // Collect raw candidates for editorial pipeline
   if (options.rawCollector) {
-    const seen = options.rawCollectorSeen || new Set(options.rawCollector.map(r => r.full_name));
+    const rawSeen = options.rawCollectorSeen || new Set(options.rawCollector.map(r => r.full_name));
     for (const repo of repos) {
-      if (!seen.has(repo.full_name)) {
-        seen.add(repo.full_name);
+      if (!rawSeen.has(repo.full_name)) {
+        rawSeen.add(repo.full_name);
         options.rawCollector.push(repo);
       }
     }
@@ -486,10 +486,10 @@ async function fetchSectionRepos(token, sectionConfig, options = {}) {
 
   // Collect raw candidates for editorial pipeline
   if (options.rawCollector) {
-    const seen = options.rawCollectorSeen || new Set(options.rawCollector.map(r => r.full_name));
+    const rawSeen = options.rawCollectorSeen || new Set(options.rawCollector.map(r => r.full_name));
     for (const repo of repos) {
-      if (!seen.has(repo.full_name)) {
-        seen.add(repo.full_name);
+      if (!rawSeen.has(repo.full_name)) {
+        rawSeen.add(repo.full_name);
         options.rawCollector.push(repo);
       }
     }

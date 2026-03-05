@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
   <title>The Git Times — Archive</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta property="og:title" content="The Git Times — Archive">
+  <meta property="og:description" content="Browse all editions of The Git Times">
+  <meta property="og:site_name" content="The Git Times">
 
   <style>
 {{STYLES}}
@@ -16,7 +20,8 @@
 <body>
 
   <header class="masthead">
-    <a href="{{BASE_PATH}}/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
+    <a href="{{BASE_PATH}}/account/" class="masthead-account">Account</a>
+    <a href="{{BASE_PATH}}/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
     <h1 class="masthead-title"><a href="{{BASE_PATH}}/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
     <div class="masthead-meta">
       <span>Archive</span>
@@ -30,7 +35,7 @@
 
   <footer class="footer">
     <nav class="edition-nav">
-      <a href="{{BASE_PATH}}/">Latest Edition</a>
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
     </nav>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>

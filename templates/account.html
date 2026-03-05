@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <title>The Git Times — Account</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta property="og:title" content="The Git Times — Account">
+  <meta property="og:site_name" content="The Git Times">
+
+  <style>
+{{STYLES}}
+  </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
+</head>
+<body class="account">
+
+  <header class="masthead">
+    <a href="{{BASE_PATH}}/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
+    <h1 class="masthead-title"><a href="{{BASE_PATH}}/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
+    <div class="masthead-meta">
+      <span>Account</span>
+    </div>
+  </header>
+
+  <!-- Login form (visible by default) -->
+  <section class="account-login" id="account-login">
+    <h2>Sign In</h2>
+    <p>Enter your email to receive a magic sign-in link.</p>
+    <form class="subscribe-form" id="magic-link-form">
+      <input type="email" name="email" placeholder="you@example.com" required>
+      <button type="submit">Send Magic Link</button>
+    </form>
+    <div class="subscribe-status" id="magic-link-status"></div>
+  </section>
+
+  <!-- Dashboard (hidden by default) -->
+  <section class="account-dashboard" id="account-dashboard" style="display:none">
+    <h2>Your Account</h2>
+    <div class="account-info">
+      <div class="account-row">
+        <span class="account-label">Email</span>
+        <span class="account-value" id="account-email"></span>
+      </div>
+      <div class="account-row">
+        <span class="account-label">Plan</span>
+        <span class="account-value" id="account-plan"></span>
+      </div>
+      <div class="account-row">
+        <span class="account-label">Newsletter</span>
+        <span class="account-value" id="account-newsletter"></span>
+      </div>
+      <div class="account-row">
+        <span class="account-label">Member Since</span>
+        <span class="account-value" id="account-since"></span>
+      </div>
+    </div>
+    <div class="account-actions">
+      <a href="{{BASE_PATH}}/latest/" class="account-btn account-btn-primary">Read Latest Edition</a>
+      <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
+      <button class="account-btn account-btn-secondary" id="account-newsletter-toggle">Unsubscribe from Newsletter</button>
+      <button class="account-btn account-btn-secondary" id="account-logout">Sign Out</button>
+    </div>
+  </section>
+
+  <!-- Error (hidden by default) -->
+  <section class="account-error" id="account-error" style="display:none">
+    <h2>Link Invalid</h2>
+    <p id="account-error-msg">This sign-in link has expired or is invalid. Please request a new one.</p>
+    <a href="{{BASE_PATH}}/account/" class="account-btn account-btn-primary">Try Again</a>
+  </section>
+
+  <footer class="footer">
+    <nav class="edition-nav">
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
+      <span>&middot;</span>
+      <a href="{{BASE_PATH}}/archive/">Archive</a>
+    </nav>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+  </footer>
+
+  <script>
+    (function() {
+      var WORKER = '{{WORKER_URL}}';
+      var loginSection = document.getElementById('account-login');
+      var dashSection = document.getElementById('account-dashboard');
+      var errorSection = document.getElementById('account-error');
+      var form = document.getElementById('magic-link-form');
+      var status = document.getElementById('magic-link-status');
+      var logoutBtn = document.getElementById('account-logout');
+      var upgradeBtn = document.getElementById('account-upgrade');
+      var newsletterBtn = document.getElementById('account-newsletter-toggle');
+
+      // Capture token from URL (magic link redirect)
+      var params = new URLSearchParams(location.search);
+      var tokenParam = params.get('token');
+      if (tokenParam) {
+        localStorage.setItem('gittimes-session', tokenParam);
+        params.delete('token');
+        var qs = params.toString();
+        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+      }
+
+      // Handle error params
+      var errorParam = params.get('error');
+      if (errorParam) {
+        loginSection.style.display = 'none';
+        dashSection.style.display = 'none';
+        errorSection.style.display = 'block';
+        if (errorParam === 'expired_token') {
+          document.getElementById('account-error-msg').textContent = 'This sign-in link has expired. Please request a new one.';
+        }
+        params.delete('error');
+        var qs2 = params.toString();
+        history.replaceState(null, '', location.pathname + (qs2 ? '?' + qs2 : ''));
+        return;
+      }
+
+      var session = localStorage.getItem('gittimes-session');
+
+      function showLogin() {
+        loginSection.style.display = 'block';
+        dashSection.style.display = 'none';
+        errorSection.style.display = 'none';
+      }
+
+      var currentUser = null;
+
+      function updateNewsletterUI(subscribed) {
+        document.getElementById('account-newsletter').textContent = subscribed ? 'Subscribed' : 'Not subscribed';
+        newsletterBtn.textContent = subscribed ? 'Unsubscribe from Newsletter' : 'Subscribe to Newsletter';
+      }
+
+      function showDashboard(user) {
+        currentUser = user;
+        loginSection.style.display = 'none';
+        dashSection.style.display = 'block';
+        errorSection.style.display = 'none';
+        document.getElementById('account-email').textContent = user.email;
+        document.getElementById('account-plan').textContent = user.plan === 'premium' ? 'Premium' : 'Free';
+        updateNewsletterUI(user.subscribedToNewsletter !== false);
+        document.getElementById('account-since').textContent = new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (user.plan !== 'premium') {
+          upgradeBtn.style.display = 'inline-block';
+          upgradeBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(session);
+        }
+      }
+
+      // On load: check session
+      if (session) {
+        fetch(WORKER + '/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + session }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok && data.user) {
+            showDashboard(data.user);
+          } else {
+            localStorage.removeItem('gittimes-session');
+            session = null;
+            showLogin();
+          }
+        })
+        .catch(function() {
+          showLogin();
+        });
+      } else {
+        showLogin();
+      }
+
+      // Login form submit
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = form.email.value;
+        status.textContent = 'Sending...';
+        status.className = 'subscribe-status';
+        fetch(WORKER + '/auth/send-magic-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            status.textContent = data.message || 'Check your email for a sign-in link.';
+            status.className = 'subscribe-status success';
+            form.reset();
+          } else {
+            status.textContent = data.error || 'Something went wrong.';
+            status.className = 'subscribe-status error';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error. Please try again.';
+          status.className = 'subscribe-status error';
+        });
+      });
+
+      // Newsletter toggle
+      newsletterBtn.addEventListener('click', function() {
+        if (!session || !currentUser) return;
+        var newVal = currentUser.subscribedToNewsletter === false;
+        newsletterBtn.disabled = true;
+        fetch(WORKER + '/auth/update-newsletter', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + session,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ subscribedToNewsletter: newVal })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            currentUser.subscribedToNewsletter = data.subscribedToNewsletter;
+            updateNewsletterUI(data.subscribedToNewsletter);
+          }
+        })
+        .catch(function() {})
+        .finally(function() { newsletterBtn.disabled = false; });
+      });
+
+      // Logout
+      logoutBtn.addEventListener('click', function() {
+        if (session) {
+          fetch(WORKER + '/auth/logout', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + session }
+          }).catch(function() {});
+        }
+        localStorage.removeItem('gittimes-session');
+        session = null;
+        showLogin();
+      });
+    })();
+  </script>
+
+</body>
+</html>

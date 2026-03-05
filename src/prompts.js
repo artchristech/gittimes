@@ -5,7 +5,7 @@
  */
 function sanitizeRepoField(text) {
   if (!text) return text;
-  return String(text).replace(/\b(HEADLINE|SUBHEADLINE|BODY|BUILDERS_TAKE)\s*:/gi, "$1 -");
+  return String(text).replace(/\b(HEADLINE|SUBHEADLINE|BODY|USE_CASES|SIMILAR_PROJECTS)\s*:/gi, "$1 -");
 }
 
 function timestampLine(repo) {
@@ -30,7 +30,7 @@ function leadArticlePrompt(repo) {
   const desc = sanitizeRepoField(repo.description);
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
-  const topics = sanitizeRepoField(repo.topics.join(", ") || "none listed");
+  const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
   return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
 
 PROJECT DATA:
@@ -52,6 +52,7 @@ EDITORIAL GUIDELINES:
 - Focus on: the problem it solves, how it works technically, what's new or different about it, and who should care.
 - Stars may be mentioned once for context but should never be the headline, lede, or thesis.
 Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need.
+Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
 Output EXACTLY in this format (include the markers):
@@ -59,14 +60,21 @@ Output EXACTLY in this format (include the markers):
 HEADLINE: [A compelling newspaper headline about what this project does or why it matters, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline, 12-20 words]
 BODY: [300-400 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
-BUILDERS_TAKE: [2-3 sentences of practical advice for developers considering this project. What should they know before diving in?]`;
+USE_CASES:
+1. [8-12 word use case — who + what, no narrative]
+2. [8-12 word use case]
+3. [8-12 word use case]
+SIMILAR_PROJECTS:
+1. [project-name] - [how it compares in 1 sentence]
+2. [project-name] - [how it compares]
+3. [project-name] - [how it compares]`;
 }
 
 function secondaryArticlePrompt(repo) {
   const desc = sanitizeRepoField(repo.description);
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
-  const topics = sanitizeRepoField(repo.topics.join(", ") || "none listed");
+  const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
   return `You are a technology journalist writing for The Git Times, a broadsheet newspaper for builders. Write a tight 150-200 word article about this GitHub project.
 
 PROJECT DATA:
@@ -85,6 +93,7 @@ ${release ? `RELEASE NOTES:\n${release}` : ""}
 EDITORIAL GUIDELINES:
 - Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
 Write in crisp newspaper style. No hype. Concrete details only.
+Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
 Output EXACTLY in this format (include the markers):
@@ -92,7 +101,14 @@ Output EXACTLY in this format (include the markers):
 HEADLINE: [Newspaper headline about what this project does, 6-10 words]
 SUBHEADLINE: [Clarifying subheadline, 10-16 words]
 BODY: [150-200 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
-BUILDERS_TAKE: [1-2 sentences of practical advice for developers.]`;
+USE_CASES:
+1. [8-12 word use case — who + what, no narrative]
+2. [8-12 word use case]
+3. [8-12 word use case]
+SIMILAR_PROJECTS:
+1. [project-name] - [how it compares]
+2. [project-name] - [how it compares]
+3. [project-name] - [how it compares]`;
 }
 
 function quickHitPrompt(repos) {
@@ -138,6 +154,7 @@ EDITORIAL GUIDELINES:
 - Do NOT lead with star counts, growth numbers, or popularity metrics. Those are not the story.
 - The story is the PROJECT — its capabilities, its approach, who it's for, and what it changes.
 - You may mention that it's gaining traction, but as context, not as the headline or lede.
+Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations.
 
 Output EXACTLY in this format (include the markers):
@@ -145,7 +162,14 @@ Output EXACTLY in this format (include the markers):
 HEADLINE: [A compelling newspaper headline about what this project does or changes, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline about its capabilities or significance, 12-20 words]
 BODY: [400-500 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
-BUILDERS_TAKE: [2-3 sentences of practical advice for developers considering this project.]`;
+USE_CASES:
+1. [8-12 word use case — who + what, no narrative]
+2. [8-12 word use case]
+3. [8-12 word use case]
+SIMILAR_PROJECTS:
+1. [project-name] - [how it compares in 1 sentence]
+2. [project-name] - [how it compares]
+3. [project-name] - [how it compares]`;
 }
 
 function trendArticlePrompt(trend) {
@@ -164,6 +188,7 @@ REPOS IN THIS CLUSTER:
 ${repoList}
 
 The story is the PATTERN, not any single repo. Reference individual repos as evidence of the trend. Explain what this cluster tells us about where open source is heading. Focus on what these projects do and what the pattern means technically — not on popularity metrics.
+Do not include a word count anywhere in the output.
 Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
@@ -171,7 +196,14 @@ Output EXACTLY in this format (include the markers):
 HEADLINE: [A compelling headline about the trend pattern, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline, 12-20 words]
 BODY: [250-350 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
-BUILDERS_TAKE: [2-3 sentences about what this trend means for developers.]`;
+USE_CASES:
+1. [8-12 word use case — who + what, no narrative]
+2. [8-12 word use case]
+3. [8-12 word use case]
+SIMILAR_PROJECTS:
+1. [project-name] - [how it compares in 1 sentence]
+2. [project-name] - [how it compares]
+3. [project-name] - [how it compares]`;
 }
 
 function sleeperArticlePrompt(sleeper) {
@@ -192,6 +224,7 @@ PROJECT DATA:
 WHY SELECTED: ${sleeper.reason}
 
 Frame this as a discovery — what does this project do and why should builders pay attention? Focus on its capabilities and potential, not its popularity metrics.
+Do not include a word count anywhere in the output.
 Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
@@ -199,7 +232,14 @@ Output EXACTLY in this format (include the markers):
 HEADLINE: [An intriguing headline about what this project does, 6-10 words]
 SUBHEADLINE: [A clarifying subheadline, 10-16 words]
 BODY: [150-200 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names.]
-BUILDERS_TAKE: [1-2 sentences of practical advice.]`;
+USE_CASES:
+1. [8-12 word use case — who + what, no narrative]
+2. [8-12 word use case]
+3. [8-12 word use case]
+SIMILAR_PROJECTS:
+1. [project-name] - [how it compares]
+2. [project-name] - [how it compares]
+3. [project-name] - [how it compares]`;
 }
 
 function editorInChiefPrompt(candidateSummary) {

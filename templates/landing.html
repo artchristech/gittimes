@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <title>The Git Times — AI-Generated Newspaper for Builders</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta property="og:title" content="The Git Times — AI-Generated Newspaper for Builders">
+  <meta property="og:description" content="A daily AI-generated newspaper covering trending GitHub repos, developer tools, and open-source projects.">
+  <meta property="og:site_name" content="The Git Times">
+  <link rel="alternate" type="application/rss+xml" title="The Git Times RSS" href="{{BASE_PATH}}/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="The Git Times Atom" href="{{BASE_PATH}}/feed.atom">
+
+  <style>
+{{STYLES}}
+  </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
+</head>
+<body class="landing">
+
+  <header class="masthead">
+    <a href="{{BASE_PATH}}/account/" class="masthead-account">Account</a>
+    <h1 class="masthead-title">The Git Times</h1>
+    <div class="masthead-tagline">AI-Generated Newspaper for Builders</div>
+  </header>
+
+  <section class="landing-hero">
+    <h2>What the open-source world shipped while you were sleeping</h2>
+    <p>Every morning, our AI editorial team reads GitHub's trending repos, analyzes X sentiment, and publishes a full newspaper edition — so you don't have to doomscroll.</p>
+    <div class="landing-ctas">
+      <a href="{{BASE_PATH}}/latest/" class="landing-cta landing-cta-primary">Read Today's Edition</a>
+      <a href="#subscribe" class="landing-cta landing-cta-secondary">Subscribe Free</a>
+    </div>
+  </section>
+
+  <section class="landing-features">
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9881;</div>
+      <h3>Editorial Intelligence</h3>
+      <p>Breakout detection, trend clustering, and sleeper discovery — not just a list of repos.</p>
+    </div>
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9776;</div>
+      <h3>Daily Coverage</h3>
+      <p>A new full edition every morning with lead stories, secondary coverage, and quick hits.</p>
+    </div>
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9878;</div>
+      <h3>7 Sections</h3>
+      <p>Front Page, AI, Robotics, Cyber, Systems, DIY, and Memes — whatever you build.</p>
+    </div>
+  </section>
+
+  <section class="landing-editions">
+    <h2>Recent Editions</h2>
+    {{EDITION_CARDS}}
+  </section>
+
+  <section class="landing-subscribe" id="subscribe">
+    <h2>Get it in your inbox</h2>
+    <p>Free daily edition. No spam. Unsubscribe anytime. Your email also creates a free account.</p>
+    <form class="subscribe-form" id="subscribe-form">
+      <input type="email" name="email" placeholder="you@example.com" required>
+      <button type="submit">Subscribe</button>
+    </form>
+    <div class="subscribe-status" id="subscribe-status"></div>
+    <p style="margin-top:12px;font-size:13px;font-family:var(--font-meta)"><a href="{{BASE_PATH}}/account/" style="color:var(--accent)">Already have an account? Sign in</a></p>
+  </section>
+
+  <footer class="footer">
+    <nav class="edition-nav">
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
+      <span>&middot;</span>
+      <a href="{{BASE_PATH}}/archive/">Archive</a>
+      <span>&middot;</span>
+      <a href="{{BASE_PATH}}/feed.xml">RSS</a>
+    </nav>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+  </footer>
+
+  <script>
+    (function(){
+      var form = document.getElementById('subscribe-form');
+      var status = document.getElementById('subscribe-status');
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = form.email.value;
+        status.textContent = 'Subscribing...';
+        status.className = 'subscribe-status';
+        fetch('{{SUBSCRIBE_URL}}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            status.textContent = data.message || 'You are subscribed!';
+            status.className = 'subscribe-status success';
+            form.reset();
+          } else {
+            status.textContent = data.error || 'Something went wrong.';
+            status.className = 'subscribe-status error';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error. Please try again.';
+          status.className = 'subscribe-status error';
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>

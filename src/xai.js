@@ -89,28 +89,55 @@ function lastMatch(text, pattern) {
   return matches.length ? matches[matches.length - 1] : null;
 }
 
+function parseNumberedList(block) {
+  if (!block) return [];
+  return block
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => /^\d+\.\s*/.test(l))
+    .map((l) => l.replace(/^\d+\.\s*/, "").trim())
+    .filter(Boolean);
+}
+
 function parseArticle(text, repo) {
   // Use LAST occurrence of each marker — reasoning models echo the format
   // instructions early in their thinking, then produce the real output later.
   const headlineMatch = lastMatch(text, /(?:^|\n)\bHEADLINE:\s*(.+)/);
   const subheadlineMatch = lastMatch(text, /SUBHEADLINE:\s*(.+)/);
-  const buildersTakeMatch = lastMatch(text, /BUILDERS_TAKE:\s*([\s\S]*?)$/);
 
-  // For BODY, find the last BODY: marker and grab everything until the last BUILDERS_TAKE:
+  // For BODY, find the last BODY: marker and grab everything until the last USE_CASES:
   let body = null;
   const bodyMarkers = [...text.matchAll(/BODY:\s*/g)];
   if (bodyMarkers.length) {
     const lastBodyStart = bodyMarkers[bodyMarkers.length - 1].index + bodyMarkers[bodyMarkers.length - 1][0].length;
-    const btMarkers = [...text.matchAll(/BUILDERS_TAKE:/g)];
-    const lastBtStart = btMarkers.length ? btMarkers[btMarkers.length - 1].index : text.length;
-    if (lastBodyStart < lastBtStart) {
-      body = text.slice(lastBodyStart, lastBtStart).trim();
+    const ucMarkers = [...text.matchAll(/USE_CASES:/g)];
+    const lastUcStart = ucMarkers.length ? ucMarkers[ucMarkers.length - 1].index : text.length;
+    if (lastBodyStart < lastUcStart) {
+      body = text.slice(lastBodyStart, lastUcStart).trim();
     }
+  }
+
+  // Parse USE_CASES: block (between USE_CASES: and SIMILAR_PROJECTS:)
+  let useCases = [];
+  const ucMatches = [...text.matchAll(/USE_CASES:\s*/g)];
+  const spMatches = [...text.matchAll(/SIMILAR_PROJECTS:\s*/g)];
+  if (ucMatches.length) {
+    const lastUcEnd = ucMatches[ucMatches.length - 1].index + ucMatches[ucMatches.length - 1][0].length;
+    const lastSpStart = spMatches.length ? spMatches[spMatches.length - 1].index : text.length;
+    if (lastUcEnd <= lastSpStart) {
+      useCases = parseNumberedList(text.slice(lastUcEnd, lastSpStart));
+    }
+  }
+
+  // Parse SIMILAR_PROJECTS: block (from SIMILAR_PROJECTS: to end)
+  let similarProjects = [];
+  if (spMatches.length) {
+    const lastSpEnd = spMatches[spMatches.length - 1].index + spMatches[spMatches.length - 1][0].length;
+    similarProjects = parseNumberedList(text.slice(lastSpEnd));
   }
 
   const headline = headlineMatch?.[1]?.trim() || null;
   const subheadline = subheadlineMatch?.[1]?.trim() || "";
-  const buildersTake = buildersTakeMatch?.[1]?.trim() || "";
 
   const failed = !headline || !body;
   if (failed && repo) {
@@ -121,7 +148,8 @@ function parseArticle(text, repo) {
     headline: headline || (repo ? `${repo.shortName}: ${repo.description}`.slice(0, 80) : "Untitled"),
     subheadline: subheadline || (repo ? repo.description : ""),
     body: body || (repo ? repo.description : text),
-    buildersTake,
+    useCases,
+    similarProjects,
     _isFallback: failed,
   };
 }
@@ -218,6 +246,75 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
 }
 
 /**
+ * Attach X sentiment data to eligible articles across all sections.
+ * Eligible: lead + featured secondary (first 2 for frontPage, first 1 for others) + deepCuts.
+ * Skips _isTrend articles and memes section.
+ * @param {object} sections - Generated sections keyed by section id
+ * @param {object} client - OpenAI client
+ * @param {function} llmLimit - p-limit limiter
+ */
+async function _attachSentiment(sections, client, llmLimit) {
+  const { SECTIONS, SECTION_ORDER } = require("./sections");
+  const { fetchXSentimentForRepo } = require("./x-sentiment");
+
+  const tasks = []; // { article, repo }
+
+  for (const id of SECTION_ORDER) {
+    if (SECTIONS[id]?.isMemes) continue;
+    const section = sections[id];
+    if (!section || section.isEmpty) continue;
+
+    const isFrontPage = id === "frontPage";
+    const featuredCount = isFrontPage ? 2 : 1;
+
+    // Lead
+    if (section.lead && !section.lead._isTrend) {
+      tasks.push(section.lead);
+    }
+
+    // Featured secondary (only the ones rendered with renderFeaturedArticle)
+    if (section.secondary) {
+      for (const article of section.secondary.slice(0, featuredCount)) {
+        if (!article._isTrend) {
+          tasks.push(article);
+        }
+      }
+    }
+
+    // Deep cuts
+    if (section.deepCuts) {
+      for (const article of section.deepCuts) {
+        if (!article._isTrend) {
+          tasks.push(article);
+        }
+      }
+    }
+  }
+
+  if (tasks.length === 0) return;
+
+  console.log(`Fetching X sentiment for ${tasks.length} articles...`);
+
+  const results = await Promise.all(
+    tasks.map((article) =>
+      fetchXSentimentForRepo(client, llmLimit, article.repo)
+        .then((result) => ({ article, result, ok: true }))
+        .catch(() => ({ article, result: null, ok: false }))
+    )
+  );
+
+  let succeeded = 0;
+  for (const { article, result, ok } of results) {
+    if (ok && result) {
+      article.xSentiment = result;
+      if (!result._failed) succeeded++;
+    }
+  }
+
+  console.log(`X sentiment: ${succeeded}/${tasks.length} succeeded`);
+}
+
+/**
  * Internal helper: generate content for all non-memes sections, add memes placeholder,
  * pick tagline, and log article count.
  * @param {object} sections - { frontPage: { lead, secondary, quickHits }, ai: {...}, ... }
@@ -270,14 +367,20 @@ async function _generateBaseSections(sections, client, llmLimit) {
  * @param {string} apiKey - xAI API key
  * @returns {Promise<object>} { sections: { frontPage: {...}, ... }, tagline }
  */
-async function generateAllContent(sections, apiKey) {
-  const client = createClient(apiKey);
+async function generateAllContent(sections, apiKey, options = {}) {
+  const client = options.client || createClient(apiKey);
   const { default: pLimit } = await pLimitP;
   const llmLimit = pLimit(3);
 
   console.log("Generating articles for all sections...");
 
-  return _generateBaseSections(sections, client, llmLimit);
+  const base = await _generateBaseSections(sections, client, llmLimit);
+
+  if (process.env.X_SENTIMENT !== "false") {
+    await _attachSentiment(base.sections, client, llmLimit);
+  }
+
+  return base;
 }
 
 /**
@@ -342,11 +445,27 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
       const breakoutArticle = { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo };
 
       if (!breakoutArticle._isFallback && result.frontPage && result.frontPage.lead) {
-        // Demote current lead to secondary
-        result.frontPage.secondary.unshift(result.frontPage.lead);
+        const breakoutName = breakoutRepo.full_name || breakoutRepo.name;
+        const currentLeadName = result.frontPage.lead.repo?.name || result.frontPage.lead.repo?.full_name;
+        const isSameAsLead = breakoutName === currentLeadName;
+
+        // Remove breakout repo from secondary/quickHits if already there
+        result.frontPage.secondary = result.frontPage.secondary.filter(
+          (a) => (a.repo?.name || a.repo?.full_name) !== breakoutName
+        );
+        if (result.frontPage.quickHits) {
+          result.frontPage.quickHits = result.frontPage.quickHits.filter(
+            (h) => (h.name || h.full_name) !== breakoutName
+          );
+        }
+
+        // Demote current lead to secondary (unless it's the same repo)
+        if (!isSameAsLead) {
+          result.frontPage.secondary.unshift(result.frontPage.lead);
+        }
         result.frontPage.lead = breakoutArticle;
         editorialMeta.breakout = {
-          repo: breakoutRepo.full_name || breakoutRepo.name,
+          repo: breakoutName,
           reason: editorialPlan.breakout.reason,
         };
       }
@@ -439,7 +558,11 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     }
   }
 
+  if (process.env.X_SENTIMENT !== "false") {
+    await _attachSentiment(result, client, llmLimit);
+  }
+
   return { sections: result, tagline: base.tagline, editorialMeta };
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment };

@@ -10,6 +10,10 @@ async function initMarked() {
   markedParse = marked.parse.bind(marked);
 }
 
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function escapeHtml(str) {
   return str
     .replace(/&/g, "&amp;")
@@ -24,13 +28,23 @@ function formatStars(n) {
   return n.toString();
 }
 
+const SAFE_TAGS = new Set([
+  "p","strong","em","b","i","code","pre","ul","ol","li","a","br",
+  "blockquote","h1","h2","h3","h4","h5","h6","hr","del","s",
+  "table","thead","tbody","tr","th","td",
+]);
+
 function sanitizeArticleHtml(html) {
-  return html
-    .replace(/<script[\s>][\s\S]*?<\/script>/gi, "")
-    .replace(/<iframe[\s>][\s\S]*?<\/iframe>/gi, "")
-    .replace(/\bon\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, "")
-    .replace(/href\s*=\s*"(?!https?:\/\/)[a-z][a-z0-9+.-]*:[^"]*"/gi, 'href="#"')
-    .replace(/href\s*=\s*'(?!https?:\/\/)[a-z][a-z0-9+.-]*:[^']*'/gi, "href='#'");
+  // Strip event handlers
+  html = html.replace(/\bon\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, "");
+  // Neutralize dangerous href schemes (keep http/https only)
+  html = html.replace(/href\s*=\s*"(?!https?:\/\/)[a-z][a-z0-9+.-]*:[^"]*"/gi, 'href="#"');
+  html = html.replace(/href\s*=\s*'(?!https?:\/\/)[a-z][a-z0-9+.-]*:[^']*'/gi, "href='#'");
+  // Strip tags not in allowlist (catches script, iframe, style, object, embed, form, svg, etc.)
+  html = html.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*\/?>/gi, (match, tagName) => {
+    return SAFE_TAGS.has(tagName.toLowerCase()) ? match : "";
+  });
+  return html;
 }
 
 function bodyToHtml(text) {
@@ -44,8 +58,29 @@ function bodyToHtml(text) {
     .join("\n      ");
 }
 
+function renderInsights(useCases, similarProjects) {
+  if ((!useCases || useCases.length === 0) && (!similarProjects || similarProjects.length === 0)) {
+    return "";
+  }
+  let html = `<div class="article-insights">`;
+  if (useCases && useCases.length > 0) {
+    html += `<div class="insights-col">`;
+    html += `<span class="insights-label">Use Cases</span>`;
+    html += `<ul>${useCases.map((uc) => `<li>${escapeHtml(uc)}</li>`).join("")}</ul>`;
+    html += `</div>`;
+  }
+  if (similarProjects && similarProjects.length > 0) {
+    html += `<div class="insights-col">`;
+    html += `<span class="insights-label">Similar Projects</span>`;
+    html += `<ul>${similarProjects.map((sp) => `<li>${escapeHtml(sp)}</li>`).join("")}</ul>`;
+    html += `</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 function renderLeadStory(article) {
-  const { headline, subheadline, body, buildersTake, repo, xSentiment } = article;
+  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
   return `
     <h2 class="lead-headline">${escapeHtml(headline)}</h2>
     <p class="lead-subheadline">${escapeHtml(subheadline)}</p>
@@ -57,35 +92,13 @@ function renderLeadStory(article) {
     </div>
     <div class="lead-body">
       ${bodyToHtml(body)}
-      ${buildersTake ? `<div class="builders-take">
-        <span class="builders-take-label">Builder's Take</span>
-        ${escapeHtml(buildersTake)}
-      </div>` : ""}
+      ${renderInsights(useCases, similarProjects)}
       ${renderSentimentBadge(xSentiment)}
     </div>`;
 }
 
-function renderSecondaryArticle(article) {
-  const { headline, subheadline, body, buildersTake, repo } = article;
-  return `
-      <article class="secondary-article">
-        <h3 class="secondary-headline">${escapeHtml(headline)}</h3>
-        <p class="secondary-subheadline">${escapeHtml(subheadline)}</p>
-        <div class="secondary-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars
-        </div>
-        <div class="secondary-body">
-          ${bodyToHtml(body)}
-        </div>
-        ${buildersTake ? `<div class="builders-take">
-          <span class="builders-take-label">Builder's Take</span>
-          ${escapeHtml(buildersTake)}
-        </div>` : ""}
-      </article>`;
-}
-
 function renderFeaturedArticle(article) {
-  const { headline, subheadline, body, buildersTake, repo, xSentiment } = article;
+  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
   return `
       <article class="featured-article">
         <h3 class="featured-headline">${escapeHtml(headline)}</h3>
@@ -96,10 +109,7 @@ function renderFeaturedArticle(article) {
         <div class="featured-body">
           ${bodyToHtml(body)}
         </div>
-        ${buildersTake ? `<div class="builders-take">
-          <span class="builders-take-label">Builder's Take</span>
-          ${escapeHtml(buildersTake)}
-        </div>` : ""}
+        ${renderInsights(useCases, similarProjects)}
         ${renderSentimentBadge(xSentiment)}
       </article>`;
 }
@@ -251,6 +261,182 @@ function renderSectionContent(sectionData, sectionConfig) {
   return html;
 }
 
+function renderChatUi() {
+  return `
+  <button class="chat-fab" id="chat-fab" aria-label="Chat">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-header">Git Times Chat</div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg-ai">Ask me anything about today's articles.</div>
+    </div>
+    <div class="chat-paywall" id="chat-paywall">
+      <p>Unlock AI chat to ask questions about today's stories.</p>
+      <a class="chat-paywall-btn" id="chat-unlock-btn">Unlock for $1 (24h pass)</a>
+    </div>
+    <div class="chat-input-row" id="chat-input-row" style="display:none">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Ask about an article..." autocomplete="off">
+      <button class="chat-send" id="chat-send">Send</button>
+    </div>
+  </div>`;
+}
+
+function renderChatScript(workerUrl) {
+  return `<script>
+(function() {
+  var WORKER = ${JSON.stringify(workerUrl)};
+  var fab = document.getElementById('chat-fab');
+  var panel = document.getElementById('chat-panel');
+  var msgs = document.getElementById('chat-messages');
+  var paywall = document.getElementById('chat-paywall');
+  var inputRow = document.getElementById('chat-input-row');
+  var input = document.getElementById('chat-input');
+  var sendBtn = document.getElementById('chat-send');
+  var unlockBtn = document.getElementById('chat-unlock-btn');
+
+  // Session management: capture from URL redirect
+  var params = new URLSearchParams(location.search);
+  var sessionParam = params.get('chat_session');
+  if (sessionParam) {
+    localStorage.setItem('gittimes-chat-session', sessionParam);
+    params.delete('chat_session');
+    var qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+  }
+
+  var sessionId = localStorage.getItem('gittimes-chat-session');
+  var accountSession = localStorage.getItem('gittimes-session');
+  var history_msgs = [];
+
+  function updatePaywall() {
+    if (sessionId || accountSession) {
+      paywall.style.display = 'none';
+      inputRow.style.display = 'flex';
+    } else {
+      paywall.style.display = 'flex';
+      inputRow.style.display = 'none';
+    }
+  }
+  updatePaywall();
+
+  var checkoutUrl = WORKER + '/checkout';
+  if (accountSession) checkoutUrl += '?session_token=' + encodeURIComponent(accountSession);
+  unlockBtn.href = checkoutUrl;
+
+  fab.addEventListener('click', function() {
+    var open = panel.classList.toggle('open');
+    fab.classList.toggle('open', open);
+    if (open) input.focus();
+  });
+
+  function getContext() {
+    var active = document.querySelector('.section-panel.active');
+    if (!active) return '';
+    var parts = [];
+    var lead = active.querySelector('.lead-headline');
+    if (lead) parts.push(lead.textContent);
+    var leadBody = active.querySelector('.lead-body');
+    if (leadBody) parts.push(leadBody.textContent);
+    active.querySelectorAll('.featured-headline').forEach(function(el) { parts.push(el.textContent); });
+    active.querySelectorAll('.featured-body').forEach(function(el) { parts.push(el.textContent); });
+    active.querySelectorAll('.compact-headline').forEach(function(el) { parts.push(el.textContent); });
+    return parts.join('\\n').substring(0, 6000);
+  }
+
+  function addMsg(role, text) {
+    var div = document.createElement('div');
+    div.className = role === 'user' ? 'chat-msg-user' : 'chat-msg-ai';
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    sendBtn.disabled = true;
+    addMsg('user', text);
+
+    var context = getContext();
+    var userMsg = context ? 'Article context:\\n' + context + '\\n\\nQuestion: ' + text : text;
+    history_msgs.push({ role: 'user', content: userMsg });
+
+    var aiDiv = addMsg('ai', '');
+    aiDiv.classList.add('streaming');
+    var full = '';
+
+    try {
+      var chatHeaders = { 'Content-Type': 'application/json' };
+      if (accountSession) chatHeaders['Authorization'] = 'Bearer ' + accountSession;
+      var res = await fetch(WORKER + '/chat', {
+        method: 'POST',
+        headers: chatHeaders,
+        body: JSON.stringify({ session_id: sessionId, messages: history_msgs })
+      });
+
+      if (res.status === 403) {
+        localStorage.removeItem('gittimes-chat-session');
+        sessionId = null;
+        updatePaywall();
+        aiDiv.textContent = 'Session expired. Please unlock again.';
+        aiDiv.classList.remove('streaming');
+        sendBtn.disabled = false;
+        return;
+      }
+
+      if (!res.ok) throw new Error('Request failed');
+
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buf = '';
+
+      while (true) {
+        var chunk = await reader.read();
+        if (chunk.done) break;
+        buf += decoder.decode(chunk.value, { stream: true });
+        var lines = buf.split('\\n');
+        buf = lines.pop();
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          if (!line.startsWith('data: ')) continue;
+          var data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            var parsed = JSON.parse(data);
+            var delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
+            if (delta && delta.content) {
+              full += delta.content;
+              aiDiv.textContent = full;
+              msgs.scrollTop = msgs.scrollHeight;
+            }
+          } catch(e) {}
+        }
+      }
+
+      history_msgs.push({ role: 'assistant', content: full });
+    } catch(e) {
+      aiDiv.textContent = full || 'Something went wrong. Please try again.';
+    }
+
+    aiDiv.classList.remove('streaming');
+    sendBtn.disabled = false;
+    input.focus();
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+})();
+</script>`;
+}
+
 /**
  * Assemble multi-section HTML from content with sections shape.
  * @param {object} content - { sections: { frontPage: {...}, ... }, tagline }
@@ -288,6 +474,30 @@ async function assembleMultiSectionHtml(content, options = {}) {
     return `<div class="section-panel${activeClass}" data-section="${escapeHtml(id)}">${panelContent}</div>`;
   }).join("\n");
 
+  const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
+
+  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
+  const analyticsScript = plausibleDomain
+    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
+    : "";
+  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
+  const cspConnectSrc = [
+    chatWorkerUrl ? " " + chatWorkerUrl : "",
+    plausibleDomain ? " https://plausible.io" : "",
+  ].join("");
+
+  // OG meta tag values
+  const frontPageLead = content.sections?.frontPage?.lead;
+  const ogTitle = escapeHtml(
+    frontPageLead ? frontPageLead.headline + " — The Git Times" : "The Git Times — " + editionDate
+  );
+  const ogDescription = escapeHtml(
+    content.tagline || (frontPageLead ? frontPageLead.subheadline : "AI-generated newspaper for builders")
+  );
+  const siteUrl = options.siteUrl || "https://gittimes.com";
+  const dateStr = options.dateStr || toDateStr(options.date || new Date());
+  const ogUrl = siteUrl + (options.basePath || "") + "/editions/" + dateStr + "/";
+
   let html = template
     .replace("{{STYLES}}", css)
     .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
@@ -298,7 +508,17 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace("{{LEAD_STORY_SECTION}}", "")
     .replace("{{SECONDARY_SECTION}}", "")
     .replace("{{QUICK_HITS_SECTION}}", "")
-    .replace(/\{\{NAVIGATION\}\}/g, navHtml);
+    .replace(/\{\{NAVIGATION\}\}/g, navHtml)
+    .replace(/\{\{BASE_PATH\}\}/g, options.basePath || "")
+    .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")
+    .replace("{{CHAT_SCRIPT}}", chatWorkerUrl ? renderChatScript(chatWorkerUrl) : "")
+    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
+    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
+    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc)
+    .replace("{{FEED_URL}}", siteUrl + "/feed.xml")
+    .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
+    .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
+    .replace("{{OG_URL}}", ogUrl);
 
   return html;
 }
@@ -361,6 +581,29 @@ async function assembleHtml(content, options = {}) {
   </section>`;
   }
 
+  const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
+
+  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
+  const analyticsScript = plausibleDomain
+    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
+    : "";
+  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
+  const cspConnectSrc = [
+    chatWorkerUrl ? " " + chatWorkerUrl : "",
+    plausibleDomain ? " https://plausible.io" : "",
+  ].join("");
+
+  // OG meta tag values
+  const ogTitle = escapeHtml(
+    content.lead ? content.lead.headline + " — The Git Times" : "The Git Times — " + editionDate
+  );
+  const ogDescription = escapeHtml(
+    content.tagline || (content.lead ? content.lead.subheadline : "AI-generated newspaper for builders")
+  );
+  const siteUrl = options.siteUrl || "https://gittimes.com";
+  const dateStr = options.dateStr || toDateStr(options.date || new Date());
+  const ogUrl = siteUrl + (options.basePath || "") + "/editions/" + dateStr + "/";
+
   let html = template
     .replace("{{STYLES}}", css)
     .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
@@ -369,9 +612,19 @@ async function assembleHtml(content, options = {}) {
     .replace("{{SECONDARY_SECTION}}", secondarySectionHtml)
     .replace("{{QUICK_HITS_SECTION}}", quickHitsSectionHtml)
     .replace(/\{\{NAVIGATION\}\}/g, navHtml)
+    .replace(/\{\{BASE_PATH\}\}/g, options.basePath || "")
     // Clear multi-section placeholders unused in legacy mode
     .replace("{{SECTION_NAV}}", "")
-    .replace("{{SECTION_PANELS}}", "");
+    .replace("{{SECTION_PANELS}}", "")
+    .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")
+    .replace("{{CHAT_SCRIPT}}", chatWorkerUrl ? renderChatScript(chatWorkerUrl) : "")
+    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
+    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
+    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc)
+    .replace("{{FEED_URL}}", siteUrl + "/feed.xml")
+    .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
+    .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
+    .replace("{{OG_URL}}", ogUrl);
 
   return html;
 }
@@ -393,4 +646,4 @@ async function render(content) {
   return outPath;
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderSecondaryArticle, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent };

@@ -58,7 +58,7 @@ describe("publish", () => {
       headline: "Big News",
       subheadline: "Something happened",
       body: "The full story.",
-      buildersTake: "Worth watching.",
+      useCases: ["Build web apps"], similarProjects: ["Vite - faster"],
       repo: { name: "org/repo", url: "https://github.com/org/repo", stars: 5000, language: "Rust" },
     },
     secondary: [
@@ -66,7 +66,7 @@ describe("publish", () => {
         headline: "Also News",
         subheadline: "Another thing",
         body: "Details here.",
-        buildersTake: "Interesting.",
+        useCases: ["CLI tooling"], similarProjects: ["Cobra - similar"],
         repo: { name: "org/other", url: "https://github.com/org/other", stars: 1200, language: "Go" },
       },
     ],
@@ -90,7 +90,9 @@ describe("publish", () => {
 
     // Edition file
     assert.ok(fs.existsSync(path.join(tmpDir, "editions", "2026-02-23", "index.html")));
-    // Latest copy
+    // Latest copy at /latest/
+    assert.ok(fs.existsSync(path.join(tmpDir, "latest", "index.html")));
+    // Landing page at root
     assert.ok(fs.existsSync(path.join(tmpDir, "index.html")));
     // Manifest
     assert.ok(fs.existsSync(path.join(tmpDir, "editions", "manifest.json")));
@@ -98,6 +100,31 @@ describe("publish", () => {
     assert.ok(fs.existsSync(path.join(tmpDir, "archive", "index.html")));
     // .nojekyll
     assert.ok(fs.existsSync(path.join(tmpDir, ".nojekyll")));
+  });
+
+  it("generates account page", async () => {
+    const date = new Date(2026, 1, 23);
+    await publish(mockContent, tmpDir, { siteUrl: "https://example.github.io", basePath: "", date });
+
+    const accountPath = path.join(tmpDir, "account", "index.html");
+    assert.ok(fs.existsSync(accountPath));
+    const accountHtml = fs.readFileSync(accountPath, "utf-8");
+    assert.ok(accountHtml.includes('id="magic-link-form"'));
+  });
+
+  it("root index.html is landing page, latest/index.html is edition", async () => {
+    const date = new Date(2026, 1, 23);
+    await publish(mockContent, tmpDir, { siteUrl: "https://example.github.io", basePath: "", date });
+
+    const rootHtml = fs.readFileSync(path.join(tmpDir, "index.html"), "utf-8");
+    const latestHtml = fs.readFileSync(path.join(tmpDir, "latest", "index.html"), "utf-8");
+
+    // Root should be landing page (has subscribe form element and landing body class)
+    assert.ok(rootHtml.includes('id="subscribe-form"'));
+    assert.ok(rootHtml.includes('class="landing"'));
+    // Latest should be the edition (has edition-nav, no subscribe form element)
+    assert.ok(latestHtml.includes("edition-nav"));
+    assert.ok(!latestHtml.includes('id="subscribe-form"'));
   });
 
   it("manifest contains the edition entry", async () => {
@@ -208,7 +235,8 @@ describe("validateContent", () => {
       headline,
       subheadline: "Sub",
       body: "Body",
-      buildersTake: "",
+      useCases: [],
+      similarProjects: [],
       _isFallback: isFallback,
       repo: { name: "org/repo" },
     };

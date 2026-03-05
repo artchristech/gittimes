@@ -1,4 +1,4 @@
-const { lastMatch, chat } = require("./xai");
+const { lastMatch, chat, MODEL } = require("./xai");
 
 const VALID_SENTIMENTS = ["buzzing", "positive", "neutral", "mixed", "quiet", "unknown"];
 
@@ -64,7 +64,7 @@ BLURB: <one sentence summary of what people are saying>
 TOP_POST: <the most notable post text, or "none" if nothing found>`;
 
     const raw = await llmLimit(() =>
-      chat(client, "grok-4-1-fast-reasoning", prompt, 300, { tools: [X_SEARCH_TOOL] })
+      chat(client, MODEL, prompt, 300, { tools: [X_SEARCH_TOOL] })
     );
     return parseXSentiment(raw, repo);
   } catch (err) {
@@ -130,7 +130,7 @@ HANDLES: <2-3 notable accounts discussing this, comma-separated>
 Provide up to 8 topics.`;
 
     const raw = await llmLimit(() =>
-      chat(client, "grok-4-1-fast-reasoning", prompt, 2000, { tools: [X_SEARCH_TOOL] })
+      chat(client, MODEL, prompt, 2000, { tools: [X_SEARCH_TOOL] })
     );
     return { pulseItems: parseXPulse(raw) };
   } catch (err) {

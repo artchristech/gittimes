@@ -51,6 +51,9 @@ jobs:
           PUBLISH_DIR: ./site
           SITE_BASE_URL: https://gittimes.com
           BASE_PATH: ""
+          CHAT_WORKER_URL: ${{ secrets.CHAT_WORKER_URL }}
+          NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
+          PLAUSIBLE_DOMAIN: ${{ vars.PLAUSIBLE_DOMAIN }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

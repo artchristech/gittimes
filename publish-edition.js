@@ -2,9 +2,10 @@ require("dotenv").config();
 
 const { fetchAllSections } = require("./src/github");
 const { generateAllContent, generateEditorialContent } = require("./src/xai");
-const { publish, getRecentRepoNames, validateContent } = require("./src/publish");
+const { publish, getRecentRepoNames, validateContent, readManifest } = require("./src/publish");
 const { loadHistory, computeDeltas, snapshotHistory } = require("./src/history");
 const { makeEditorialPlan } = require("./src/editorial");
+const { sendNewsletter } = require("./src/newsletter");
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -83,6 +84,31 @@ async function main() {
   if (editorialEnabled && rawCandidates.length > 0) {
     snapshotHistory(outDir, rawCandidates);
     console.log(`History snapshot saved (${rawCandidates.length} repos)`);
+  }
+
+  // Step 6: Send newsletter
+  const newsletterSecret = process.env.NEWSLETTER_SECRET;
+  const chatWorkerUrl = process.env.CHAT_WORKER_URL;
+  if (newsletterSecret && chatWorkerUrl) {
+    const manifest = readManifest(outDir);
+    const latest = manifest[0];
+    if (latest) {
+      const sent = await sendNewsletter({
+        workerUrl: chatWorkerUrl,
+        newsletterSecret,
+        edition: {
+          headline: latest.headline,
+          subheadline: latest.subheadline || "",
+          tagline: latest.tagline || "",
+          date: latest.date,
+          url: siteUrl + latest.url,
+          repos: (latest.repos || []).slice(0, 8),
+        },
+      });
+      console.log(`Newsletter sent to ${sent} subscribers`);
+    }
+  } else {
+    console.log("Newsletter skipped (NEWSLETTER_SECRET or CHAT_WORKER_URL not set)");
   }
 
   console.log("\nDone! Edition published.");
