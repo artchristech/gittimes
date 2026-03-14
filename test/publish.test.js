@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const { toDateStr, readManifest, publish, getRecentRepoNames, validateContent } = require("../src/publish");
+const { toDateStr, readManifest, publish, getRecentRepoNames, getRecentLeadRepos, validateContent } = require("../src/publish");
 
 // --------------- toDateStr ---------------
 
@@ -112,19 +112,21 @@ describe("publish", () => {
     assert.ok(accountHtml.includes('id="magic-link-form"'));
   });
 
-  it("root index.html is landing page, latest/index.html is edition", async () => {
+  it("root index.html is latest edition, subscribe page has landing content", async () => {
     const date = new Date(2026, 1, 23);
     await publish(mockContent, tmpDir, { siteUrl: "https://example.github.io", basePath: "", date });
 
     const rootHtml = fs.readFileSync(path.join(tmpDir, "index.html"), "utf-8");
     const latestHtml = fs.readFileSync(path.join(tmpDir, "latest", "index.html"), "utf-8");
 
-    // Root should be landing page (has subscribe form element and landing body class)
-    assert.ok(rootHtml.includes('id="subscribe-form"'));
-    assert.ok(rootHtml.includes('class="landing"'));
-    // Latest should be the edition (has edition-nav, no subscribe form element)
-    assert.ok(latestHtml.includes("edition-nav"));
-    assert.ok(!latestHtml.includes('id="subscribe-form"'));
+    // Root should be the edition (same as latest)
+    assert.ok(rootHtml.includes("edition-nav"));
+    assert.ok(!rootHtml.includes('id="subscribe-form"'));
+    // Latest should match root
+    assert.equal(rootHtml, latestHtml);
+    // Subscribe page should have landing content
+    const subscribeHtml = fs.readFileSync(path.join(tmpDir, "subscribe", "index.html"), "utf-8");
+    assert.ok(subscribeHtml.includes('id="subscribe-form"'));
   });
 
   it("manifest contains the edition entry", async () => {
@@ -224,6 +226,50 @@ describe("getRecentRepoNames", () => {
     assert.ok(result.has("b/two"));
     assert.ok(result.has("c/three"));
     assert.ok(!result.has("d/four"));
+  });
+});
+
+// --------------- getRecentLeadRepos ---------------
+
+describe("getRecentLeadRepos", () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "gittimes-leads-"));
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("returns section leads from sectionLeads field", () => {
+    const editionsDir = path.join(tmpDir, "editions");
+    fs.mkdirSync(editionsDir, { recursive: true });
+    const manifest = [
+      {
+        date: "2026-02-24",
+        repos: ["fp/lead", "fp/sec"],
+        sectionLeads: ["fp/lead", "ai/lead", "cyber/lead"],
+      },
+    ];
+    fs.writeFileSync(path.join(editionsDir, "manifest.json"), JSON.stringify(manifest));
+    const result = getRecentLeadRepos(tmpDir, 3);
+    assert.ok(result.has("fp/lead"), "Should include front page lead");
+    assert.ok(result.has("ai/lead"), "Should include AI section lead");
+    assert.ok(result.has("cyber/lead"), "Should include cyber section lead");
+    assert.ok(!result.has("fp/sec"), "Should not include non-lead repos");
+  });
+
+  it("returns first repo as lead when no sectionLeads", () => {
+    const editionsDir = path.join(tmpDir, "editions");
+    fs.mkdirSync(editionsDir, { recursive: true });
+    const manifest = [
+      { date: "2026-02-24", repos: ["fp/lead", "fp/sec"] },
+    ];
+    fs.writeFileSync(path.join(editionsDir, "manifest.json"), JSON.stringify(manifest));
+    const result = getRecentLeadRepos(tmpDir, 3);
+    assert.ok(result.has("fp/lead"));
+    assert.ok(!result.has("fp/sec"));
   });
 });
 

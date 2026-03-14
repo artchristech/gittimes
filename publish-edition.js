@@ -2,10 +2,13 @@ require("dotenv").config();
 
 const { fetchAllSections } = require("./src/github");
 const { generateAllContent, generateEditorialContent } = require("./src/xai");
-const { publish, getRecentRepoNames, validateContent, readManifest } = require("./src/publish");
+const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent, readManifest } = require("./src/publish");
 const { loadHistory, computeDeltas, snapshotHistory } = require("./src/history");
 const { makeEditorialPlan } = require("./src/editorial");
 const { sendNewsletter } = require("./src/newsletter");
+const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
+const { generateEditionPromo } = require("./src/promo");
+const { closeDb } = require("./src/db");
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -29,8 +32,12 @@ async function main() {
   console.log(`Site URL: ${siteUrl}${basePath}\n`);
 
   // Step 1: Fetch and enrich repo data from GitHub (all sections, with history dedup)
-  const recentRepoNames = getRecentRepoNames(outDir, 3);
-  const sections = await fetchAllSections(githubToken, { recentRepoNames });
+  const recentRepoNames = getRecentRepoNames(outDir, 7);
+  const recentLeadRepos = getRecentLeadRepos(outDir, 3);
+  const recentRepoCoverage = getRecentRepoCoverage(outDir, 7);
+  const manifest = readManifest(outDir);
+  const recentEditionDates = manifest.slice(0, 7).map((e) => e.date);
+  const sections = await fetchAllSections(githubToken, { recentRepoNames, recentLeadRepos, recentRepoCoverage, recentEditionDates });
 
   // Step 2: Editorial pipeline (with graceful fallback)
   const editorialEnabled = process.env.EDITORIAL !== "false";
@@ -40,7 +47,11 @@ async function main() {
   if (editorialEnabled && rawCandidates.length > 0) {
     const history = loadHistory(outDir);
     const deltas = computeDeltas(rawCandidates, history);
-    const editorialPlan = makeEditorialPlan(rawCandidates, deltas);
+    // Filter out recent lead repos from breakout candidates to prevent repeat front pages
+    const editorialCandidates = rawCandidates.filter(
+      (r) => !recentLeadRepos.has(r.full_name) && !recentRepoNames.has(r.full_name)
+    );
+    const editorialPlan = makeEditorialPlan(editorialCandidates, deltas);
 
     const hasEditorial = editorialPlan.breakout || editorialPlan.trends.length > 0 || editorialPlan.sleepers.length > 0;
     if (hasEditorial) {
@@ -50,10 +61,17 @@ async function main() {
       if (editorialPlan.sleepers.length > 0) console.log(`  Sleepers: ${editorialPlan.sleepers.map((s) => s.repo.full_name).join(", ")}`);
     }
 
-    content = await generateEditorialContent(sections, xaiKey, editorialPlan, { githubToken });
+    content = await generateEditorialContent(sections, xaiKey, editorialPlan, { githubToken, coverage: recentRepoCoverage });
   } else {
-    content = await generateAllContent(sections, xaiKey);
+    content = await generateAllContent(sections, xaiKey, { coverage: recentRepoCoverage });
   }
+
+  // Step 2b: Fetch AI ticker data + full market catalog
+  const tickerData = await getTickerData(outDir);
+  const fullMarketData = getFullMarketData();
+  const tickerHtml = renderTickerBanner(tickerData, { basePath });
+  console.log(`AI ticker: ${tickerData.models.length} models, ${tickerData.speed.length} speed providers, ${tickerData.images.length} image models`);
+  if (fullMarketData) console.log(`AI markets: ${fullMarketData.length} models in full catalog`);
 
   // Step 3: Validate content
   const dryRun = process.argv.includes("--dry-run");
@@ -78,13 +96,17 @@ async function main() {
   }
 
   // Step 4: Publish edition
-  await publish(content, outDir, { siteUrl, basePath });
+  await publish(content, outDir, { siteUrl, basePath, tickerHtml, tickerData, fullMarketData });
 
   // Step 5: Snapshot history for editorial intelligence
   if (editorialEnabled && rawCandidates.length > 0) {
     snapshotHistory(outDir, rawCandidates);
     console.log(`History snapshot saved (${rawCandidates.length} repos)`);
   }
+
+  // Step 5b: Save AI ticker snapshot for tomorrow's deltas
+  saveSnapshot(outDir, tickerData);
+  console.log("AI ticker snapshot saved");
 
   // Step 6: Send newsletter
   const newsletterSecret = process.env.NEWSLETTER_SECRET;
@@ -111,10 +133,18 @@ async function main() {
     console.log("Newsletter skipped (NEWSLETTER_SECRET or CHAT_WORKER_URL not set)");
   }
 
+  // Step 7: Generate promo video
+  const promo = await generateEditionPromo(outDir);
+  if (promo) {
+    console.log(`Promo generated: ${promo.promoPath}`);
+  }
+
   console.log("\nDone! Edition published.");
+  closeDb();
 }
 
 main().catch((err) => {
   console.error("Publishing failed:", err.message);
+  closeDb();
   process.exit(1);
 });

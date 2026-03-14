@@ -77,6 +77,137 @@ body {
   margin-top: 8px;
 }
 
+/* === AI TICKER === */
+
+.ai-ticker {
+  display: block;
+  padding: 5px 12px;
+  background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 11px;
+  line-height: 1.2;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.ai-ticker:hover {
+  background: color-mix(in srgb, var(--paper) 92%, var(--ink) 8%);
+}
+
+.ticker-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.ticker-row::-webkit-scrollbar {
+  display: none;
+}
+
+.ticker-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--ink-faint);
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.ticker-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ticker-item + .ticker-item::before {
+  content: "\00b7";
+  color: var(--rule-light);
+  margin-right: 4px;
+}
+
+.ticker-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ticker-price {
+  color: var(--ink-light);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+
+.ticker-value {
+  color: var(--ink-light);
+}
+
+.ticker-delta {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ticker-delta.down {
+  color: #16a34a;
+}
+
+.ticker-delta.up {
+  color: #dc2626;
+}
+
+.ticker-delta.flat {
+  color: var(--ink-faint);
+}
+
+.ticker-more {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+.ticker-grade {
+  font-weight: 700;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
+.ticker-divider {
+  width: 1px;
+  height: 12px;
+  background: var(--rule-light);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+[data-theme="dark"] .ticker-delta.down,
+[data-theme="midnight"] .ticker-delta.down {
+  color: #4ade80;
+}
+
+[data-theme="dark"] .ticker-delta.up,
+[data-theme="midnight"] .ticker-delta.up {
+  color: #f87171;
+}
+
 /* === LEAD STORY === */
 
 .lead-story {

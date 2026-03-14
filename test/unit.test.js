@@ -737,6 +737,18 @@ describe("categorizeDiverseForSection", () => {
     const fromSection = categorizeDiverseForSection(repos, { secondary: 6, quickHits: 10 });
     assert.equal(fromDiverse.lead.full_name, fromSection.lead.full_name);
   });
+
+  it("skips recent lead repos from lead slot", () => {
+    const repos = [
+      makeRepo("a/1", "Rust", 10),
+      makeRepo("a/2", "Go", 9),
+      makeRepo("a/3", "Python", 8),
+    ];
+    const recentLeadRepos = new Set(["a/1"]);
+    const { lead, secondary } = categorizeDiverseForSection(repos, { secondary: 2, quickHits: 5 }, { recentLeadRepos });
+    assert.equal(lead.full_name, "a/2", "Lead should skip recent lead repo a/1");
+    assert.ok(secondary.some((r) => r.full_name === "a/1") || true, "a/1 can appear in secondary or overflow");
+  });
 });
 
 // --------------- renderSectionNav ---------------

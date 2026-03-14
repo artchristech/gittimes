@@ -26,7 +26,33 @@ function trajectoryContext(repo) {
   return `\n- Project age: ${ageStr} | Community: ${t.totalStars.toLocaleString()} stars | Traction: ${t.growthPattern}`;
 }
 
-function leadArticlePrompt(repo) {
+/**
+ * Build a PRIOR COVERAGE block for the LLM prompt when a repo has been covered before.
+ * Returns empty string if no prior coverage exists.
+ * @param {object} repo - Enriched repo object
+ * @param {Map} [coverage] - Map<repoName, [{date, headline}]>
+ * @returns {string}
+ */
+function priorCoverageBlock(repo, coverage) {
+  if (!coverage) return "";
+  const repoName = repo.name || repo.full_name;
+  if (!repoName || !coverage.has(repoName)) return "";
+
+  const entries = coverage.get(repoName).slice(0, 3);
+  if (entries.length === 0) return "";
+
+  const lines = entries.map((e) => `  - ${e.date}: "${e.headline}"`).join("\n");
+  return `\nPRIOR COVERAGE (this repo has appeared in recent editions):
+${lines}
+
+IMPORTANT EDITORIAL DIRECTION:
+- Do NOT rehash the original coverage or repeat similar angles.
+- Write about what is NEW or CHANGED — a new release, adoption milestone, breaking change, community development, or technical evolution.
+- Do not reference prior articles or frame this as a "follow-up" or "update" — write it as a standalone piece with a fresh angle.
+`;
+}
+
+function leadArticlePrompt(repo, coverage) {
   const desc = sanitizeRepoField(repo.description);
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
@@ -45,7 +71,7 @@ README EXCERPT:
 ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
-
+${priorCoverageBlock(repo, coverage)}
 EDITORIAL GUIDELINES:
 - The story is WHAT this project does and WHY it matters to builders — not how many stars it has.
 - Do not lead with, emphasize, or build narratives around star counts or GitHub popularity metrics.
@@ -70,7 +96,7 @@ SIMILAR_PROJECTS:
 3. [project-name] - [how it compares]`;
 }
 
-function secondaryArticlePrompt(repo) {
+function secondaryArticlePrompt(repo, coverage) {
   const desc = sanitizeRepoField(repo.description);
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
@@ -89,7 +115,7 @@ README EXCERPT:
 ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
-
+${priorCoverageBlock(repo, coverage)}
 EDITORIAL GUIDELINES:
 - Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
 Write in crisp newspaper style. No hype. Concrete details only.
@@ -129,7 +155,7 @@ Output EXACTLY in this format — one line per repo, numbered to match:
 ${repos.map((_, i) => `${i + 1}. [single sentence summary]`).join("\n")}`;
 }
 
-function breakoutArticlePrompt(repo, delta) {
+function breakoutArticlePrompt(repo, delta, coverage) {
   const desc = sanitizeRepoField(repo.description);
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
@@ -149,6 +175,7 @@ ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
 
+${priorCoverageBlock(repo, coverage)}
 EDITORIAL GUIDELINES:
 - This project is getting attention. Your job is to explain WHY — what does it do, what problem does it solve, and what makes it technically interesting?
 - Do NOT lead with star counts, growth numbers, or popularity metrics. Those are not the story.
@@ -258,6 +285,7 @@ Be specific. Reference repo names. Prioritize signal over noise.`;
 
 module.exports = {
   sanitizeRepoField,
+  priorCoverageBlock,
   leadArticlePrompt,
   secondaryArticlePrompt,
   quickHitPrompt,

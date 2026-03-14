@@ -2,13 +2,22 @@ const fs = require("fs");
 const path = require("path");
 
 const { toDateStr } = require("./publish");
+const db = require("./db");
 
 /**
- * Load history from disk or return empty structure.
+ * Load history from database (falls back to JSON for migration).
  * @param {string} outDir - Output directory containing editions/
  * @returns {{ snapshots: Array }}
  */
 function loadHistory(outDir) {
+  try {
+    const history = db.loadSnapshots(db.resolveDataDir(outDir));
+    if (history.snapshots.length > 0) return history;
+  } catch {
+    // Fall through to JSON fallback
+  }
+
+  // JSON fallback for pre-migration state
   const historyPath = path.join(outDir, "editions", "history.json");
   if (fs.existsSync(historyPath)) {
     try {
@@ -72,7 +81,7 @@ function computeDeltas(repos, history) {
 
 /**
  * Save today's star/fork/issue counts for all candidate repos.
- * Prunes to 14 snapshots. Writes to editions/history.json.
+ * Prunes to 14 snapshots. Writes to database and JSON.
  * @param {string} outDir - Output directory
  * @param {Array} repos - Raw GitHub repo objects
  * @param {Date} [date] - Override date (defaults to now)
@@ -81,6 +90,10 @@ function snapshotHistory(outDir, repos, date) {
   const d = date || new Date();
   const dateStr = toDateStr(d);
 
+  // Write to database
+  db.saveSnapshot(db.resolveDataDir(outDir), dateStr, repos);
+
+  // Also write JSON for backwards compatibility
   const history = loadHistory(outDir);
 
   const snapshot = {
@@ -93,7 +106,6 @@ function snapshotHistory(outDir, repos, date) {
     })),
   };
 
-  // Replace existing snapshot for this date, or prepend
   const existingIdx = history.snapshots.findIndex((s) => s.date === dateStr);
   if (existingIdx !== -1) {
     history.snapshots[existingIdx] = snapshot;
@@ -101,7 +113,6 @@ function snapshotHistory(outDir, repos, date) {
     history.snapshots.unshift(snapshot);
   }
 
-  // Prune to 14 snapshots
   if (history.snapshots.length > 14) {
     history.snapshots = history.snapshots.slice(0, 14);
   }

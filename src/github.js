@@ -150,12 +150,14 @@ async function fetchOSSInsightTrending() {
 /**
  * Score a single repo with normalized signals.
  * @param {object} repo - Repository object
- * @param {object} [options] - { recentRepoNames?: Set<string>, now?: number }
+ * @param {object} [options] - { recentRepoNames?: Set<string>, recentRepoCoverage?: Map, recentEditionDates?: string[], now?: number }
  * @returns {number} Composite score
  */
 function scoreRepo(repo, options = {}) {
   const now = options.now || Date.now();
   const recentRepoNames = options.recentRepoNames || new Set();
+  const recentRepoCoverage = options.recentRepoCoverage || null;
+  const recentEditionDates = options.recentEditionDates || null;
 
   // Star velocity: log-dampen, cap at 1.0
   const ageMs = repo.created_at ? now - new Date(repo.created_at).getTime() : Infinity;
@@ -197,22 +199,60 @@ function scoreRepo(repo, options = {}) {
     releaseScore * 0.18 +
     engagementScore * 0.12;
 
-  // History penalty: -0.5 if repo appeared in recent editions
+  // History penalty: tiered decay based on coverage map, fallback to flat -0.5
   if (recentRepoNames.has(repo.full_name)) {
-    score -= 0.5;
+    if (recentRepoCoverage && recentEditionDates && recentRepoCoverage.has(repo.full_name)) {
+      const entries = recentRepoCoverage.get(repo.full_name);
+      // Find how many editions ago each appearance was
+      let penalty = 0;
+      for (const entry of entries) {
+        const editionsAgo = recentEditionDates.indexOf(entry.date) + 1;
+        if (editionsAgo === 1) penalty += 0.8;
+        else if (editionsAgo === 2) penalty += 0.5;
+        else if (editionsAgo === 3) penalty += 0.3;
+        else if (editionsAgo <= 5) penalty += 0.2;
+        else if (editionsAgo <= 7) penalty += 0.1;
+      }
+      // Additional -0.1 per extra appearance beyond the first (repeat offenders)
+      if (entries.length > 1) {
+        penalty += (entries.length - 1) * 0.1;
+      }
+      score -= penalty;
+    } else {
+      // Fallback: flat penalty when coverage map not available
+      score -= 0.5;
+    }
   }
 
   return score;
 }
 
 /**
+ * Detect repos with predominantly non-English content (CJK, Cyrillic, Arabic, etc.)
+ * Used to keep the front-page lead relevant to our English-speaking audience.
+ * Non-English repos can still appear in secondary slots and quick hits.
+ */
+const NON_LATIN_RE = /[\u3000-\u9FFF\uAC00-\uD7AF\u0400-\u04FF\u0600-\u06FF\u0980-\u09FF]/g;
+function hasNonEnglishContent(repo) {
+  const text = `${repo.name || ""} ${repo.description || ""}`;
+  const matches = text.match(NON_LATIN_RE);
+  return matches !== null && matches.length > text.length * 0.15;
+}
+
+/**
  * Parameterized categorization with topic diversity enforcement.
  * @param {Array} scoredRepos - Repos sorted by score descending
  * @param {{ secondary: number, quickHits: number }} budget - Slot counts
+ * @param {object} [options] - { recentLeadRepos?: Set<string> }
  * @returns {{ lead: object|null, secondary: Array, quickHits: Array }}
  */
-function categorizeDiverseForSection(scoredRepos, budget) {
-  if (!scoredRepos || scoredRepos.length === 0) {
+function categorizeDiverseForSection(scoredRepos, budget, options = {}) {
+  const recentLeadRepos = options.recentLeadRepos || new Set();
+
+  // Filter non-English repos — audience is English-speaking Western users
+  scoredRepos = (scoredRepos || []).filter((r) => !hasNonEnglishContent(r));
+
+  if (scoredRepos.length === 0) {
     return { lead: null, secondary: [], quickHits: [] };
   }
 
@@ -229,6 +269,11 @@ function categorizeDiverseForSection(scoredRepos, budget) {
 
   for (const repo of scoredRepos) {
     const lang = repo.language || "Unknown";
+    // Hard-exclude recent lead repos from becoming lead again (slot 0)
+    if (promoted.length === 0 && recentLeadRepos.has(repo.full_name)) {
+      overflow.push(repo);
+      continue;
+    }
     if (promoted.length < totalPromoted) {
       const count = langCount[lang] || 0;
       if (count < maxPerLang) {
@@ -272,8 +317,8 @@ function categorizeDiverseForSection(scoredRepos, budget) {
  * @param {Array} scoredRepos - Repos sorted by score descending, each with _score and language
  * @returns {{ lead: object|null, secondary: Array, quickHits: Array }}
  */
-function categorizeDiverse(scoredRepos) {
-  return categorizeDiverseForSection(scoredRepos, { secondary: 6, quickHits: 10 });
+function categorizeDiverse(scoredRepos, options = {}) {
+  return categorizeDiverseForSection(scoredRepos, { secondary: 6, quickHits: 10 }, options);
 }
 
 async function fetchTrending(token, options = {}) {
@@ -334,7 +379,9 @@ async function fetchTrending(token, options = {}) {
 
   // Score ALL repos (without release info first)
   const now = Date.now();
-  const scoreOpts = { recentRepoNames, now };
+  const recentRepoCoverage = options.recentRepoCoverage || null;
+  const recentEditionDates = options.recentEditionDates || null;
+  const scoreOpts = { recentRepoNames, recentRepoCoverage, recentEditionDates, now };
   const preScored = repos.map((repo) => ({
     ...repo,
     _score: scoreRepo(repo, scoreOpts),
@@ -368,8 +415,9 @@ async function fetchTrending(token, options = {}) {
   }));
   reScored.sort((a, b) => b._score - a._score);
 
-  // Categorize with topic diversity
-  return categorizeDiverse(reScored);
+  // Categorize with topic diversity (exclude recent leads from lead slot)
+  const recentLeadRepos = options.recentLeadRepos || new Set();
+  return categorizeDiverse(reScored, { recentLeadRepos });
 }
 
 function cleanReadmeExcerpt(raw) {
@@ -508,6 +556,7 @@ async function fetchSectionRepos(token, sectionConfig, options = {}) {
 async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
   const globalSeen = options.globalSeen || new Set();
   const recentRepoNames = options.recentRepoNames || new Set();
+  const recentLeadRepos = options.recentLeadRepos || new Set();
 
   const repos = await fetchSectionRepos(token, sectionConfig, options);
 
@@ -520,7 +569,9 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
 
   // Score
   const now = Date.now();
-  const scoreOpts = { recentRepoNames, now };
+  const recentRepoCoverage = options.recentRepoCoverage || null;
+  const recentEditionDates = options.recentEditionDates || null;
+  const scoreOpts = { recentRepoNames, recentRepoCoverage, recentEditionDates, now };
   const scored = filtered.map((repo) => ({
     ...repo,
     _score: scoreRepo(repo, scoreOpts),
@@ -528,11 +579,10 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
   scored.sort((a, b) => b._score - a._score);
 
   // Categorize with section budget
-  const { lead, secondary, quickHits } = categorizeDiverseForSection(scored, sectionConfig.budget);
+  const { lead, secondary, quickHits } = categorizeDiverseForSection(scored, sectionConfig.budget, { recentLeadRepos });
 
-  // Only mark lead + secondary as claimed to prevent duplicate headlines,
-  // while allowing quickHit-level repos to appear across sections.
-  const claimed = [lead, ...secondary].filter(Boolean);
+  // Mark lead + secondary + quickHits as claimed to prevent duplicates across sections.
+  const claimed = [lead, ...secondary, ...quickHits].filter(Boolean);
   for (const repo of claimed) {
     globalSeen.add(repo.full_name);
   }
@@ -579,13 +629,16 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
 async function fetchAllSections(token, options = {}) {
   const { SECTIONS, SECTION_ORDER } = require("./sections");
   const recentRepoNames = options.recentRepoNames || new Set();
+  const recentLeadRepos = options.recentLeadRepos || new Set();
+  const recentRepoCoverage = options.recentRepoCoverage || null;
+  const recentEditionDates = options.recentEditionDates || null;
   const rawCollector = [];
   const rawCollectorSeen = new Set();
   const trajectoryCache = new Map();
 
   // Front Page first — uses existing fetchAndEnrich (unchanged behavior)
   console.log("Fetching Front Page...");
-  const frontPageData = await fetchAndEnrich(token, { recentRepoNames, rawCollector, rawCollectorSeen, trajectoryCache });
+  const frontPageData = await fetchAndEnrich(token, { recentRepoNames, recentLeadRepos, recentRepoCoverage, recentEditionDates, rawCollector, rawCollectorSeen, trajectoryCache });
 
   // Build globalSeen from Front Page lead + secondary only (not quickHits).
   // Only lead repos are hard-excluded to prevent duplicate headlines;
@@ -594,6 +647,7 @@ async function fetchAllSections(token, options = {}) {
   const globalSeen = new Set();
   if (frontPageData.lead) globalSeen.add(frontPageData.lead.name);
   for (const r of frontPageData.secondary) globalSeen.add(r.name);
+  for (const r of frontPageData.quickHits) globalSeen.add(r.name);
 
   const sections = { frontPage: frontPageData };
 
@@ -603,7 +657,7 @@ async function fetchAllSections(token, options = {}) {
     const config = SECTIONS[id];
     if (!config || !config.query) continue;
     console.log(`Fetching section: ${config.label}...`);
-    sections[id] = await fetchAndEnrichSection(token, config, { globalSeen, recentRepoNames, rawCollector, rawCollectorSeen, trajectoryCache });
+    sections[id] = await fetchAndEnrichSection(token, config, { globalSeen, recentRepoNames, recentLeadRepos, recentRepoCoverage, recentEditionDates, rawCollector, rawCollectorSeen, trajectoryCache });
   }
 
   sections._rawCandidates = rawCollector;

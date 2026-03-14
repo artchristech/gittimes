@@ -5,6 +5,7 @@ const { generateAllContent, generateEditorialContent } = require("./src/xai");
 const { render } = require("./src/render");
 const { loadHistory, computeDeltas } = require("./src/history");
 const { makeEditorialPlan } = require("./src/editorial");
+const { closeDb } = require("./src/db");
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -52,9 +53,11 @@ async function main() {
   const outputPath = await render(content);
 
   console.log("\nDone! Open the file in your browser to view the newspaper.");
+  closeDb();
 }
 
 main().catch((err) => {
   console.error("Generation failed:", err.message);
+  closeDb();
   process.exit(1);
 });

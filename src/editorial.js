@@ -2,6 +2,15 @@
  * Editorial brain: breakout detection, trend clustering, sleeper identification.
  */
 
+const TRAJECTORY_MULTIPLIERS = {
+  "stagnant":     1.5,  // dormant project spiking = something big happened
+  "slow-burn":    1.3,  // normally 1-2 stars/day, now surging
+  "steady":       1.2,  // consistent project with unexpected spike
+  "recent-surge": 1.0,  // already surging, delta is expected
+  "explosive":    0.85, // common on trending, often ephemeral
+  "early-stage":  0.7,  // <100 stars, limited signal
+};
+
 const THEME_KEYWORDS = {
   "ai-agents": ["agent", "ai-agent", "autonomous", "autogen", "crew", "langchain", "langgraph", "agentic"],
   "llm-tools": ["llm", "gpt", "openai", "anthropic", "gemini", "ollama", "inference", "transformer", "fine-tune", "rag", "embedding"],
@@ -32,10 +41,16 @@ function _repoText(repo) {
  * Minimum threshold: 100 stars gained.
  * @param {Array} repos - Raw GitHub repo objects
  * @param {Map} deltas - From computeDeltas
- * @param {Map} [trajectories] - Optional star trajectory data from fetchTrajectories
  * @returns {{ repo: object, delta: object, reason: string } | null}
  */
-function identifyBreakout(repos, deltas, trajectories) {
+const NON_LATIN_RE = /[\u3000-\u9FFF\uAC00-\uD7AF\u0400-\u04FF\u0600-\u06FF\u0980-\u09FF]/g;
+function _hasNonEnglishContent(repo) {
+  const text = `${repo.name || ""} ${repo.description || ""}`;
+  const matches = text.match(NON_LATIN_RE);
+  return matches !== null && matches.length > text.length * 0.15;
+}
+
+function identifyBreakout(repos, deltas) {
   if (!deltas || deltas.size === 0) return null;
 
   let best = null;
@@ -44,24 +59,21 @@ function identifyBreakout(repos, deltas, trajectories) {
   for (const repo of repos) {
     const delta = deltas.get(repo.full_name);
     if (!delta || delta.starDelta === null || delta.starDelta < 100) continue;
+    // Skip non-English repos from breakout lead — audience is English-speaking
+    if (_hasNonEnglishContent(repo)) continue;
 
     const absoluteGain = delta.starDelta;
     const relativeGain = delta.previousStars > 0 ? absoluteGain / delta.previousStars : 10;
-    const score = absoluteGain * (1 + Math.min(relativeGain, 10));
+    const baseScore = absoluteGain * (1 + Math.min(relativeGain, 10));
+    const pattern = repo.starTrajectory?.growthPattern;
+    const trajectoryMultiplier = (pattern && TRAJECTORY_MULTIPLIERS[pattern]) || 1.0;
+    const score = baseScore * trajectoryMultiplier;
 
     if (score > bestScore) {
       bestScore = score;
       let reason = `Gained ${absoluteGain.toLocaleString()} stars (${delta.previousStars ? Math.round(relativeGain * 100) + "%" : "new"} growth) in ${delta.daysSinceSnapshot} day(s)`;
-
-      // Annotate if trajectory data suggests the delta may be inflated
-      if (trajectories) {
-        const trajectory = trajectories.get(repo.full_name);
-        if (trajectory && trajectory.growthPattern) {
-          const pattern = trajectory.growthPattern;
-          if ((pattern === "steady" || pattern === "slow-burn" || pattern === "stagnant") && relativeGain > 1) {
-            reason += ` [NOTE: trajectory shows "${pattern}" growth — delta may reflect snapshot gap, not sudden surge]`;
-          }
-        }
+      if (trajectoryMultiplier !== 1.0) {
+        reason += ` [trajectory: ${pattern}, ${trajectoryMultiplier}x]`;
       }
 
       best = { repo, delta, reason };
@@ -166,4 +178,4 @@ function makeEditorialPlan(allRepos, deltas) {
   return { breakout, trends, sleepers, remaining };
 }
 
-module.exports = { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan };
+module.exports = { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, TRAJECTORY_MULTIPLIERS };

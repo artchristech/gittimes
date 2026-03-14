@@ -169,15 +169,15 @@ function parseQuickHits(text, repos) {
  * Generate an article with one parse-level retry.
  * If the first LLM response fails to parse, re-prompt once before giving up.
  */
-async function generateArticleWithRetry(client, model, promptFn, repo, maxTokens, llmLimit) {
+async function generateArticleWithRetry(client, model, promptFn, repo, maxTokens, llmLimit, coverage) {
   try {
-    const raw = await llmLimit(() => chat(client, model, promptFn(repo), maxTokens));
+    const raw = await llmLimit(() => chat(client, model, promptFn(repo, coverage), maxTokens));
     const article = { ...parseArticle(raw, repo), repo };
     if (!article._isFallback) return article;
 
     // Retry once with a nudge to use the required format
     console.warn(`Retrying article generation for ${repo.name} after parse failure`);
-    const retryRaw = await llmLimit(() => chat(client, model, promptFn(repo), maxTokens));
+    const retryRaw = await llmLimit(() => chat(client, model, promptFn(repo, coverage), maxTokens));
     const retryArticle = { ...parseArticle(retryRaw, repo), repo };
     return retryArticle;
   } catch (err) {
@@ -194,7 +194,7 @@ async function generateArticleWithRetry(client, model, promptFn, repo, maxTokens
  * @param {function} llmLimit - p-limit limiter shared across sections
  * @returns {Promise<object>} { lead, secondary, quickHits, isEmpty }
  */
-async function generateSectionContent(sectionData, sectionConfig, client, llmLimit) {
+async function generateSectionContent(sectionData, sectionConfig, client, llmLimit, coverage) {
   if (!sectionData.lead) {
     return { lead: null, secondary: [], quickHits: sectionData.quickHits || [], isEmpty: true };
   }
@@ -204,9 +204,9 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
 
   // Lead + all secondary articles in parallel (with parse-level retry)
   const [leadArticle, ...allSecondary] = await Promise.all([
-    generateArticleWithRetry(client, MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit),
+    generateArticleWithRetry(client, MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit, coverage),
     ...sectionData.secondary.map((r) =>
-      generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 800, llmLimit)
+      generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 800, llmLimit, coverage)
     ),
   ]);
 
@@ -322,7 +322,7 @@ async function _attachSentiment(sections, client, llmLimit) {
  * @param {function} llmLimit - p-limit limiter
  * @returns {Promise<{ sections: object, tagline: string }>}
  */
-async function _generateBaseSections(sections, client, llmLimit) {
+async function _generateBaseSections(sections, client, llmLimit, coverage) {
   const { SECTIONS, SECTION_ORDER } = require("./sections");
 
   const result = {};
@@ -335,7 +335,7 @@ async function _generateBaseSections(sections, client, llmLimit) {
     }
     const config = SECTIONS[id];
     console.log(`  Generating ${config.label}...`);
-    result[id] = await generateSectionContent(sectionData, config, client, llmLimit);
+    result[id] = await generateSectionContent(sectionData, config, client, llmLimit, coverage);
   }
 
   // Memes section — blank placeholder
@@ -371,10 +371,11 @@ async function generateAllContent(sections, apiKey, options = {}) {
   const client = options.client || createClient(apiKey);
   const { default: pLimit } = await pLimitP;
   const llmLimit = pLimit(3);
+  const coverage = options.coverage || null;
 
   console.log("Generating articles for all sections...");
 
-  const base = await _generateBaseSections(sections, client, llmLimit);
+  const base = await _generateBaseSections(sections, client, llmLimit, coverage);
 
   if (process.env.X_SENTIMENT !== "false") {
     await _attachSentiment(base.sections, client, llmLimit);
@@ -395,13 +396,14 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
   const { SECTION_ORDER } = require("./sections");
   const client = options.client || createClient(apiKey);
   const githubToken = options.githubToken || process.env.GITHUB_TOKEN;
+  const coverage = options.coverage || null;
   const { default: pLimit } = await pLimitP;
   const llmLimit = pLimit(3);
 
   console.log("Generating articles for all sections (editorial mode)...");
 
   // Step 1: Generate standard content for all sections
-  const base = await _generateBaseSections(sections, client, llmLimit);
+  const base = await _generateBaseSections(sections, client, llmLimit, coverage);
   const result = base.sections;
 
   const editorialMeta = { breakout: null, trends: [], sleepers: [] };
@@ -440,7 +442,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
         }
       }
 
-      const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta);
+      const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta, coverage);
       const raw = await llmLimit(() => chat(client, MODEL, breakoutPrompt, 2500));
       const breakoutArticle = { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo };
 

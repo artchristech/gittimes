@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <title>The Git Times — AI Markets</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta property="og:title" content="The Git Times — AI Markets">
+  <meta property="og:description" content="AI model pricing, inference speed, and market data — updated daily">
+  <meta property="og:site_name" content="The Git Times">
+  <meta name="description" content="AI model pricing, inference speed, and market data — updated daily">
+
+  <style>
+{{STYLES}}
+
+/* === MARKETS PAGE === */
+
+.markets-header {
+  text-align: center;
+  padding: 16px 0 24px;
+  border-bottom: 2px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.markets-header h1 {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.markets-date {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.markets-section {
+  margin-bottom: 40px;
+}
+
+.markets-section-title {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--rule-light);
+  padding-bottom: 8px;
+}
+
+.markets-section-desc {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+
+/* Index */
+
+.markets-index {
+  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+  border: 1px solid var(--rule-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+}
+
+.markets-index-header {
+  margin-bottom: 12px;
+}
+
+.markets-index-desc {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+.markets-index-value {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.markets-index-price {
+  font-family: var(--font-headline);
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.markets-index-unit {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+.markets-index-chart {
+  margin-top: 8px;
+}
+
+/* Deltas */
+
+.markets-delta {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.markets-delta.down {
+  color: #16a34a;
+}
+
+.markets-delta.up {
+  color: #dc2626;
+}
+
+.markets-delta.flat {
+  color: var(--ink-faint);
+}
+
+[data-theme="dark"] .markets-delta.down,
+[data-theme="midnight"] .markets-delta.down {
+  color: #4ade80;
+}
+
+[data-theme="dark"] .markets-delta.up,
+[data-theme="midnight"] .markets-delta.up {
+  color: #f87171;
+}
+
+/* Tables */
+
+.markets-table-wrap {
+  overflow-x: auto;
+}
+
+.markets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-meta);
+  font-size: 13px;
+}
+
+.markets-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--rule);
+  white-space: nowrap;
+}
+
+.markets-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule-light);
+  white-space: nowrap;
+}
+
+.markets-table tbody tr:hover {
+  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+}
+
+.markets-table-compact td {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.model-name, .catalog-name {
+  font-weight: 600;
+}
+
+.model-provider, .speed-provider {
+  color: var(--ink-light);
+}
+
+.model-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.model-ctx {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.speed-rank {
+  color: var(--ink-faint);
+  font-weight: 700;
+  width: 24px;
+}
+
+.speed-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bar-track {
+  width: 100px;
+  height: 6px;
+  background: var(--rule-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.grade-badge {
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
+.sparkline {
+  display: block;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  .markets-index-price { font-size: 28px; }
+  .markets-table { font-size: 12px; }
+  .model-spark, .speed-bar { display: none; }
+}
+  </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="{{BASE_PATH}}/account/" class="masthead-account">Account</a>
+    <a href="{{BASE_PATH}}/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
+    <h1 class="masthead-title"><a href="{{BASE_PATH}}/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
+    <div class="masthead-meta"><span>AI Markets</span></div>
+  </header>
+
+  <div class="markets-header">
+    <h1>AI Markets</h1>
+    <p class="markets-date">{{MARKETS_DATE}}</p>
+  </div>
+
+  {{MARKETS_CONTENT}}
+
+  <footer class="footer">
+    <nav class="edition-nav">
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
+      <a href="{{BASE_PATH}}/archive/">Archive</a>
+    </nav>
+    <p>Pricing data from <a href="https://openrouter.ai" style="color:var(--accent)">OpenRouter</a>. Speed and image data editorially curated.</p>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+  </footer>
+
+</body>
+</html>

@@ -502,6 +502,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace("{{STYLES}}", css)
     .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
     .replace("{{EDITION_TAGLINE}}", escapeHtml(content.tagline))
+    .replace("{{AI_TICKER}}", options.tickerHtml || "")
     .replace("{{SECTION_NAV}}", sectionNavHtml)
     .replace("{{SECTION_PANELS}}", panelsHtml)
     // Clear legacy placeholders that are unused in multi-section mode
@@ -614,6 +615,7 @@ async function assembleHtml(content, options = {}) {
     .replace(/\{\{NAVIGATION\}\}/g, navHtml)
     .replace(/\{\{BASE_PATH\}\}/g, options.basePath || "")
     // Clear multi-section placeholders unused in legacy mode
+    .replace("{{AI_TICKER}}", options.tickerHtml || "")
     .replace("{{SECTION_NAV}}", "")
     .replace("{{SECTION_PANELS}}", "")
     .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")

@@ -6,7 +6,9 @@ const { assembleHtml, buildNavHtml, escapeHtml } = require("./render");
 const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
 const { renderAccountPage } = require("./account");
+const { renderMarketsPage } = require("./markets");
 const { generateRss, generateAtom } = require("./feed");
+const db = require("./db");
 
 /**
  * Format a Date as YYYY-MM-DD.
@@ -15,14 +17,31 @@ function toDateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+const { resolveDataDir } = db;
+
 /**
- * Read manifest from disk or return empty array.
+ * Read manifest from database, falling back to JSON if DB is empty/missing.
  */
 function readManifest(outDir) {
+  const dataDir = resolveDataDir(outDir);
+  // Try database first
+  try {
+    const manifest = db.readManifest(dataDir);
+    if (manifest.length > 0) return manifest;
+  } catch {
+    // Fall through to JSON fallback
+  }
+
+  // JSON fallback — DB was empty or unavailable
   const manifestPath = path.join(outDir, "editions", "manifest.json");
   if (fs.existsSync(manifestPath)) {
     try {
-      return JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+      // Auto-migrate JSON data into DB for next time
+      if (Array.isArray(manifest) && manifest.length > 0) {
+        try { db.writeManifest(dataDir, manifest); } catch { /* non-fatal */ }
+      }
+      return manifest;
     } catch (e) {
       console.warn(`Warning: corrupt manifest.json, starting fresh: ${e.message}`);
       return [];
@@ -32,9 +51,14 @@ function readManifest(outDir) {
 }
 
 /**
- * Write manifest to disk.
+ * Write manifest to both database and JSON (for backwards compatibility).
  */
 function writeManifest(outDir, manifest) {
+  // Write to database
+  const dataDir = resolveDataDir(outDir);
+  db.writeManifest(dataDir, manifest);
+
+  // Also write JSON for backwards compatibility / static deploy
   const dir = path.join(outDir, "editions");
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
@@ -44,7 +68,7 @@ function writeManifest(outDir, manifest) {
  * Publish a new edition.
  * @param {object} content - { lead, secondary, quickHits, tagline }
  * @param {string} outDir - Output directory (e.g. "./site")
- * @param {object} [options] - { siteUrl?: string, basePath?: string, date?: Date }
+ * @param {object} [options] - { siteUrl?: string, basePath?: string, date?: Date, tickerHtml?: string, tickerData?: object, fullMarketData?: Array }
  */
 async function publish(content, outDir, options = {}) {
   const siteUrl = options.siteUrl || "https://gittimes.com";
@@ -81,6 +105,7 @@ async function publish(content, outDir, options = {}) {
     siteUrl,
     basePath,
     dateStr,
+    tickerHtml: options.tickerHtml || "",
   });
 
   // 4. Write edition to outDir/editions/YYYY-MM-DD/index.html
@@ -154,7 +179,16 @@ async function publish(content, outDir, options = {}) {
     }
   }
 
-  // 8. Prepend new entry to manifest
+  // 8. Collect section lead repo names
+  const sectionLeads = [];
+  if (content.sections) {
+    for (const section of Object.values(content.sections)) {
+      if (section && section.lead && section.lead.repo && section.lead.repo.name)
+        sectionLeads.push(section.lead.repo.name);
+    }
+  }
+
+  // Prepend new entry to manifest
   const frontPageLead = content.sections
     ? (content.sections.frontPage && content.sections.frontPage.lead)
     : content.lead;
@@ -167,9 +201,41 @@ async function publish(content, outDir, options = {}) {
     tagline: content.tagline || "",
     url: editionUrl,
     repos,
+    sectionLeads,
   };
   manifest.unshift(newEntry);
   writeManifest(outDir, manifest);
+
+  // 8b. Record article headlines in edition_repos for coverage tracking
+  try {
+    const dataDir = resolveDataDir(outDir);
+    const dbConn = db.getDb(dataDir);
+    const updateHeadline = dbConn.prepare(
+      "UPDATE edition_repos SET headline = ? WHERE edition_date = ? AND repo_name = ?"
+    );
+    if (content.sections) {
+      for (const section of Object.values(content.sections)) {
+        if (section && section.lead && section.lead.headline && section.lead.repo) {
+          updateHeadline.run(section.lead.headline, dateStr, section.lead.repo.name);
+        }
+        if (section && section.secondary) {
+          for (const article of section.secondary) {
+            if (article.headline && article.repo) {
+              updateHeadline.run(article.headline, dateStr, article.repo.name);
+            }
+          }
+        }
+      }
+    }
+  } catch { /* non-fatal */ }
+
+  // 8c. Record quote usage in DB
+  try {
+    const taglineMatch = (content.tagline || "").match(/^\u201C(.+)\u201D \u2014 (.+)$/);
+    if (taglineMatch) {
+      db.recordQuoteUsage(resolveDataDir(outDir), dateStr, taglineMatch[1], taglineMatch[2]);
+    }
+  } catch { /* non-fatal */ }
 
   // 9. Generate RSS and Atom feeds
   fs.writeFileSync(path.join(outDir, "feed.xml"), generateRss(manifest, siteUrl));
@@ -180,6 +246,14 @@ async function publish(content, outDir, options = {}) {
   if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
   const archiveHtml = renderArchivePage(manifest, basePath);
   fs.writeFileSync(path.join(archiveDir, "index.html"), archiveHtml);
+
+  // 10b. Generate AI Markets page
+  if (options.tickerData) {
+    const marketsDir = path.join(outDir, "markets");
+    if (!fs.existsSync(marketsDir)) fs.mkdirSync(marketsDir, { recursive: true });
+    const marketsHtml = renderMarketsPage(options.tickerData, options.fullMarketData || null, { basePath, siteUrl });
+    fs.writeFileSync(path.join(marketsDir, "index.html"), marketsHtml);
+  }
 
   // 11. Generate custom 404 page
   const fourOhFourTemplatePath = path.join(__dirname, "..", "templates", "404.html");
@@ -206,9 +280,14 @@ async function publish(content, outDir, options = {}) {
     fs.writeFileSync(path.join(outDir, "404.html"), fourOhFourHtml);
   }
 
-  // 12. Generate landing page at root
+  // 12. Root serves latest edition (front page of the paper)
+  fs.writeFileSync(path.join(outDir, "index.html"), html);
+
+  // 12b. Landing page at /subscribe/ for signups
+  const subscribeDir = path.join(outDir, "subscribe");
+  if (!fs.existsSync(subscribeDir)) fs.mkdirSync(subscribeDir, { recursive: true });
   const landingHtml = renderLandingPage(manifest, { basePath, siteUrl });
-  fs.writeFileSync(path.join(outDir, "index.html"), landingHtml);
+  fs.writeFileSync(path.join(subscribeDir, "index.html"), landingHtml);
 
   // 13. Generate account page
   const accountDir = path.join(outDir, "account");
@@ -224,12 +303,13 @@ async function publish(content, outDir, options = {}) {
 }
 
 /**
- * Collect repo names from the last N manifest entries.
- * @param {string} outDir - Output directory containing editions/manifest.json
+ * Collect repo names from the last N editions.
+ * Uses readManifest (which handles DB → JSON fallback).
+ * @param {string} outDir - Output directory
  * @param {number} [lookback=3] - Number of recent editions to look back
  * @returns {Set<string>} Set of repo full_name strings
  */
-function getRecentRepoNames(outDir, lookback = 3) {
+function getRecentRepoNames(outDir, lookback = 7) {
   const manifest = readManifest(outDir);
   const names = new Set();
   const entries = manifest.slice(0, lookback);
@@ -240,6 +320,37 @@ function getRecentRepoNames(outDir, lookback = 3) {
     }
   }
   return names;
+}
+
+/**
+ * Get lead repo names from recent editions (first repo in each entry's repos array).
+ * @param {string} outDir - Output directory
+ * @param {number} [lookback=3] - Number of recent editions to check
+ * @returns {Set<string>} Set of lead repo full_name strings
+ */
+function getRecentLeadRepos(outDir, lookback = 3) {
+  const manifest = readManifest(outDir);
+  const leads = new Set();
+  const entries = manifest.slice(0, lookback);
+  for (const entry of entries) {
+    if (!entry.repos || !entry.repos.length) continue;
+    leads.add(entry.repos[0]);
+    if (entry.sectionLeads) {
+      for (const name of entry.sectionLeads) leads.add(name);
+    }
+  }
+  return leads;
+}
+
+/**
+ * Get recent repo coverage with headlines (thin wrapper around db function).
+ * @param {string} outDir
+ * @param {number} [lookback=7]
+ * @returns {Map<string, Array<{date: string, headline: string}>>}
+ */
+function getRecentRepoCoverage(outDir, lookback = 7) {
+  const dataDir = resolveDataDir(outDir);
+  return db.getRecentRepoCoverage(dataDir, lookback);
 }
 
 /**
@@ -314,4 +425,4 @@ function validateContent(content) {
   };
 }
 
-module.exports = { publish, toDateStr, readManifest, writeManifest, getRecentRepoNames, validateContent };
+module.exports = { publish, toDateStr, readManifest, writeManifest, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent };

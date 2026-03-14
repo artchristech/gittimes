@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan } = require("../src/editorial");
+const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, TRAJECTORY_MULTIPLIERS } = require("../src/editorial");
 
 describe("identifyBreakout", () => {
   it("returns null with no deltas", () => {
@@ -54,6 +54,73 @@ describe("identifyBreakout", () => {
     const result = identifyBreakout(repos, deltas);
     assert.ok(result);
     assert.equal(result.repo.full_name, "org/newcomer");
+  });
+});
+
+describe("identifyBreakout trajectory weighting", () => {
+  it("steady beats explosive with same delta", () => {
+    const repos = [
+      { full_name: "org/steady-repo", stargazers_count: 1200, starTrajectory: { growthPattern: "steady" } },
+      { full_name: "org/explosive-repo", stargazers_count: 1200, starTrajectory: { growthPattern: "explosive" } },
+    ];
+    const deltas = new Map([
+      ["org/steady-repo", { starDelta: 200, forkDelta: 10, daysSinceSnapshot: 1, previousStars: 1000, starVelocity: 200 }],
+      ["org/explosive-repo", { starDelta: 200, forkDelta: 10, daysSinceSnapshot: 1, previousStars: 1000, starVelocity: 200 }],
+    ]);
+    const result = identifyBreakout(repos, deltas);
+    assert.ok(result);
+    assert.equal(result.repo.full_name, "org/steady-repo");
+  });
+
+  it("stagnant gets highest boost", () => {
+    const repos = [
+      { full_name: "org/stagnant-repo", stargazers_count: 5150, starTrajectory: { growthPattern: "stagnant" } },
+    ];
+    const deltas = new Map([
+      ["org/stagnant-repo", { starDelta: 150, forkDelta: 5, daysSinceSnapshot: 1, previousStars: 5000, starVelocity: 150 }],
+    ]);
+    const result = identifyBreakout(repos, deltas);
+    assert.ok(result);
+    assert.ok(result.reason.includes("stagnant"));
+  });
+
+  it("explosive still detected solo", () => {
+    const repos = [
+      { full_name: "org/explosive-solo", stargazers_count: 1500, starTrajectory: { growthPattern: "explosive" } },
+    ];
+    const deltas = new Map([
+      ["org/explosive-solo", { starDelta: 500, forkDelta: 20, daysSinceSnapshot: 1, previousStars: 1000, starVelocity: 500 }],
+    ]);
+    const result = identifyBreakout(repos, deltas);
+    assert.ok(result);
+    assert.equal(result.repo.full_name, "org/explosive-solo");
+  });
+
+  it("no trajectory = neutral scoring", () => {
+    const repos = [
+      { full_name: "org/no-trajectory", stargazers_count: 1200 },
+    ];
+    const deltas = new Map([
+      ["org/no-trajectory", { starDelta: 200, forkDelta: 10, daysSinceSnapshot: 1, previousStars: 1000, starVelocity: 200 }],
+    ]);
+    const result = identifyBreakout(repos, deltas);
+    assert.ok(result);
+    // Score should equal base formula: 200 * (1 + 0.2) = 240
+    assert.ok(!result.reason.includes("trajectory"));
+  });
+
+  it("stagnant beats explosive with equal gains", () => {
+    const repos = [
+      { full_name: "org/stagnant", stargazers_count: 2300, starTrajectory: { growthPattern: "stagnant" } },
+      { full_name: "org/explosive", stargazers_count: 2300, starTrajectory: { growthPattern: "explosive" } },
+    ];
+    const deltas = new Map([
+      ["org/stagnant", { starDelta: 300, forkDelta: 15, daysSinceSnapshot: 1, previousStars: 2000, starVelocity: 300 }],
+      ["org/explosive", { starDelta: 300, forkDelta: 15, daysSinceSnapshot: 1, previousStars: 2000, starVelocity: 300 }],
+    ]);
+    const result = identifyBreakout(repos, deltas);
+    assert.ok(result);
+    assert.equal(result.repo.full_name, "org/stagnant");
   });
 });
 
