@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const { execSync } = require("child_process");
+const fs = require("fs");
 const { fetchAllSections } = require("./src/github");
 const { generateAllContent, generateEditorialContent } = require("./src/xai");
 const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent, readManifest } = require("./src/publish");
@@ -9,6 +11,22 @@ const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
 const { generateEditionPromo } = require("./src/promo");
 const { closeDb } = require("./src/db");
+
+/**
+ * Sync site/ from gh-pages branch so local runs have full edition history.
+ * In CI, the workflow already checks out gh-pages into site/ before this runs.
+ */
+function syncSiteFromGhPages(outDir) {
+  if (process.env.CI) return; // CI handles this via actions/checkout
+  try {
+    execSync("git fetch origin gh-pages", { stdio: "pipe" });
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+    execSync(`git archive origin/gh-pages | tar -x -C ${outDir}`, { stdio: "pipe" });
+    console.log("Synced site/ from gh-pages branch");
+  } catch {
+    console.log("No gh-pages branch found, starting fresh");
+  }
+}
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
@@ -24,6 +42,8 @@ async function main() {
   }
 
   const outDir = process.env.PUBLISH_DIR || "./site";
+  syncSiteFromGhPages(outDir);
+
   const siteUrl = process.env.SITE_BASE_URL || "https://gittimes.com";
   const basePath = process.env.BASE_PATH || "";
 
