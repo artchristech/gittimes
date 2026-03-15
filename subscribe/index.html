@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
-  <title>The Git Times — Account</title>
+  <title>The Git Times — AI-Generated Newspaper for Builders</title>
   
-  <meta property="og:title" content="The Git Times — Account">
+  <meta property="og:title" content="The Git Times — AI-Generated Newspaper for Builders">
+  <meta property="og:description" content="A daily AI-generated newspaper covering trending GitHub repos, developer tools, and open-source projects.">
   <meta property="og:site_name" content="The Git Times">
+  <link rel="alternate" type="application/rss+xml" title="The Git Times RSS" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="The Git Times Atom" href="/feed.atom">
 
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
@@ -1797,61 +1800,74 @@ body.account {
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
   </script>
 </head>
-<body class="account">
+<body class="landing">
 
   <header class="masthead">
-    <a href="/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
-    <h1 class="masthead-title"><a href="/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
-    <div class="masthead-meta">
-      <span>Account</span>
-    </div>
+    <a href="/account/" class="masthead-account">Account</a>
+    <h1 class="masthead-title">The Git Times</h1>
+
   </header>
 
-  <!-- Login form (visible by default) -->
-  <section class="account-login" id="account-login">
-    <h2>Sign In</h2>
-    <p>Enter your email to receive a magic sign-in link.</p>
-    <form class="subscribe-form" id="magic-link-form">
+  <section class="landing-hero">
+    <h2>What the open-source world shipped while you were sleeping</h2>
+    <p>Every morning, our AI editorial team reads GitHub's trending repos, analyzes X sentiment, and publishes a full newspaper edition — so you don't have to doomscroll.</p>
+    <div class="landing-ctas">
+      <a href="/latest/" class="landing-cta landing-cta-primary">Read Today's Edition</a>
+      <a href="#subscribe" class="landing-cta landing-cta-secondary">Subscribe Free</a>
+    </div>
+  </section>
+
+  <section class="landing-features">
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9881;</div>
+      <h3>Editorial Intelligence</h3>
+      <p>Breakout detection, trend clustering, and sleeper discovery — not just a list of repos.</p>
+    </div>
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9776;</div>
+      <h3>Daily Coverage</h3>
+      <p>A new full edition every morning with lead stories, secondary coverage, and quick hits.</p>
+    </div>
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9878;</div>
+      <h3>7 Sections</h3>
+      <p>Front Page, AI, Robotics, Cyber, Systems, DIY, and Memes — whatever you build.</p>
+    </div>
+  </section>
+
+  <section class="landing-editions">
+    <h2>Recent Editions</h2>
+        <a href="/editions/2026-03-15/" class="landing-edition-card">
+      <span class="edition-card-date">Sunday, March 15, 2026</span>
+      <span class="edition-card-headline">Lightpanda: Zig-Powered Headless Browser Turbocharges AI Automation</span>
+    </a>
+    <a href="/editions/2026-03-14/" class="landing-edition-card">
+      <span class="edition-card-date">Saturday, March 14, 2026</span>
+      <span class="edition-card-headline">gstack Turns Claude into a Slash-Command Dev Team for Solo Builders</span>
+    </a>
+    <a href="/editions/2026-03-13/" class="landing-edition-card">
+      <span class="edition-card-date">Friday, March 13, 2026</span>
+      <span class="edition-card-headline">CLI-Anything Turns Any Desktop App into AI Agent Command Line</span>
+    </a>
+    <a href="/editions/2026-03-12/" class="landing-edition-card">
+      <span class="edition-card-date">Thursday, March 12, 2026</span>
+      <span class="edition-card-headline">OpenClaw Delivers Always-On Personal AI Across Every Chat App You Use</span>
+    </a>
+    <a href="/editions/2026-03-11/" class="landing-edition-card">
+      <span class="edition-card-date">Wednesday, March 11, 2026</span>
+      <span class="edition-card-headline">PUA Plugin Whips AI Coders into Unyielding Debug Machines</span>
+    </a>
+  </section>
+
+  <section class="landing-subscribe" id="subscribe">
+    <h2>Get it in your inbox</h2>
+    <p>Free daily edition. No spam. Unsubscribe anytime. Your email also creates a free account.</p>
+    <form class="subscribe-form" id="subscribe-form">
       <input type="email" name="email" placeholder="you@example.com" required>
-      <button type="submit">Send Magic Link</button>
+      <button type="submit">Subscribe</button>
     </form>
-    <div class="subscribe-status" id="magic-link-status"></div>
-  </section>
-
-  <!-- Dashboard (hidden by default) -->
-  <section class="account-dashboard" id="account-dashboard" style="display:none">
-    <h2>Your Account</h2>
-    <div class="account-info">
-      <div class="account-row">
-        <span class="account-label">Email</span>
-        <span class="account-value" id="account-email"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Plan</span>
-        <span class="account-value" id="account-plan"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Newsletter</span>
-        <span class="account-value" id="account-newsletter"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Member Since</span>
-        <span class="account-value" id="account-since"></span>
-      </div>
-    </div>
-    <div class="account-actions">
-      <a href="/latest/" class="account-btn account-btn-primary">Read Latest Edition</a>
-      <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
-      <button class="account-btn account-btn-secondary" id="account-newsletter-toggle">Unsubscribe from Newsletter</button>
-      <button class="account-btn account-btn-secondary" id="account-logout">Sign Out</button>
-    </div>
-  </section>
-
-  <!-- Error (hidden by default) -->
-  <section class="account-error" id="account-error" style="display:none">
-    <h2>Link Invalid</h2>
-    <p id="account-error-msg">This sign-in link has expired or is invalid. Please request a new one.</p>
-    <a href="/account/" class="account-btn account-btn-primary">Try Again</a>
+    <div class="subscribe-status" id="subscribe-status"></div>
+    <p style="margin-top:12px;font-size:13px;font-family:var(--font-meta)"><a href="/account/" style="color:var(--accent)">Already have an account? Sign in</a></p>
   </section>
 
   <footer class="footer">
@@ -1859,106 +1875,23 @@ body.account {
       <a href="/latest/">Latest Edition</a>
       <span>&middot;</span>
       <a href="/archive/">Archive</a>
+      <span>&middot;</span>
+      <a href="/feed.xml">RSS</a>
     </nav>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>
 
   <script>
-    (function() {
-      var WORKER = '';
-      var loginSection = document.getElementById('account-login');
-      var dashSection = document.getElementById('account-dashboard');
-      var errorSection = document.getElementById('account-error');
-      var form = document.getElementById('magic-link-form');
-      var status = document.getElementById('magic-link-status');
-      var logoutBtn = document.getElementById('account-logout');
-      var upgradeBtn = document.getElementById('account-upgrade');
-      var newsletterBtn = document.getElementById('account-newsletter-toggle');
-
-      // Capture token from URL (magic link redirect)
-      var params = new URLSearchParams(location.search);
-      var tokenParam = params.get('token');
-      if (tokenParam) {
-        localStorage.setItem('gittimes-session', tokenParam);
-        params.delete('token');
-        var qs = params.toString();
-        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
-      }
-
-      // Handle error params
-      var errorParam = params.get('error');
-      if (errorParam) {
-        loginSection.style.display = 'none';
-        dashSection.style.display = 'none';
-        errorSection.style.display = 'block';
-        if (errorParam === 'expired_token') {
-          document.getElementById('account-error-msg').textContent = 'This sign-in link has expired. Please request a new one.';
-        }
-        params.delete('error');
-        var qs2 = params.toString();
-        history.replaceState(null, '', location.pathname + (qs2 ? '?' + qs2 : ''));
-        return;
-      }
-
-      var session = localStorage.getItem('gittimes-session');
-
-      function showLogin() {
-        loginSection.style.display = 'block';
-        dashSection.style.display = 'none';
-        errorSection.style.display = 'none';
-      }
-
-      var currentUser = null;
-
-      function updateNewsletterUI(subscribed) {
-        document.getElementById('account-newsletter').textContent = subscribed ? 'Subscribed' : 'Not subscribed';
-        newsletterBtn.textContent = subscribed ? 'Unsubscribe from Newsletter' : 'Subscribe to Newsletter';
-      }
-
-      function showDashboard(user) {
-        currentUser = user;
-        loginSection.style.display = 'none';
-        dashSection.style.display = 'block';
-        errorSection.style.display = 'none';
-        document.getElementById('account-email').textContent = user.email;
-        document.getElementById('account-plan').textContent = user.plan === 'premium' ? 'Premium' : 'Free';
-        updateNewsletterUI(user.subscribedToNewsletter !== false);
-        document.getElementById('account-since').textContent = new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        if (user.plan !== 'premium') {
-          upgradeBtn.style.display = 'inline-block';
-          upgradeBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(session);
-        }
-      }
-
-      // On load: check session
-      if (session) {
-        fetch(WORKER + '/auth/me', {
-          headers: { 'Authorization': 'Bearer ' + session }
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.ok && data.user) {
-            showDashboard(data.user);
-          } else {
-            localStorage.removeItem('gittimes-session');
-            session = null;
-            showLogin();
-          }
-        })
-        .catch(function() {
-          showLogin();
-        });
-      } else {
-        showLogin();
-      }
-
-      // Login form submit
+    (function(){
+      var form = document.getElementById('subscribe-form');
+      var status = document.getElementById('subscribe-status');
+      if (!form) return;
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         var email = form.email.value;
-        status.textContent = 'Sending...';
+        status.textContent = 'Subscribing...';
         status.className = 'subscribe-status';
-        fetch(WORKER + '/auth/send-magic-link', {
+        fetch('', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: email })
@@ -1966,7 +1899,7 @@ body.account {
         .then(function(r) { return r.json(); })
         .then(function(data) {
           if (data.ok) {
-            status.textContent = data.message || 'Check your email for a sign-in link.';
+            status.textContent = data.message || 'You are subscribed!';
             status.className = 'subscribe-status success';
             form.reset();
           } else {
@@ -1978,43 +1911,6 @@ body.account {
           status.textContent = 'Network error. Please try again.';
           status.className = 'subscribe-status error';
         });
-      });
-
-      // Newsletter toggle
-      newsletterBtn.addEventListener('click', function() {
-        if (!session || !currentUser) return;
-        var newVal = currentUser.subscribedToNewsletter === false;
-        newsletterBtn.disabled = true;
-        fetch(WORKER + '/auth/update-newsletter', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + session,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ subscribedToNewsletter: newVal })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.ok) {
-            currentUser.subscribedToNewsletter = data.subscribedToNewsletter;
-            updateNewsletterUI(data.subscribedToNewsletter);
-          }
-        })
-        .catch(function() {})
-        .finally(function() { newsletterBtn.disabled = false; });
-      });
-
-      // Logout
-      logoutBtn.addEventListener('click', function() {
-        if (session) {
-          fetch(WORKER + '/auth/logout', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + session }
-          }).catch(function() {});
-        }
-        localStorage.removeItem('gittimes-session');
-        session = null;
-        showLogin();
       });
     })();
   </script>

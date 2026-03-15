@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
-  <title>The Git Times — Account</title>
+  <title>The Git Times — AI Markets</title>
   
-  <meta property="og:title" content="The Git Times — Account">
+  <meta property="og:title" content="The Git Times — AI Markets">
+  <meta property="og:description" content="AI model pricing, inference speed, and market data — updated daily">
   <meta property="og:site_name" content="The Git Times">
+  <meta name="description" content="AI model pricing, inference speed, and market data — updated daily">
 
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
@@ -1792,232 +1794,767 @@ body.account {
   margin-bottom: 20px;
 }
 
+
+/* === MARKETS PAGE === */
+
+.markets-header {
+  text-align: center;
+  padding: 16px 0 24px;
+  border-bottom: 2px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.markets-header h1 {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.markets-date {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.markets-section {
+  margin-bottom: 40px;
+}
+
+.markets-section-title {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--rule-light);
+  padding-bottom: 8px;
+}
+
+.markets-section-desc {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+
+/* Index */
+
+.markets-index {
+  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+  border: 1px solid var(--rule-light);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+}
+
+.markets-index-header {
+  margin-bottom: 12px;
+}
+
+.markets-index-desc {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+.markets-index-value {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.markets-index-price {
+  font-family: var(--font-headline);
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.markets-index-unit {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+.markets-index-chart {
+  margin-top: 8px;
+}
+
+/* Deltas */
+
+.markets-delta {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.markets-delta.down {
+  color: #16a34a;
+}
+
+.markets-delta.up {
+  color: #dc2626;
+}
+
+.markets-delta.flat {
+  color: var(--ink-faint);
+}
+
+[data-theme="dark"] .markets-delta.down,
+[data-theme="midnight"] .markets-delta.down {
+  color: #4ade80;
+}
+
+[data-theme="dark"] .markets-delta.up,
+[data-theme="midnight"] .markets-delta.up {
+  color: #f87171;
+}
+
+/* Tables */
+
+.markets-table-wrap {
+  overflow-x: auto;
+}
+
+.markets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-meta);
+  font-size: 13px;
+}
+
+.markets-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--rule);
+  white-space: nowrap;
+}
+
+.markets-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule-light);
+  white-space: nowrap;
+}
+
+.markets-table tbody tr:hover {
+  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+}
+
+.markets-table-compact td {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.model-name, .catalog-name {
+  font-weight: 600;
+}
+
+.model-provider, .speed-provider {
+  color: var(--ink-light);
+}
+
+.model-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.model-ctx {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.speed-rank {
+  color: var(--ink-faint);
+  font-weight: 700;
+  width: 24px;
+}
+
+.speed-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bar-track {
+  width: 100px;
+  height: 6px;
+  background: var(--rule-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.grade-badge {
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
+.sparkline {
+  display: block;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  .markets-index-price { font-size: 28px; }
+  .markets-table { font-size: 12px; }
+  .model-spark, .speed-bar { display: none; }
+}
   </style>
   <script>
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
   </script>
 </head>
-<body class="account">
+<body>
 
   <header class="masthead">
+    <a href="/account/" class="masthead-account">Account</a>
     <a href="/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
     <h1 class="masthead-title"><a href="/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
-    <div class="masthead-meta">
-      <span>Account</span>
-    </div>
+    <div class="masthead-meta"><span>AI Markets</span></div>
   </header>
 
-  <!-- Login form (visible by default) -->
-  <section class="account-login" id="account-login">
-    <h2>Sign In</h2>
-    <p>Enter your email to receive a magic sign-in link.</p>
-    <form class="subscribe-form" id="magic-link-form">
-      <input type="email" name="email" placeholder="you@example.com" required>
-      <button type="submit">Send Magic Link</button>
-    </form>
-    <div class="subscribe-status" id="magic-link-status"></div>
-  </section>
+  <div class="markets-header">
+    <h1>AI Markets</h1>
+    <p class="markets-date">Sunday, March 15, 2026</p>
+  </div>
 
-  <!-- Dashboard (hidden by default) -->
-  <section class="account-dashboard" id="account-dashboard" style="display:none">
-    <h2>Your Account</h2>
-    <div class="account-info">
-      <div class="account-row">
-        <span class="account-label">Email</span>
-        <span class="account-value" id="account-email"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Plan</span>
-        <span class="account-value" id="account-plan"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Newsletter</span>
-        <span class="account-value" id="account-newsletter"></span>
-      </div>
-      <div class="account-row">
-        <span class="account-label">Member Since</span>
-        <span class="account-value" id="account-since"></span>
+  <div class="markets-index">
+    <div class="markets-index-header">
+      <h2 class="markets-section-title">Cost of Intelligence Index</h2>
+      <p class="markets-index-desc">Average output price across 12 tracked frontier models</p>
+    </div>
+    <div class="markets-index-value">
+      <span class="markets-index-price">$5.52<span class="markets-index-unit">/M tokens</span></span>
+      <span class="markets-delta flat">&mdash;</span>
+    </div>
+    <div class="markets-index-chart"></div>
+  </div>
+<div class="markets-section">
+    <h2 class="markets-section-title">Frontier Model Pricing</h2>
+    <p class="markets-section-desc">Per 1M tokens &middot; Prices from OpenRouter &middot; Updated daily</p>
+    <div class="markets-table-wrap">
+      <table class="markets-table">
+        <thead><tr>
+          <th>Model</th><th>Provider</th><th>Input</th><th>Output</th><th>24h</th><th>Context</th><th>30d</th>
+        </tr></thead>
+        <tbody><tr>
+      <td class="model-name">Claude Opus</td>
+      <td class="model-provider">Anthropic</td>
+      <td class="model-price">$5</td>
+      <td class="model-price">$25</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Claude Sonnet</td>
+      <td class="model-provider">Anthropic</td>
+      <td class="model-price">$3</td>
+      <td class="model-price">$15</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">GPT-4.1</td>
+      <td class="model-provider">OpenAI</td>
+      <td class="model-price">$2</td>
+      <td class="model-price">$8</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">GPT-4.1 Mini</td>
+      <td class="model-provider">OpenAI</td>
+      <td class="model-price">$0.40</td>
+      <td class="model-price">$1.60</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Gemini 2.5 Pro</td>
+      <td class="model-provider">Google</td>
+      <td class="model-price">$1.25</td>
+      <td class="model-price">$10</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Gemini 2.5 Flash</td>
+      <td class="model-provider">Google</td>
+      <td class="model-price">$0.15</td>
+      <td class="model-price">$0.60</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">—</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Grok 3</td>
+      <td class="model-provider">xAI</td>
+      <td class="model-price">$0.30</td>
+      <td class="model-price">$0.50</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">131k</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Grok 3 Mini</td>
+      <td class="model-provider">xAI</td>
+      <td class="model-price">$0.30</td>
+      <td class="model-price">$0.50</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">131k</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">DeepSeek V3</td>
+      <td class="model-provider">DeepSeek</td>
+      <td class="model-price">$0.15</td>
+      <td class="model-price">$0.75</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">33k</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">DeepSeek R1</td>
+      <td class="model-provider">DeepSeek</td>
+      <td class="model-price">$0.45</td>
+      <td class="model-price">$2.15</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">164k</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Llama 4 Maverick</td>
+      <td class="model-provider">Meta</td>
+      <td class="model-price">$0.15</td>
+      <td class="model-price">$0.60</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Mistral Large</td>
+      <td class="model-provider">Mistral</td>
+      <td class="model-price">$0.50</td>
+      <td class="model-price">$1.50</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">262k</td>
+      <td class="model-spark"></td>
+    </tr></tbody>
+      </table>
+    </div>
+  </div>
+<div class="markets-section">
+    <h2 class="markets-section-title">Inference Speed Leaderboard</h2>
+    <p class="markets-section-desc">Output tokens per second &middot; Curated benchmarks</p>
+    <div class="markets-table-wrap">
+      <table class="markets-table">
+        <thead><tr><th>#</th><th>Provider</th><th>Model</th><th>Speed</th><th></th></tr></thead>
+        <tbody><tr>
+      <td class="speed-rank">1</td>
+      <td class="speed-provider">Cerebras</td>
+      <td class="speed-model">Llama 3.3 70B</td>
+      <td class="speed-value">2.2k tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div></td>
+    </tr>
+<tr>
+      <td class="speed-rank">2</td>
+      <td class="speed-provider">Groq</td>
+      <td class="speed-model">Llama 3.3 70B</td>
+      <td class="speed-value">750 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div></td>
+    </tr>
+<tr>
+      <td class="speed-rank">3</td>
+      <td class="speed-provider">SambaNova</td>
+      <td class="speed-model">Llama 3.1 405B</td>
+      <td class="speed-value">400 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:16%"></div></div></td>
+    </tr>
+<tr>
+      <td class="speed-rank">4</td>
+      <td class="speed-provider">Fireworks</td>
+      <td class="speed-model">Llama 3.1 70B</td>
+      <td class="speed-value">220 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:9%"></div></div></td>
+    </tr></tbody>
+      </table>
+    </div>
+  </div>
+<div class="markets-section">
+    <h2 class="markets-section-title">Image Generation</h2>
+    <p class="markets-section-desc">Cost per image &middot; Editorial quality grades</p>
+    <div class="markets-table-wrap">
+      <table class="markets-table">
+        <thead><tr><th>Model</th><th>Price</th><th>Grade</th></tr></thead>
+        <tbody><tr>
+      <td class="img-name">DALL-E 3 HD</td>
+      <td class="img-price">$0.08/img</td>
+      <td class="img-grade"><span class="grade-badge">A</span></td>
+    </tr>
+<tr>
+      <td class="img-name">Flux 1.1 Pro</td>
+      <td class="img-price">$0.04/img</td>
+      <td class="img-grade"><span class="grade-badge">A</span></td>
+    </tr>
+<tr>
+      <td class="img-name">Imagen 3</td>
+      <td class="img-price">$0.04/img</td>
+      <td class="img-grade"><span class="grade-badge">A</span></td>
+    </tr>
+<tr>
+      <td class="img-name">SD 3.5</td>
+      <td class="img-price">$0.07/img</td>
+      <td class="img-grade"><span class="grade-badge">B+</span></td>
+    </tr>
+<tr>
+      <td class="img-name">Flux Schnell</td>
+      <td class="img-price">$0.003/img</td>
+      <td class="img-grade"><span class="grade-badge">B</span></td>
+    </tr></tbody>
+      </table>
+    </div>
+  </div>
+<div class="markets-section">
+      <h2 class="markets-section-title">Full Model Catalog</h2>
+      <p class="markets-section-desc">Top 50 models by output price &middot; 314 total models on OpenRouter</p>
+      <div class="markets-table-wrap">
+        <table class="markets-table markets-table-compact">
+          <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+          <tbody><tr>
+        <td class="catalog-name">OpenAI: o1-pro</td>
+        <td class="model-price">$150</td>
+        <td class="model-price">$600</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.4 Pro</td>
+        <td class="model-price">$30</td>
+        <td class="model-price">$180</td>
+        <td class="model-ctx">1.1M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.2 Pro</td>
+        <td class="model-price">$21</td>
+        <td class="model-price">$168</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5 Pro</td>
+        <td class="model-price">$15</td>
+        <td class="model-price">$120</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: o3 Pro</td>
+        <td class="model-price">$20</td>
+        <td class="model-price">$80</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Opus 4.1</td>
+        <td class="model-price">$15</td>
+        <td class="model-price">$75</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Opus 4</td>
+        <td class="model-price">$15</td>
+        <td class="model-price">$75</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: o1</td>
+        <td class="model-price">$15</td>
+        <td class="model-price">$60</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4 (older v0314)</td>
+        <td class="model-price">$30</td>
+        <td class="model-price">$60</td>
+        <td class="model-ctx">8k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4</td>
+        <td class="model-price">$30</td>
+        <td class="model-price">$60</td>
+        <td class="model-ctx">8k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: o3 Deep Research</td>
+        <td class="model-price">$10</td>
+        <td class="model-price">$40</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude 3.5 Sonnet</td>
+        <td class="model-price">$6</td>
+        <td class="model-price">$30</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4 Turbo</td>
+        <td class="model-price">$10</td>
+        <td class="model-price">$30</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4 Turbo Preview</td>
+        <td class="model-price">$10</td>
+        <td class="model-price">$30</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4 Turbo (older v1106)</td>
+        <td class="model-price">$10</td>
+        <td class="model-price">$30</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Opus 4.6</td>
+        <td class="model-price">$5</td>
+        <td class="model-price">$25</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Opus 4.5</td>
+        <td class="model-price">$5</td>
+        <td class="model-price">$25</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4o (extended)</td>
+        <td class="model-price">$6</td>
+        <td class="model-price">$18</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.4</td>
+        <td class="model-price">$2.50</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">1.1M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Sonnet 4.6</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Perplexity: Sonar Pro Search</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Sonnet 4.5</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">xAI: Grok 4</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">256k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">xAI: Grok 3</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">131k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude Sonnet 4</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">xAI: Grok 3 Beta</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">131k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Perplexity: Sonar Pro</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude 3.7 Sonnet</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Anthropic: Claude 3.7 Sonnet (thinking)</td>
+        <td class="model-price">$3</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">200k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4o (2024-05-13)</td>
+        <td class="model-price">$5</td>
+        <td class="model-price">$15</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.3 Chat</td>
+        <td class="model-price">$1.75</td>
+        <td class="model-price">$14</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.3-Codex</td>
+        <td class="model-price">$1.75</td>
+        <td class="model-price">$14</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.2-Codex</td>
+        <td class="model-price">$1.75</td>
+        <td class="model-price">$14</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.2 Chat</td>
+        <td class="model-price">$1.75</td>
+        <td class="model-price">$14</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.2</td>
+        <td class="model-price">$1.75</td>
+        <td class="model-price">$14</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Amazon: Nova Premier 1.0</td>
+        <td class="model-price">$2.50</td>
+        <td class="model-price">$12.50</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Google: Gemini 3.1 Pro Preview Custom Tools</td>
+        <td class="model-price">$2</td>
+        <td class="model-price">$12</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Google: Gemini 3.1 Pro Preview</td>
+        <td class="model-price">$2</td>
+        <td class="model-price">$12</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Google: Nano Banana Pro (Gemini 3 Pro Image Preview)</td>
+        <td class="model-price">$2</td>
+        <td class="model-price">$12</td>
+        <td class="model-ctx">66k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">Google: Gemini 3 Pro Preview</td>
+        <td class="model-price">$2</td>
+        <td class="model-price">$12</td>
+        <td class="model-ctx">1.0M</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT Audio</td>
+        <td class="model-price">$2.50</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.1-Codex-Max</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.1</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.1 Chat</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5.1-Codex</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5 Image</td>
+        <td class="model-price">$10</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5 Codex</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">400k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-4o Audio</td>
+        <td class="model-price">$2.50</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5 Chat</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">128k</td>
+      </tr>
+<tr>
+        <td class="catalog-name">OpenAI: GPT-5</td>
+        <td class="model-price">$1.25</td>
+        <td class="model-price">$10</td>
+        <td class="model-ctx">400k</td>
+      </tr></tbody>
+        </table>
       </div>
     </div>
-    <div class="account-actions">
-      <a href="/latest/" class="account-btn account-btn-primary">Read Latest Edition</a>
-      <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
-      <button class="account-btn account-btn-secondary" id="account-newsletter-toggle">Unsubscribe from Newsletter</button>
-      <button class="account-btn account-btn-secondary" id="account-logout">Sign Out</button>
-    </div>
-  </section>
-
-  <!-- Error (hidden by default) -->
-  <section class="account-error" id="account-error" style="display:none">
-    <h2>Link Invalid</h2>
-    <p id="account-error-msg">This sign-in link has expired or is invalid. Please request a new one.</p>
-    <a href="/account/" class="account-btn account-btn-primary">Try Again</a>
-  </section>
 
   <footer class="footer">
     <nav class="edition-nav">
       <a href="/latest/">Latest Edition</a>
-      <span>&middot;</span>
       <a href="/archive/">Archive</a>
     </nav>
+    <p>Pricing data from <a href="https://openrouter.ai" style="color:var(--accent)">OpenRouter</a>. Speed and image data editorially curated.</p>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>
-
-  <script>
-    (function() {
-      var WORKER = '';
-      var loginSection = document.getElementById('account-login');
-      var dashSection = document.getElementById('account-dashboard');
-      var errorSection = document.getElementById('account-error');
-      var form = document.getElementById('magic-link-form');
-      var status = document.getElementById('magic-link-status');
-      var logoutBtn = document.getElementById('account-logout');
-      var upgradeBtn = document.getElementById('account-upgrade');
-      var newsletterBtn = document.getElementById('account-newsletter-toggle');
-
-      // Capture token from URL (magic link redirect)
-      var params = new URLSearchParams(location.search);
-      var tokenParam = params.get('token');
-      if (tokenParam) {
-        localStorage.setItem('gittimes-session', tokenParam);
-        params.delete('token');
-        var qs = params.toString();
-        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
-      }
-
-      // Handle error params
-      var errorParam = params.get('error');
-      if (errorParam) {
-        loginSection.style.display = 'none';
-        dashSection.style.display = 'none';
-        errorSection.style.display = 'block';
-        if (errorParam === 'expired_token') {
-          document.getElementById('account-error-msg').textContent = 'This sign-in link has expired. Please request a new one.';
-        }
-        params.delete('error');
-        var qs2 = params.toString();
-        history.replaceState(null, '', location.pathname + (qs2 ? '?' + qs2 : ''));
-        return;
-      }
-
-      var session = localStorage.getItem('gittimes-session');
-
-      function showLogin() {
-        loginSection.style.display = 'block';
-        dashSection.style.display = 'none';
-        errorSection.style.display = 'none';
-      }
-
-      var currentUser = null;
-
-      function updateNewsletterUI(subscribed) {
-        document.getElementById('account-newsletter').textContent = subscribed ? 'Subscribed' : 'Not subscribed';
-        newsletterBtn.textContent = subscribed ? 'Unsubscribe from Newsletter' : 'Subscribe to Newsletter';
-      }
-
-      function showDashboard(user) {
-        currentUser = user;
-        loginSection.style.display = 'none';
-        dashSection.style.display = 'block';
-        errorSection.style.display = 'none';
-        document.getElementById('account-email').textContent = user.email;
-        document.getElementById('account-plan').textContent = user.plan === 'premium' ? 'Premium' : 'Free';
-        updateNewsletterUI(user.subscribedToNewsletter !== false);
-        document.getElementById('account-since').textContent = new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        if (user.plan !== 'premium') {
-          upgradeBtn.style.display = 'inline-block';
-          upgradeBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(session);
-        }
-      }
-
-      // On load: check session
-      if (session) {
-        fetch(WORKER + '/auth/me', {
-          headers: { 'Authorization': 'Bearer ' + session }
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.ok && data.user) {
-            showDashboard(data.user);
-          } else {
-            localStorage.removeItem('gittimes-session');
-            session = null;
-            showLogin();
-          }
-        })
-        .catch(function() {
-          showLogin();
-        });
-      } else {
-        showLogin();
-      }
-
-      // Login form submit
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        var email = form.email.value;
-        status.textContent = 'Sending...';
-        status.className = 'subscribe-status';
-        fetch(WORKER + '/auth/send-magic-link', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.ok) {
-            status.textContent = data.message || 'Check your email for a sign-in link.';
-            status.className = 'subscribe-status success';
-            form.reset();
-          } else {
-            status.textContent = data.error || 'Something went wrong.';
-            status.className = 'subscribe-status error';
-          }
-        })
-        .catch(function() {
-          status.textContent = 'Network error. Please try again.';
-          status.className = 'subscribe-status error';
-        });
-      });
-
-      // Newsletter toggle
-      newsletterBtn.addEventListener('click', function() {
-        if (!session || !currentUser) return;
-        var newVal = currentUser.subscribedToNewsletter === false;
-        newsletterBtn.disabled = true;
-        fetch(WORKER + '/auth/update-newsletter', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + session,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ subscribedToNewsletter: newVal })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.ok) {
-            currentUser.subscribedToNewsletter = data.subscribedToNewsletter;
-            updateNewsletterUI(data.subscribedToNewsletter);
-          }
-        })
-        .catch(function() {})
-        .finally(function() { newsletterBtn.disabled = false; });
-      });
-
-      // Logout
-      logoutBtn.addEventListener('click', function() {
-        if (session) {
-          fetch(WORKER + '/auth/logout', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + session }
-          }).catch(function() {});
-        }
-        localStorage.removeItem('gittimes-session');
-        session = null;
-        showLogin();
-      });
-    })();
-  </script>
 
 </body>
 </html>
