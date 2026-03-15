@@ -273,7 +273,7 @@ function renderChatUi() {
     </div>
     <div class="chat-paywall" id="chat-paywall">
       <p>Unlock AI chat to ask questions about today's stories.</p>
-      <a class="chat-paywall-btn" id="chat-unlock-btn">Unlock for $1 (24h pass)</a>
+      <a class="chat-paywall-btn" id="chat-unlock-btn">Upgrade to Premium</a>
     </div>
     <div class="chat-input-row" id="chat-input-row" style="display:none">
       <input class="chat-input" id="chat-input" type="text" placeholder="Ask about an article..." autocomplete="off">
@@ -295,24 +295,33 @@ function renderChatScript(workerUrl) {
   var sendBtn = document.getElementById('chat-send');
   var unlockBtn = document.getElementById('chat-unlock-btn');
 
-  // Session management: capture from URL redirect
-  var params = new URLSearchParams(location.search);
-  var sessionParam = params.get('chat_session');
-  if (sessionParam) {
-    localStorage.setItem('gittimes-chat-session', sessionParam);
-    params.delete('chat_session');
-    var qs = params.toString();
-    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
-  }
-
   var sessionId = localStorage.getItem('gittimes-chat-session');
   var accountSession = localStorage.getItem('gittimes-session');
   var history_msgs = [];
 
   function updatePaywall() {
-    if (sessionId || accountSession) {
+    if (sessionId) {
       paywall.style.display = 'none';
       inputRow.style.display = 'flex';
+    } else if (accountSession) {
+      // Check if user has premium plan before showing chat input
+      fetch(WORKER + '/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + accountSession }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok && data.user && data.user.plan === 'premium') {
+          paywall.style.display = 'none';
+          inputRow.style.display = 'flex';
+        } else {
+          paywall.style.display = 'flex';
+          inputRow.style.display = 'none';
+        }
+      })
+      .catch(function() {
+        paywall.style.display = 'flex';
+        inputRow.style.display = 'none';
+      });
     } else {
       paywall.style.display = 'flex';
       inputRow.style.display = 'none';
@@ -320,9 +329,11 @@ function renderChatScript(workerUrl) {
   }
   updatePaywall();
 
-  var checkoutUrl = WORKER + '/checkout';
-  if (accountSession) checkoutUrl += '?session_token=' + encodeURIComponent(accountSession);
-  unlockBtn.href = checkoutUrl;
+  if (accountSession) {
+    unlockBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(accountSession);
+  } else {
+    unlockBtn.href = '/account/?error=login_required';
+  }
 
   fab.addEventListener('click', function() {
     var open = panel.classList.toggle('open');

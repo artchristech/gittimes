@@ -88,6 +88,58 @@ async function getSessionUser(request, env) {
   return user || null;
 }
 
+async function checkRateLimit(kv, key, max, windowSec) {
+  const now = Date.now();
+  const existing = await kv.get(key, "json");
+  const timestamps = (existing || []).filter(t => now - t < windowSec * 1000);
+  if (timestamps.length >= max) return false;
+  timestamps.push(now);
+  await kv.put(key, JSON.stringify(timestamps), { expirationTtl: windowSec });
+  return true;
+}
+
+async function verifyStripeSignature(payload, sigHeader, secret) {
+  const pairs = sigHeader.split(",").reduce((acc, part) => {
+    const [k, v] = part.split("=");
+    if (k && v) acc[k.trim()] = v.trim();
+    return acc;
+  }, {});
+  const timestamp = pairs.t;
+  const signature = pairs.v1;
+  if (!timestamp || !signature) return false;
+
+  // Reject timestamps older than 5 minutes
+  const age = Math.abs(Date.now() / 1000 - parseInt(timestamp, 10));
+  if (age > 300) return false;
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signed = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(`${timestamp}.${payload}`),
+  );
+  const expected = Array.from(new Uint8Array(signed))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  // Timing-safe comparison
+  if (expected.length !== signature.length) return false;
+  const a = encoder.encode(expected);
+  const b = encoder.encode(signature);
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -124,6 +176,25 @@ export default {
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return new Response(JSON.stringify({ ok: false, error: "Please enter a valid email address." }), {
           status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Rate limit by IP (10 per 15 min)
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const ipAllowed = await checkRateLimit(env.MAGIC_LINKS, `ratelimit:ip:${ip}`, 10, 900);
+      if (!ipAllowed) {
+        return new Response(JSON.stringify({ ok: false, error: "Too many requests. Please try again later." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Rate limit by email (3 per 15 min)
+      const emailAllowed = await checkRateLimit(env.MAGIC_LINKS, `ratelimit:email:${email}`, 3, 900);
+      if (!emailAllowed) {
+        return new Response(JSON.stringify({ ok: false, error: "Too many sign-in requests for this email. Please try again later." }), {
+          status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -240,6 +311,51 @@ export default {
       });
     }
 
+    // POST /auth/delete-account
+    if (url.pathname === "/auth/delete-account" && request.method === "POST") {
+      const auth = request.headers.get("Authorization") || "";
+      if (!auth.startsWith("Bearer ")) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const token = auth.slice(7);
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Cancel Stripe subscription if active
+      if (user.stripeSubscriptionId) {
+        try {
+          await fetch(
+            `https://api.stripe.com/v1/subscriptions/${encodeURIComponent(user.stripeSubscriptionId)}`,
+            {
+              method: "DELETE",
+              headers: { Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}` },
+            },
+          );
+        } catch {
+          // Don't block deletion if Stripe call fails
+        }
+      }
+
+      await Promise.all([
+        env.USERS.delete(user.email),
+        env.SUBSCRIBERS.delete(user.email),
+        env.SESSIONS.delete(token),
+      ]);
+
+      return new Response(JSON.stringify({ ok: true, message: "Account deleted." }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // POST /subscribe — email capture
     if (url.pathname === "/subscribe" && request.method === "POST") {
       let body;
@@ -297,22 +413,24 @@ export default {
 
     // GET /checkout — create Stripe Checkout Session, redirect to Stripe
     if (url.pathname === "/checkout" && request.method === "GET") {
+      // Require valid session — no anonymous checkouts
+      const sessionToken = url.searchParams.get("session_token");
+      if (!sessionToken) {
+        return Response.redirect(`${allowed}/account/?error=login_required`, 302);
+      }
+      const sessionData = await env.SESSIONS.get(sessionToken, "json");
+      if (!sessionData) {
+        return Response.redirect(`${allowed}/account/?error=login_required`, 302);
+      }
+
       const checkoutParams = {
         "line_items[0][price]": env.STRIPE_PRICE_ID,
         "line_items[0][quantity]": "1",
-        mode: "payment",
-        success_url: `${allowed}?chat_session={CHECKOUT_SESSION_ID}`,
+        mode: "subscription",
+        success_url: `${allowed}/account/?upgraded=true`,
+        customer_email: sessionData.email,
+        "metadata[user_email]": sessionData.email,
       };
-
-      // If user is logged in, attach email to checkout
-      const sessionToken = url.searchParams.get("session_token");
-      if (sessionToken) {
-        const sessionData = await env.SESSIONS.get(sessionToken, "json");
-        if (sessionData) {
-          checkoutParams.customer_email = sessionData.email;
-          checkoutParams["metadata[user_email]"] = sessionData.email;
-        }
-      }
 
       const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
         method: "POST",
@@ -330,6 +448,79 @@ export default {
         });
       }
       return Response.redirect(session.url, 303);
+    }
+
+    // POST /stripe/webhook — handle Stripe subscription events
+    if (url.pathname === "/stripe/webhook" && request.method === "POST") {
+      const sigHeader = request.headers.get("stripe-signature") || "";
+      const rawBody = await request.text();
+
+      const valid = await verifyStripeSignature(rawBody, sigHeader, env.STRIPE_WEBHOOK_SECRET);
+      if (!valid) {
+        return new Response(JSON.stringify({ error: "Invalid signature" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      let event;
+      try {
+        event = JSON.parse(rawBody);
+      } catch {
+        return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (event.type === "checkout.session.completed") {
+        const session = event.data.object;
+        const email = (session.customer_email || (session.metadata && session.metadata.user_email) || "").toLowerCase();
+        if (email) {
+          let user = await env.USERS.get(email, "json");
+          if (!user) {
+            // Auto-create user if webhook fires before KV write (race condition safety net)
+            user = {
+              email,
+              createdAt: new Date().toISOString(),
+              plan: "premium",
+              subscribedToNewsletter: true,
+            };
+          }
+          user.plan = "premium";
+          user.stripeCustomerId = session.customer || "";
+          user.stripeSubscriptionId = session.subscription || "";
+          await env.USERS.put(email, JSON.stringify(user));
+        }
+      }
+
+      if (event.type === "customer.subscription.deleted" || event.type === "invoice.payment_failed") {
+        const obj = event.data.object;
+        const customerId = obj.customer;
+        if (customerId) {
+          // Look up customer email via Stripe API
+          const customerRes = await fetch(
+            `https://api.stripe.com/v1/customers/${encodeURIComponent(customerId)}`,
+            { headers: { Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}` } },
+          );
+          if (customerRes.ok) {
+            const customer = await customerRes.json();
+            const email = (customer.email || "").toLowerCase();
+            if (email) {
+              const user = await env.USERS.get(email, "json");
+              if (user) {
+                user.plan = "free";
+                await env.USERS.put(email, JSON.stringify(user));
+              }
+            }
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ received: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // POST /chat — validate session, proxy to xAI
@@ -394,11 +585,6 @@ export default {
           });
         }
 
-        // If user is logged in AND Stripe session validates, upgrade to premium
-        if (accountUser && accountUser.plan !== "premium") {
-          accountUser.plan = "premium";
-          await env.USERS.put(accountUser.email, JSON.stringify(accountUser));
-        }
       }
 
       // Proxy to xAI with streaming
