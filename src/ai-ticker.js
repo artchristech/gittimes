@@ -7,40 +7,45 @@
 const fs = require("fs");
 const path = require("path");
 
+// Last manual review of model list, fallback prices, speed, and image data.
+// If this is > 90 days old at build time, the data likely needs refreshing.
+const LAST_UPDATED = "2026-03-15";
+
 // Tracked frontier models — OpenRouter IDs + fallback prices ($/1M tokens)
 const TRACKED_MODELS = [
-  { key: "claude-opus", openrouterId: "anthropic/claude-opus-4", label: "Claude Opus", provider: "Anthropic", fallbackInput: 15.00, fallbackOutput: 75.00 },
-  { key: "claude-sonnet", openrouterId: "anthropic/claude-sonnet-4", label: "Claude Sonnet", provider: "Anthropic", fallbackInput: 3.00, fallbackOutput: 15.00 },
+  { key: "claude-opus-4.6", openrouterId: "anthropic/claude-opus-4-6", label: "Claude Opus 4.6", provider: "Anthropic", fallbackInput: 5.00, fallbackOutput: 25.00 },
+  { key: "claude-sonnet-4.6", openrouterId: "anthropic/claude-sonnet-4-6", label: "Claude Sonnet 4.6", provider: "Anthropic", fallbackInput: 3.00, fallbackOutput: 15.00 },
+  { key: "claude-haiku-4.5", openrouterId: "anthropic/claude-haiku-4-5", label: "Claude Haiku 4.5", provider: "Anthropic", fallbackInput: 1.00, fallbackOutput: 5.00 },
+  { key: "gpt-5.4", openrouterId: "openai/gpt-5.4", label: "GPT-5.4", provider: "OpenAI", fallbackInput: 2.50, fallbackOutput: 15.00 },
   { key: "gpt-4.1", openrouterId: "openai/gpt-4.1", label: "GPT-4.1", provider: "OpenAI", fallbackInput: 2.00, fallbackOutput: 8.00 },
-  { key: "gpt-4.1-mini", openrouterId: "openai/gpt-4.1-mini", label: "GPT-4.1 Mini", provider: "OpenAI", fallbackInput: 0.40, fallbackOutput: 1.60 },
-  { key: "gemini-2.5-pro", openrouterId: "google/gemini-2.5-pro-preview", label: "Gemini 2.5 Pro", provider: "Google", fallbackInput: 1.25, fallbackOutput: 10.00 },
-  { key: "gemini-2.5-flash", openrouterId: "google/gemini-2.5-flash-preview", label: "Gemini 2.5 Flash", provider: "Google", fallbackInput: 0.15, fallbackOutput: 0.60 },
-  { key: "grok-3", openrouterId: "x-ai/grok-3", label: "Grok 3", provider: "xAI", fallbackInput: 3.00, fallbackOutput: 15.00 },
-  { key: "grok-3-mini", openrouterId: "x-ai/grok-3-mini", label: "Grok 3 Mini", provider: "xAI", fallbackInput: 0.30, fallbackOutput: 0.50 },
-  { key: "deepseek-v3", openrouterId: "deepseek/deepseek-chat", label: "DeepSeek V3", provider: "DeepSeek", fallbackInput: 0.27, fallbackOutput: 1.10 },
+  { key: "gemini-3.1-pro", openrouterId: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", provider: "Google", fallbackInput: 2.00, fallbackOutput: 12.00 },
+  { key: "gemini-2.5-pro", openrouterId: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", provider: "Google", fallbackInput: 1.25, fallbackOutput: 10.00 },
+  { key: "grok-4.20", openrouterId: "x-ai/grok-4-20", label: "Grok 4.20", provider: "xAI", fallbackInput: 3.00, fallbackOutput: 15.00 },
+  { key: "grok-4.1-fast", openrouterId: "x-ai/grok-4-1-fast", label: "Grok 4.1 Fast", provider: "xAI", fallbackInput: 0.20, fallbackOutput: 0.50 },
+  { key: "deepseek-v3.2", openrouterId: "deepseek/deepseek-chat", label: "DeepSeek V3.2", provider: "DeepSeek", fallbackInput: 0.14, fallbackOutput: 0.28 },
   { key: "deepseek-r1", openrouterId: "deepseek/deepseek-r1", label: "DeepSeek R1", provider: "DeepSeek", fallbackInput: 0.55, fallbackOutput: 2.19 },
-  { key: "llama-4-maverick", openrouterId: "meta-llama/llama-4-maverick", label: "Llama 4 Maverick", provider: "Meta", fallbackInput: 0.20, fallbackOutput: 0.60 },
-  { key: "mistral-large", openrouterId: "mistralai/mistral-large", label: "Mistral Large", provider: "Mistral", fallbackInput: 2.00, fallbackOutput: 6.00 },
+  { key: "llama-4-maverick", openrouterId: "meta-llama/llama-4-maverick", label: "Llama 4 Maverick", provider: "Meta", fallbackInput: 0.15, fallbackOutput: 0.60 },
+  { key: "mistral-large-3", openrouterId: "mistralai/mistral-large-3", label: "Mistral Large 3", provider: "Mistral", fallbackInput: 0.50, fallbackOutput: 1.50 },
 ];
 
 // Subset for the slim ticker banner (headline models only)
-const TICKER_BANNER_KEYS = ["claude-sonnet", "gpt-4.1", "gemini-2.5-pro", "grok-3", "deepseek-v3", "llama-4-maverick"];
+const TICKER_BANNER_KEYS = ["claude-sonnet-4.6", "gpt-5.4", "gemini-3.1-pro", "grok-4.20", "deepseek-v3.2", "llama-4-maverick"];
 
 // Curated speed data — update when providers announce changes
 const SPEED_DATA = [
-  { name: "Cerebras", tokPerSec: 2200, model: "Llama 3.3 70B" },
-  { name: "Groq", tokPerSec: 750, model: "Llama 3.3 70B" },
-  { name: "SambaNova", tokPerSec: 400, model: "Llama 3.1 405B" },
-  { name: "Fireworks", tokPerSec: 220, model: "Llama 3.1 70B" },
+  { name: "Cerebras", tokPerSec: 969, model: "Llama 4 Maverick" },
+  { name: "SambaNova", tokPerSec: 794, model: "Llama 4 Maverick" },
+  { name: "Groq", tokPerSec: 549, model: "Llama 4 Maverick" },
+  { name: "Fireworks", tokPerSec: 290, model: "Llama 4 Maverick" },
 ];
 
 // Curated image gen data — editorial quality grades
 const IMAGE_DATA = [
-  { name: "DALL-E 3 HD", price: 0.080, grade: "A" },
+  { name: "GPT Image 1.5", price: 0.040, grade: "A+" },
   { name: "Flux 1.1 Pro", price: 0.040, grade: "A" },
-  { name: "Imagen 3", price: 0.040, grade: "A" },
-  { name: "SD 3.5", price: 0.065, grade: "B+" },
-  { name: "Flux Schnell", price: 0.003, grade: "B" },
+  { name: "Imagen 4", price: 0.040, grade: "A" },
+  { name: "Midjourney v7", price: 0.050, grade: "A" },
+  { name: "SD 3.5 Large", price: 0.065, grade: "B+" },
 ];
 
 /** Cached full OpenRouter response for markets page use */
@@ -149,6 +154,11 @@ function saveSnapshot(outDir, tickerData) {
  * Get complete ticker data: live prices (with fallback), deltas, speed, images.
  */
 async function getTickerData(outDir) {
+  const daysSinceUpdate = (Date.now() - new Date(LAST_UPDATED).getTime()) / 86400000;
+  if (daysSinceUpdate > 90) {
+    console.warn(`[ai-ticker] TRACKED_MODELS last updated ${LAST_UPDATED} (${Math.floor(daysSinceUpdate)} days ago). Model list may be stale.`);
+  }
+
   const openRouterPrices = await fetchOpenRouterPrices();
   const history = loadHistory(outDir);
   const prevSnapshot = history.length > 0 ? history[0] : loadSnapshot(outDir);
