@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Git Times — Monday, March 16, 2026 — Promo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root {
+  --paper: #faf8f5;
+  --ink: #1a1a1a;
+  --ink-light: #4a4a4a;
+  --ink-faint: #8a8a8a;
+  --accent: #8b0000;
+  --rule-light: #d0ccc5;
+  --font-headline: 'Playfair Display', Georgia, serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.promo {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.03;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+
+/* Floating headline — one continuous element from masthead to lead */
+.floating-headline {
+  position: absolute;
+  z-index: 50;
+  font-family: var(--font-headline);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--ink-light);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, font-size;
+}
+
+/* Scene 1: Masthead */
+.masthead-scene {
+  flex-direction: column;
+}
+
+.mast-rule {
+  width: 0;
+  height: 6px;
+  background: var(--ink);
+  position: relative;
+}
+.mast-rule::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--ink);
+}
+.mast-rule-top::after { top: -5px; }
+.mast-rule-bot::after { bottom: -5px; }
+
+.mast-title {
+  font-family: var(--font-headline);
+  font-size: clamp(64px, 12vw, 160px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1;
+  margin: 24px 0 12px;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.mast-date {
+  font-family: var(--font-meta);
+  font-size: clamp(18px, 2.4vw, 32px);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+  opacity: 0;
+  margin-bottom: 24px;
+}
+
+/* Scene 2: Lead story */
+.lead-scene {
+  flex-direction: column;
+  padding: 8% 10%;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.lead-label {
+  font-family: var(--font-meta);
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  opacity: 0;
+  margin-bottom: 20px;
+}
+
+/* Invisible slot — holds space for the floating headline in the lead scene */
+.lead-headline-slot {
+  font-family: var(--font-headline);
+  font-size: clamp(40px, 7vw, 96px);
+  font-weight: 900;
+  line-height: 1.08;
+  color: transparent;
+  max-width: 90%;
+}
+
+.lead-sub {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: clamp(24px, 3.5vw, 44px);
+  color: var(--ink-light);
+  margin-top: 28px;
+  max-width: 80%;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.lead-rule {
+  width: 0;
+  height: 4px;
+  background: var(--accent);
+  margin-top: 36px;
+}
+
+.lead-repo {
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 2.2vw, 28px);
+  color: var(--ink-faint);
+  margin-top: 16px;
+  opacity: 0;
+}
+
+/* Scene 3: Section headlines */
+.sections-scene {
+  flex-direction: column;
+  padding: 6% 10%;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.section-row {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(20px, 3vw, 40px);
+  padding: clamp(14px, 2vh, 28px) 0;
+}
+
+.section-label { opacity: 0; }
+.section-headline { opacity: 0; }
+
+.section-divider {
+  width: 0;
+  height: 2px;
+  background: var(--rule-light);
+}
+
+.section-label {
+  font-family: var(--font-meta);
+  font-size: clamp(16px, 1.8vw, 22px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  min-width: clamp(80px, 12vw, 160px);
+  flex-shrink: 0;
+}
+
+.section-headline {
+  font-family: var(--font-headline);
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+/* Scene 4: Quote */
+.quote-scene { flex-direction: column; gap: 20px; }
+
+.quote-mark {
+  font-family: var(--font-headline);
+  font-size: clamp(64px, 8vw, 120px);
+  color: var(--rule-light);
+  line-height: 0.6;
+  opacity: 0;
+}
+
+.quote-close {
+  line-height: 0.8;
+  margin-top: 8px;
+}
+
+.quote-text {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: clamp(32px, 5vw, 64px);
+  color: var(--ink);
+  max-width: 75%;
+  text-align: center;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.quote-attr {
+  font-family: var(--font-meta);
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 500;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0;
+}
+
+/* Scene 5: CTA */
+.cta-scene { flex-direction: column; gap: 16px; }
+
+.cta-rule {
+  width: 0;
+  height: 4px;
+  background: var(--ink);
+  position: relative;
+}
+.cta-rule::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--ink);
+}
+.cta-rule-top::after { top: -5px; }
+.cta-rule-bot::after { bottom: -5px; }
+
+.cta-masthead {
+  font-family: var(--font-headline);
+  font-size: clamp(48px, 10vw, 120px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  margin: 16px 0 8px;
+}
+
+.cta-url {
+  font-family: var(--font-mono);
+  font-size: clamp(24px, 3.5vw, 44px);
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  opacity: 0;
+}
+
+.cta-tagline {
+  font-family: var(--font-meta);
+  font-size: clamp(18px, 2.4vw, 32px);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="promo">
+  <svg class="grain" width="100%" height="100%">
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+
+  <div class="floating-headline" id="fh">Assemble a Dream AI Agency of Specialized, Personality-Driven Developer Agents</div>
+
+  <div class="scene masthead-scene" id="s1">
+    <div class="mast-rule mast-rule-top"></div>
+    <div class="mast-title">The Git Times</div>
+    <div class="mast-date">Monday, March 16, 2026</div>
+    <div class="mast-rule mast-rule-bot"></div>
+  </div>
+
+  <div class="scene lead-scene" id="s2">
+    <div class="lead-label">Front Page</div>
+    <div class="lead-headline-slot">Assemble a Dream AI Agency of Specialized, Personality-Driven Developer Agents</div>
+    <div class="lead-sub">Specialized AI experts—from frontend wizards to Reddit ninjas—deliver code, processes, and results across your favorite coding tools.</div>
+    <div class="lead-rule"></div>
+    <div class="lead-repo">github.com/msitarzewski/agency-agents</div>
+  </div>
+
+  <div class="scene sections-scene" id="s3">
+    <div class="section-row">
+      <span class="section-label">AI</span>
+      <span class="section-headline">Microsoft Delivers Hands-On Jupyter Course for Building AI Agents</span>
+    </div>
+    <div class="section-divider"></div>
+    <div class="section-row">
+      <span class="section-label">Robotics</span>
+      <span class="section-headline">eProsima Fast DDS Delivers Reliable Pub-Sub for Real-Time Distributed Systems</span>
+    </div>
+    <div class="section-divider"></div>
+    <div class="section-row">
+      <span class="section-label">Cyber</span>
+      <span class="section-headline">All-in-One Pentesting Suite Unifies 185 Tools with Smart Menus and Search</span>
+    </div>
+    <div class="section-divider"></div>
+    <div class="section-row">
+      <span class="section-label">Systems</span>
+      <span class="section-headline">Whisper.cpp Ports OpenAI Speech Model to Lightweight C/C++ Inference</span>
+    </div>
+    <div class="section-divider"></div>
+    <div class="section-row">
+      <span class="section-label">DIY</span>
+      <span class="section-headline">OpenC3 COSMOS Provides Full Command Control for Embedded Hardware Targets</span>
+    </div>
+  </div>
+
+  <div class="scene quote-scene" id="s4">
+    <div class="quote-mark quote-open">“</div>
+    <div class="quote-text">You never change things by fighting the existing reality. To change something, build a new model that makes the existing model obsolete.</div>
+    <div class="quote-mark quote-close">”</div>
+    <div class="quote-attr">Buckminster Fuller</div>
+  </div>
+
+  <div class="scene cta-scene" id="s5">
+    <div class="cta-rule cta-rule-top"></div>
+    <div class="cta-masthead">The Git Times</div>
+    <div class="cta-url">gittimes.com</div>
+    <div class="cta-tagline">Read Today’s Edition</div>
+    <div class="cta-rule cta-rule-bot"></div>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(function() {
+  var tl = gsap.timeline({ delay: 0.3 });
+  var fh = document.getElementById('fh');
+  var slot = document.querySelector('.lead-headline-slot');
+
+  function scene(id, build, holdSec) {
+    var st = gsap.timeline();
+    st.set(id, { visibility: 'visible', opacity: 1 });
+    build(st);
+    st.to({}, { duration: holdSec });
+    st.to(id, { opacity: 0, duration: 0.8, ease: 'power1.inOut',
+      onComplete: function() { gsap.set(id, { visibility: 'hidden' }); }
+    });
+    return st;
+  }
+
+  // Measure the lead slot's final position
+  gsap.set('#s2', { visibility: 'visible', opacity: 1 });
+  var slotRect = slot.getBoundingClientRect();
+  var promoRect = document.querySelector('.promo').getBoundingClientRect();
+  var endTop = slotRect.top - promoRect.top;
+  var endLeft = slotRect.left - promoRect.left;
+  var endWidth = slotRect.width;
+  var endFontSize = parseFloat(getComputedStyle(slot).fontSize);
+  gsap.set('#s2', { visibility: 'hidden', opacity: 0 });
+
+  // Teaser: small font, centered below date
+  var startFontSize = Math.min(Math.max(20, window.innerWidth * 0.035), 42);
+  var startTop = promoRect.height * 0.66;
+
+  // Place at teaser position — centered via text-align, grows from center
+  var startWidth = promoRect.width * 0.85;
+  var startLeft = (promoRect.width - startWidth) / 2;
+  gsap.set(fh, {
+    top: startTop,
+    left: startLeft,
+    width: startWidth,
+    fontSize: startFontSize,
+    textAlign: 'center',
+    color: 'var(--ink-light)',
+    opacity: 0
+  });
+
+  // Scene 1: Masthead (~6s) — rules, title, date, then headline fades in
+  var s1 = gsap.timeline();
+  s1.set('#s1', { visibility: 'visible', opacity: 1 });
+  s1.to('.mast-rule-top', { width: '55%', duration: 0.8, ease: 'power2.inOut' })
+    .to('.mast-rule-bot', { width: '55%', duration: 0.8, ease: 'power2.inOut' }, '<0.1')
+    .to('.mast-title', { opacity: 1, duration: 0.6, ease: 'power1.out' }, '-=0.3')
+    .to('.mast-date', { opacity: 1, duration: 0.5, ease: 'power1.out' }, '-=0.1')
+    .to(fh, { opacity: 1, duration: 0.7, ease: 'power1.out' }, '-=0.1')
+    .to({}, { duration: 2.0 });
+  tl.add(s1);
+
+  // Transition: grow from center, then slide to lead position
+  var morph = gsap.timeline();
+  var centeredLeft = (promoRect.width - endWidth) / 2;
+  morph.to('.mast-title, .mast-date, .mast-rule-top, .mast-rule-bot', {
+    opacity: 0, duration: 0.6, ease: 'power1.inOut'
+  });
+  // Phase 1: enlarge in place (stays centered)
+  morph.to(fh, {
+    fontSize: endFontSize,
+    width: endWidth,
+    left: centeredLeft,
+    top: endTop,
+    color: 'var(--ink)',
+    duration: 1.4,
+    ease: 'power2.inOut'
+  }, '<0.1');
+  // Phase 2: slide from centered to left-aligned lead position (overlaps growth)
+  morph.to(fh, {
+    left: endLeft,
+    duration: 0.8,
+    ease: 'power2.inOut',
+    onUpdate: function() {
+      // Snap textAlign to left once slide is 60% done — masked by motion
+      if (this.progress() > 0.6) gsap.set(fh, { textAlign: 'left' });
+    }
+  }, '-=0.6');
+  morph.set('#s1', { visibility: 'hidden' });
+  morph.set('#s2', { visibility: 'visible', opacity: 1 }, '-=0.5');
+  morph.to('.lead-label', { opacity: 1, duration: 0.5, ease: 'power1.out' }, '-=0.3');
+  tl.add(morph);
+
+  // Scene 2: Lead story hold (~10s) — sub, rule, repo fade in
+  var s2hold = gsap.timeline();
+  s2hold.to('.lead-sub', { opacity: 1, duration: 0.8, ease: 'power1.out' })
+    .to('.lead-rule', { width: 200, duration: 0.7, ease: 'power2.inOut' }, '-=0.2')
+    .to('.lead-repo', { opacity: 1, duration: 0.5, ease: 'power1.out' }, '-=0.15')
+    .to({}, { duration: 6.0 })
+    .to('#s2', { opacity: 0, duration: 0.8, ease: 'power1.inOut' })
+    .to(fh, { opacity: 0, duration: 0.8, ease: 'power1.inOut' }, '<')
+    .set('#s2', { visibility: 'hidden' });
+  tl.add(s2hold);
+
+  // Scene 3: Section headlines (~14s)
+  // Phase 1: all labels + dividers appear as skeleton (~0.5s)
+  // Phase 2: headlines fill in one by one top-down (0.5s stagger)
+  tl.add(scene('#s3', function(t) {
+    var labels = document.querySelectorAll('.section-label');
+    var headlines = document.querySelectorAll('.section-headline');
+    var dividers = document.querySelectorAll('.section-divider');
+    // Labels fade in top to bottom, with dividers drawing between each
+    labels.forEach(function(lbl, i) {
+      t.to(lbl, { opacity: 1, duration: 0.15, ease: 'power1.out' }, i * 0.08);
+      if (dividers[i]) {
+        t.to(dividers[i], { width: '100%', duration: 0.2, ease: 'power2.inOut' }, i * 0.08 + 0.05);
+      }
+    });
+    // Then fill in headlines one by one
+    headlines.forEach(function(hl, i) {
+      t.to(hl, { opacity: 1, duration: 0.6, ease: 'power1.out' }, 0.6 + i * 0.8);
+    });
+  }, 5.5));
+
+  // Scene 4: Quote (~10s)
+  tl.add(scene('#s4', function(t) {
+    t.to('.quote-open', { opacity: 1, duration: 0.6, ease: 'power1.out' })
+     .to('.quote-text', { opacity: 1, duration: 1.2, ease: 'power1.out' }, '-=0.15')
+     .to('.quote-close', { opacity: 1, duration: 0.6, ease: 'power1.out' }, '-=0.3')
+     .to('.quote-attr', { opacity: 1, duration: 0.6, ease: 'power1.out' }, '-=0.1');
+  }, 5.0));
+
+  // Scene 5: CTA (~10s, holds without fade)
+  var ctaTl = gsap.timeline();
+  ctaTl.set('#s5', { visibility: 'visible', opacity: 1 });
+  ctaTl.to('.cta-rule-top', { width: '40%', duration: 1.0, ease: 'power2.inOut' })
+       .to('.cta-rule-bot', { width: '40%', duration: 1.0, ease: 'power2.inOut' }, '<0.1')
+       .to('.cta-masthead', { opacity: 1, duration: 0.7, ease: 'power1.out' }, '-=0.3')
+       .to('.cta-url', { opacity: 1, duration: 0.5, ease: 'power1.out' }, '-=0.1')
+       .to('.cta-tagline', { opacity: 1, duration: 0.5, ease: 'power1.out' }, '-=0.1')
+       .to({}, { duration: 6.0 });
+  tl.add(ctaTl);
+
+  // Expose timeline for headless video capture
+  window.__tl = tl;
+  window.__promoReady = true;
+});
+</script>
+
+</body>
+</html>
