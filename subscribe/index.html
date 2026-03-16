@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
-  <title>The Git Times — Archive</title>
+  <title>The Git Times — AI-Generated Newspaper for Builders</title>
   
-  <meta property="og:title" content="The Git Times — Archive">
-  <meta property="og:description" content="Browse all editions of The Git Times">
+  <meta property="og:title" content="The Git Times — AI-Generated Newspaper for Builders">
+  <meta property="og:description" content="A daily AI-generated newspaper covering trending GitHub repos, developer tools, and open-source projects.">
   <meta property="og:site_name" content="The Git Times">
+  <link rel="alternate" type="application/rss+xml" title="The Git Times RSS" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="The Git Times Atom" href="/feed.atom">
 
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
@@ -1884,63 +1886,120 @@ body.account {
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
   </script>
 </head>
-<body>
+<body class="landing">
 
   <header class="masthead">
     <a href="/account/" class="masthead-account">Account</a>
-    <a href="/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
-    <h1 class="masthead-title"><a href="/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
-    <div class="masthead-meta">
-      <span>Archive</span>
-    </div>
+    <h1 class="masthead-title">The Git Times</h1>
+
   </header>
 
-  <section class="archive-list">
-    <h2 class="section-header">All Editions</h2>
-    
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 16, 2026</span>
-      <a href="/editions/2026-03-16/" class="archive-headline">Lightpanda Delivers Zig-Built Headless Browser for Lightning-Fast AI Automation</a>
-      <span class="archive-tagline">“We drive into the future using only our rearview mirror.” — Marshall McLuhan</span>
+  <section class="landing-hero">
+    <h2>What the open-source world shipped while you were sleeping</h2>
+    <p>Every morning, our AI editorial team reads GitHub's trending repos, analyzes X sentiment, and publishes a full newspaper edition — so you don't have to doomscroll.</p>
+    <div class="landing-ctas">
+      <a href="/latest/" class="landing-cta landing-cta-primary">Read Today's Edition</a>
+      <a href="#subscribe" class="landing-cta landing-cta-secondary">Subscribe Free</a>
     </div>
+  </section>
 
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, March 11, 2026</span>
-      <a href="/editions/2026-03-11/" class="archive-headline">GitHub Repo Exposes System Prompts Fueling Top AI Coding Agents</a>
-      <span class="archive-tagline">“Civilization advances by extending the number of important operations which we can perform without thinking about them.” — Alfred North Whitehead</span>
+  <section class="landing-features">
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9881;</div>
+      <h3>Editorial Intelligence</h3>
+      <p>Breakout detection, trend clustering, and sleeper discovery — not just a list of repos.</p>
     </div>
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9776;</div>
+      <h3>Daily Coverage</h3>
+      <p>A new full edition every morning with lead stories, secondary coverage, and quick hits.</p>
+    </div>
+    <div class="landing-feature">
+      <div class="landing-feature-icon">&#9878;</div>
+      <h3>7 Sections</h3>
+      <p>Front Page, AI, Robotics, Cyber, Systems, DIY, and Memes — whatever you build.</p>
+    </div>
+  </section>
 
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 2, 2026</span>
-      <a href="/editions/2026-03-02/" class="archive-headline">Reverse-Engineered APIs Unlock Neural Training on Apple Neural Engine</a>
-      <span class="archive-tagline">“Sometimes it is the people no one imagines anything of who do the things that no one can imagine.” — Alan Turing</span>
-    </div>
+  <section class="landing-editions">
+    <h2>Recent Editions</h2>
+        <a href="/editions/2026-03-16/" class="landing-edition-card">
+      <span class="edition-card-date">Monday, March 16, 2026</span>
+      <span class="edition-card-headline">Lightpanda Delivers Zig-Built Headless Browser for Lightning-Fast AI Automation</span>
+    </a>
+    <a href="/editions/2026-03-11/" class="landing-edition-card">
+      <span class="edition-card-date">Wednesday, March 11, 2026</span>
+      <span class="edition-card-headline">GitHub Repo Exposes System Prompts Fueling Top AI Coding Agents</span>
+    </a>
+    <a href="/editions/2026-03-02/" class="landing-edition-card">
+      <span class="edition-card-date">Monday, March 2, 2026</span>
+      <span class="edition-card-headline">Reverse-Engineered APIs Unlock Neural Training on Apple Neural Engine</span>
+    </a>
+    <a href="/editions/2026-03-01/" class="landing-edition-card">
+      <span class="edition-card-date">Sunday, March 1, 2026</span>
+      <span class="edition-card-headline">Claude Context Mode Compresses Tool Outputs to Salvage AI Context Windows</span>
+    </a>
+    <a href="/editions/2026-02-28/" class="landing-edition-card">
+      <span class="edition-card-date">Saturday, February 28, 2026</span>
+      <span class="edition-card-headline">CoPaw Launches as Self-Hosted AI Assistant for Developers</span>
+    </a>
+  </section>
 
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, March 1, 2026</span>
-      <a href="/editions/2026-03-01/" class="archive-headline">Claude Context Mode Compresses Tool Outputs to Salvage AI Context Windows</a>
-      <span class="archive-tagline">“Premature optimization is the root of all evil.” — Donald Knuth</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, February 28, 2026</span>
-      <a href="/editions/2026-02-28/" class="archive-headline">CoPaw Launches as Self-Hosted AI Assistant for Developers</a>
-      <span class="archive-tagline">“Any sufficiently advanced technology is indistinguishable from magic.” — Arthur C. Clarke</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Friday, February 27, 2026</span>
-      <a href="/editions/2026-02-27/" class="archive-headline">OpenClaw&#39;s memory-lancedb-pro Plugin Supercharges Agent Memory with Hybrid Retrieval</a>
-      <span class="archive-tagline">“Errors using inadequate data are much less than those using no data at all.” — Charles Babbage</span>
-    </div>
+  <section class="landing-subscribe" id="subscribe">
+    <h2>Get it in your inbox</h2>
+    <p>Free daily edition. No spam. Unsubscribe anytime. Your email also creates a free account.</p>
+    <form class="subscribe-form" id="subscribe-form">
+      <input type="email" name="email" placeholder="you@example.com" required>
+      <button type="submit">Subscribe</button>
+    </form>
+    <div class="subscribe-status" id="subscribe-status"></div>
+    <p style="margin-top:12px;font-size:13px;font-family:var(--font-meta)"><a href="/account/" style="color:var(--accent)">Already have an account? Sign in</a></p>
   </section>
 
   <footer class="footer">
     <nav class="edition-nav">
       <a href="/latest/">Latest Edition</a>
+      <span>&middot;</span>
+      <a href="/archive/">Archive</a>
+      <span>&middot;</span>
+      <a href="/feed.xml">RSS</a>
     </nav>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>
+
+  <script>
+    (function(){
+      var form = document.getElementById('subscribe-form');
+      var status = document.getElementById('subscribe-status');
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = form.email.value;
+        status.textContent = 'Subscribing...';
+        status.className = 'subscribe-status';
+        fetch('', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            status.textContent = data.message || 'You are subscribed!';
+            status.className = 'subscribe-status success';
+            form.reset();
+          } else {
+            status.textContent = data.error || 'Something went wrong.';
+            status.className = 'subscribe-status error';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error. Please try again.';
+          status.className = 'subscribe-status error';
+        });
+      });
+    })();
+  </script>
 
 </body>
 </html>

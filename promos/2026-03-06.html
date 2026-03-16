@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Git Times — Friday, March 6, 2026 — Promo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root {
+  --paper: #faf8f5;
+  --ink: #1a1a1a;
+  --ink-light: #4a4a4a;
+  --ink-faint: #8a8a8a;
+  --accent: #8b0000;
+  --rule-light: #d0ccc5;
+  --font-headline: 'Playfair Display', Georgia, serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.promo {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.03;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+
+.masthead-scene { flex-direction: column; }
+
+.mast-rule {
+  width: 0;
+  height: 4px;
+  background: var(--ink);
+  position: relative;
+}
+.mast-rule::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--ink);
+}
+.mast-rule-top::after { top: -5px; }
+.mast-rule-bot::after { bottom: -5px; }
+
+.mast-title {
+  font-family: var(--font-headline);
+  font-size: clamp(48px, 8vw, 120px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1;
+  margin: 24px 0 12px;
+  text-align: center;
+  opacity: 0;
+}
+
+.mast-date {
+  font-family: var(--font-meta);
+  font-size: clamp(12px, 1.4vw, 18px);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+  opacity: 0;
+}
+
+.mast-tagline {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: clamp(14px, 1.6vw, 22px);
+  color: var(--ink-light);
+  margin-top: 12px;
+  opacity: 0;
+  max-width: 60%;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.lead-scene {
+  flex-direction: column;
+  padding: 8% 10%;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.lead-label {
+  font-family: var(--font-meta);
+  font-size: clamp(11px, 1.1vw, 14px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  opacity: 0;
+  margin-bottom: 16px;
+}
+
+.lead-headline {
+  font-family: var(--font-headline);
+  font-size: clamp(28px, 5vw, 72px);
+  font-weight: 900;
+  line-height: 1.08;
+  color: var(--ink);
+  max-width: 85%;
+  opacity: 0;
+}
+
+.lead-sub {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: clamp(16px, 2vw, 28px);
+  color: var(--ink-light);
+  margin-top: 24px;
+  max-width: 75%;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.lead-rule {
+  width: 0;
+  height: 3px;
+  background: var(--accent);
+  margin-top: 32px;
+}
+
+.lead-repo {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.3vw, 18px);
+  color: var(--ink-faint);
+  margin-top: 12px;
+  opacity: 0;
+}
+
+.sections-scene {
+  flex-direction: column;
+  padding: 6% 10%;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.section-row {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(16px, 2vw, 32px);
+  padding: clamp(12px, 2vh, 28px) 0;
+  border-bottom: 1px solid var(--rule-light);
+  opacity: 0;
+  transform: translateY(30px);
+}
+.section-row:last-child { border-bottom: none; }
+
+.section-label {
+  font-family: var(--font-meta);
+  font-size: clamp(10px, 1vw, 13px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  min-width: clamp(60px, 8vw, 120px);
+  flex-shrink: 0;
+}
+
+.section-headline {
+  font-family: var(--font-headline);
+  font-size: clamp(18px, 2.8vw, 36px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.quote-scene { flex-direction: column; gap: 20px; }
+
+.quote-mark {
+  font-family: var(--font-headline);
+  font-size: clamp(60px, 8vw, 120px);
+  color: var(--rule-light);
+  line-height: 0.6;
+  opacity: 0;
+}
+
+.quote-text {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: clamp(20px, 3.2vw, 42px);
+  color: var(--ink);
+  max-width: 70%;
+  text-align: center;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.quote-attr {
+  font-family: var(--font-meta);
+  font-size: clamp(12px, 1.3vw, 18px);
+  font-weight: 500;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0;
+}
+
+.cta-scene { flex-direction: column; gap: 16px; }
+
+.cta-rule {
+  width: 0;
+  height: 4px;
+  background: var(--ink);
+  position: relative;
+}
+.cta-rule::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--ink);
+}
+.cta-rule-top::after { top: -5px; }
+.cta-rule-bot::after { bottom: -5px; }
+
+.cta-masthead {
+  font-family: var(--font-headline);
+  font-size: clamp(36px, 6vw, 80px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  margin: 16px 0 8px;
+}
+
+.cta-url {
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 2.2vw, 28px);
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  opacity: 0;
+}
+
+.cta-tagline {
+  font-family: var(--font-meta);
+  font-size: clamp(12px, 1.4vw, 18px);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="promo">
+  <svg class="grain" width="100%" height="100%">
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+
+  <div class="scene masthead-scene" id="s1">
+    <div class="mast-rule mast-rule-top"></div>
+    <div class="mast-title">The Git Times</div>
+    <div class="mast-date">Friday, March 6, 2026</div>
+    <div class="mast-tagline">The AI-curated daily for builders</div>
+    <div class="mast-rule mast-rule-bot"></div>
+  </div>
+
+  <div class="scene lead-scene" id="s2">
+    <div class="lead-label">Front Page</div>
+    <div class="lead-headline">PinchTab Gives AI Agents Lightning-Fast Control Over Chrome Browsers</div>
+    <div class="lead-sub">Token-efficient HTTP server in Go enables precise, multi-instance browser automation without screenshots or fragile selectors</div>
+    <div class="lead-rule"></div>
+    <div class="lead-repo">github.com/Account</div>
+  </div>
+
+  <div class="scene sections-scene" id="s3">
+    <div class="section-row">
+      <span class="section-label">AI</span>
+      <span class="section-headline">OpenClaw Runs Personal AI Assistant Across Your Daily Chat Channels</span>
+    </div>
+    <div class="section-row">
+      <span class="section-label">Robotics</span>
+      <span class="section-headline">Embodied AI Guide Streamlines Robotics Pipeline for Developers</span>
+    </div>
+    <div class="section-row">
+      <span class="section-label">Cyber</span>
+      <span class="section-headline">OWASP Cheat Sheets Deliver Concise Tactics for Securing Applications</span>
+    </div>
+    <div class="section-row">
+      <span class="section-label">Systems</span>
+      <span class="section-headline">Base Node Repo Delivers Docker Builds for Self-Hosted Ethereum L2 Nodes</span>
+    </div>
+    <div class="section-row">
+      <span class="section-label">DIY</span>
+      <span class="section-headline">RealSense SDK Enables Cross-Platform Depth Streaming for Robotics Builders</span>
+    </div>
+  </div>
+
+  <div class="scene quote-scene" id="s4">
+    <div class="quote-mark">\u201C</div>
+    <div class="quote-text">The best programs are written so that computing machines can perform them quickly and so that human beings can understand them clearly.</div>
+    <div class="quote-attr">Donald Knuth</div>
+  </div>
+
+  <div class="scene cta-scene" id="s5">
+    <div class="cta-rule cta-rule-top"></div>
+    <div class="cta-masthead">The Git Times</div>
+    <div class="cta-url">gittimes.com</div>
+    <div class="cta-tagline">Read Today\u2019s Edition</div>
+    <div class="cta-rule cta-rule-bot"></div>
+  </div>
+</div>
+
+<script>
+document.fonts.ready.then(function() {
+  var tl = gsap.timeline({ delay: 0.2 });
+
+  function scene(id, build, holdSec) {
+    var st = gsap.timeline();
+    st.set(id, { visibility: 'visible', opacity: 1 });
+    build(st);
+    st.to({}, { duration: holdSec });
+    st.to(id, { opacity: 0, duration: 0.4, ease: 'power2.inOut',
+      onComplete: function() { gsap.set(id, { visibility: 'hidden' }); }
+    });
+    return st;
+  }
+
+  tl.add(scene('#s1', function(t) {
+    t.to('.mast-rule-top', { width: '55%', duration: 0.7, ease: 'power3.out' })
+     .to('.mast-rule-bot', { width: '55%', duration: 0.7, ease: 'power3.out' }, '<0.08')
+     .to('.mast-title', { opacity: 1, duration: 0.5, ease: 'power2.out' }, '-=0.3')
+     .to('.mast-date', { opacity: 1, duration: 0.35, ease: 'power2.out' }, '-=0.15')
+     .to('.mast-tagline', { opacity: 1, duration: 0.35, ease: 'power2.out' }, '-=0.1');
+  }, 1.5));
+
+  tl.add(scene('#s2', function(t) {
+    t.to('.lead-label', { opacity: 1, duration: 0.3, ease: 'power2.out' })
+     .to('.lead-headline', { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.1')
+     .to('.lead-sub', { opacity: 1, duration: 0.45, ease: 'power2.out' }, '-=0.15')
+     .to('.lead-rule', { width: 160, duration: 0.5, ease: 'power3.out' }, '-=0.2')
+     .to('.lead-repo', { opacity: 1, duration: 0.3, ease: 'power2.out' }, '-=0.15');
+  }, 2.2));
+
+  tl.add(scene('#s3', function(t) {
+    t.to('.section-row', {
+      opacity: 1, y: 0,
+      duration: 0.5,
+      ease: 'back.out(1.3)',
+      stagger: 0.3
+    });
+  }, 2.0));
+
+  tl.add(scene('#s4', function(t) {
+    t.to('.quote-mark', { opacity: 1, duration: 0.4, ease: 'power2.out' })
+     .to('.quote-text', { opacity: 1, duration: 0.8, ease: 'power1.out' }, '-=0.15')
+     .to('.quote-attr', { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.15');
+  }, 2.0));
+
+  var ctaTl = gsap.timeline();
+  ctaTl.set('#s5', { visibility: 'visible', opacity: 1 });
+  ctaTl.to('.cta-rule-top', { width: '40%', duration: 0.6, ease: 'power3.out' })
+       .to('.cta-rule-bot', { width: '40%', duration: 0.6, ease: 'power3.out' }, '<0.08')
+       .to('.cta-masthead', { opacity: 1, duration: 0.45, ease: 'power2.out' }, '-=0.3')
+       .to('.cta-url', { opacity: 1, duration: 0.35, ease: 'power2.out' }, '-=0.1')
+       .to('.cta-tagline', { opacity: 1, duration: 0.35, ease: 'power2.out' }, '-=0.1');
+  tl.add(ctaTl);
+});
+</script>
+
+</body>
+</html>

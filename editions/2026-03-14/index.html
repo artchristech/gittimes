@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
+  <title>The Git Times — Saturday, March 14, 2026</title>
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="gstack Turns Claude into a Slash-Command Dev Team for Solo Builders — The Git Times">
+  <meta property="og:description" content="“We can only see a short distance ahead, but we can see plenty there that needs to be done.” — Alan Turing">
+  <meta property="og:url" content="https://gittimes.com/editions/2026-03-14/">
+  <meta property="og:site_name" content="The Git Times">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="gstack Turns Claude into a Slash-Command Dev Team for Solo Builders — The Git Times">
+  <meta name="twitter:description" content="“We can only see a short distance ahead, but we can see plenty there that needs to be done.” — Alan Turing">
+  <meta name="description" content="“We can only see a short distance ahead, but we can see plenty there that needs to be done.” — Alan Turing">
+  <link rel="canonical" href="{{OG_URL}}">
+  <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
+
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--paper);
+}
+
+:root {
+  --paper: #faf8f5;
+  --ink: #1a1a1a;
+  --ink-light: #4a4a4a;
+  --ink-faint: #8a8a8a;
+  --rule: #2a2a2a;
+  --rule-light: #d0ccc5;
+  --accent: #8b0000;
+  --font-headline: 'Playfair Display', Georgia, serif;
+  --font-body: 'Libre Baskerville', Georgia, serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* === MASTHEAD === */
+
+.masthead {
+  position: relative;
+  text-align: center;
+  padding: 24px 0 16px;
+  border-top: 4px double var(--rule);
+  border-bottom: 4px double var(--rule);
+  margin-bottom: 32px;
+}
+
+.masthead-date {
+  position: absolute;
+  top: 12px;
+  right: 52px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.masthead-title {
+  font-family: var(--font-headline);
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.masthead-tagline {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-light);
+  margin-top: 8px;
+}
+
+/* === LEAD STORY === */
+
+.lead-story {
+  padding: 32px 24px;
+  border: 1px solid var(--rule-light);
+  border-bottom: 2px solid var(--rule);
+  margin-bottom: 32px;
+  contain: content;
+  isolation: isolate;
+}
+
+.lead-headline {
+  font-family: var(--font-headline);
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.lead-subheadline {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.lead-meta {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.lead-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.lead-meta a:hover {
+  text-decoration: underline;
+}
+
+.lead-body {
+  column-count: 2;
+  column-width: 300px;
+  column-gap: 40px;
+  column-rule: 1px solid var(--rule-light);
+}
+
+.lead-body p {
+  margin-bottom: 12px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.article-insights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: var(--bt-bg, linear-gradient(135deg, #f5f0e8, #f0ebe3));
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  margin-top: 20px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  line-height: 1.5;
+  break-inside: avoid;
+  column-span: all;
+}
+
+.insights-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.insights-col ul {
+  list-style: disc;
+  padding-left: 18px;
+}
+
+.insights-col li {
+  margin-bottom: 4px;
+}
+
+/* === SECONDARY GRID === */
+
+.secondary-section {
+  margin-bottom: 32px;
+  padding: 20px 24px 24px;
+  background-color: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+  border-top: 2px solid var(--rule);
+}
+
+.section-header {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--rule-light);
+  padding-bottom: 8px;
+  margin-bottom: 0;
+}
+
+.secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  background-color: var(--rule-light);
+  gap: 1px;
+}
+
+.secondary-article {
+  background-color: var(--paper);
+  padding: 20px 16px;
+  contain: content;
+  isolation: isolate;
+}
+
+.secondary-headline {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.secondary-subheadline {
+  font-family: var(--font-headline);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.secondary-meta {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.secondary-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.secondary-meta a:hover {
+  text-decoration: underline;
+}
+
+.secondary-body {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.secondary-body p {
+  margin-bottom: 8px;
+}
+
+.secondary-article .article-insights {
+  font-size: 12px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+
+/* === FEATURED GRID === */
+
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  background-color: var(--rule-light);
+  gap: 1px;
+}
+
+.featured-article {
+  background-color: var(--paper);
+  padding: 20px 16px;
+  contain: content;
+  isolation: isolate;
+}
+
+.featured-headline {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.featured-subheadline {
+  font-family: var(--font-headline);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.featured-meta {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.featured-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.featured-meta a:hover {
+  text-decoration: underline;
+}
+
+.featured-body {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.featured-body p {
+  margin-bottom: 8px;
+}
+
+.featured-article .article-insights {
+  font-size: 12px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+
+/* === COMPACT GRID === */
+
+.compact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  background-color: var(--rule-light);
+  gap: 1px;
+  margin-top: -1px;
+}
+
+.compact-article {
+  background-color: var(--paper);
+  padding: 12px 16px;
+  contain: content;
+  isolation: isolate;
+}
+
+.compact-headline {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.compact-subheadline {
+  font-family: var(--font-headline);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.compact-meta {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compact-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.compact-meta a:hover {
+  text-decoration: underline;
+}
+
+/* === QUICK HITS === */
+
+.quick-hits-section {
+  border-top: 2px solid var(--rule);
+  padding: 20px 24px 0;
+  margin-bottom: 40px;
+}
+
+.quick-hits-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-hit {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-light);
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  contain: layout paint;
+  isolation: isolate;
+}
+
+.quick-hit:nth-child(n+4) {
+  display: none;
+}
+
+.quick-hits-list.expanded .quick-hit:nth-child(n+4) {
+  display: flex;
+}
+
+.quick-hits-toggle {
+  display: block;
+  margin-top: 12px;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.quick-hits-toggle:hover {
+  text-decoration: underline;
+}
+
+.quick-hit-name {
+  font-family: var(--font-meta);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.quick-hit-name a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.quick-hit-name a:hover {
+  color: var(--accent);
+}
+
+.quick-hit-summary {
+  font-size: 14px;
+  color: var(--ink-light);
+  flex: 1;
+}
+
+.quick-hit-stars {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* === EDITION NAV === */
+
+.edition-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-light);
+  margin-bottom: 24px;
+}
+
+.edition-nav a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.edition-nav a:hover {
+  text-decoration: underline;
+}
+
+.footer .edition-nav {
+  border-bottom: none;
+  border-top: 1px solid var(--rule-light);
+  margin-bottom: 12px;
+  margin-top: 0;
+  padding-top: 12px;
+}
+
+/* === ARCHIVE === */
+
+.archive-back {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 24px;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 8px 12px;
+  line-height: 1;
+}
+
+.archive-back:hover {
+  color: var(--accent);
+}
+
+.archive-list {
+  margin-bottom: 40px;
+}
+
+.archive-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 14px;
+}
+
+.archive-date {
+  color: var(--ink-faint);
+  font-size: 12px;
+  min-width: 180px;
+  flex-shrink: 0;
+}
+
+.archive-headline {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.archive-headline:hover {
+  color: var(--accent);
+}
+
+.archive-tagline {
+  color: var(--ink-light);
+  font-style: italic;
+  font-size: 12px;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .archive-entry {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .archive-date {
+    min-width: 0;
+  }
+  .archive-headline {
+    flex-shrink: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  .archive-tagline {
+    margin-left: 0;
+    white-space: normal;
+    text-align: left;
+    font-size: 11px;
+  }
+}
+
+/* === FOOTER === */
+
+.footer {
+  text-align: center;
+  padding: 20px 0;
+  border-top: 4px double var(--rule);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* === TOOLBAR === */
+
+.toolbar {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 100;
+}
+
+.toolbar-trigger {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--rule-light);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink-faint);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  padding: 0;
+}
+
+.toolbar-trigger:hover,
+.toolbar-trigger.active {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.toolbar-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 248px;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  background: var(--paper);
+  border: 1px solid var(--rule-light);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.97);
+  transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toolbar-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.panel-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.panel-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-label {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--ink-faint);
+}
+
+.panel-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--rule-light);
+  flex-shrink: 0;
+}
+
+.panel-options {
+  display: flex;
+  gap: 4px;
+}
+
+.panel-options-wrap {
+  flex-wrap: wrap;
+}
+
+.panel-options-wrap .panel-pill {
+  flex: 0 0 calc(33.33% - 3px);
+}
+
+.panel-pill {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-light);
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.panel-pill:hover {
+  border-color: var(--ink-faint);
+  color: var(--ink);
+}
+
+.panel-pill.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* Sliders */
+
+.panel-slider,
+.panel-slider-mini {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--track, var(--rule-light));
+  outline: none;
+  cursor: pointer;
+  border: 1px solid var(--rule-light);
+}
+
+.panel-slider-mini {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.slider-sub {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.slider-sub .panel-slider-mini {
+  flex: 1;
+}
+
+.panel-slider::-webkit-slider-thumb,
+.panel-slider-mini::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink-faint);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.panel-slider-mini::-webkit-slider-thumb {
+  width: 10px;
+  height: 10px;
+}
+
+.panel-slider::-webkit-slider-thumb:hover,
+.panel-slider-mini::-webkit-slider-thumb:hover {
+  border-color: var(--ink);
+}
+
+.panel-slider::-moz-range-thumb,
+.panel-slider-mini::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink-faint);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.panel-slider-mini::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+}
+
+.panel-slider::-moz-range-track,
+.panel-slider-mini::-moz-range-track {
+  background: var(--track, var(--rule-light));
+  border: none;
+  border-radius: 5px;
+}
+
+/* Reset button */
+
+.panel-reset {
+  padding: 5px 0;
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.panel-reset:hover {
+  border-color: var(--ink-faint);
+  color: var(--ink-light);
+}
+
+/* === THEMES === */
+
+[data-theme="dark"] {
+  --paper: #1a1a1e;
+  --ink: #e0ddd8;
+  --ink-light: #a8a4a0;
+  --ink-faint: #706c68;
+  --rule: #e0ddd8;
+  --rule-light: #333338;
+  --accent: #e05555;
+}
+
+[data-theme="dark"] .article-insights {
+  background: linear-gradient(135deg, #252528, #2a2a2e);
+}
+
+[data-theme="dark"] .secondary-article,
+[data-theme="dark"] .featured-article,
+[data-theme="dark"] .compact-article {
+  background-color: var(--paper);
+}
+
+[data-theme="dark"] .toolbar-panel {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+}
+
+[data-theme="sepia"] {
+  --paper: #f4ecd8;
+  --ink: #3e3226;
+  --ink-light: #6b5d4f;
+  --ink-faint: #9a8b7a;
+  --rule: #3e3226;
+  --rule-light: #d4c9b5;
+  --accent: #8b4513;
+}
+
+[data-theme="sepia"] .article-insights {
+  background: linear-gradient(135deg, #ede4cc, #e8dfc7);
+}
+
+[data-theme="midnight"] {
+  --paper: #0d1117;
+  --ink: #c9d1d9;
+  --ink-light: #8b949e;
+  --ink-faint: #555d66;
+  --rule: #c9d1d9;
+  --rule-light: #21262d;
+  --accent: #58a6ff;
+}
+
+[data-theme="midnight"] .article-insights {
+  background: linear-gradient(135deg, #161b22, #1a2030);
+}
+
+[data-theme="midnight"] .secondary-article,
+[data-theme="midnight"] .featured-article,
+[data-theme="midnight"] .compact-article {
+  background-color: var(--paper);
+}
+
+[data-theme="midnight"] .toolbar-panel {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+/* === FONTS === */
+
+[data-font="sans"] {
+  --font-headline: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+[data-font="mono"] {
+  --font-headline: 'JetBrains Mono', 'Courier New', monospace;
+  --font-body: 'JetBrains Mono', 'Courier New', monospace;
+  --font-meta: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+[data-font="slab"] {
+  --font-headline: 'Roboto Slab', 'Rockwell', serif;
+  --font-body: 'Roboto Slab', 'Rockwell', serif;
+}
+
+[data-font="humanist"] {
+  --font-headline: 'Source Sans 3', 'Gill Sans', sans-serif;
+  --font-body: 'Source Sans 3', 'Gill Sans', sans-serif;
+  --font-meta: 'Source Sans 3', 'Gill Sans', sans-serif;
+}
+
+[data-font="editorial"] {
+  --font-headline: 'Lora', Georgia, serif;
+  --font-body: 'Lora', Georgia, serif;
+}
+
+/* === TEXT SIZE === */
+
+[data-size="small"] body { font-size: 13px; }
+[data-size="small"] .lead-headline { font-size: 40px; }
+[data-size="small"] .secondary-headline { font-size: 19px; }
+[data-size="small"] .featured-headline { font-size: 19px; }
+[data-size="small"] .compact-headline { font-size: 16px; }
+
+[data-size="large"] body { font-size: 18px; }
+[data-size="large"] .lead-headline { font-size: 56px; }
+[data-size="large"] .secondary-headline { font-size: 26px; }
+[data-size="large"] .featured-headline { font-size: 26px; }
+[data-size="large"] .compact-headline { font-size: 20px; }
+
+/* === WIDTH === */
+
+[data-width="wide"] body { max-width: 1440px; }
+[data-width="narrow"] body { max-width: 800px; }
+
+/* === SECTION NAV === */
+
+.section-nav {
+  display: flex;
+  justify-content: center;
+  border-bottom: 2px solid var(--rule);
+  overflow-x: auto;
+  margin-bottom: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.section-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.section-tab {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.section-tab:hover:not([disabled]) {
+  color: var(--ink);
+}
+
+.section-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.section-tab[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.section-panel {
+  display: none;
+}
+
+.section-panel.active {
+  display: block;
+}
+
+.section-empty {
+  text-align: center;
+  padding: 60px 20px;
+  font-family: var(--font-meta);
+  font-size: 16px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* === X SENTIMENT BADGES === */
+
+.x-sentiment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  column-span: all;
+}
+
+.x-sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.x-sentiment-count {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.x-sentiment-buzzing { background: #fbbf24; color: #78350f; }
+.x-sentiment-positive { background: #86efac; color: #14532d; }
+.x-sentiment-neutral { background: #d1d5db; color: #374151; }
+.x-sentiment-mixed { background: #fde68a; color: #713f12; }
+.x-sentiment-quiet { background: #e5e7eb; color: #6b7280; }
+
+[data-theme="dark"] .x-sentiment-buzzing { background: #92400e; color: #fef3c7; }
+[data-theme="dark"] .x-sentiment-positive { background: #065f46; color: #d1fae5; }
+[data-theme="dark"] .x-sentiment-neutral { background: #374151; color: #d1d5db; }
+[data-theme="dark"] .x-sentiment-mixed { background: #78350f; color: #fef3c7; }
+[data-theme="dark"] .x-sentiment-quiet { background: #1f2937; color: #9ca3af; }
+
+[data-theme="sepia"] .x-sentiment-buzzing { background: #d97706; color: #fffbeb; }
+[data-theme="sepia"] .x-sentiment-positive { background: #a7c4a0; color: #1a3a1a; }
+[data-theme="sepia"] .x-sentiment-neutral { background: #d4c9b5; color: #3e3226; }
+[data-theme="sepia"] .x-sentiment-mixed { background: #d4a844; color: #3e3226; }
+[data-theme="sepia"] .x-sentiment-quiet { background: #e8dfc7; color: #6b5d4f; }
+
+[data-theme="midnight"] .x-sentiment-buzzing { background: #92400e; color: #fef3c7; }
+[data-theme="midnight"] .x-sentiment-positive { background: #065f46; color: #d1fae5; }
+[data-theme="midnight"] .x-sentiment-neutral { background: #21262d; color: #8b949e; }
+[data-theme="midnight"] .x-sentiment-mixed { background: #78350f; color: #fef3c7; }
+[data-theme="midnight"] .x-sentiment-quiet { background: #161b22; color: #555d66; }
+
+.x-sentiment-blurb {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-light);
+}
+
+/* === CHAT === */
+
+.chat-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.chat-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.chat-fab.open {
+  transform: rotate(45deg);
+}
+
+.chat-panel {
+  position: fixed;
+  bottom: 88px;
+  right: 24px;
+  z-index: 200;
+  width: 360px;
+  max-height: 480px;
+  background: var(--paper);
+  border: 1px solid var(--rule-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-panel.open {
+  display: flex;
+}
+
+.chat-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+}
+
+.chat-msg-user,
+.chat-msg-ai {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 10px;
+  max-width: 85%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chat-msg-user {
+  background: var(--ink);
+  color: var(--paper);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-msg-ai {
+  background: color-mix(in srgb, var(--paper) 90%, var(--ink) 10%);
+  color: var(--ink);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-msg-ai.streaming::after {
+  content: "\25CF";
+  animation: chat-blink 1s steps(2) infinite;
+  margin-left: 2px;
+  color: var(--accent);
+}
+
+@keyframes chat-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.chat-paywall {
+  padding: 24px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-paywall p {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  color: var(--ink-light);
+}
+
+.chat-paywall-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.chat-paywall-btn:hover {
+  opacity: 0.9;
+}
+
+.chat-input-row {
+  display: flex;
+  border-top: 1px solid var(--rule-light);
+  padding: 8px;
+  gap: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid var(--rule-light);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: var(--accent);
+}
+
+.chat-send {
+  padding: 8px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.chat-send:hover {
+  opacity: 0.85;
+}
+
+.chat-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .article-insights {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-panel {
+    width: calc(100vw - 16px);
+    right: 8px;
+    bottom: 80px;
+    max-height: calc(100vh - 100px);
+  }
+  .chat-fab {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 680px) {
+  .masthead-title {
+    font-size: 40px;
+    letter-spacing: 2px;
+  }
+
+  .lead-headline {
+    font-size: 32px;
+  }
+
+  .masthead-date {
+    position: static;
+    display: block;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .section-tab {
+    font-size: 11px;
+    padding: 10px 14px;
+    letter-spacing: 1px;
+  }
+}
+
+/* === LANDING PAGE === */
+
+body.landing {
+  max-width: 860px;
+}
+
+.landing-hero {
+  text-align: center;
+  padding: 48px 20px 40px;
+  border-bottom: 2px solid var(--rule);
+}
+
+.landing-hero h2 {
+  font-family: var(--font-headline);
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.landing-hero p {
+  font-size: 17px;
+  color: var(--ink-light);
+  max-width: 560px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+.landing-ctas {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.landing-cta {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.landing-cta:hover {
+  opacity: 0.85;
+}
+
+.landing-cta-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.landing-cta-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule-light);
+}
+
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 36px 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.landing-feature {
+  text-align: center;
+  padding: 16px 12px;
+}
+
+.landing-feature-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.landing-feature h3 {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.landing-feature p {
+  font-size: 14px;
+  color: var(--ink-light);
+  line-height: 1.5;
+}
+
+.landing-editions {
+  padding: 36px 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.landing-editions h2 {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+
+.landing-edition-card {
+  display: block;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule-light);
+  text-decoration: none;
+  color: var(--ink);
+  transition: color 0.15s;
+}
+
+.landing-edition-card:last-child {
+  border-bottom: none;
+}
+
+.landing-edition-card:hover {
+  color: var(--accent);
+}
+
+.landing-edition-card .edition-card-date {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.landing-edition-card .edition-card-headline {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.landing-subscribe {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.landing-subscribe h2 {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.landing-subscribe p {
+  font-size: 15px;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+}
+
+.subscribe-form {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.subscribe-form input[type="email"] {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+}
+
+.subscribe-form input[type="email"]:focus {
+  border-color: var(--accent);
+}
+
+.subscribe-form button {
+  padding: 10px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.subscribe-form button:hover {
+  opacity: 0.85;
+}
+
+.subscribe-status {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+.subscribe-status.success {
+  color: #16a34a;
+}
+
+.subscribe-status.error {
+  color: var(--accent);
+}
+
+@media (max-width: 680px) {
+  .landing-hero h2 {
+    font-size: 28px;
+  }
+
+  .landing-features {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* === MASTHEAD ACCOUNT LINK === */
+
+.masthead-account {
+  position: absolute;
+  top: 12px;
+  left: 52px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.masthead-account:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 680px) {
+  .masthead-account {
+    position: static;
+    display: block;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+}
+
+/* === ACCOUNT PAGE === */
+
+body.account {
+  max-width: 640px;
+}
+
+.account-login {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.account-login h2 {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.account-login p {
+  font-size: 15px;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+}
+
+.account-dashboard {
+  padding: 32px 20px;
+}
+
+.account-dashboard h2 {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.account-info {
+  border: 1px solid var(--rule-light);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 14px;
+}
+
+.account-row:last-child {
+  border-bottom: none;
+}
+
+.account-label {
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+
+.account-value {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+}
+
+.account-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.15s;
+  border: none;
+}
+
+.account-btn:hover {
+  opacity: 0.85;
+}
+
+.account-btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.account-btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule-light);
+}
+
+.account-error {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.account-error h2 {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+.account-error p {
+  font-size: 15px;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button class="toolbar-trigger" id="toolbar-toggle" aria-label="Display settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.17 3.17l1.42 1.42M11.41 11.41l1.42 1.42M3.17 12.83l1.42-1.42M11.41 4.59l1.42-1.42"/></svg>
+    </button>
+    <div class="toolbar-panel" id="toolbar-panel">
+      <div class="panel-group">
+        <span class="panel-label">Preset</span>
+        <div class="panel-options" data-setting="theme">
+          <button class="panel-pill" data-value="light">Light</button>
+          <button class="panel-pill" data-value="dark">Dark</button>
+          <button class="panel-pill" data-value="sepia">Sepia</button>
+          <button class="panel-pill" data-value="midnight">Night</button>
+        </div>
+      </div>
+      <div class="panel-group">
+        <div class="panel-label-row">
+          <span class="panel-label">Background</span>
+          <span class="panel-swatch" id="bg-swatch"></span>
+        </div>
+        <input type="range" class="panel-slider slider-bg" id="slider-bg" min="0" max="360" step="1">
+        <div class="slider-sub">
+          <input type="range" class="panel-slider-mini" id="slider-bg-sat" min="0" max="100" step="1">
+          <input type="range" class="panel-slider-mini" id="slider-bg-lit" min="0" max="100" step="1">
+        </div>
+      </div>
+      <div class="panel-group">
+        <div class="panel-label-row">
+          <span class="panel-label">Text</span>
+          <span class="panel-swatch" id="text-swatch"></span>
+        </div>
+        <input type="range" class="panel-slider slider-text" id="slider-text" min="0" max="360" step="1">
+        <div class="slider-sub">
+          <input type="range" class="panel-slider-mini" id="slider-text-sat" min="0" max="100" step="1">
+          <input type="range" class="panel-slider-mini" id="slider-text-lit" min="0" max="100" step="1">
+        </div>
+      </div>
+      <div class="panel-group">
+        <span class="panel-label">Font</span>
+        <div class="panel-options panel-options-wrap" data-setting="font">
+          <button class="panel-pill" data-value="serif">Serif</button>
+          <button class="panel-pill" data-value="sans">Sans</button>
+          <button class="panel-pill" data-value="mono">Mono</button>
+          <button class="panel-pill" data-value="slab">Slab</button>
+          <button class="panel-pill" data-value="humanist">Human</button>
+          <button class="panel-pill" data-value="editorial">Edit</button>
+        </div>
+      </div>
+      <div class="panel-group">
+        <span class="panel-label">Size</span>
+        <div class="panel-options" data-setting="size">
+          <button class="panel-pill" data-value="small">S</button>
+          <button class="panel-pill" data-value="medium">M</button>
+          <button class="panel-pill" data-value="large">L</button>
+        </div>
+      </div>
+      <div class="panel-group">
+        <span class="panel-label">Width</span>
+        <div class="panel-options" data-setting="width">
+          <button class="panel-pill" data-value="normal">Normal</button>
+          <button class="panel-pill" data-value="wide">Wide</button>
+          <button class="panel-pill" data-value="narrow">Narrow</button>
+        </div>
+      </div>
+      <button class="panel-reset" id="panel-reset">Reset</button>
+    </div>
+  </div>
+
+  <header class="masthead">
+    <a href="/account/" class="masthead-account" id="masthead-account">Account</a>
+    <span class="masthead-date">Saturday, March 14, 2026</span>
+    <h1 class="masthead-title">The Git Times</h1>
+    <p class="masthead-tagline">“We can only see a short distance ahead, but we can see plenty there that needs to be done.” — Alan Turing</p>
+  </header>
+
+  <nav class="section-nav"><button class="section-tab active" data-section="frontPage">Front Page</button><button class="section-tab" data-section="ai">AI</button><button class="section-tab" data-section="robotics">Robotics</button><button class="section-tab" data-section="cyber">Cyber</button><button class="section-tab" data-section="systems">Systems</button><button class="section-tab" data-section="diy">DIY</button><button class="section-tab" data-section="memes" disabled>Memes</button></nav>
+
+  <nav class="edition-nav"><a href="/editions/2026-03-13/">&larr; Previous Edition</a> · <a href="/archive/">Archive</a> · <a href="/editions/2026-03-15/">Next Edition &rarr;</a></nav>
+
+  <div class="section-panel active" data-section="frontPage"><article class="lead-story">
+    <h2 class="lead-headline">gstack Turns Claude into a Slash-Command Dev Team for Solo Builders</h2>
+    <p class="lead-subheadline">Garry Tan&#39;s toolkit deploys specialized AI roles—from CEO planner to QA engineer—to fix generic agents&#39; blind spots in real projects.</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/garrytan/gstack" target="_blank">garrytan/gstack</a></span>
+      <span>TypeScript</span>
+      
+      <span>7.4k stars</span>
+    </div>
+    <div class="lead-body">
+      <p>In the relentless sprint of solo development, AI coding assistants like Claude have promised to accelerate building, but they often fall short as generic sidekicks. They interpret requests literally, miss the big-picture product vision, and stumble on production realities like architecture flaws or UI breakage. Enter <strong>gstack</strong>, a TypeScript powerhouse from Garry Tan that reimagines Claude Code as an on-demand orchestra of specialists. Launched just days ago, it&#39;s already drawing developer eyes for its audacious fix: eight opinionated slash commands that summon roles like CEO, engineering manager, release engineer, and QA lead, turning one agent into a virtual team.</p>
+<p>At its core, gstack addresses the <strong>hallucination of completeness</strong> in AI tools. Without it, you tell Claude &quot;build a dashboard,&quot; and it spits out code—ignoring if it&#39;s the right dashboard for users, skipping edge cases, or forcing manual QA via endless browser tabs. gstack intervenes with structured workflows:</p>
+<ul>
+<li><strong><code>/plan-ceo-review</code></strong>: Acts as founder/CEO, probing &quot;Is this the 10x product?&quot; It rethinks requests, unearthing hidden opportunities beyond the literal ask.</li>
+<li><strong><code>/plan-eng-review</code></strong>: Tech lead mode locks in architecture, data flows, diagrams, edge cases, and test plans before a line is written.</li>
+<li><strong><code>/review</code></strong>: A paranoid staff engineer hunts bugs that evade CI, triages comments from tools like Greptile, ensuring production readiness.</li>
+<li><strong><code>/ship</code></strong>: Release engineer handles the mechanics—syncs main, runs tests, resolves reviews, pushes, and opens PRs—for branches already vetted.</li>
+<li><strong><code>/browse</code></strong> and <strong><code>/qa</code></strong>: QA superpowers give Claude &quot;eyes.&quot; <code>/browse</code> automates browser sessions with screenshots and navigation; <code>/qa</code> analyzes diffs, targets affected pages for smoke tests, regressions, or full explorations—all in under a minute.</li>
+<li><strong><code>/setup-browser-cookies</code></strong>: Imports real-browser cookies (Chrome, Arc, etc.) for authenticated testing without re-logins.</li>
+<li><strong><code>/retro</code></strong>: Engineering manager runs team-style retrospectives, blending deep dives with per-contributor praise.</li>
+</ul>
+<p>Technically, gstack&#39;s elegance lies in its lightweight TypeScript implementation, leveraging Claude&#39;s native slash-command API for seamless integration. No heavy IDE plugins or servers—just paste into your Claude session. It hooks into external tools like Greptile for contextual reviews and headless browsers for visual QA, bridging AI&#39;s code-blindness with real-world observation. This isn&#39;t vague prompting; it&#39;s <strong>deterministic expertise</strong>, opinionated to prevent drift.</p>
+<p>For indie hackers and startup solos—those bootstrapping MVPs without a full eng org—gstack changes the game. It enforces disciplined processes that scale solo output, catching oversights that doom 80% of side projects. Early adopters rave about slashing review cycles from hours to seconds and shipping confidence-boosting QAs automatically. As traction builds in dev circles, gstack spotlights a shift: AI isn&#39;t replacing teams; it&#39;s simulating them smarter. In a world of bloated agents, this focused stack proves less is more—delivering CEO foresight and QA rigor where generalists falter. Builders weary of half-baked AI wins should stack it up; the future of one-person dev teams just got a lot sharper.</p>
+
+      <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Indie hacker rethinks MVP features with CEO review before coding.</li><li>Solo dev automates full QA on feature branches via diff analysis.</li><li>Startup founder ships PRs with one-command tests and reviews.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>aider - Versatile AI pair programmer excels at iterative coding but lacks role-specific planning and QA automation.</li><li>OpenInterpreter - Enables code execution in local environments, yet misses structured team workflows like shipping or retrospectives.</li><li>Continue.dev - IDE-integrated autocomplete shines for editing, but doesn&#39;t provide browser eyes or CEO-level product rethinking.</li></ul></div></div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">OpenPencil Delivers Open-Source Figma Files with AI and CLI Programmability</h3>
+        <p class="featured-subheadline">This nascent editor reads native .fig formats, integrates multiple AI providers, and exposes designs via XPath queries for developers.</p>
+        <div class="featured-meta">
+          <a href="https://github.com/open-pencil/open-pencil" target="_blank">open-pencil/open-pencil</a> · TypeScript · 2.3k stars
+        </div>
+        <div class="featured-body">
+          <p>Builders tired of Figma&#39;s proprietary lock-in now have OpenPencil, an AI-native design editor that opens, edits, and exports native .fig files. Launched just 15 days ago with over 2,300 stars, it prioritizes programmability over polish—still in active development, not production-ready.</p>
+<p>At its core, OpenPencil handles Figma&#39;s file format directly: read nodes, write changes, even copy-paste between Figma and itself. No conversion layers mean lossless import/export. Its <strong>CLI</strong> unlocks this for scripts: <code>open-pencil tree design.fig</code> browses node hierarchies; <code>open-pencil find design.fig --type TEXT</code> searches; <code>open-pencil query design.fig &quot;//FRAME[@width &lt; 300]&quot;</code> uses XPath for precise selection by type, attributes, or structure.</p>
+<p>AI integration sets it apart. Chat with designs using 90+ tools across providers like Anthropic, OpenAI, Google AI, or custom endpoints. New tools include <code>get_jsx</code> for roundtrip JSX views, <code>diff_jsx</code> for structural changes, <code>describe</code> for semantic analysis, and <code>export_image</code> for vision verification. Switch providers seamlessly; store keys per-service.</p>
+<p>Layouts mirror web realities: Yoga WASM powers flexbox and the fresh <strong>CSS Grid</strong> mode. Select a frame, toggle grid, set tracks (<code>fr</code>, px, auto), gaps, padding. Export selections as Tailwind v4 HTML—grids yield <code>grid-cols-N</code>, <code>gap-x-*</code>, <code>col-span-*</code> classes.</p>
+<p>Collaboration runs P2P over WebRTC: cursors, presence, follow mode, no servers or accounts. The ~7MB Tauri v2 app spans macOS, Windows, Linux; browser PWA needs no install. Headless CLI (<code>bun add -g @open-pencil/cli</code>), Figma Plugin API via <code>eval</code>, and MCP server enable agentic workflows.</p>
+<p>Recent v0.9.0 adds XPath in AI tools (<code>query_nodes</code>), multi-provider support, Figma zoom shortcuts (⌘0 for 100%), and grid export fidelity. Fixes ensure stable serialization.</p>
+<p>For builders, OpenPencil solves Figma data silos with open tooling. Inspect files without the editor; automate exports to PNG/SVG/WEBP; generate designs programmatically. It&#39;s a programmable canvas where AI meets CLI, bridging design and code without vendor gates.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Devs inspecting Figma .fig hierarchies via CLI tree commands.</li><li>Designers generating layouts with multi-provider AI chat tools.</li><li>Frontend teams exporting grids to Tailwind CSS HTML.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>penpot/penpot - Full-featured SVG editor with collab, but no native .fig support or AI tooling.</li><li>tldraw/tldraw - Infinite canvas with AI shapes, browser-first, lacks Figma file compatibility.</li><li>lunacy - Unofficial Figma viewer/editor, closed-source, no programmability or AI.</li></ul></div></div>
+        
+      </article>
+
+      <article class="featured-article">
+        <h3 class="featured-headline">Dynamo Scales Distributed Inference for Datacenter AI Models</h3>
+        <p class="featured-subheadline">Rust framework orchestrates disaggregated serving across GPUs with engine-agnostic design</p>
+        <div class="featured-meta">
+          <a href="https://github.com/ai-dynamo/dynamo" target="_blank">ai-dynamo/dynamo</a> · Rust · 6.3k stars
+        </div>
+        <div class="featured-body">
+          <p>NVIDIA&#39;s Dynamo, an open-source framework written in Rust with Python extensibility, tackles the challenges of serving large language models that exceed single-GPU memory. It enables <strong>disaggregated prefill and decode</strong> phases across multi-node clusters, spreading model layers via tensor parallelism while coordinating via dynamic GPU scheduling and LLM-aware request routing.</p>
+<p>Dynamo is inference-engine agnostic, integrating <code>SGLang</code> for high-throughput, <code>TensorRT-LLM</code> for peak performance, and <code>vLLM</code> for broad features. Key capabilities include KV cache offloading across memory hierarchies, accelerated data transfer with NIXL, and elimination of redundant KV recomputation.</p>
+<p>The v1.0.0 release introduces production-grade multimodal support for text, image, and video generation, plus agentic workloads with priority scheduling and KV retention. Encoder disaggregation uses content-addressed hashing for cache reuse, and Kubernetes-native deployment simplifies scaling.</p>
+<p>Recent deployments show impact: Moonshot AI&#39;s Kimi K2 gained 10x speedup on GB200 GPUs; Mistral AI accelerated Large 3 inference. Dynamo fills the orchestration gap for datacenter-scale serving, optimizing throughput-latency trade-offs under fluctuating loads.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Datacenters serving multimodal LLMs on multi-GPU clusters</li><li>Enterprises deploying agentic AI with KV cache retention</li><li>Providers optimizing inference via Kubernetes at scale</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>vLLM - single-node focus, Dynamo adds multi-node disaggregation</li><li>SGLang - high-throughput runtime, Dynamo enables dynamic scheduling</li><li>TensorRT-LLM - performance engine, Dynamo provides agnostic orchestration</li></ul></div></div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">Home Assistant Enables Local Home Automation Control</h3>
+        <p class="compact-subheadline">Python-based platform prioritizes privacy and runs on Raspberry Pi or servers</p>
+        <div class="compact-meta">
+          <a href="https://github.com/home-assistant/core" target="_blank">home-assistant/core</a> · Python · 85.3k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">pyvideotrans Automates Video Translation with AI Dubbing</h3>
+        <p class="compact-subheadline">Python tool handles speech recognition, subtitles, synthesis and synchronization in one workflow</p>
+        <div class="compact-meta">
+          <a href="https://github.com/jianchang512/pyvideotrans" target="_blank">jianchang512/pyvideotrans</a> · Python · 16.4k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">ARIS Automates ML Research with Claude-Codex Review Loops</h3>
+        <p class="compact-subheadline">Cross-model agent runs experiments, scores papers, and refines ideas overnight without self-review pitfalls</p>
+        <div class="compact-meta">
+          <a href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep" target="_blank">wanshuiyin/Auto-claude-code-research-in-sleep</a> · TeX · 610 stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Filament Delivers Laravel UI Components for Fast Admin Panels</h3>
+        <p class="compact-subheadline">Open-source framework uses Livewire to build tables, forms and dashboards on PHP foundation</p>
+        <div class="compact-meta">
+          <a href="https://github.com/filamentphp/filament" target="_blank">filamentphp/filament</a> · PHP · 29.8k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">GitHub Repo Uncovers Meta&#39;s Lobbying for App Store Burden Shift</h3>
+        <p class="compact-subheadline">Open-source probe traces $26M spend, dark money to favor platforms over stores</p>
+        <div class="compact-meta">
+          <a href="https://github.com/upper-up/meta-lobbying-and-other-findings" target="_blank">upper-up/meta-lobbying-and-other-findings</a> · HTML · 521 stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Open-Source AI Agents Explode with Skills Ecosystems and Autonomous Loops</h3>
+        <p class="compact-subheadline">Modular skills, credential vaults, and self-research frameworks signal a shift to fully agent-native software development.</p>
+        <div class="compact-meta">
+          <a href="#" target="_blank">trend/ai-agents</a> · Trend · 0 stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Agent-Native CLIs Surge: Open Source Turns APIs into AI Terminal Powers</h3>
+        <p class="compact-subheadline">Runtime-generated tools and reverse-engineered interfaces make every service accessible to autonomous agents via zero-codegen command lines.</p>
+        <div class="compact-meta">
+          <a href="#" target="_blank">trend/dev-tools</a> · Trend · 0 stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Open Source Web Frameworks Morph into AI-Driven Web Automation Layers</h3>
+        <p class="compact-subheadline">Reverse-engineered CLIs, API proxies, and agent interfaces turn proprietary web services into programmable backends for autonomous systems.</p>
+        <div class="compact-meta">
+          <a href="#" target="_blank">trend/web-frameworks</a> · Trend · 0 stars
+        </div>
+      </article></div></section><section class="deep-cuts-section">
+  <h2 class="section-header">Deep Cuts</h2>
+  <div class="deep-cuts-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">Unwrap WeChat&#39;s OpenClaw for Raw Bot Channels</h3>
+        <p class="featured-subheadline">TypeScript tool extracts hidden Channel APIs, empowering custom WeChat bots with plugin power</p>
+        <div class="featured-meta">
+          <a href="https://github.com/HenryXiaoYang/wechat-access-unqclawed" target="_blank">HenryXiaoYang/wechat-access-unqclawed</a> · TypeScript · 458 stars
+        </div>
+        <div class="featured-body">
+          <p><strong>Deep Cuts</strong> unearths <code>HenryXiaoYang/wechat-access-unqclawed</code>, a sly TypeScript hack for WeChat tinkerers. WeChat slyly wraps the open-source <strong>OpenClaw</strong> library, but this project <strong>rips out its core Channel</strong>—delivering unfiltered access to build bots that punch above their weight.</p>
+<p>Imagine sidestepping WeChat&#39;s constraints: integrate <code>openclaw-plugin</code> ecosystems directly, chain <strong>qclaw</strong> automations, or craft hybrid channels for games, notifications, and beyond. No more wrestling opaque wrappers—developers get pure, extensible APIs in a lightweight package.</p>
+<p><strong>Why builders should watch it:</strong> In a sea of rigid bot frameworks, this unlocks <strong>modular potential</strong>. Prototype AI-driven replies via OpenClaw hooks, automate claw-machine sims in chats, or forge enterprise-grade relays. Its lean design scales from hobby scripts to production pipelines, hinting at a plugin renaissance for WeChat devs.</p>
+<p>Early adopters are already forking for niche wins, like seamless cross-app bridging. If you&#39;re chasing <strong>unexplored WeChat edges</strong>, clone this now—before it claws its way mainstream.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>WeChat bot devs extracting OpenClaw Channel for plugins</li><li>Automation scripters integrating qclaw in chat channels</li><li>Game bot builders accessing raw WeChat OpenClaw APIs</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>wechaty - Full WeChat SDK; lacks OpenClaw Channel extraction</li><li>OpenClaw - Core library; needs this for WeChat unwrapping</li><li>QClaw - Plugin-focused variant; pairs with this for bots</li></ul></div></div>
+        
+      </article>
+
+      <article class="featured-article">
+        <h3 class="featured-headline">Shadowbroker Tracks Jets, Spy Sats, Earthquakes in One View</h3>
+        <p class="featured-subheadline">TypeScript OSINT hub aggregates public feeds for global real-time intelligence dashboard</p>
+        <div class="featured-meta">
+          <a href="https://github.com/BigBodyCobain/Shadowbroker" target="_blank">BigBodyCobain/Shadowbroker</a> · TypeScript · 473 stars
+        </div>
+        <div class="featured-body">
+          <p>Deep in the GitHub shadows, <strong>Shadowbroker</strong> emerges as a TypeScript powerhouse for open-source intelligence (OSINT). This under-the-radar gem unifies disparate public data streams into a single, interactive interface, letting builders track <strong>private jets</strong> of the elite, <strong>spy satellite</strong> orbits, and <strong>seismic events</strong> worldwide.</p>
+<p>Powered by sources like ADS-B for aviation, NORAD TLEs for satellites, and USGS feeds for quakes, it visualizes movements in real-time maps and timelines. Imagine plotting a billionaire&#39;s Gulfstream fleeing scrutiny or predicting satellite passes over conflict zones—all without proprietary silos.</p>
+<p>For developers, the potential is electric. <strong>Extensible APIs</strong> invite custom integrations: layer in weather data for flight predictions or geopolitical overlays for threat analysis. Its modular <code>React</code>-based frontend and <code>Node.js</code> backend make forking effortless, ideal for security tools, journalism dashboards, or research prototypes.</p>
+<p>In an era of fragmented intel, Shadowbroker democratizes the &quot;global theater.&quot; Builders, claim your edge—aggregate, analyze, and act on what&#39;s already public, but newly unified.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Security researchers monitoring elite private jet travel patterns.</li><li>Intel analysts tracking spy satellite overpasses in real-time.</li><li>Disaster teams aggregating seismic events for response planning.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>OpenSky Network - aviation tracking without satellites or quakes.</li><li>Celestrak - satellite TLE data lacking jets or seismic integration.</li><li>USGS Earthquake API - seismic feeds missing aviation or orbital views.</li></ul></div></div>
+        
+      </article></div>
+</section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/livekit/agents" target="_blank">agents</a></span>
+        <span class="quick-hit-summary">Build realtime voice AI agents with audio, video, and conversational smarts using this Python framework.</span>
+        <span class="quick-hit-stars">9.7k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/nocodb/nocodb" target="_blank">nocodb</a></span>
+        <span class="quick-hit-summary">Turn spreadsheets into self-hosted databases as a free, open Airtable alternative in TypeScript.</span>
+        <span class="quick-hit-stars">62.4k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/nexmoe/VidBee" target="_blank">VidBee</a></span>
+        <span class="quick-hit-summary">Download videos from virtually any website worldwide with this versatile TypeScript tool.</span>
+        <span class="quick-hit-stars">7.1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/openclaw/skills" target="_blank">skills</a></span>
+        <span class="quick-hit-summary">Access archived versions of all ClawHub skills in Python for robust AI agent builds.</span>
+        <span class="quick-hit-stars">2.8k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/EveryInc/proof-sdk" target="_blank">proof-sdk</a></span>
+        <span class="quick-hit-summary">Create collaborative editors with provenance tracking and agent HTTP bridges via this TypeScript SDK.</span>
+        <span class="quick-hit-stars">436</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/NawfalMotii79/PLFM_RADAR" target="_blank">PLFM_RADAR</a></span>
+        <span class="quick-hit-summary">Construct a low-cost, open-source 10.5 GHz phased array RADAR system in C for custom sensing.</span>
+        <span class="quick-hit-stars">1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/tinygrad/tinygrad" target="_blank">tinygrad</a></span>
+        <span class="quick-hit-summary">Run efficient ML models with this lightweight, PyTorch-inspired tensor library in Python.</span>
+        <span class="quick-hit-stars">31.6k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/microsoft/winget-pkgs" target="_blank">winget-pkgs</a></span>
+        <span class="quick-hit-summary">Contribute manifests to streamline Windows app installations via the community Package Manager repo.</span>
+        <span class="quick-hit-stars">10.3k</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="ai"><article class="lead-story">
+    <h2 class="lead-headline">ComfyUI Delivers Node-Based Power for Complex Diffusion Model Pipelines</h2>
+    <p class="lead-subheadline">Python GUI and API enable visual design of advanced Stable Diffusion workflows on Windows, Linux, and macOS</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/Comfy-Org/ComfyUI" target="_blank">Comfy-Org/ComfyUI</a></span>
+      <span>Python</span>
+      <span>Latest: v0.17.1</span>
+      <span>105.8k stars</span>
+    </div>
+    <div class="lead-body">
+      <p>Developers wrestling with Stable Diffusion&#39;s intricacies now have a robust alternative in <strong>ComfyUI</strong>, a modular GUI, API, and backend that replaces linear scripting with a graph/nodes interface. Launched in January 2023 by comfyanonymous—now under Comfy-Org—this tool lets builders construct and execute sophisticated pipelines visually, akin to a flowchart editor for AI image generation.</p>
+<p>At its core, ComfyUI models workflows as interconnected nodes representing models, samplers, loaders, and processors. Drag a <code>Load Checkpoint</code> node, link it to a <code>KSampler</code>, add a <code>VAE Decode</code>, and preview outputs in real-time. This graph structure shines for chaining custom elements—like upscalers, control nets, or LoRAs—without boilerplate code. Python under the hood leverages PyTorch, ensuring compatibility with Stable Diffusion 1.5, SDXL, and Flux models. The backend exposes a full API for server-side deployment, ideal for production apps.</p>
+<p>Unlike rigid web UIs, ComfyUI&#39;s modularity allows infinite extensibility. Custom nodes integrate via Python extensions, fostering a plugin ecosystem. Installation is straightforward: clone the repo, run <code>pip install -r requirements.txt</code>, and launch with <code>python main.py</code>. A desktop app streamlines local setup, while cloud options like RunPod support scale-out.</p>
+<p>The v0.17.1 release, pushed March 2026, refines stability with backend optimizations—full changelog details minor API tweaks and node compatibility fixes from v0.17.0. Over 100,000 GitHub stars underscore its traction among AI builders, but the real draw is efficiency: iterate pipelines 10x faster than script-debug cycles.</p>
+<p>For builders, ComfyUI solves the &quot;pipeline sprawl&quot; problem. Traditional tools force sequential steps; here, parallelism and reusability rule. AI researchers, app devs integrating generation APIs, and indie creators benefit most. Export workflows as JSON for sharing or versioning in Git. Matrix and Discord channels offer community node packs, accelerating prototyping.</p>
+<p>In a field bloated with one-click generators, ComfyUI stands out for its engineering rigor—powerful enough for enterprise backends, accessible for solo tinkerers.</p>
+
+      <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>AI developers chaining Stable Diffusion models visually.</li><li>Researchers prototyping diffusion pipelines with custom nodes.</li><li>App builders deploying graph-based generation APIs.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>Automatic1111/stable-diffusion-webui - Tabbed web UI excels in simplicity but lacks ComfyUI&#39;s node modularity for complex graphs.</li><li>InvokeAI - Unified canvas interface suits inpainting well, yet trails ComfyUI in extensible backend API depth.</li><li>Hugging Face/diffusers - Code-first library for pipelines, missing ComfyUI&#39;s drag-and-drop GUI for rapid iteration.</li></ul></div></div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">Transformers Framework Unifies AI Models for Inference and Training</h3>
+        <p class="featured-subheadline">Hugging Face library centralizes definitions for text, vision, audio and multimodal models across ecosystems</p>
+        <div class="featured-meta">
+          <a href="https://github.com/huggingface/transformers" target="_blank">huggingface/transformers</a> · Python · 157.8k stars
+        </div>
+        <div class="featured-body">
+          <p>The <code>huggingface/transformers</code> library serves as the core model-definition framework for state-of-the-art machine learning models spanning text, computer vision, audio, video and multimodal tasks. It enables both inference and training by standardizing model architectures, ensuring compatibility with diverse tools like Axolotl, Unsloth, DeepSpeed, PyTorch Lightning for training; vLLM, SGLang, TGI for inference; and libraries such as llama.cpp and mlx.</p>
+<p>This pivot role matters because it streamlines adoption of over 1 million pretrained checkpoints from the Hugging Face Hub. Developers install via <code>pip install &quot;transformers[torch]&quot;</code> or faster <code>uv pip</code>, requiring Python 3.10+ and PyTorch 2.4+. Source installs support contributions, though latest versions may be unstable.</p>
+<p>Version 5.3.0 adds <strong>EuroBERT</strong>, a multilingual encoder with bidirectional attention akin to Llama, handling up to 8192 tokens across European languages. It also introduces <strong>VibeVoice ASR</strong> from Microsoft, combining acoustic and semantic tokenizers with a Qwen2 decoder for speech-to-text on 24kHz audio up to 60 minutes, supporting 50+ languages, diarization, timestamping and hotwords.</p>
+<p>At 7.4 years old, the Python-based project sees a recent surge in activity, fostering efficient, customizable model usage across frameworks.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>NLP engineers fine-tuning LLMs for text generation tasks.</li><li>CV researchers training vision transformers on image datasets.</li><li>Audio developers deploying ASR models for multilingual transcription.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>`pytorch/vision` - Vision models only, lacks multimodal support.</li><li>`facebookresearch/fairseq` - Sequence modeling focus, narrower than full Transformers.</li><li>`huggingface/diffusers` - Diffusion models exclusively, not general framework.</li></ul></div></div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">AI Engineering Hub Delivers LLM and Agent Tutorials</h3>
+        <p class="compact-subheadline">Jupyter-based repository categorizes 93 production-ready projects by skill level for hands-on AI development.</p>
+        <div class="compact-meta">
+          <a href="https://github.com/patchy631/ai-engineering-hub" target="_blank">patchy631/ai-engineering-hub</a> · Jupyter Notebook · 32k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">OpenAI Cookbook Delivers API Examples in Jupyter Notebooks</h3>
+        <p class="compact-subheadline">Practical guides enable developers to implement common OpenAI tasks with minimal setup</p>
+        <div class="compact-meta">
+          <a href="https://github.com/openai/openai-cookbook" target="_blank">openai/openai-cookbook</a> · Jupyter Notebook · 72.1k stars
+        </div>
+      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/ultralytics/ultralytics" target="_blank">ultralytics</a></span>
+        <span class="quick-hit-summary">Ultralytics YOLO powers real-time object detection, segmentation, and tracking for building fast, accurate computer vision apps.</span>
+        <span class="quick-hit-stars">54.4k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/roboflow/supervision" target="_blank">supervision</a></span>
+        <span class="quick-hit-summary">Supervision delivers reusable tools for annotating, tracking objects, and evaluating models in your CV pipelines.</span>
+        <span class="quick-hit-stars">36.7k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/deepfakes/faceswap" target="_blank">faceswap</a></span>
+        <span class="quick-hit-summary">Faceswap creates high-fidelity deepfake face swaps in videos and images using accessible deep learning techniques.</span>
+        <span class="quick-hit-stars">55k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/OpenBB-finance/OpenBB" target="_blank">OpenBB</a></span>
+        <span class="quick-hit-summary">OpenBB equips analysts and AI agents with a unified platform to fetch, analyze, and visualize financial data.</span>
+        <span class="quick-hit-stars">63k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/apache/airflow" target="_blank">airflow</a></span>
+        <span class="quick-hit-summary">Apache Airflow enables programmatic authoring, scheduling, and monitoring of complex data workflows.</span>
+        <span class="quick-hit-stars">44.6k</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="robotics"><article class="lead-story">
+    <h2 class="lead-headline">MuJoCo Delivers Fast Contact Physics for Robotics and AI Simulation</h2>
+    <p class="lead-subheadline">Google DeepMind&#39;s engine simulates multi-joint dynamics accurately, enabling precise modeling in research and development workflows.</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/google-deepmind/mujoco" target="_blank">google-deepmind/mujoco</a></span>
+      <span>C++</span>
+      <span>Latest: 3.6.0</span>
+      <span>12.4k stars</span>
+    </div>
+    <div class="lead-body">
+      <p><strong>MuJoCo</strong>, short for Multi-Joint dynamics with Contact, is a C++ physics engine designed for simulating complex interactions in articulated structures. Maintained by Google DeepMind since 2021, it targets developers in robotics, biomechanics, graphics, animation, and machine learning who need high-fidelity, performant simulations.</p>
+<p>The core challenge MuJoCo solves is modeling <strong>contact-rich scenarios</strong>—think robots grasping objects or humanoids balancing—where traditional engines falter on speed or accuracy. It uses a runtime module tuned for maximum performance, operating on low-level, preallocated data structures compiled from XML model files. This avoids dynamic allocations during simulation, ensuring real-time capabilities even for intricate scenes.</p>
+<p>Key differentiators include its C API for fine-grained control, plus interactive OpenGL visualization via a native GUI viewer called <code>simulate</code>. Utility functions compute physics quantities like Jacobians and actuators on demand. Python bindings make it accessible for ML workflows, with multithreaded <code>rollout</code> for batch simulations. A Unity plug-in extends it to game engine pipelines.</p>
+<p>Getting started is straightforward: run the <code>simulate</code> binary for interactive demos or dive into Google Colab notebooks covering basics, procedural model editing, LQR controllers (e.g., balancing a humanoid on one leg), nonlinear least-squares solvers, and the MJX JAX-accelerated backend for differentiable physics.</p>
+<p>Version 3.6.0, released recently, builds on steady development with enhancements detailed in the <a href="https://mujoco.readthedocs.io/en/3.6.0/changelog.html">changelog</a>. Full docs at <a href="https://mujoco.readthedocs.io">mujoco.readthedocs.io</a> include upcoming features.</p>
+<p>For builders, MuJoCo matters because it bridges research prototypes to production. Its contact solver handles friction, constraints, and soft bodies with sub-millisecond steps, outperforming generalists in robotics benchmarks. Over 12,000 GitHub stars reflect its traction among devs prototyping RL agents or biomechanical models.</p>
+<ul>
+<li><strong>Procedural modeling</strong>: Edit MJCF XML or Python-generate scenes dynamically.</li>
+<li><strong>Differentiable sim</strong>: MJX enables gradient-based optimization in JAX.</li>
+<li><strong>Scalable rollouts</strong>: Multithreaded for parallel environment generation in training loops.</li>
+</ul>
+<p>This positions MuJoCo as essential tooling for anyone simulating physics beyond rigid bodies.</p>
+
+      <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Robotics developers simulating contact-rich manipulation tasks.</li><li>ML engineers training RL policies on humanoid balance.</li><li>Biomechanics researchers modeling joint friction dynamics.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>bulletphysics/bullet3 - Strong collision detection but MuJoCo superior for smooth multi-contact in articulated robotics.</li><li>google/dart - Multibody-focused with similar dynamics, MuJoCo adds optimized contacts and native GUI.</li><li>osrf/gazebo - Full robot sim with sensors, MuJoCo lighter for pure physics prototyping and ML.</li></ul></div></div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">Stable Baselines3 Provides Reliable PyTorch RL Algorithms</h3>
+        <p class="featured-subheadline">Next-generation toolbox standardizes reinforcement learning implementations for research and industry baselines</p>
+        <div class="featured-meta">
+          <a href="https://github.com/DLR-RM/stable-baselines3" target="_blank">DLR-RM/stable-baselines3</a> · Python · 12.9k stars
+        </div>
+        <div class="featured-body">
+          <p>Stable Baselines3 (SB3), hosted at DLR-RM/stable-baselines3, delivers vetted PyTorch implementations of reinforcement learning (RL) algorithms. As the successor to Stable Baselines, it prioritizes reproducibility, with algorithms tested against benchmarks detailed in its JMLR paper and OpenRL platform logs.</p>
+<p>Key features include support for state-of-the-art methods like PPO and A2C, custom environments and policies, <code>Dict</code> observation spaces, TensorBoard logging, and type hints for robust code. A common interface simplifies switching algorithms, while high code coverage and PEP8 compliance aid maintenance. Users must have prior RL knowledge; documentation offers starter resources.</p>
+<p>The v2.7.1 release, dated recently, marks the end of Python 3.9 support—upgrading to Python 3.10+ is advised. Updates fix bugs like memory leaks in <code>VecVideoRecorder</code>, improve <code>RolloutBuffer</code> dtype handling for memory savings, and enhance environment checkers for composite spaces.</p>
+<p>SB3 enables precise replication of results, essential for refining ideas or benchmarking new approaches. It serves as a foundation for extensions, with related repositories like SB3-Contrib for extra algorithms and RL Zoo3 for training pipelines.</p>
+<ul>
+<li><strong>Performance verified</strong> via issues #48/#49 and external benchmarks.</li>
+<li>Ipython/Jupyter-friendly for iterative experimentation.</li>
+</ul>
+<pre><code>pip install stable_baselines3 --upgrade
+</code></pre>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Researchers replicate RL experiments with tested PyTorch algorithms.</li><li>Robotics engineers train agents using custom environments and policies.</li><li>Developers benchmark new methods against standardized SOTA baselines.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>stable-baselines3-contrib - Adds experimental algorithms beyond core SB3.</li><li>rl-baselines3-zoo - Offers hyperparameter optimization and training pipelines.</li><li>sbx - Delivers JAX-accelerated SB3 for faster computations.</li></ul></div></div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">Kornia Provides Differentiable Geometric Vision for PyTorch</h3>
+        <p class="compact-subheadline">Python library enables image processing, augmentations and AI models in deep learning pipelines</p>
+        <div class="compact-meta">
+          <a href="https://github.com/kornia/kornia" target="_blank">kornia/kornia</a> · Python · 11.1k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Webots Delivers Open-Source Robot Simulation Platform</h3>
+        <p class="compact-subheadline">Comprehensive environment models, programs and simulates robots with physics and ROS support</p>
+        <div class="compact-meta">
+          <a href="https://github.com/cyberbotics/webots" target="_blank">cyberbotics/webots</a> · C++ · 4.2k stars
+        </div>
+      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/autowarefoundation/autoware_universe" target="_blank">autoware_universe</a></span>
+        <span class="quick-hit-summary">Build production-ready autonomous vehicles with Autoware Universe&#39;s full ROS2 stack for perception, planning, control, and simulation.</span>
+        <span class="quick-hit-stars">1.5k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/pytorch/rl" target="_blank">rl</a></span>
+        <span class="quick-hit-summary">Accelerate RL experiments with PyTorch RL&#39;s modular, primitive-first Python library for custom agent training and algorithms.</span>
+        <span class="quick-hit-stars">3.3k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/botbotrobotics/BotBrain" target="_blank">BotBrain</a></span>
+        <span class="quick-hit-summary">Equip legged robots with BotBrain&#39;s ROS2 modular core for web teleops, navigation, mapping, monitoring, and 3D-printable hardware.</span>
+        <span class="quick-hit-stars">121</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/mavlink/mavros" target="_blank">mavros</a></span>
+        <span class="quick-hit-summary">Integrate MAVLink drones into ROS workflows via mavros C++ gateway with seamless Ground Control Station proxying.</span>
+        <span class="quick-hit-stars">1.1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/robotmcp/ros-mcp-server" target="_blank">ros-mcp-server</a></span>
+        <span class="quick-hit-summary">Link LLMs like Claude and GPT to ROS robots for intelligent control using ros-mcp-server&#39;s Python MCP bridge.</span>
+        <span class="quick-hit-stars">1.1k</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="cyber"><article class="lead-story">
+    <h2 class="lead-headline">OpenZeppelin Contracts Delivers Secure Solidity Building Blocks for Ethereum</h2>
+    <p class="lead-subheadline">Community-vetted library implements standards like ERC20 and offers role-based access for robust decentralized systems.</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/OpenZeppelin/openzeppelin-contracts" target="_blank">OpenZeppelin/openzeppelin-contracts</a></span>
+      <span>Solidity</span>
+      <span>Latest: v5.6.1</span>
+      <span>27k stars</span>
+    </div>
+    <div class="lead-body">
+      <p>In the high-stakes world of Ethereum development, where a single vulnerability can drain millions, OpenZeppelin Contracts stands as a cornerstone library for secure smart contract creation. Launched in 2016, this Solidity repository provides reusable components that let builders focus on innovation rather than reinventing audited primitives.</p>
+<p>The core value lies in its <strong>battle-tested implementations</strong> of ERC standards, including ERC20 for fungible tokens and ERC721 for NFTs. Developers inherit from contracts like <code>ERC20</code> or <code>ERC721</code>, gaining compliance and security out of the box. Flexible <strong>role-based permissioning</strong>, via modules like <code>AccessControl</code>, enables granular control—assigning roles such as <code>MINTER_ROLE</code> without custom logic that invites bugs.</p>
+<p>What sets it apart is rigorous <strong>versioning and release management</strong>. OpenZeppelin employs semantic versioning, warning that major upgrades (e.g., 4.9.3 to 5.0.0) may break storage layouts in upgradeable contracts. NPM tags clarify risks:</p>
+<ul>
+<li><strong><code>latest</code></strong>: Audited, stable releases—default for <code>npm install @openzeppelin/contracts</code>.</li>
+<li><strong><code>dev</code></strong>: Feature-complete, tested, bug-bounty covered, but unaudited.</li>
+<li><strong><code>next</code></strong>: Release candidates for early testing.</li>
+</ul>
+<p>Installation is straightforward for Hardhat users via npm, or git for Foundry—though the README flags a common pitfall with git installs. The <strong>Contracts Wizard</strong>, an interactive generator, lowers the entry barrier for custom contracts.</p>
+<p>Recent v5.6.1 addresses a critical fix in <code>InteroperableAddress</code>: an overflow in parsing functions that silently mishandled large addresses (PR #6372). This underscores ongoing maintenance on a project now nearly 10 years old, with steady updates ensuring EVM compatibility.</p>
+<p>Builders should care because it scales to complex systems—DAOs, DeFi protocols, NFT marketplaces—reducing audit costs and exploit surfaces. With over 27,000 GitHub stars reflecting broad adoption, it&#39;s the go-to for Ethereum, EVM chains, and security-focused Solidity work. Skip it, and you&#39;re coding in the dark.</p>
+
+      <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>DeFi teams building compliant ERC20 tokens with minimal code.</li><li>NFT developers inheriting secure ERC721 standards and permissions.</li><li>DAO creators using role-based access for governance contracts.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>solmate - Gas-optimized primitives for minimalism, but lacks full standards and access control breadth.</li><li>safe-global/safe-contracts - Multisig-focused for account abstraction, narrower than general-purpose library.</li><li>pie-dao/pie - Indexed token composables, specialized versus comprehensive security toolkit.</li></ul></div></div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">Authelia Provides SSO and Two-Factor Authentication for Web Apps</h3>
+        <p class="featured-subheadline">Open-source server pairs with reverse proxies to enforce access rules via OpenID Connect</p>
+        <div class="featured-meta">
+          <a href="https://github.com/authelia/authelia" target="_blank">authelia/authelia</a> · Go · 27.2k stars
+        </div>
+        <div class="featured-body">
+          <p><strong>Authelia</strong>, written in Go, is an open-source authentication and authorization server that delivers single sign-on (SSO) and multi-factor authentication (MFA) through a web portal. It serves as a companion to reverse proxies, intercepting requests to allow, deny, or redirect based on fine-grained rules matching subdomains, users, groups, URIs, methods, and networks.</p>
+<p>Key features include OpenID Connect 1.0 and OAuth 2.0 support, alongside second-factor options like FIDO2/WebAuthn security keys (<code>YubiKey</code>), TOTP apps, Duo push notifications, and passwordless passkeys. It offers one- or two-factor policies per rule, basic auth for one-factor endpoints, password resets via email, and lockouts after failed attempts. High availability relies on remote databases and Redis.</p>
+<p>Deployment is straightforward: static binaries, Debian packages, Docker containers (<code>docker pull authelia/authelia:latest</code>), or Kubernetes via Helm charts with ingress controllers like <code>ingress-nginx</code> or Traefik. It integrates natively with <code>Traefik</code> ForwardAuth, <code>Caddy</code> forward_auth, and LinuxServer&#39;s SWAG.</p>
+<p>The v4.39.15 release, dated November 2025, fixed LDAP health checks and server authorization defaults. At 9.3 years old with steady updates, Authelia matters for builders securing self-hosted apps without vendor lock-in, enabling robust access control in Docker and Kubernetes environments.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>DevOps teams securing Kubernetes ingresses with MFA rules.</li><li>Homelab admins adding SSO to reverse-proxied web services.</li><li>Sysadmins enforcing 2FA on Traefik-protected internal apps.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>Keycloak - Broader IAM suite but Java-based and heavier.</li><li>Authentik - Comparable SSO/MFA with Python and more proxies.</li><li>Pomerium - Proxy-focused auth lacking full user portal.</li></ul></div></div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">TruffleHog Detects and Validates Leaked Credentials in Code</h3>
+        <p class="compact-subheadline">Open-source Go tool scans Git repos, filesystems and chats for secrets with classification and live verification</p>
+        <div class="compact-meta">
+          <a href="https://github.com/trufflesecurity/trufflehog" target="_blank">trufflesecurity/trufflehog</a> · Go · 25k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">RustScan Scans 65,000 Ports in Three Seconds</h3>
+        <p class="compact-subheadline">Rust-built tool integrates scripting and Nmap piping for efficient network security probing</p>
+        <div class="compact-meta">
+          <a href="https://github.com/bee-san/RustScan" target="_blank">bee-san/RustScan</a> · Rust · 19.4k stars
+        </div>
+      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/cilium/cilium" target="_blank">cilium</a></span>
+        <span class="quick-hit-summary">Supercharge Kubernetes with eBPF-powered networking, security policies, and deep observability for high-performance clusters.</span>
+        <span class="quick-hit-stars">23.9k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/The-Art-of-Hacking/h4cker" target="_blank">h4cker</a></span>
+        <span class="quick-hit-summary">Explore thousands of Jupyter notebooks on ethical hacking, DFIR, AI security, and exploit dev for hands-on skill mastery.</span>
+        <span class="quick-hit-stars">25.5k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/bunkerity/bunkerweb" target="_blank">bunkerweb</a></span>
+        <span class="quick-hit-summary">Shield web apps with this next-gen, open-source WAF delivering advanced threat detection and easy integration.</span>
+        <span class="quick-hit-stars">10.1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/keepassxreboot/keepassxc" target="_blank">keepassxc</a></span>
+        <span class="quick-hit-summary">Manage passwords securely across platforms using this robust, community-driven KeePass port with seamless autofill.</span>
+        <span class="quick-hit-stars">26.2k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/berty/berty" target="_blank">berty</a></span>
+        <span class="quick-hit-summary">Enable secure P2P messaging that works offline, sans internet or cellular, prioritizing privacy over infrastructure trust.</span>
+        <span class="quick-hit-stars">9.1k</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="systems"><article class="lead-story">
+    <h2 class="lead-headline">Zig-Built NullClaw Packs Autonomous AI Assistant into 678KB Binary</h2>
+    <p class="lead-subheadline">Static infrastructure boots in milliseconds on $5 boards, demands only libc, redefines edge AI deployment for developers.</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/nullclaw/nullclaw" target="_blank">nullclaw/nullclaw</a></span>
+      <span>Zig</span>
+      <span>Latest: v2026.3.14</span>
+      <span>6.3k stars</span>
+    </div>
+    <div class="lead-body">
+      <p>Builders tired of bloated AI stacks take note: <strong>nullclaw</strong> is a fully autonomous AI assistant infrastructure compiled into a single 678 KB Zig binary. It requires zero runtime dependencies beyond libc, uses ~1 MB RAM at peak, and boots in milliseconds—benchmarks show it crushes alternatives clocking 1 GB binaries, over 100 MB RAM, and 30+ second startups.</p>
+<p>Measure it yourself: <code>zig build -Doptimize=ReleaseSmall</code>, then <code>ls -lh zig-out/bin/nullclaw</code> yields the tiny executable. Run <code>/usr/bin/time -l zig-out/bin/nullclaw status</code> for sub-second responses. This isn&#39;t a toy—it&#39;s production-grade infra for personal AI agents, handling sessions, providers, and gateways without compromise.</p>
+<p>NullClaw&#39;s architecture centers on a CLI-driven core with commands for status, configuration, and operations. It supports named-agent sessions, skill installation (now resilient to individual failures), and a gateway API with integrated tunnel modules for secure remote access. Recent updates harden websocket TLS against premature closes, fix dangling pointers in sessions, and scope Claude CLI resumes to nullclaw contexts. Agents align with codebase conventions, and model discovery taps <code>models.dev</code>.</p>
+<p>What sets it apart? Pure Zig delivers <strong>null overhead</strong>: no interpreters, no package managers, no cloud crutches. Deploy on Raspberry Pi, ESP32, or any POSIX system. Configure via files for providers like Claude; extend with skills or custom development. Security docs detail mitigations, while ops cover scaling.</p>
+<p>For builders, this solves the edge AI paradox: powerful assistants untethered from GPUs and gigabytes. Prototype personal agents on hardware budgets under $5. Integrate into IoT pipelines or dev workflows without Docker bloat. At 25 days old with rapid iteration—latest v2026.3.14 includes ecosystem roadmaps—it&#39;s primed for real-world hacks. Dive into <code>docs/en/README.md</code> for install, then <code>docs/en/configuration.md</code> and <code>docs/en/usage.md</code>. NullClaw proves AI infra can be as lean as your constraints demand.</p>
+
+      <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Embedded devs deploying AI agents on $5 microcontrollers.</li><li>IoT builders running stateless assistants without cloud deps.</li><li>Solo hackers prototyping personal AI on low-RAM hardware.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>ollama - Delivers local LLM inference but balloons to GB-scale binaries with higher RAM needs.</li><li>llama.cpp - Excels in efficient C++ inference yet lacks nullclaw&#39;s full agent orchestration and gateway.</li><li>open-webui - Provides browser-based AI interfaces, relying on heavier backends unlike nullclaw&#39;s standalone binary.</li></ul></div></div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">Bun Packs JavaScript Runtime, Bundler and Package Manager</h3>
+        <p class="featured-subheadline">Zig-built executable serves as Node.js drop-in with JavaScriptCore speed gains</p>
+        <div class="featured-meta">
+          <a href="https://github.com/oven-sh/bun" target="_blank">oven-sh/bun</a> · Zig · 88.1k stars
+        </div>
+        <div class="featured-body">
+          <p>Bun, from oven-sh, delivers a single executable that handles JavaScript and TypeScript execution, bundling, testing and package management. Written in <strong>Zig</strong> and powered by JavaScriptCore, it acts as a <strong>drop-in Node.js replacement</strong>, slashing startup times and memory use compared to traditional runtimes.</p>
+<p>The <code>bun</code> CLI supports out-of-the-box TypeScript and JSX:</p>
+<pre><code class="language-bash">bun run index.tsx
+bun test
+bun install
+bunx cowsay &#39;Hello, world!&#39;
+</code></pre>
+<p>It installs via script on Linux, macOS and Windows, or through <code>npm install -g bun</code>. Upgrades run with <code>bun upgrade</code>, including canary builds from main branch commits. Latest release, <strong>v1.3.10</strong>, arrived with contributions from 11 developers, detailed on the project&#39;s blog.</p>
+<p>At 4.9 years old, Bun integrates into existing Node.js workflows with minimal changes, replacing fragmented tools like npm, Jest and esbuild. Its unified approach cuts dependency bloat—no 1,000 node_modules needed—while maintaining compatibility. Developers gain faster builds and runs for web apps, aiding production scaling.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Node.js teams executing TypeScript apps with instant startup.</li><li>Frontend builders bundling React JSX without extra transpilers.</li><li>Package maintainers installing dependencies via unified CLI.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>Node.js - Bun replaces it directly with JavaScriptCore speed.</li><li>Deno - Bun adds integrated bundler and npm-compatible manager.</li><li>esbuild - Bun embeds similar bundling speed plus full runtime.</li></ul></div></div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">Linux Kernel Source Tree Drives OS Foundations</h3>
+        <p class="compact-subheadline">Torvalds&#39; repository enables kernel building, patching, and hardware management worldwide</p>
+        <div class="compact-meta">
+          <a href="https://github.com/torvalds/linux" target="_blank">torvalds/linux</a> · C · 222.6k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Zed: High-Performance Multiplayer Code Editor in Rust</h3>
+        <p class="compact-subheadline">From Atom creators, enables real-time collaboration and AI agents across macOS, Linux, Windows</p>
+        <div class="compact-meta">
+          <a href="https://github.com/zed-industries/zed" target="_blank">zed-industries/zed</a> · Rust · 77.1k stars
+        </div>
+      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/kubernetes/kubernetes" target="_blank">kubernetes</a></span>
+        <span class="quick-hit-summary">Orchestrates containers at scale with self-healing, auto-scaling, and service discovery for bulletproof production apps.</span>
+        <span class="quick-hit-stars">121.1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/avelino/awesome-go" target="_blank">awesome-go</a></span>
+        <span class="quick-hit-summary">Curated collection of top Go frameworks, libraries, and tools to accelerate your backend builds.</span>
+        <span class="quick-hit-stars">167.3k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/denoland/deno" target="_blank">deno</a></span>
+        <span class="quick-hit-summary">Secure runtime for JS/TS with built-in TypeScript, bundling, testing, and zero node_modules hassle.</span>
+        <span class="quick-hit-stars">106.3k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/golang/go" target="_blank">go</a></span>
+        <span class="quick-hit-summary">Craft fast, concurrent software with simple syntax, goroutines, and garbage collection in this powerhouse language.</span>
+        <span class="quick-hit-stars">133k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/facebook/react-native" target="_blank">react-native</a></span>
+        <span class="quick-hit-summary">Build native iOS/Android apps fast using React&#39;s declarative components and single JavaScript codebase.</span>
+        <span class="quick-hit-stars">125.6k</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="diy"><article class="lead-story">
+    <h2 class="lead-headline">ESPectre Harnesses Wi-Fi CSI for Camera-Free Motion Detection</h2>
+    <p class="lead-subheadline">Cheap ESP32 devices analyze Wi-Fi signals to sense movement, integrating seamlessly with Home Assistant via ESPHome.</p>
+    <div class="lead-meta">
+      <span><a href="https://github.com/francescopace/espectre" target="_blank">francescopace/espectre</a></span>
+      <span>Python</span>
+      <span>Latest: 2.6.0</span>
+      <span>6.8k stars</span>
+    </div>
+    <div class="lead-body">
+      <p>Builders seeking privacy-focused automation now have a potent tool in <strong>ESPectre</strong>, a motion detection system that exploits Wi-Fi Channel State Information (CSI). Unlike PIR sensors or cameras, it uses perturbations in 2.4GHz Wi-Fi signals—reflected off moving bodies—to trigger events, eliminating visual or audio surveillance risks.</p>
+<p>At its core, ESPectre runs on low-cost ESP32 boards (S3, C6, C3, or originals, ~€10), paired with any existing router. No router mods needed. The ESP32 captures CSI data from Wi-Fi frames, processes it on-device for motion events, and exposes sensors via <strong>ESPHome</strong> for <strong>Home Assistant</strong> dashboards. Setup takes 10-15 minutes: flash via ESPHome YAML, tune thresholds per <code>TUNING.md</code>, and deploy.</p>
+<p>Version 2.5 introduced an <strong>ML Detector</strong>—a neural network that runs entirely on-device, skipping manual calibration. Select ML-enabled firmware (<code>-ml</code> assets) for plug-and-play detection. Feedback is sought in discussions, with snapshots for testing.</p>
+<p>Release 2.6.0 bolsters reliability on newer chips like ESP32-C5/C6. Key fixes include hardened Wi-Fi lifecycle handling (dual-band APIs with 2.4GHz fallbacks), normalized CSI payloads (C5&#39;s 114-byte to HT20 128-byte), and safer calibration transitions (cold-cleared buffers post-switch). Detector states now validate strictly, unifying thresholds (0.0-10.0) across ESPHome, Python/Micro-ESPectre, MQTT, and serial. Performance targets align at &gt;95% recall and &lt;5% false positives for both ML and traditional methods, detailed in <code>PERFORMANCE.md</code>.</p>
+<p>Security emphasizes privacy: processing stays local, no cloud dependency. Sensor placement guides optimize for rooms—elevate 1.5-2m, aim across paths. Architecture splits into ESPHome (primary) and Micro-ESPectre/Python for advanced scripting.</p>
+<p>For <strong>Home Assistant</strong> users, it unlocks real-time dashboards with debug sensors, threshold sliders, and automation triggers. The two-platform strategy—ESPHome for ease, Python for depth—suits DIYers from novices (basic YAML) to tinkerers. At 5 months old with over 6,000 stars, it signals rising interest in Wi-Fi sensing, but its edge lies in accessible CSI tooling without PhDs in signal processing.</p>
+<p>ESPectre solves the motion detection trilemma: cheap, private, integrable. Deploy multiple nodes for zoned coverage; future plans hint at multi-device fusion.</p>
+
+      <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Homeowners triggering lights in hallways without PIR sensors.</li><li>Offices automating HVAC via occupancy in conference rooms.</li><li>Garages detecting arrivals to open doors seamlessly.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>walterpi/ESP32-CSI-Tool - Raw CSI capture utility, requires custom processing unlike ESPectre&#39;s ready HA integration.</li><li>agrimgupta/WiFi-Motion - Threshold-based Wi-Fi sensing, lacks ML detector and ESP32-C6 support.</li><li>OpenCSI/openwrt-csi - Router-firmware CSI tool, demands OpenWRT flashing vs. ESPectre&#39;s plug-in ESP32 approach.</li></ul></div></div>
+      
+    </div></article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="featured-grid">
+      <article class="featured-article">
+        <h3 class="featured-headline">HackRF Powers Low-Cost Open Source Software Defined Radio</h3>
+        <p class="featured-subheadline">Hardware designs and C software enable broad RF experimentation for developers and builders</p>
+        <div class="featured-meta">
+          <a href="https://github.com/greatscottgadgets/hackrf" target="_blank">greatscottgadgets/hackrf</a> · C · 7.8k stars
+        </div>
+        <div class="featured-body">
+          <p>The GitHub repository <strong>greatscottgadgets/hackrf</strong> hosts hardware designs and software for HackRF, a low-cost, open source software defined radio (SDR) platform written in C. Launched in 2012, the project remains active, with its latest release <strong>v2026.01.3</strong> addressing mixer frequency lock failures and adding support for larger SPI flash on the HackRF Pro variant.</p>
+<p>HackRF supports transmission and reception across a wide frequency range, making it accessible for RF prototyping without proprietary tools. Documentation, built with Sphinx, covers setup, troubleshooting, and development; users generate HTML or PDF locally via <code>make html</code> or <code>make latexpdf</code> after installing dependencies like LaTeX.</p>
+<p>Community support flows through GitHub issues—preferred for bugs and features—plus Discord discussions and archived mailing lists. Technical support issues labeled by Great Scott Gadgets staff target two-week responses, emphasizing self-service via the troubleshooting page.</p>
+<p>For builders, HackRF democratizes radio work: its open designs lower barriers to signal analysis, protocol testing, and custom hardware. The 14-year slow-burn traction underscores reliability for long-term projects in RF, hardware, and SDR domains. Purchase details and full specs live at greatscottgadgets.com/hackrf.</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>RF engineers prototyping custom wireless protocols with transmit/receive capabilities.</li><li>Security researchers analyzing and injecting radio signals for vulnerability testing.</li><li>Hobbyists building spectrum analyzers using affordable open hardware designs.</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>osmocom/rtl-sdr - cheaper receive-only SDR, lacks transmit functionality.</li><li>myriadrf/LimeSuite - higher-performance full-duplex SDR, more complex setup.</li><li>Nuand/bladeRF - faster sampling rates, targets advanced FPGA users.</li></ul></div></div>
+        
+      </article></div><div class="compact-grid">
+      <article class="compact-article">
+        <h3 class="compact-headline">GHDL Provides Open-Source VHDL Simulator and Synthesizer</h3>
+        <p class="compact-subheadline">Mature tool analyzes, compiles and simulates VHDL hardware designs across multiple platforms and backends</p>
+        <div class="compact-meta">
+          <a href="https://github.com/ghdl/ghdl" target="_blank">ghdl/ghdl</a> · VHDL · 2.8k stars
+        </div>
+      </article>
+
+      <article class="compact-article">
+        <h3 class="compact-headline">Open-Source Photobooth App Powers DIY Camera Rigs</h3>
+        <p class="compact-subheadline">Python backend with Vue3 frontend captures photos, GIFs on DSLRs and Raspberry Pi hardware</p>
+        <div class="compact-meta">
+          <a href="https://github.com/photobooth-app/photobooth-app" target="_blank">photobooth-app/photobooth-app</a> · Python · 251 stars
+        </div>
+      </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/minibolt-guide/minibolt" target="_blank">minibolt</a></span>
+        <span class="quick-hit-summary">Build a personal Bitcoin and Lightning node step-by-step with this guide—empower your crypto sovereignty on any PC.</span>
+        <span class="quick-hit-stars">89</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/cornell-zhang/allo" target="_blank">allo</a></span>
+        <span class="quick-hit-summary">Design and program high-performance accelerators in Python using Allo—unlock PLDI&#39;24 innovations for hardware builders.</span>
+        <span class="quick-hit-stars">359</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/kubernetes-sigs/node-feature-discovery" target="_blank">node-feature-discovery</a></span>
+        <span class="quick-hit-summary">Automatically discover and label Kubernetes node features to optimize workload scheduling and resource efficiency.</span>
+        <span class="quick-hit-stars">1k</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/aa-proxy/aa-proxy-rs" target="_blank">aa-proxy-rs</a></span>
+        <span class="quick-hit-summary">Proxy Android Auto over wired or wireless links in Rust—extend car infotainment without hardware hacks.</span>
+        <span class="quick-hit-stars">334</span>
+      </div>
+
+      <div class="quick-hit">
+        <span class="quick-hit-name"><a href="https://github.com/kelu124/echomods" target="_blank">echomods</a></span>
+        <span class="quick-hit-summary">Stack open-source Jupyter modules for custom ultrasound processing—accelerate your medical imaging prototypes.</span>
+        <span class="quick-hit-stars">405</span>
+      </div></div><button class="quick-hits-toggle">Show more</button></section></div>
+<div class="section-panel" data-section="memes"><div class="section-empty">Memes section coming soon. Check back tomorrow!</div></div>
+
+  
+
+  
+
+  
+
+  <footer class="footer">
+    <nav class="edition-nav"><a href="/editions/2026-03-13/">&larr; Previous Edition</a> · <a href="/archive/">Archive</a> · <a href="/editions/2026-03-15/">Next Edition &rarr;</a></nav>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+    <p>Built with Node.js, GitHub Search API, and xAI Grok</p>
+  </footer>
+
+  
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var panel = document.getElementById('toolbar-panel');
+      var trigger = document.getElementById('toolbar-toggle');
+
+      var defaults = {
+        theme: 'light', font: 'serif', size: 'medium', width: 'normal',
+        bgH: '40', bgS: '18', bgL: '97',
+        txH: '0', txS: '0', txL: '10'
+      };
+      var customColors = false;
+
+      // Theme preset color maps (H, S, L for bg and text)
+      var presets = {
+        light:    { bgH: 40,  bgS: 18, bgL: 97, txH: 0,   txS: 0,  txL: 10 },
+        dark:     { bgH: 240, bgS: 8,  bgL: 11, txH: 30,  txS: 6,  txL: 87 },
+        sepia:    { bgH: 40,  bgS: 42, bgL: 90, txH: 28,  txS: 28, txL: 20 },
+        midnight: { bgH: 215, bgS: 30, bgL: 7,  txH: 210, txS: 10, txL: 82 }
+      };
+
+      var state = {};
+      Object.keys(defaults).forEach(function (key) {
+        state[key] = localStorage.getItem('gittimes-' + key) || defaults[key];
+      });
+
+      var sliderBg    = document.getElementById('slider-bg');
+      var sliderBgSat = document.getElementById('slider-bg-sat');
+      var sliderBgLit = document.getElementById('slider-bg-lit');
+      var sliderTx    = document.getElementById('slider-text');
+      var sliderTxSat = document.getElementById('slider-text-sat');
+      var sliderTxLit = document.getElementById('slider-text-lit');
+      var bgSwatch    = document.getElementById('bg-swatch');
+      var txSwatch    = document.getElementById('text-swatch');
+
+      function hsl(h, s, l) { return 'hsl(' + h + ',' + s + '%,' + l + '%)'; }
+
+      function deriveColors(h, s, l) {
+        // Derive --ink-light, --ink-faint, --rule, --rule-light, --accent from bg/text
+        var bgLight = parseInt(l);
+        var isDark = bgLight < 50;
+        return isDark ? {
+          inkLight: hsl(h, Math.max(s - 10, 0), Math.min(parseInt(l) + 30, 80)),
+          inkFaint: hsl(h, Math.max(s - 15, 0), Math.min(parseInt(l) + 18, 60)),
+          rule:     hsl(h, Math.max(s - 10, 0), Math.min(parseInt(l) + 60, 90)),
+          ruleLight:hsl(h, Math.max(s - 12, 0), Math.min(parseInt(l) + 12, 35))
+        } : {
+          inkLight: hsl(h, Math.max(s - 5, 0), Math.max(parseInt(l) - 55, 20)),
+          inkFaint: hsl(h, Math.max(s - 8, 0), Math.max(parseInt(l) - 40, 40)),
+          rule:     hsl(h, Math.max(s - 5, 0), Math.max(parseInt(l) - 70, 10)),
+          ruleLight:hsl(h, Math.max(s - 10, 0), Math.max(parseInt(l) - 12, 70))
+        };
+      }
+
+      function applyColors() {
+        var bgH = state.bgH, bgS = state.bgS, bgL = state.bgL;
+        var txH = state.txH, txS = state.txS, txL = state.txL;
+        var bgColor = hsl(bgH, bgS, bgL);
+        var txColor = hsl(txH, txS, txL);
+        var d = deriveColors(bgH, bgS, bgL);
+
+        root.style.setProperty('--paper', bgColor);
+        root.style.setProperty('--ink', txColor);
+        root.style.setProperty('--ink-light', d.inkLight);
+        root.style.setProperty('--ink-faint', d.inkFaint);
+        root.style.setProperty('--rule', d.rule);
+        root.style.setProperty('--rule-light', d.ruleLight);
+
+        // Accent based on hue complement
+        var accentH = (parseInt(bgH) + 180) % 360;
+        root.style.setProperty('--accent', hsl(accentH, 65, parseInt(bgL) < 50 ? 60 : 35));
+
+        // Builder's take bg
+        var btL1 = parseInt(bgL) < 50 ? parseInt(bgL) + 5 : parseInt(bgL) - 4;
+        var btL2 = parseInt(bgL) < 50 ? parseInt(bgL) + 3 : parseInt(bgL) - 6;
+        root.style.setProperty('--bt-bg', 'linear-gradient(135deg,' + hsl(bgH, bgS, btL1) + ',' + hsl(bgH, bgS, btL2) + ')');
+
+        // Update swatches
+        bgSwatch.style.background = bgColor;
+        txSwatch.style.background = txColor;
+
+        // Sync slider positions
+        sliderBg.value = bgH; sliderBgSat.value = bgS; sliderBgLit.value = bgL;
+        sliderTx.value = txH; sliderTxSat.value = txS; sliderTxLit.value = txL;
+
+        // Slider track gradients
+        sliderBg.style.setProperty('--track', 'linear-gradient(to right,hsl(0,' + bgS + '%,' + bgL + '%),hsl(60,' + bgS + '%,' + bgL + '%),hsl(120,' + bgS + '%,' + bgL + '%),hsl(180,' + bgS + '%,' + bgL + '%),hsl(240,' + bgS + '%,' + bgL + '%),hsl(300,' + bgS + '%,' + bgL + '%),hsl(360,' + bgS + '%,' + bgL + '%))');
+        sliderTx.style.setProperty('--track', 'linear-gradient(to right,hsl(0,' + txS + '%,' + txL + '%),hsl(60,' + txS + '%,' + txL + '%),hsl(120,' + txS + '%,' + txL + '%),hsl(180,' + txS + '%,' + txL + '%),hsl(240,' + txS + '%,' + txL + '%),hsl(300,' + txS + '%,' + txL + '%),hsl(360,' + txS + '%,' + txL + '%))');
+        sliderBgSat.style.setProperty('--track', 'linear-gradient(to right,' + hsl(bgH, 0, bgL) + ',' + hsl(bgH, 100, bgL) + ')');
+        sliderBgLit.style.setProperty('--track', 'linear-gradient(to right,' + hsl(bgH, bgS, 0) + ',' + hsl(bgH, bgS, 50) + ',' + hsl(bgH, bgS, 100) + ')');
+        sliderTxSat.style.setProperty('--track', 'linear-gradient(to right,' + hsl(txH, 0, txL) + ',' + hsl(txH, 100, txL) + ')');
+        sliderTxLit.style.setProperty('--track', 'linear-gradient(to right,' + hsl(txH, txS, 0) + ',' + hsl(txH, txS, 50) + ',' + hsl(txH, txS, 100) + ')');
+      }
+
+      function apply() {
+        Object.keys(state).forEach(function (key) {
+          root.setAttribute('data-' + key, state[key]);
+          localStorage.setItem('gittimes-' + key, state[key]);
+        });
+        document.querySelectorAll('.panel-options').forEach(function (group) {
+          var setting = group.getAttribute('data-setting');
+          group.querySelectorAll('.panel-pill').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-value') === state[setting]);
+          });
+        });
+        applyColors();
+      }
+
+      apply();
+
+      // Toggle panel
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = panel.classList.toggle('open');
+        trigger.classList.toggle('active', open);
+      });
+
+      // Pill clicks
+      panel.addEventListener('click', function (e) {
+        var pill = e.target.closest('.panel-pill');
+        if (!pill) return;
+        e.stopPropagation();
+        var group = pill.closest('.panel-options');
+        var setting = group.getAttribute('data-setting');
+        state[setting] = pill.getAttribute('data-value');
+        // If theme preset clicked, sync color sliders
+        if (setting === 'theme' && presets[state[setting]]) {
+          var p = presets[state[setting]];
+          state.bgH = p.bgH; state.bgS = p.bgS; state.bgL = p.bgL;
+          state.txH = p.txH; state.txS = p.txS; state.txL = p.txL;
+        }
+        apply();
+      });
+
+      // Slider input handlers
+      function onSlider(slider, key) {
+        slider.addEventListener('input', function () {
+          state[key] = slider.value;
+          localStorage.setItem('gittimes-' + key, slider.value);
+          applyColors();
+        });
+      }
+      onSlider(sliderBg, 'bgH');
+      onSlider(sliderBgSat, 'bgS');
+      onSlider(sliderBgLit, 'bgL');
+      onSlider(sliderTx, 'txH');
+      onSlider(sliderTxSat, 'txS');
+      onSlider(sliderTxLit, 'txL');
+
+      // Reset button
+      document.getElementById('panel-reset').addEventListener('click', function (e) {
+        e.stopPropagation();
+        Object.keys(defaults).forEach(function (key) {
+          state[key] = defaults[key];
+          localStorage.removeItem('gittimes-' + key);
+        });
+        root.removeAttribute('style');
+        apply();
+      });
+
+      // Close on outside click
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.toolbar')) {
+          panel.classList.remove('open');
+          trigger.classList.remove('active');
+        }
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          panel.classList.remove('open');
+          trigger.classList.remove('active');
+        }
+      });
+
+      // Section tab switching
+      var tabs = document.querySelectorAll('.section-tab');
+      var panels = document.querySelectorAll('.section-panel');
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          if (tab.disabled) return;
+          tabs.forEach(function(t) { t.classList.remove('active'); });
+          panels.forEach(function(p) { p.classList.remove('active'); });
+          tab.classList.add('active');
+          var id = tab.getAttribute('data-section');
+          var panel = document.querySelector('.section-panel[data-section="' + id + '"]');
+          if (panel) panel.classList.add('active');
+          localStorage.setItem('gittimes-section', id);
+        });
+      });
+      // Restore saved section
+      var savedSection = localStorage.getItem('gittimes-section');
+      if (savedSection) {
+        var savedTab = document.querySelector('.section-tab[data-section="' + savedSection + '"]');
+        if (savedTab && !savedTab.disabled) savedTab.click();
+      }
+
+      // Quick hits expand/collapse (per-section toggles)
+      document.querySelectorAll('.quick-hits-toggle').forEach(function(toggle) {
+        var list = toggle.previousElementSibling;
+        toggle.addEventListener('click', function() {
+          var expanded = list.classList.toggle('expanded');
+          toggle.textContent = expanded ? 'Show less' : 'Show more';
+        });
+      });
+
+      // Legacy single quick-hits toggle fallback
+      var qhToggle = document.getElementById('qh-toggle');
+      if (qhToggle) {
+        var qhList = qhToggle.previousElementSibling;
+        qhToggle.addEventListener('click', function() {
+          var expanded = qhList.classList.toggle('expanded');
+          qhToggle.textContent = expanded ? 'Show less' : 'Show more';
+        });
+      }
+    })();
+  </script>
+
+  
+
+</body>
+</html>
