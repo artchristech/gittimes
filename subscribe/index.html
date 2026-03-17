@@ -1191,41 +1191,6 @@ body {
   color: var(--ink-light);
 }
 
-/* === REPO AGE BADGES === */
-
-.repo-age {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 7px;
-  border-radius: 3px;
-  font-family: var(--font-meta);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-.repo-age-fresh { background: #dbeafe; color: #1e40af; }
-.repo-age-young { background: #d1fae5; color: #065f46; }
-.repo-age-mature { background: #e5e7eb; color: #374151; }
-.repo-age-veteran { background: #fef3c7; color: #92400e; }
-
-[data-theme="dark"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
-[data-theme="dark"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
-[data-theme="dark"] .repo-age-mature { background: #374151; color: #d1d5db; }
-[data-theme="dark"] .repo-age-veteran { background: #78350f; color: #fde68a; }
-
-[data-theme="sepia"] .repo-age-fresh { background: #c4b5a0; color: #3e3226; }
-[data-theme="sepia"] .repo-age-young { background: #a7c4a0; color: #1a3a1a; }
-[data-theme="sepia"] .repo-age-mature { background: #d4c9b5; color: #3e3226; }
-[data-theme="sepia"] .repo-age-veteran { background: #d4a844; color: #3e3226; }
-
-[data-theme="midnight"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
-[data-theme="midnight"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
-[data-theme="midnight"] .repo-age-mature { background: #21262d; color: #8b949e; }
-[data-theme="midnight"] .repo-age-veteran { background: #78350f; color: #fde68a; }
-
 /* === CHAT === */
 
 .chat-fab {
@@ -1454,10 +1419,6 @@ body {
     font-size: 11px;
     padding: 10px 14px;
     letter-spacing: 1px;
-  }
-
-  .ticker-more {
-    display: none;
   }
 }
 
@@ -1815,53 +1776,6 @@ body.account {
   border: 1px solid var(--rule-light);
 }
 
-.account-btn-danger {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-}
-
-.account-btn-danger:hover {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* === PROVIDER GROUPS (Markets page) === */
-
-.provider-group { margin-bottom: 24px; }
-.provider-name {
-  font-family: var(--font-meta);
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--ink-faint);
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--rule-light);
-  margin-bottom: 0;
-}
-.provider-flagship { font-weight: 600; }
-.provider-more { margin-top: 4px; }
-.provider-more summary {
-  font-family: var(--font-meta);
-  font-size: 12px;
-  color: var(--accent);
-  cursor: pointer;
-  padding: 6px 0;
-}
-
-.account-pricing {
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-family: var(--font-meta);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
-}
-
 .account-error {
   padding: 40px 20px;
   text-align: center;
@@ -1923,7 +1837,11 @@ body.account {
 
   <section class="landing-editions">
     <h2>Recent Editions</h2>
-        <a href="/editions/2026-03-16/" class="landing-edition-card">
+        <a href="/editions/2026-03-17/" class="landing-edition-card">
+      <span class="edition-card-date">Tuesday, March 17, 2026</span>
+      <span class="edition-card-headline">Attention Residuals Let Transformers Selectively Tap Deeper Layer Wisdom</span>
+    </a>
+    <a href="/editions/2026-03-16/" class="landing-edition-card">
       <span class="edition-card-date">Monday, March 16, 2026</span>
       <span class="edition-card-headline">Lightpanda Delivers Zig-Built Headless Browser for Lightning-Fast AI Automation</span>
     </a>
@@ -1938,10 +1856,6 @@ body.account {
     <a href="/editions/2026-03-01/" class="landing-edition-card">
       <span class="edition-card-date">Sunday, March 1, 2026</span>
       <span class="edition-card-headline">Claude Context Mode Compresses Tool Outputs to Salvage AI Context Windows</span>
-    </a>
-    <a href="/editions/2026-02-28/" class="landing-edition-card">
-      <span class="edition-card-date">Saturday, February 28, 2026</span>
-      <span class="edition-card-headline">CoPaw Launches as Self-Hosted AI Assistant for Developers</span>
     </a>
   </section>
 
