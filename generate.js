@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const { fetchAllSections } = require("./src/github");
-const { generateAllContent, generateEditorialContent } = require("./src/xai");
+const { generateAllContent, generateEditorialContent, deduplicateContent } = require("./src/xai");
 const { render } = require("./src/render");
 const { loadHistory, computeDeltas } = require("./src/history");
 const { makeEditorialPlan } = require("./src/editorial");
@@ -48,6 +48,9 @@ async function main() {
   } else {
     content = await generateAllContent(sections, xaiKey);
   }
+
+  // Dedup: remove any repo appearing in multiple sections
+  deduplicateContent(content);
 
   // Step 3: Render to static HTML
   const outputPath = await render(content);

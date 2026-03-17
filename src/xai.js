@@ -26,6 +26,12 @@ function sanitizePrompt(text) {
   return text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 }
 
+function _repoId(repoOrArticle) {
+  if (!repoOrArticle) return null;
+  const r = repoOrArticle.repo || repoOrArticle;
+  return r.full_name || r.name || null;
+}
+
 const ARTICLE_MARKERS = /\bHEADLINE:|BODY:/;
 
 function pickStructuredOutput(msg) {
@@ -408,6 +414,16 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
 
   const editorialMeta = { breakout: null, trends: [], sleepers: [] };
 
+  // Build a set of all repos already placed in any section
+  const editorialSeen = new Set();
+  for (const id of SECTION_ORDER) {
+    const s = result[id];
+    if (!s || s.isEmpty) continue;
+    if (s.lead) { const rid = _repoId(s.lead); if (rid) editorialSeen.add(rid); }
+    for (const a of s.secondary || []) { const rid = _repoId(a); if (rid) editorialSeen.add(rid); }
+    for (const a of s.quickHits || []) { const rid = _repoId(a); if (rid) editorialSeen.add(rid); }
+  }
+
   // Step 2: Generate breakout article and override front page lead
   if (editorialPlan.breakout) {
     try {
@@ -451,15 +467,23 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
         const currentLeadName = result.frontPage.lead.repo?.name || result.frontPage.lead.repo?.full_name;
         const isSameAsLead = breakoutName === currentLeadName;
 
-        // Remove breakout repo from secondary/quickHits if already there
-        result.frontPage.secondary = result.frontPage.secondary.filter(
-          (a) => (a.repo?.name || a.repo?.full_name) !== breakoutName
-        );
-        if (result.frontPage.quickHits) {
-          result.frontPage.quickHits = result.frontPage.quickHits.filter(
-            (h) => (h.name || h.full_name) !== breakoutName
-          );
+        // Remove breakout repo from ALL sections' secondary/quickHits
+        for (const id of SECTION_ORDER) {
+          const s = result[id];
+          if (!s || s.isEmpty) continue;
+          s.secondary = (s.secondary || []).filter((a) => _repoId(a) !== breakoutName);
+          s.quickHits = (s.quickHits || []).filter((a) => _repoId(a) !== breakoutName);
+          // If the breakout repo is a non-frontPage lead, demote it
+          if (id !== "frontPage" && s.lead && _repoId(s.lead) === breakoutName) {
+            if (s.secondary.length > 0) {
+              s.lead = s.secondary.shift();
+            } else {
+              s.lead = null;
+              s.isEmpty = !s.quickHits.length;
+            }
+          }
         }
+        editorialSeen.add(breakoutName);
 
         // Demote current lead to secondary (unless it's the same repo)
         if (!isSameAsLead) {
@@ -514,6 +538,10 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     for (const sleeper of editorialPlan.sleepers.slice(0, 2)) {
       try {
         const repoName = sleeper.repo.full_name || sleeper.repo.name;
+        if (editorialSeen.has(repoName)) {
+          console.log(`  Skipping sleeper ${repoName} (already in edition)`);
+          continue;
+        }
         console.log(`  Generating sleeper article for ${repoName}...`);
         const { enrichRepo } = require("./github");
         // Enrich the sleeper repo if it's a raw GitHub object
@@ -545,6 +573,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
 
         if (!sleeperArticle._isFallback) {
           deepCuts.push(sleeperArticle);
+          editorialSeen.add(repoName);
           editorialMeta.sleepers.push({
             repo: repoName,
             reason: sleeper.reason,
@@ -567,4 +596,71 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
   return { sections: result, tagline: base.tagline, editorialMeta };
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment };
+/**
+ * Post-generation safety-net dedup. Walks all sections in SECTION_ORDER;
+ * earlier sections win ties. Within a section: lead > secondary > deepCuts > quickHits.
+ * Mutates content.sections in place and returns the count of removed duplicates.
+ */
+function deduplicateContent(content) {
+  const { SECTION_ORDER } = require("./sections");
+  const seen = new Set();
+  let removed = 0;
+
+  for (const id of SECTION_ORDER) {
+    const s = content.sections?.[id];
+    if (!s || s.isEmpty) continue;
+
+    // Lead
+    if (s.lead) {
+      const rid = _repoId(s.lead);
+      if (rid && seen.has(rid)) {
+        // Demote: promote first secondary or null out
+        if (s.secondary && s.secondary.length > 0) {
+          s.lead = s.secondary.shift();
+        } else {
+          s.lead = null;
+        }
+        removed++;
+      } else if (rid) {
+        seen.add(rid);
+      }
+    }
+
+    // Secondary
+    if (s.secondary) {
+      s.secondary = s.secondary.filter((a) => {
+        const rid = _repoId(a);
+        if (rid && seen.has(rid)) { removed++; return false; }
+        if (rid) seen.add(rid);
+        return true;
+      });
+    }
+
+    // Deep cuts
+    if (s.deepCuts) {
+      s.deepCuts = s.deepCuts.filter((a) => {
+        const rid = _repoId(a);
+        if (rid && seen.has(rid)) { removed++; return false; }
+        if (rid) seen.add(rid);
+        return true;
+      });
+    }
+
+    // Quick hits
+    if (s.quickHits) {
+      s.quickHits = s.quickHits.filter((a) => {
+        const rid = _repoId(a);
+        if (rid && seen.has(rid)) { removed++; return false; }
+        if (rid) seen.add(rid);
+        return true;
+      });
+    }
+  }
+
+  if (removed > 0) {
+    console.log(`Dedup removed ${removed} duplicate(s) across sections`);
+  }
+  return removed;
+}
+
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment, deduplicateContent };

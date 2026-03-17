@@ -3,7 +3,7 @@ require("dotenv").config();
 const { execSync } = require("child_process");
 const fs = require("fs");
 const { fetchAllSections } = require("./src/github");
-const { generateAllContent, generateEditorialContent } = require("./src/xai");
+const { generateAllContent, generateEditorialContent, deduplicateContent } = require("./src/xai");
 const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent, readManifest } = require("./src/publish");
 const { loadHistory, computeDeltas, snapshotHistory } = require("./src/history");
 const { makeEditorialPlan } = require("./src/editorial");
@@ -85,6 +85,9 @@ async function main() {
   } else {
     content = await generateAllContent(sections, xaiKey, { coverage: recentRepoCoverage });
   }
+
+  // Dedup: remove any repo appearing in multiple sections
+  deduplicateContent(content);
 
   // Step 2b: Fetch AI ticker data + full market catalog
   const tickerData = await getTickerData(outDir);
