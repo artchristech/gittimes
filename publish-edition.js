@@ -2,14 +2,14 @@ require("dotenv").config();
 
 const { execSync } = require("child_process");
 const fs = require("fs");
-const { fetchAllSections } = require("./src/github");
-const { generateAllContent, generateEditorialContent, deduplicateContent } = require("./src/xai");
+const { runPipeline } = require("./src/pipeline");
 const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent, readManifest } = require("./src/publish");
-const { loadHistory, computeDeltas, snapshotHistory } = require("./src/history");
-const { makeEditorialPlan } = require("./src/editorial");
+const { snapshotHistory } = require("./src/history");
 const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
 const { generateEditionPromo } = require("./src/promo");
+const { enrichRepo } = require("./src/github");
+const { fetchStarTrajectory } = require("./src/star-history");
 const { closeDb } = require("./src/db");
 
 /**
@@ -18,10 +18,13 @@ const { closeDb } = require("./src/db");
  */
 function syncSiteFromGhPages(outDir) {
   if (process.env.CI) return; // CI handles this via actions/checkout
+  if (!/^[a-zA-Z0-9_.\-/]+$/.test(outDir)) {
+    throw new Error(`Unsafe PUBLISH_DIR: ${outDir}`);
+  }
   try {
     execSync("git fetch origin gh-pages", { stdio: "pipe" });
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-    execSync(`git archive origin/gh-pages | tar -x -C ${outDir}`, { stdio: "pipe" });
+    execSync(`git archive origin/gh-pages | tar -x -C "${outDir}"`, { stdio: "pipe" });
     console.log("Synced site/ from gh-pages branch");
   } catch {
     console.log("No gh-pages branch found, starting fresh");
@@ -51,43 +54,25 @@ async function main() {
   console.log(`Output: ${outDir}`);
   console.log(`Site URL: ${siteUrl}${basePath}\n`);
 
-  // Step 1: Fetch and enrich repo data from GitHub (all sections, with history dedup)
+  // Step 1+2: Fetch, generate, dedup via shared pipeline
   const recentRepoNames = getRecentRepoNames(outDir, 7);
   const recentLeadRepos = getRecentLeadRepos(outDir, 3);
   const recentRepoCoverage = getRecentRepoCoverage(outDir, 7);
   const manifest = readManifest(outDir);
   const recentEditionDates = manifest.slice(0, 7).map((e) => e.date);
-  const sections = await fetchAllSections(githubToken, { recentRepoNames, recentLeadRepos, recentRepoCoverage, recentEditionDates });
 
-  // Step 2: Editorial pipeline (with graceful fallback)
-  const editorialEnabled = process.env.EDITORIAL !== "false";
-  const rawCandidates = sections._rawCandidates || [];
-  let content;
-
-  if (editorialEnabled && rawCandidates.length > 0) {
-    const history = loadHistory(outDir);
-    const deltas = computeDeltas(rawCandidates, history);
-    // Filter out recent lead repos from breakout candidates to prevent repeat front pages
-    const editorialCandidates = rawCandidates.filter(
-      (r) => !recentLeadRepos.has(r.full_name) && !recentRepoNames.has(r.full_name)
-    );
-    const editorialPlan = makeEditorialPlan(editorialCandidates, deltas);
-
-    const hasEditorial = editorialPlan.breakout || editorialPlan.trends.length > 0 || editorialPlan.sleepers.length > 0;
-    if (hasEditorial) {
-      console.log("Editorial intelligence active:");
-      if (editorialPlan.breakout) console.log(`  Breakout: ${editorialPlan.breakout.repo.full_name}`);
-      if (editorialPlan.trends.length > 0) console.log(`  Trends: ${editorialPlan.trends.map((t) => t.theme).join(", ")}`);
-      if (editorialPlan.sleepers.length > 0) console.log(`  Sleepers: ${editorialPlan.sleepers.map((s) => s.repo.full_name).join(", ")}`);
-    }
-
-    content = await generateEditorialContent(sections, xaiKey, editorialPlan, { githubToken, coverage: recentRepoCoverage });
-  } else {
-    content = await generateAllContent(sections, xaiKey, { coverage: recentRepoCoverage });
-  }
-
-  // Dedup: remove any repo appearing in multiple sections
-  deduplicateContent(content);
+  const { content, rawCandidates } = await runPipeline(githubToken, xaiKey, {
+    outDir,
+    recentRepoNames,
+    recentLeadRepos,
+    recentRepoCoverage,
+    recentEditionDates,
+    coverage: recentRepoCoverage,
+    enrichRepo,
+    fetchStarTrajectory,
+    filterEditorialCandidates: (candidates) =>
+      candidates.filter((r) => !recentLeadRepos.has(r.full_name) && !recentRepoNames.has(r.full_name)),
+  });
 
   // Step 2b: Fetch AI ticker data + full market catalog
   const tickerData = await getTickerData(outDir);
@@ -122,6 +107,7 @@ async function main() {
   await publish(content, outDir, { siteUrl, basePath, tickerHtml, tickerData, fullMarketData });
 
   // Step 5: Snapshot history for editorial intelligence
+  const editorialEnabled = process.env.EDITORIAL !== "false";
   if (editorialEnabled && rawCandidates.length > 0) {
     snapshotHistory(outDir, rawCandidates);
     console.log(`History snapshot saved (${rawCandidates.length} repos)`);
@@ -135,8 +121,8 @@ async function main() {
   const newsletterSecret = process.env.NEWSLETTER_SECRET;
   const chatWorkerUrl = process.env.CHAT_WORKER_URL;
   if (newsletterSecret && chatWorkerUrl) {
-    const manifest = readManifest(outDir);
-    const latest = manifest[0];
+    const updatedManifest = readManifest(outDir);
+    const latest = updatedManifest[0];
     if (latest) {
       const sent = await sendNewsletter({
         workerUrl: chatWorkerUrl,
@@ -156,10 +142,21 @@ async function main() {
     console.log("Newsletter skipped (NEWSLETTER_SECRET or CHAT_WORKER_URL not set)");
   }
 
-  // Step 7: Generate promo video
+  // Step 7: Generate promo video (HTML + MP4)
   const promo = await generateEditionPromo(outDir);
   if (promo) {
     console.log(`Promo generated: ${promo.promoPath}`);
+    // Record MP4 from the promo HTML
+    try {
+      const { execSync: exec } = require("child_process");
+      console.log("Recording promo video...");
+      exec(`node record-promo.js ${promo.dateStr} vertical`, {
+        stdio: "inherit",
+        env: { ...process.env, PUBLISH_DIR: outDir },
+      });
+    } catch (err) {
+      console.warn(`Promo video recording failed (non-fatal): ${err.message}`);
+    }
   }
 
   console.log("\nDone! Edition published.");

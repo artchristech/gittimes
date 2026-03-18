@@ -60,7 +60,14 @@ async function recordPromo(dateStr, format) {
 
   console.log(`Recording ${dateStr} [${format} ${width}x${height}] @ ${FPS}fps...`);
 
-  const browser = await puppeteer.launch({ headless: true, protocolTimeout: 300000 });
+  const launchArgs = ["--disable-features=IsolateOrigins,site-per-process"];
+  if (process.env.CI) launchArgs.push("--no-sandbox", "--disable-setuid-sandbox");
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    protocolTimeout: 600000,
+    args: launchArgs,
+  });
   const page = await browser.newPage();
   await page.setViewport({ width, height });
 
@@ -81,23 +88,41 @@ async function recordPromo(dateStr, format) {
   console.log(`Timeline: ${duration.toFixed(1)}s — ${totalFrames} frames`);
 
   // Capture each frame — seek timeline, wait for paint, screenshot
+  // Use CDP session for more reliable frame capture on long timelines
+  const cdp = await page.createCDPSession();
+
   for (let i = 0; i <= totalFrames; i++) {
     const time = i / FPS;
-    await page.evaluate((t) => {
-      window.__tl.time(t);
-      window.__tl.invalidate();
-    }, time);
 
-    // Brief delay for CSS/layout to settle
-    await new Promise((r) => setTimeout(r, 10));
+    // Retry loop for transient detached-frame errors
+    let attempts = 0;
+    while (true) {
+      try {
+        await page.evaluate((t) => {
+          window.__tl.time(t);
+          window.__tl.invalidate();
+        }, time);
 
-    const framePath = path.join(framesDir, `frame-${String(i).padStart(5, "0")}.png`);
-    await page.screenshot({ path: framePath, type: "png" });
+        // Brief delay for CSS/layout to settle
+        await new Promise((r) => setTimeout(r, 15));
+
+        const framePath = path.join(framesDir, `frame-${String(i).padStart(5, "0")}.png`);
+        await page.screenshot({ path: framePath, type: "png" });
+        break;
+      } catch (err) {
+        attempts++;
+        if (attempts >= 3 || !err.message.includes("detached")) throw err;
+        // Wait and retry — frame may reattach after GC/layout
+        await new Promise((r) => setTimeout(r, 200));
+      }
+    }
 
     if (i % FPS === 0) {
-      process.stdout.write(`  ${Math.round((i / totalFrames) * 100)}%\r`);
+      process.stdout.write(`  ${Math.round((i / totalFrames) * 100)}%`);
     }
   }
+
+  cdp.detach();
 
   console.log(`  100% — ${totalFrames + 1} frames captured`);
   await browser.close();
