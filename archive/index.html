@@ -137,6 +137,7 @@ body {
   gap: 4px;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .ticker-item {
@@ -1189,6 +1190,41 @@ body {
   color: var(--ink-light);
 }
 
+/* === REPO AGE BADGES === */
+
+.repo-age {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.repo-age-fresh { background: #dbeafe; color: #1e40af; }
+.repo-age-young { background: #d1fae5; color: #065f46; }
+.repo-age-mature { background: #e5e7eb; color: #374151; }
+.repo-age-veteran { background: #fef3c7; color: #92400e; }
+
+[data-theme="dark"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
+[data-theme="dark"] .repo-age-mature { background: #374151; color: #d1d5db; }
+[data-theme="dark"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+
+[data-theme="sepia"] .repo-age-fresh { background: #c4b5a0; color: #3e3226; }
+[data-theme="sepia"] .repo-age-young { background: #a7c4a0; color: #1a3a1a; }
+[data-theme="sepia"] .repo-age-mature { background: #d4c9b5; color: #3e3226; }
+[data-theme="sepia"] .repo-age-veteran { background: #d4a844; color: #3e3226; }
+
+[data-theme="midnight"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="midnight"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
+[data-theme="midnight"] .repo-age-mature { background: #21262d; color: #8b949e; }
+[data-theme="midnight"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+
 /* === CHAT === */
 
 .chat-fab {
@@ -1417,6 +1453,10 @@ body {
     font-size: 11px;
     padding: 10px 14px;
     letter-spacing: 1px;
+  }
+
+  .ticker-more {
+    display: none;
   }
 }
 
@@ -1785,6 +1825,42 @@ body.account {
   color: #fff;
 }
 
+/* === PROVIDER GROUPS (Markets page) === */
+
+.provider-group { margin-bottom: 24px; }
+.provider-name {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule-light);
+  margin-bottom: 0;
+}
+.provider-flagship { font-weight: 600; }
+.provider-more { margin-top: 4px; }
+.provider-more summary {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.account-pricing {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .account-error {
   padding: 40px 20px;
   text-align: center;
@@ -1842,9 +1918,81 @@ body.account {
     </div>
 
     <div class="archive-entry">
+      <span class="archive-date">Sunday, March 15, 2026</span>
+      <a href="/editions/2026-03-15/" class="archive-headline">Lightpanda: Zig-Powered Headless Browser Turbocharges AI Automation</a>
+      <span class="archive-tagline">“Technology is a gift of God. After the gift of life it is perhaps the greatest of God&#39;s gifts.” — Freeman Dyson</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Saturday, March 14, 2026</span>
+      <a href="/editions/2026-03-14/" class="archive-headline">gstack Turns Claude into a Slash-Command Dev Team for Solo Builders</a>
+      <span class="archive-tagline">“We can only see a short distance ahead, but we can see plenty there that needs to be done.” — Alan Turing</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Friday, March 13, 2026</span>
+      <a href="/editions/2026-03-13/" class="archive-headline">CLI-Anything Turns Any Desktop App into AI Agent Command Line</a>
+      <span class="archive-tagline">“The economy of human time is the next advantage of machinery in manufactures.” — Charles Babbage</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Thursday, March 12, 2026</span>
+      <a href="/editions/2026-03-12/" class="archive-headline">OpenClaw Delivers Always-On Personal AI Across Every Chat App You Use</a>
+      <span class="archive-tagline">“There&#39;s no sense in being precise when you don&#39;t even know what you&#39;re talking about.” — John von Neumann</span>
+    </div>
+
+    <div class="archive-entry">
       <span class="archive-date">Wednesday, March 11, 2026</span>
       <a href="/editions/2026-03-11/" class="archive-headline">GitHub Repo Exposes System Prompts Fueling Top AI Coding Agents</a>
       <span class="archive-tagline">“Civilization advances by extending the number of important operations which we can perform without thinking about them.” — Alfred North Whitehead</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Tuesday, March 10, 2026</span>
+      <a href="/editions/2026-03-10/" class="archive-headline">NullClaw Delivers Tiny Zig AI Assistant for Any Hardware</a>
+      <span class="archive-tagline">“One accurate measurement is worth a thousand expert opinions.” — Grace Hopper</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Monday, March 9, 2026</span>
+      <a href="/editions/2026-03-09/" class="archive-headline">AI Agents Automate Frontier LLM Research on a Single GPU Overnight</a>
+      <span class="archive-tagline">“Those who can imagine anything, can create the impossible.” — Alan Turing</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Sunday, March 8, 2026</span>
+      <a href="/editions/2026-03-08/" class="archive-headline">Antigravity Awesome Skills Arms AI Agents with 1,273 Battle-Tested Coding Playbooks</a>
+      <span class="archive-tagline">“Science is what we understand well enough to explain to a computer; art is everything else.” — Donald Knuth</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Saturday, March 7, 2026</span>
+      <a href="/editions/2026-03-07/" class="archive-headline">AirI Unleashes Self-Hosted AI Companions That Play Games and Chat in Real Time</a>
+      <span class="archive-tagline">“At each increase of knowledge, as well as on the contrivance of every new tool, human labour becomes abridged.” — Charles Babbage</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Friday, March 6, 2026</span>
+      <a href="/editions/2026-03-06/" class="archive-headline">PinchTab Gives AI Agents Lightning-Fast Control Over Chrome Browsers</a>
+      <span class="archive-tagline">“The best programs are written so that computing machines can perform them quickly and so that human beings can understand them clearly.” — Donald Knuth</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Thursday, March 5, 2026</span>
+      <a href="/editions/2026-03-05/" class="archive-headline">One CLI Masters Google Workspace APIs Dynamically for Devs and AI Agents</a>
+      <span class="archive-tagline">“Programs are meant to be read by humans and only incidentally for computers to execute.” — Donald Knuth</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Wednesday, March 4, 2026</span>
+      <a href="/editions/2026-03-04/" class="archive-headline">Open-Source World Monitor Delivers Palantir-Like Global Intelligence Dashboard</a>
+      <span class="archive-tagline">“In mathematics you don&#39;t understand things. You just get used to them.” — John von Neumann</span>
+    </div>
+
+    <div class="archive-entry">
+      <span class="archive-date">Tuesday, March 3, 2026</span>
+      <a href="/editions/2026-03-03/" class="archive-headline">Desloppify Harnesses AI Agents to Sculpt Sloppy Code into Beautiful Engineering</a>
+      <span class="archive-tagline">“Before you become too entranced with gorgeous gadgets, remember that the greatest invention of all was the book.” — Arthur C. Clarke</span>
     </div>
 
     <div class="archive-entry">
