@@ -25,30 +25,48 @@ const { resolveDataDir } = db;
  */
 function readManifest(outDir) {
   const dataDir = resolveDataDir(outDir);
-  // Try database first
-  try {
-    const manifest = db.readManifest(dataDir);
-    if (manifest.length > 0) return manifest;
-  } catch {
-    // Fall through to JSON fallback
-  }
 
-  // JSON fallback — DB was empty or unavailable
+  // Read from both sources
+  let dbManifest = [];
+  try {
+    dbManifest = db.readManifest(dataDir);
+  } catch { /* DB unavailable */ }
+
+  let jsonManifest = [];
   const manifestPath = path.join(outDir, "editions", "manifest.json");
   if (fs.existsSync(manifestPath)) {
     try {
-      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-      // Auto-migrate JSON data into DB for next time
-      if (Array.isArray(manifest) && manifest.length > 0) {
-        try { db.writeManifest(dataDir, manifest); } catch { /* non-fatal */ }
-      }
-      return manifest;
+      const parsed = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+      if (Array.isArray(parsed)) jsonManifest = parsed;
     } catch (e) {
-      console.warn(`Warning: corrupt manifest.json, starting fresh: ${e.message}`);
-      return [];
+      console.warn(`Warning: corrupt manifest.json: ${e.message}`);
     }
   }
-  return [];
+
+  // Merge: use whichever has more entries as the base, then add any
+  // editions from the other source that are missing (by date).
+  // This prevents gh-pages sync (JSON) from being discarded when the
+  // local DB has fewer entries, and vice versa.
+  const [base, other] = dbManifest.length >= jsonManifest.length
+    ? [dbManifest, jsonManifest]
+    : [jsonManifest, dbManifest];
+
+  const baseDates = new Set(base.map((e) => e.date));
+  const merged = [...base];
+  for (const entry of other) {
+    if (!baseDates.has(entry.date)) {
+      merged.push(entry);
+    }
+  }
+  merged.sort((a, b) => b.date.localeCompare(a.date));
+
+  // Sync merged result back to DB if it grew
+  if (merged.length > dbManifest.length) {
+    try { db.writeManifest(dataDir, merged); } catch { /* non-fatal */ }
+    console.log(`Manifest reconciled: DB had ${dbManifest.length}, JSON had ${jsonManifest.length}, merged to ${merged.length}`);
+  }
+
+  return merged;
 }
 
 /**
