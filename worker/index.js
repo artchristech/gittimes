@@ -1,3 +1,12 @@
+const CHAT_MODEL = "grok-3-mini";
+
+// --- Stats counter helpers ---
+
+async function incrementStat(kv, key, delta) {
+  const current = parseInt(await kv.get(key) || "0", 10);
+  await kv.put(key, String(current + delta));
+}
+
 // --- Utility functions ---
 
 async function generateUnsubscribeToken(email, secret) {
@@ -73,6 +82,49 @@ async function sendMagicLinkEmail(email, url, env) {
   return res.ok;
 }
 
+async function sendPaymentFailedEmail(email, env) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "The Git Times <noreply@gittimes.com>",
+      to: [email],
+      subject: "Action Required: Payment Failed — The Git Times",
+      html: `<p>Your most recent payment for The Git Times Premium failed.</p><p>Please update your payment method within 3 days to keep your Premium access.</p><p><a href="https://gittimes.com/account/">Manage your account</a></p><p>If you don't update your payment, your account will revert to the Free plan.</p>`,
+    }),
+  });
+  return res.ok;
+}
+
+async function sendUpgradeEmail(email, env) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "The Git Times <noreply@gittimes.com>",
+      to: [email],
+      subject: "Welcome to Premium — The Git Times",
+      html: `<p>You're now a Premium member of The Git Times!</p><p>You have unlimited access to AI-powered chat about trending repos and developer news.</p><p><a href="https://gittimes.com/account/">Visit your account</a></p><p>Thank you for supporting The Git Times.</p>`,
+    }),
+  });
+  return res.ok;
+}
+
+async function resolveGracePeriod(user, env) {
+  if (user.gracePeriodEndsAt && new Date(user.gracePeriodEndsAt).getTime() < Date.now()) {
+    user.plan = "free";
+    delete user.gracePeriodEndsAt;
+    await env.USERS.put(user.email, JSON.stringify(user));
+  }
+  return user;
+}
+
 async function getSessionUser(request, env) {
   const auth = request.headers.get("Authorization") || "";
   if (!auth.startsWith("Bearer ")) return null;
@@ -140,9 +192,9 @@ async function verifyStripeSignature(payload, sigHeader, secret) {
   return result === 0;
 }
 
-export default {
+const handler = {
   async fetch(request, env) {
-    const origin = request.headers.get("Origin") || "";
+    const _origin = request.headers.get("Origin") || "";
     const allowed = env.ALLOWED_ORIGIN || "https://gittimes.com";
     const corsHeaders = {
       "Access-Control-Allow-Origin": allowed,
@@ -208,6 +260,7 @@ export default {
           plan: "free",
           subscribedToNewsletter: true,
         }));
+        await incrementStat(env.USERS, "stats:totalUsers", 1);
       }
 
       // Upsert subscriber
@@ -229,7 +282,7 @@ export default {
         expiresAt,
       }), { expirationTtl: 900 });
 
-      const magicUrl = `${allowed}/auth/verify?token=${token}`;
+      const _magicUrl = `${allowed}/auth/verify?token=${token}`;
       // Use worker URL for verify endpoint
       const verifyUrl = `${url.origin}/auth/verify?token=${token}`;
 
@@ -282,6 +335,7 @@ export default {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      await resolveGracePeriod(user, env);
       return new Response(JSON.stringify({
         ok: true,
         user: {
@@ -289,6 +343,7 @@ export default {
           plan: user.plan,
           subscribedToNewsletter: user.subscribedToNewsletter,
           createdAt: user.createdAt,
+          chatUsage: user.chatUsage || null,
         },
       }), {
         status: 200,
@@ -349,6 +404,8 @@ export default {
         env.SUBSCRIBERS.delete(user.email),
         env.SESSIONS.delete(token),
       ]);
+      await incrementStat(env.USERS, "stats:totalUsers", -1);
+      if (user.plan === "premium") await incrementStat(env.USERS, "stats:premiumUsers", -1);
 
       return new Response(JSON.stringify({ ok: true, message: "Account deleted." }), {
         status: 200,
@@ -403,6 +460,7 @@ export default {
           plan: "free",
           subscribedToNewsletter: true,
         }));
+        await incrementStat(env.USERS, "stats:totalUsers", 1);
       }
 
       return new Response(JSON.stringify({ ok: true, message: "You're subscribed! Welcome aboard." }), {
@@ -473,11 +531,24 @@ export default {
         });
       }
 
+      // Idempotency guard — deduplicate webhook events (7-day TTL)
+      const idempotencyKey = `webhook:${event.id}`;
+      const alreadyProcessed = await env.MAGIC_LINKS.get(idempotencyKey);
+      if (alreadyProcessed) {
+        return new Response(JSON.stringify({ received: true, deduplicated: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      await env.MAGIC_LINKS.put(idempotencyKey, "1", { expirationTtl: 604800 });
+
       if (event.type === "checkout.session.completed") {
         const session = event.data.object;
         const email = (session.customer_email || (session.metadata && session.metadata.user_email) || "").toLowerCase();
         if (email) {
           let user = await env.USERS.get(email, "json");
+          const wasNew = !user;
+          const wasFree = user && user.plan !== "premium";
           if (!user) {
             // Auto-create user if webhook fires before KV write (race condition safety net)
             user = {
@@ -491,14 +562,16 @@ export default {
           user.stripeCustomerId = session.customer || "";
           user.stripeSubscriptionId = session.subscription || "";
           await env.USERS.put(email, JSON.stringify(user));
+          if (wasNew) await incrementStat(env.USERS, "stats:totalUsers", 1);
+          if (wasNew || wasFree) await incrementStat(env.USERS, "stats:premiumUsers", 1);
+          try { await sendUpgradeEmail(email, env); } catch { /* non-fatal */ }
         }
       }
 
-      if (event.type === "customer.subscription.deleted" || event.type === "invoice.payment_failed") {
+      if (event.type === "customer.subscription.deleted") {
         const obj = event.data.object;
         const customerId = obj.customer;
         if (customerId) {
-          // Look up customer email via Stripe API
           const customerRes = await fetch(
             `https://api.stripe.com/v1/customers/${encodeURIComponent(customerId)}`,
             { headers: { Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}` } },
@@ -509,8 +582,36 @@ export default {
             if (email) {
               const user = await env.USERS.get(email, "json");
               if (user) {
+                const wasPremium = user.plan === "premium";
                 user.plan = "free";
+                user.cancelledAt = new Date().toISOString();
+                user.churnReason = "customer.subscription.deleted";
+                delete user.gracePeriodEndsAt;
                 await env.USERS.put(email, JSON.stringify(user));
+                if (wasPremium) await incrementStat(env.USERS, "stats:premiumUsers", -1);
+              }
+            }
+          }
+        }
+      }
+
+      if (event.type === "invoice.payment_failed") {
+        const obj = event.data.object;
+        const customerId = obj.customer;
+        if (customerId) {
+          const customerRes = await fetch(
+            `https://api.stripe.com/v1/customers/${encodeURIComponent(customerId)}`,
+            { headers: { Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}` } },
+          );
+          if (customerRes.ok) {
+            const customer = await customerRes.json();
+            const email = (customer.email || "").toLowerCase();
+            if (email) {
+              const user = await env.USERS.get(email, "json");
+              if (user) {
+                user.gracePeriodEndsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+                await env.USERS.put(email, JSON.stringify(user));
+                try { await sendPaymentFailedEmail(email, env); } catch { /* non-fatal */ }
               }
             }
           }
@@ -543,11 +644,56 @@ export default {
         });
       }
 
+      // Message size limits
+      const MAX_MESSAGES = 50;
+      const MAX_MESSAGE_CHARS = 8000;
+      const MAX_TOTAL_CHARS = 50000;
+      if (messages.length > MAX_MESSAGES) {
+        return new Response(JSON.stringify({ error: `Too many messages (max ${MAX_MESSAGES})` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      let totalChars = 0;
+      for (const msg of messages) {
+        const len = typeof msg.content === "string" ? msg.content.length : 0;
+        if (len > MAX_MESSAGE_CHARS) {
+          return new Response(JSON.stringify({ error: `Message too long (max ${MAX_MESSAGE_CHARS} chars)` }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        totalChars += len;
+      }
+      if (totalChars > MAX_TOTAL_CHARS) {
+        return new Response(JSON.stringify({ error: `Total message content too long (max ${MAX_TOTAL_CHARS} chars)` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       // Check account-based auth first (Bearer token)
       let authorized = false;
       const accountUser = await getSessionUser(request, env);
-      if (accountUser && accountUser.plan === "premium") {
-        authorized = true;
+      if (accountUser) {
+        await resolveGracePeriod(accountUser, env);
+        if (accountUser.plan === "premium") {
+          // Usage tracking — monthly chat counter
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          if (!accountUser.chatUsage || accountUser.chatUsage.month !== currentMonth) {
+            accountUser.chatUsage = { month: currentMonth, count: 0 };
+          }
+          const chatLimit = parseInt(env.CHAT_MONTHLY_LIMIT || "100");
+          if (accountUser.chatUsage.count >= chatLimit) {
+            return new Response(JSON.stringify({ error: "Monthly chat limit reached" }), {
+              status: 429,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          accountUser.chatUsage.count++;
+          await env.USERS.put(accountUser.email, JSON.stringify(accountUser));
+          authorized = true;
+        }
       }
 
       // Fall back to Stripe session validation
@@ -595,7 +741,7 @@ export default {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "grok-3-mini",
+          model: env.CHAT_MODEL || CHAT_MODEL,
           stream: true,
           messages: [
             {
@@ -796,6 +942,121 @@ export default {
       });
     }
 
+    // POST /billing/portal — redirect premium users to Stripe customer portal
+    if (url.pathname === "/billing/portal" && request.method === "POST") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!user.stripeCustomerId) {
+        return new Response(JSON.stringify({ ok: false, error: "No billing account found" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const portalRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          customer: user.stripeCustomerId,
+          return_url: `${allowed}/account/`,
+        }),
+      });
+      const portal = await portalRes.json();
+      if (!portalRes.ok) {
+        return new Response(JSON.stringify({ ok: false, error: portal.error?.message || "Portal error" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ ok: true, url: portal.url }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // GET /pricing — public pricing info
+    if (url.pathname === "/pricing" && request.method === "GET") {
+      const priceRes = await fetch(
+        `https://api.stripe.com/v1/prices/${encodeURIComponent(env.STRIPE_PRICE_ID)}`,
+        { headers: { Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}` } },
+      );
+      const price = await priceRes.json();
+      if (!priceRes.ok) {
+        return new Response(JSON.stringify({ ok: false, error: "Failed to fetch pricing" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const amount = price.unit_amount;
+      const currency = price.currency;
+      const interval = price.recurring?.interval || "month";
+      const display = `$${(amount / 100).toFixed(0)}/${interval}`;
+      return new Response(JSON.stringify({ ok: true, amount, currency, interval, display }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // GET /admin/stats — admin dashboard stats
+    if (url.pathname === "/admin/stats" && request.method === "GET") {
+      const authHeader = request.headers.get("Authorization") || "";
+      if (authHeader !== `Bearer ${env.ADMIN_TOKEN}`) {
+        return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      let totalUsers = parseInt(await env.USERS.get("stats:totalUsers") || "0", 10);
+      let premiumUsers = parseInt(await env.USERS.get("stats:premiumUsers") || "0", 10);
+
+      // Migration fallback: if counters haven't been seeded, run the scan once
+      if (totalUsers === 0) {
+        let cursor = null;
+        let scannedTotal = 0;
+        let scannedPremium = 0;
+        do {
+          const listOpts = { limit: 1000 };
+          if (cursor) listOpts.cursor = cursor;
+          const result = await env.USERS.list(listOpts);
+          for (const key of result.keys) {
+            if (key.name.startsWith("stats:")) continue;
+            const u = await env.USERS.get(key.name, "json");
+            if (u) {
+              scannedTotal++;
+              if (u.plan === "premium") scannedPremium++;
+            }
+          }
+          cursor = result.list_complete ? null : result.cursor;
+        } while (cursor);
+        if (scannedTotal > 0) {
+          totalUsers = scannedTotal;
+          premiumUsers = scannedPremium;
+          await env.USERS.put("stats:totalUsers", String(totalUsers));
+          await env.USERS.put("stats:premiumUsers", String(premiumUsers));
+        }
+      }
+
+      const freeUsers = totalUsers - premiumUsers;
+      const priceAmount = parseInt(env.STRIPE_PRICE_AMOUNT || "500");
+      const estimatedMRR = premiumUsers * priceAmount / 100;
+      return new Response(JSON.stringify({ ok: true, totalUsers, premiumUsers, freeUsers, estimatedMRR }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response("Not found", { status: 404, headers: corsHeaders });
   },
 };
+
+export default handler;
+
+// Node.js testing compatibility
+try { module.exports = handler; } catch { /* ESM environment */ }

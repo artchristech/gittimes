@@ -1,5 +1,5 @@
 # Grade Improvements Playbook
-_Scope: Full Application | Last graded: 2026-03-04_
+_Scope: Full Application | Last graded: 2026-03-18_
 
 ## Strategies & Hard Rules
 Principles that should always/never apply in this codebase.
@@ -44,9 +44,13 @@ Always sanitize repo metadata (description, readmeExcerpt, topics, releaseNotes)
 Always validate API response shapes before accessing nested properties — GitHub Search API may return valid JSON without expected `items` array (rate limit, error payload with 200 status).
 → Files: `src/github.js:302` — guarded with `(resultA.items || [])` and `(resultB.items || [])`.
 
-**[shr-011]** `open` · added 2026-03-04
+**[shr-011]** `open` · added 2026-03-04 · updated 2026-03-18
 Never pass user-supplied message arrays to external LLM APIs without length and size limits — unbounded payloads enable cost amplification.
-→ Files: `worker/index.js:97-108`
+→ Files: `worker/index.js:697-706`
+
+**[shr-012]** `open` · added 2026-03-18
+Never interpolate variables into `execSync` template literals — use `spawn` with argument arrays or `execFileSync` to prevent shell injection.
+→ Files: `publish-edition.js:24`
 
 ## Common Failure Patterns
 Recurring mistake types observed across multiple files.
@@ -75,9 +79,13 @@ Object shape mismatches between pipeline stages — article objects (`{headline,
 Duplicated pipeline orchestration logic — `generate.js:24-49` and `publish-edition.js:31-55` independently implement the same fetch→history→deltas→editorial→generate flow. Changes must be applied in both places.
 → Files: `generate.js:24-49`, `publish-edition.js:31-55`
 
-**[cfp-007]** `open` · added 2026-03-04
+**[cfp-007]** `open` · added 2026-03-04 · updated 2026-03-18
 Hidden module coupling via inline `require()` inside function bodies — used to work around circular dependency loading but makes the dependency graph opaque and harder to test.
-→ Files: `src/xai.js:257,282,338,339`, `src/github.js:555,580`
+→ Files: `src/xai.js:263,332,357,402,431,546`, `src/github.js:605,690`
+
+**[cfp-008]** `open` · added 2026-03-18
+Duplicated template rendering boilerplate — analytics script, CSP headers, and plausible domain logic are independently constructed in every page renderer module.
+→ Files: `src/archive.js:37-42`, `src/landing.js:41-46`, `src/account.js:22-33`, `src/markets.js:258-263`, `src/render.js:504-514`
 
 ## Troubleshooting Pitfalls
 Specific edge cases or gotchas that are easy to miss.
@@ -158,10 +166,26 @@ Inconsistent `topics` guarding in prompts.js — lines 33, 69 use `repo.topics.j
 `render.js:260-428` embeds 170 lines of client-side JavaScript (chat UI, SSE streaming, localStorage) as template literals inside server-side rendering code — can't be linted, minified, or tested independently.
 → Files: `src/render.js:260-428`
 
-**[tp-020]** `open` · added 2026-03-04
-Worker uses hardcoded `"grok-3-mini"` model (`worker/index.js:97`) while the rest of the codebase uses `MODEL` constant from `xai.js` — creates model version drift risk (same class of issue as resolved tp-016).
-→ Files: `worker/index.js:97`
+**[tp-020]** `open` · added 2026-03-04 · updated 2026-03-18
+Worker uses hardcoded `"grok-3-mini"` model (`worker/index.js:697`) while the rest of the codebase uses `MODEL` constant from `xai.js` — creates model version drift risk (same class of issue as resolved tp-016).
+→ Files: `worker/index.js:697`
 
 **[tp-021]** `open` · added 2026-03-04
 No ESLint configuration — no static analysis runs on the codebase, meaning style inconsistencies and detectable bugs have no automated gate.
 → Files: project root (missing `eslint.config.js`)
+
+**[tp-022]** `open` · added 2026-03-18
+Shell injection risk: `publish-edition.js:24` interpolates `outDir` into `execSync` template literal without escaping — any shell metacharacters in `PUBLISH_DIR` env var cause injection or breakage.
+→ Files: `publish-edition.js:24`
+
+**[tp-023]** `open` · added 2026-03-18
+`ai-ticker.js:261-263` defines a local `escapeHtml` missing `"` (`&quot;`) and `'` (`&#39;`) escaping, diverging from the canonical `render.js:17-23` implementation which is already exported.
+→ Files: `src/ai-ticker.js:261-263`
+
+**[tp-024]** `open` · added 2026-03-18
+`landing.js:47-52` contains dead code: conditional detects `chatWorkerUrl` but the body is only a comment — CSP `connect-src` never includes the worker URL on the landing page. Compare with `account.js:28-32` which correctly appends it.
+→ Files: `src/landing.js:47-52`
+
+**[tp-025]** `open` · added 2026-03-18
+Admin stats endpoint at `worker/index.js:969-986` iterates all KV keys with individual `get()` calls — O(n) reads that will degrade as user base grows.
+→ Files: `worker/index.js:969-986`

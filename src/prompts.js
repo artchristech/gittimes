@@ -27,6 +27,28 @@ function trajectoryContext(repo) {
 }
 
 /**
+ * Returns a freshness directive for established repos (≥ 90 days old).
+ * New repos get no directive — introductory framing is appropriate for them.
+ */
+function editorialFramingDirective(repo) {
+  const createdStr = repo.createdAt || (repo.starTrajectory && repo.starTrajectory.createdAt);
+  if (!createdStr) return "";
+  const ageDays = Math.round((Date.now() - new Date(createdStr).getTime()) / 86400000);
+  if (ageDays < 90) return "";
+  const ageLabel = ageDays < 365
+    ? `~${Math.round(ageDays / 30)} months old`
+    : `~${(ageDays / 365).toFixed(1)} years old`;
+  return `
+FRESHNESS DIRECTIVE — This project is ${ageLabel}. It is NOT new.
+- Do NOT introduce this project as if readers are hearing about it for the first time.
+- Assume your audience is aware this project exists.
+- The news hook MUST be something recent: a new release, a major update, a breaking change, a significant adoption milestone, or a shift in direction.
+- If there is no recent release or change data available, focus on a specific current use case or integration that is timely — not a general overview.
+- Frame: "what's changed" or "why it matters now", never "meet this project."
+`;
+}
+
+/**
  * Build a PRIOR COVERAGE block for the LLM prompt when a repo has been covered before.
  * Returns empty string if no prior coverage exists.
  * @param {object} repo - Enriched repo object
@@ -71,8 +93,7 @@ README EXCERPT:
 ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
-${priorCoverageBlock(repo, coverage)}
-EDITORIAL GUIDELINES:
+${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
 - The story is WHAT this project does and WHY it matters to builders — not how many stars it has.
 - Do not lead with, emphasize, or build narratives around star counts or GitHub popularity metrics.
 - Focus on: the problem it solves, how it works technically, what's new or different about it, and who should care.
@@ -115,8 +136,7 @@ README EXCERPT:
 ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
-${priorCoverageBlock(repo, coverage)}
-EDITORIAL GUIDELINES:
+${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
 - Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
 Write in crisp newspaper style. No hype. Concrete details only.
 Do not include a word count anywhere in the output.
@@ -175,8 +195,7 @@ ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
 
-${priorCoverageBlock(repo, coverage)}
-EDITORIAL GUIDELINES:
+${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
 - This project is getting attention. Your job is to explain WHY — what does it do, what problem does it solve, and what makes it technically interesting?
 - Do NOT lead with star counts, growth numbers, or popularity metrics. Those are not the story.
 - The story is the PROJECT — its capabilities, its approach, who it's for, and what it changes.
@@ -285,6 +304,7 @@ Be specific. Reference repo names. Prioritize signal over noise.`;
 
 module.exports = {
   sanitizeRepoField,
+  editorialFramingDirective,
   priorCoverageBlock,
   leadArticlePrompt,
   secondaryArticlePrompt,

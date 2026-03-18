@@ -12,6 +12,9 @@ const {
   sleeperArticlePrompt,
 } = require("./prompts");
 
+const { SECTIONS, SECTION_ORDER } = require("./sections");
+const { mastheadQuote } = require("./quotes");
+
 const MODEL = "grok-4-1-fast-reasoning";
 
 function createClient(apiKey) {
@@ -23,6 +26,7 @@ function createClient(apiKey) {
 
 function sanitizePrompt(text) {
   // Remove characters that may cause issues with some API endpoints
+  // eslint-disable-next-line no-control-regex
   return text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 }
 
@@ -260,7 +264,6 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
  * @param {function} llmLimit - p-limit limiter
  */
 async function _attachSentiment(sections, client, llmLimit) {
-  const { SECTIONS, SECTION_ORDER } = require("./sections");
   const { fetchXSentimentForRepo } = require("./x-sentiment");
 
   const tasks = []; // { article, repo }
@@ -329,7 +332,6 @@ async function _attachSentiment(sections, client, llmLimit) {
  * @returns {Promise<{ sections: object, tagline: string }>}
  */
 async function _generateBaseSections(sections, client, llmLimit, coverage) {
-  const { SECTIONS, SECTION_ORDER } = require("./sections");
 
   const result = {};
   for (const id of SECTION_ORDER) {
@@ -354,7 +356,6 @@ async function _generateBaseSections(sections, client, llmLimit, coverage) {
   };
 
   // Pick a daily pioneer quote for the masthead
-  const { mastheadQuote } = require("./quotes");
   const tagline = mastheadQuote();
 
   const totalArticles = SECTION_ORDER.reduce((sum, id) => {
@@ -399,7 +400,6 @@ async function generateAllContent(sections, apiKey, options = {}) {
  * @returns {Promise<object>} Same shape as generateAllContent, with editorialMeta
  */
 async function generateEditorialContent(sections, apiKey, editorialPlan, options = {}) {
-  const { SECTION_ORDER } = require("./sections");
   const client = options.client || createClient(apiKey);
   const githubToken = options.githubToken || process.env.GITHUB_TOKEN;
   const coverage = options.coverage || null;
@@ -428,8 +428,8 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
   if (editorialPlan.breakout) {
     try {
       console.log(`  Generating breakout article for ${editorialPlan.breakout.repo.full_name || editorialPlan.breakout.repo.name}...`);
-      const { enrichRepo } = require("./github");
-      const { fetchStarTrajectory } = require("./star-history");
+      const enrichRepo = options.enrichRepo || require("./github").enrichRepo;
+      const fetchStarTrajectory = options.fetchStarTrajectory || require("./star-history").fetchStarTrajectory;
       // Enrich the breakout repo if it's a raw GitHub object
       let breakoutRepo = editorialPlan.breakout.repo;
       if (!breakoutRepo.readmeExcerpt && breakoutRepo.full_name) {
@@ -543,13 +543,13 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
           continue;
         }
         console.log(`  Generating sleeper article for ${repoName}...`);
-        const { enrichRepo } = require("./github");
+        const enrichRepoFn = options.enrichRepo || require("./github").enrichRepo;
         // Enrich the sleeper repo if it's a raw GitHub object
         let sleeperRepo = sleeper.repo;
         if (!sleeperRepo.readmeExcerpt && sleeperRepo.full_name) {
           try {
             const token = githubToken;
-            if (token) sleeperRepo = await enrichRepo(sleeperRepo, token);
+            if (token) sleeperRepo = await enrichRepoFn(sleeperRepo, token);
           } catch {
             // Use raw repo data if enrichment fails
           }
@@ -602,7 +602,6 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
  * Mutates content.sections in place and returns the count of removed duplicates.
  */
 function deduplicateContent(content) {
-  const { SECTION_ORDER } = require("./sections");
   const seen = new Set();
   let removed = 0;
 

@@ -57,10 +57,16 @@
         <span class="account-label">Member Since</span>
         <span class="account-value" id="account-since"></span>
       </div>
+      <div class="account-row" id="account-usage-row" style="display:none">
+        <span class="account-label">Chat Messages</span>
+        <span class="account-value" id="account-usage"></span>
+      </div>
     </div>
+    <div id="account-pricing" class="account-pricing" style="display:none"></div>
     <div class="account-actions">
       <a href="{{BASE_PATH}}/latest/" class="account-btn account-btn-primary">Read Latest Edition</a>
       <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
+      <button class="account-btn account-btn-secondary" id="account-manage-sub" style="display:none">Manage Subscription</button>
       <button class="account-btn account-btn-secondary" id="account-newsletter-toggle">Unsubscribe from Newsletter</button>
       <button class="account-btn account-btn-secondary" id="account-logout">Sign Out</button>
       <button class="account-btn account-btn-danger" id="account-delete">Delete Account</button>
@@ -94,6 +100,8 @@
       var logoutBtn = document.getElementById('account-logout');
       var deleteBtn = document.getElementById('account-delete');
       var upgradeBtn = document.getElementById('account-upgrade');
+      var manageSubBtn = document.getElementById('account-manage-sub');
+      var pricingDiv = document.getElementById('account-pricing');
       var newsletterBtn = document.getElementById('account-newsletter-toggle');
 
       // Capture token from URL (magic link redirect)
@@ -165,6 +173,24 @@
         if (user.plan !== 'premium') {
           upgradeBtn.style.display = 'inline-block';
           upgradeBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(session);
+          // Show pricing for free users
+          fetch(WORKER + '/pricing')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.ok) {
+                pricingDiv.innerHTML = 'Premium: ' + data.display + ' — Unlimited AI chat';
+                pricingDiv.style.display = 'block';
+              }
+            })
+            .catch(function() {});
+        } else {
+          // Premium user — show manage subscription button and chat usage
+          manageSubBtn.style.display = 'inline-block';
+          if (user.chatUsage) {
+            var usageRow = document.getElementById('account-usage-row');
+            usageRow.style.display = 'flex';
+            document.getElementById('account-usage').textContent = user.chatUsage.count + ' / 100 this month';
+          }
         }
         if (upgradedParam === 'true') {
           status.textContent = 'You have been upgraded to Premium!';
@@ -244,6 +270,30 @@
         })
         .catch(function() {})
         .finally(function() { newsletterBtn.disabled = false; });
+      });
+
+      // Manage Subscription
+      manageSubBtn.addEventListener('click', function() {
+        if (!session) return;
+        manageSubBtn.disabled = true;
+        fetch(WORKER + '/billing/portal', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + session }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok && data.url) {
+            window.location.href = data.url;
+          } else {
+            status.textContent = data.error || 'Failed to open billing portal.';
+            status.className = 'subscribe-status error';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error. Please try again.';
+          status.className = 'subscribe-status error';
+        })
+        .finally(function() { manageSubBtn.disabled = false; });
       });
 
       // Logout

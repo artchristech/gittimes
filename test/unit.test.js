@@ -707,7 +707,7 @@ describe("categorizeDiverseForSection", () => {
       makeRepo("a/5", "TS", 6),
       makeRepo("a/6", "C", 5),
     ];
-    const { lead, secondary, quickHits } = categorizeDiverseForSection(repos, { secondary: 3, quickHits: 5 });
+    const { lead, secondary } = categorizeDiverseForSection(repos, { secondary: 3, quickHits: 5 });
     assert.ok(lead);
     assert.ok(secondary.length <= 3, `Expected max 3 secondary, got ${secondary.length}`);
   });
@@ -1005,7 +1005,7 @@ describe("parseXSentiment", () => {
 
 describe("renderMemesContent", () => {
   it("returns coming soon placeholder", () => {
-    const config = { id: "memes", label: "Memes", isMemes: true };
+    const _config = { id: "memes", label: "Memes", isMemes: true };
     const html = renderMemesContent();
     assert.ok(html.includes("section-empty"));
     assert.ok(html.includes("Memes section coming soon"));
@@ -1299,5 +1299,45 @@ describe("sanitizeArticleHtml URI schemes", () => {
   it("preserves safe markdown-generated tags", () => {
     const html = "<p><strong>bold</strong> and <em>italic</em> and <code>code</code></p>";
     assert.equal(sanitizeArticleHtml(html), html);
+  });
+});
+
+// --------------- shell injection validation ---------------
+
+describe("syncSiteFromGhPages shell injection guard", () => {
+  it("rejects outDir with shell metacharacters", () => {
+    // Directly test the regex used in publish-edition.js
+    const SAFE_DIR = /^[a-zA-Z0-9_.\-/]+$/;
+    assert.ok(SAFE_DIR.test("./site"));
+    assert.ok(SAFE_DIR.test("site/output"));
+    assert.ok(!SAFE_DIR.test("./site; rm -rf /"));
+    assert.ok(!SAFE_DIR.test("$(evil)"));
+    assert.ok(!SAFE_DIR.test("site`whoami`"));
+    assert.ok(!SAFE_DIR.test("site dir"));
+    assert.ok(!SAFE_DIR.test(""));
+  });
+});
+
+// --------------- template-utils ---------------
+
+describe("template-utils", () => {
+  const { buildAnalytics } = require("../src/template-utils");
+
+  it("returns empty strings when PLAUSIBLE_DOMAIN is not set", () => {
+    const orig = process.env.PLAUSIBLE_DOMAIN;
+    delete process.env.PLAUSIBLE_DOMAIN;
+    const result = buildAnalytics();
+    assert.equal(result.analyticsScript, "");
+    assert.equal(result.cspScriptSrc, "");
+    assert.equal(result.cspConnectSrc, "");
+    if (orig !== undefined) process.env.PLAUSIBLE_DOMAIN = orig;
+  });
+
+  it("includes worker origin in cspConnectSrc", () => {
+    const orig = process.env.PLAUSIBLE_DOMAIN;
+    delete process.env.PLAUSIBLE_DOMAIN;
+    const result = buildAnalytics({ chatWorkerUrl: "https://worker.example.com/api" });
+    assert.ok(result.cspConnectSrc.includes("https://worker.example.com"));
+    if (orig !== undefined) process.env.PLAUSIBLE_DOMAIN = orig;
   });
 });

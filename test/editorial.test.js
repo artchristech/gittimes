@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, TRAJECTORY_MULTIPLIERS } = require("../src/editorial");
+const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan } = require("../src/editorial");
 
 describe("identifyBreakout", () => {
   it("returns null with no deltas", () => {

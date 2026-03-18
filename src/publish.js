@@ -1,13 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 
-const { assembleHtml, buildNavHtml, escapeHtml } = require("./render");
+const { assembleHtml, buildNavHtml } = require("./render");
 
 const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
 const { renderAccountPage } = require("./account");
 const { renderMarketsPage } = require("./markets");
 const { generateRss, generateAtom } = require("./feed");
+const { loadTemplate, buildAnalytics } = require("./template-utils");
 const db = require("./db");
 
 /**
@@ -258,19 +259,12 @@ async function publish(content, outDir, options = {}) {
   // 11. Generate custom 404 page
   const fourOhFourTemplatePath = path.join(__dirname, "..", "templates", "404.html");
   if (fs.existsSync(fourOhFourTemplatePath)) {
-    const fourOhFourTemplate = fs.readFileSync(fourOhFourTemplatePath, "utf-8");
-    const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
-    const css = fs.readFileSync(cssPath, "utf-8");
+    const { template: fourOhFourTemplate, css: fourOhFourCss } = loadTemplate("404");
     const latestUrl = basePath + "/latest/";
     const archiveUrl = basePath + "/archive/";
-    const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
-    const analyticsScript = plausibleDomain
-      ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
-      : "";
-    const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
-    const cspConnectSrc = plausibleDomain ? " https://plausible.io" : "";
+    const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics();
     const fourOhFourHtml = fourOhFourTemplate
-      .replace("{{STYLES}}", css)
+      .replace("{{STYLES}}", fourOhFourCss)
       .replace(/\{\{BASE_PATH\}\}/g, basePath)
       .replace("{{LATEST_URL}}", latestUrl)
       .replace("{{ARCHIVE_URL}}", archiveUrl)
@@ -294,7 +288,13 @@ async function publish(content, outDir, options = {}) {
   if (!fs.existsSync(accountDir)) fs.mkdirSync(accountDir, { recursive: true });
   fs.writeFileSync(path.join(accountDir, "index.html"), renderAccountPage({ basePath, siteUrl }));
 
-  // 14. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
+  // 14. Copy chat.js to outDir for external script loading
+  const chatJsSrc = path.join(__dirname, "..", "public", "chat.js");
+  if (fs.existsSync(chatJsSrc)) {
+    fs.copyFileSync(chatJsSrc, path.join(outDir, "chat.js"));
+  }
+
+  // 15. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
   fs.writeFileSync(path.join(outDir, "CNAME"), "gittimes.com");
 
@@ -377,7 +377,7 @@ function validateContent(content) {
 
   let hasNonFallbackLead = false;
 
-  for (const [id, section] of Object.entries(content.sections)) {
+  for (const [_id, section] of Object.entries(content.sections)) {
     sections++;
 
     if (!section || section.isEmpty) {

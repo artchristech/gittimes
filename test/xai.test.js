@@ -404,7 +404,7 @@ describe("chat", () => {
 
     await assert.rejects(
       () => chat(client, "test-model", "test prompt", 100),
-      (err) => {
+      (_err) => {
         // p-retry wraps AbortError — check that it aborted early
         assert.equal(callCount, 1, "Should not retry on 4xx");
         return true;

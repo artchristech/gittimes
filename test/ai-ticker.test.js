@@ -40,6 +40,10 @@ describe("formatPrice", () => {
   it("formats zero", () => {
     assert.equal(formatPrice(0), "$0");
   });
+
+  it("formats null as N/A", () => {
+    assert.equal(formatPrice(null), "N/A");
+  });
 });
 
 describe("formatTokPerSec", () => {
@@ -69,6 +73,7 @@ describe("renderTickerBanner", () => {
         { key: "deepseek-v3.2", label: "DeepSeek V3.2", provider: "DeepSeek", input: 0.14, output: 0.28, inputDelta: null, outputDelta: null },
         { key: "llama-4-maverick", label: "Llama 4 Maverick", provider: "Meta", input: 0.15, output: 0.60, inputDelta: null, outputDelta: null },
       ],
+      bannerKeys: ["claude-sonnet-4.6", "gpt-5.4", "gemini-3.1-pro", "grok-4.20", "deepseek-v3.2", "llama-4-maverick"],
       speed: [{ name: "Cerebras", tokPerSec: 969, model: "Llama 4 Maverick" }],
       images: [{ name: "GPT Image 1.5", price: 0.04, grade: "A+" }],
     };
@@ -83,6 +88,7 @@ describe("renderTickerBanner", () => {
   it("shows down arrow for price decrease", () => {
     const data = {
       models: [{ key: "gpt-5.4", label: "GPT-5.4", provider: "OpenAI", input: 2, output: 6, inputDelta: -10, outputDelta: -25 }],
+      bannerKeys: ["gpt-5.4"],
       speed: [],
       images: [],
     };
@@ -94,6 +100,7 @@ describe("renderTickerBanner", () => {
   it("shows up arrow for price increase", () => {
     const data = {
       models: [{ key: "gpt-5.4", label: "GPT-5.4", provider: "OpenAI", input: 5, output: 20, inputDelta: 10, outputDelta: 33 }],
+      bannerKeys: ["gpt-5.4"],
       speed: [],
       images: [],
     };
@@ -105,6 +112,7 @@ describe("renderTickerBanner", () => {
   it("shows flat dash when no delta", () => {
     const data = {
       models: [{ key: "gpt-5.4", label: "GPT-5.4", provider: "OpenAI", input: 3, output: 15, inputDelta: null, outputDelta: null }],
+      bannerKeys: ["gpt-5.4"],
       speed: [],
       images: [],
     };
@@ -118,13 +126,29 @@ describe("renderTickerBanner", () => {
         { key: "claude-opus-4.6", label: "Claude Opus 4.6", provider: "Anthropic", input: 5, output: 25, inputDelta: null, outputDelta: null },
         { key: "claude-sonnet-4.6", label: "Claude Sonnet 4.6", provider: "Anthropic", input: 3, output: 15, inputDelta: null, outputDelta: null },
       ],
+      bannerKeys: ["claude-sonnet-4.6"],
       speed: [],
       images: [],
     };
     const html = renderTickerBanner(data);
-    // Opus is not in TICKER_BANNER_KEYS so should not appear
+    // Opus is not in bannerKeys so should not appear
     assert.ok(!html.includes("Claude Opus 4.6"));
     assert.ok(html.includes("Claude Sonnet 4.6"));
+  });
+
+  it("skips models with null prices", () => {
+    const data = {
+      models: [
+        { key: "gpt-5.4", label: "GPT-5.4", provider: "OpenAI", input: null, output: null, inputDelta: null, outputDelta: null },
+        { key: "grok-4.20", label: "Grok 4.20", provider: "xAI", input: 2, output: 6, inputDelta: null, outputDelta: null },
+      ],
+      bannerKeys: ["gpt-5.4", "grok-4.20"],
+      speed: [],
+      images: [],
+    };
+    const html = renderTickerBanner(data);
+    assert.ok(!html.includes("GPT-5.4"));
+    assert.ok(html.includes("Grok 4.20"));
   });
 });
 
@@ -139,14 +163,12 @@ describe("snapshot persistence", () => {
     };
     saveSnapshot(tmpDir, tickerData);
 
-    // Legacy snapshot still works
     const loaded = loadSnapshot(tmpDir);
     assert.ok(loaded);
     assert.equal(loaded.models.length, 2);
     assert.equal(loaded.models[0].key, "claude-sonnet-4.6");
     assert.equal(loaded.models[0].input, 3);
 
-    // History also saved
     const history = loadHistory(tmpDir);
     assert.ok(history.length >= 1);
     assert.equal(history[0].models.length, 2);
@@ -170,7 +192,7 @@ describe("snapshot persistence", () => {
 });
 
 describe("curated data integrity", () => {
-  it("has expanded tracked models with providers", () => {
+  it("loads tracked models from curated config", () => {
     assert.ok(TRACKED_MODELS.length >= 10);
     const keys = TRACKED_MODELS.map((m) => m.key);
     assert.ok(keys.includes("claude-sonnet-4.6"));
@@ -178,7 +200,6 @@ describe("curated data integrity", () => {
     assert.ok(keys.includes("gemini-3.1-pro"));
     assert.ok(keys.includes("grok-4.20"));
     assert.ok(keys.includes("deepseek-v3.2"));
-    // All models have provider field
     for (const m of TRACKED_MODELS) {
       assert.ok(m.provider, `${m.key} missing provider`);
     }

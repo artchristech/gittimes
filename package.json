@@ -10,8 +10,10 @@
   },
   "scripts": {
     "generate": "node generate.js",
-    "publish": "node publish-edition.js",
-    "test": "node --test test/*.test.js"
+    "sync-models": "node src/sync-models.js",
+    "publish": "node src/sync-models.js && node publish-edition.js",
+    "test": "node --test test/*.test.js",
+    "lint": "npx eslint src/ worker/ test/ generate.js publish-edition.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
@@ -21,5 +23,9 @@
     "p-limit": "^7.3.0",
     "p-retry": "^7.1.1",
     "puppeteer": "^24.38.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3"
   }
 }

@@ -1,7 +1,5 @@
-const fs = require("fs");
-const path = require("path");
-
 const { escapeHtml } = require("./render");
+const { loadTemplate, buildAnalytics } = require("./template-utils");
 
 /**
  * Render the landing page with recent editions and subscribe form.
@@ -11,13 +9,8 @@ const { escapeHtml } = require("./render");
  */
 function renderLandingPage(manifest, options = {}) {
   const basePath = options.basePath || "";
-  const siteUrl = options.siteUrl || "https://gittimes.com";
 
-  const templatePath = path.join(__dirname, "..", "templates", "landing.html");
-  const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
-
-  const template = fs.readFileSync(templatePath, "utf-8");
-  const css = fs.readFileSync(cssPath, "utf-8");
+  const { template, css } = loadTemplate("landing");
 
   const recent = manifest.slice(0, 5);
   const cards = recent.map((entry) => {
@@ -38,18 +31,7 @@ function renderLandingPage(manifest, options = {}) {
   const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
   const subscribeUrl = chatWorkerUrl ? chatWorkerUrl + "/subscribe" : "";
 
-  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
-  const analyticsScript = plausibleDomain
-    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
-    : "";
-  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
-  const cspConnectSrc = plausibleDomain ? " https://plausible.io" : "";
-  if (chatWorkerUrl) {
-    const workerOrigin = new URL(chatWorkerUrl).origin;
-    if (!cspConnectSrc.includes(workerOrigin)) {
-      // append worker origin to connect-src
-    }
-  }
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
 
   return template
     .replace("{{STYLES}}", css)

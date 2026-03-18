@@ -5,6 +5,9 @@ const GITHUB_API = "https://api.github.com";
 const pRetryP = import("p-retry");
 const pLimitP = import("p-limit");
 
+const { fetchTrajectories } = require("./star-history");
+const { SECTIONS, SECTION_ORDER } = require("./sections");
+
 function _graphqlRequest(query, variables, token) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({ query, variables });
@@ -35,7 +38,7 @@ function _graphqlRequest(query, variables, token) {
             return;
           }
           resolve(parsed);
-        } catch (e) {
+        } catch {
           reject(new Error(`GitHub GraphQL returned invalid JSON (status ${res.statusCode}): ${data.slice(0, 200)}`));
         }
       });
@@ -88,7 +91,7 @@ function _request(url, token) {
           }
           try {
             resolve(JSON.parse(data));
-          } catch (e) {
+          } catch {
             reject(new Error(`GitHub API returned invalid JSON (status ${res.statusCode}): ${data.slice(0, 200)}`));
           }
         });
@@ -602,7 +605,6 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
 
   // Fetch star trajectories for enriched repos
   try {
-    const { fetchTrajectories } = require("./star-history");
     console.log(`  Fetching star trajectories (${sectionConfig.label})...`);
     const trajectories = await fetchTrajectories(enriched, token, options.trajectoryCache);
     for (const repo of enriched) {
@@ -627,7 +629,6 @@ async function fetchAndEnrichSection(token, sectionConfig, options = {}) {
  * @returns {Promise<object>} { frontPage: {...}, ai: {...}, ... }
  */
 async function fetchAllSections(token, options = {}) {
-  const { SECTIONS, SECTION_ORDER } = require("./sections");
   const recentRepoNames = options.recentRepoNames || new Set();
   const recentLeadRepos = options.recentLeadRepos || new Set();
   const recentRepoCoverage = options.recentRepoCoverage || null;
@@ -687,7 +688,6 @@ async function fetchAndEnrich(token, options = {}) {
 
   // Fetch star trajectories for enriched repos
   try {
-    const { fetchTrajectories } = require("./star-history");
     console.log("Fetching star trajectories (front page)...");
     const trajectories = await fetchTrajectories(enriched, token, options.trajectoryCache);
     for (const repo of enriched) {

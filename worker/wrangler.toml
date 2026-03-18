@@ -4,6 +4,8 @@ compatibility_date = "2024-01-01"
 
 [vars]
 ALLOWED_ORIGIN = "https://gittimes.com"
+CHAT_MONTHLY_LIMIT = "100"
+STRIPE_PRICE_AMOUNT = "500"
 
 # Secrets (set via `wrangler secret put`):
 # - STRIPE_SECRET_KEY
@@ -12,6 +14,7 @@ ALLOWED_ORIGIN = "https://gittimes.com"
 # - STRIPE_PRICE_ID
 # - RESEND_API_KEY
 # - NEWSLETTER_SECRET
+# - ADMIN_TOKEN
 
 [[kv_namespaces]]
 binding = "SUBSCRIBERS"

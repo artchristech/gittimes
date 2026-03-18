@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { buildAnalytics } = require("./template-utils");
 
 let markedParse = null;
 
@@ -89,6 +90,7 @@ function renderLeadStory(article) {
       <span>${escapeHtml(repo.language)}</span>
       ${repo.releaseName ? `<span>Latest: ${escapeHtml(repo.releaseName)}</span>` : ""}
       <span>${formatStars(repo.stars)} stars</span>
+      ${renderAgeBadge(repo)}
     </div>
     <div class="lead-body">
       ${bodyToHtml(body)}
@@ -104,7 +106,7 @@ function renderFeaturedArticle(article) {
         <h3 class="featured-headline">${escapeHtml(headline)}</h3>
         <p class="featured-subheadline">${escapeHtml(subheadline)}</p>
         <div class="featured-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}
         </div>
         <div class="featured-body">
           ${bodyToHtml(body)}
@@ -121,7 +123,7 @@ function renderCompactArticle(article) {
         <h3 class="compact-headline">${escapeHtml(headline)}</h3>
         <p class="compact-subheadline">${escapeHtml(subheadline)}</p>
         <div class="compact-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}
         </div>
       </article>`;
 }
@@ -133,6 +135,21 @@ function renderQuickHit(hit) {
         <span class="quick-hit-summary">${escapeHtml(hit.summary)}</span>
         <span class="quick-hit-stars">${formatStars(hit.stars)}</span>
       </div>`;
+}
+
+function renderAgeBadge(repo) {
+  if (!repo || !repo.createdAt) return "";
+  const created = new Date(repo.createdAt);
+  if (isNaN(created.getTime())) return "";
+  const days = Math.floor((Date.now() - created.getTime()) / 86400000);
+
+  let label, tier;
+  if (days < 7) { label = `${days}d old`; tier = "fresh"; }
+  else if (days < 30) { label = `${Math.floor(days / 7)}w old`; tier = "fresh"; }
+  else if (days < 365) { label = `${Math.floor(days / 30)}mo old`; tier = "young"; }
+  else { const y = Math.floor(days / 365); label = `Est. ${created.getFullYear()}`; tier = y >= 5 ? "veteran" : "mature"; }
+
+  return `<span class="repo-age repo-age-${tier}">${escapeHtml(label)}</span>`;
 }
 
 function renderSentimentBadge(xSentiment) {
@@ -282,170 +299,9 @@ function renderChatUi() {
   </div>`;
 }
 
-function renderChatScript(workerUrl) {
-  return `<script>
-(function() {
-  var WORKER = ${JSON.stringify(workerUrl)};
-  var fab = document.getElementById('chat-fab');
-  var panel = document.getElementById('chat-panel');
-  var msgs = document.getElementById('chat-messages');
-  var paywall = document.getElementById('chat-paywall');
-  var inputRow = document.getElementById('chat-input-row');
-  var input = document.getElementById('chat-input');
-  var sendBtn = document.getElementById('chat-send');
-  var unlockBtn = document.getElementById('chat-unlock-btn');
-
-  var sessionId = localStorage.getItem('gittimes-chat-session');
-  var accountSession = localStorage.getItem('gittimes-session');
-  var history_msgs = [];
-
-  function updatePaywall() {
-    if (sessionId) {
-      paywall.style.display = 'none';
-      inputRow.style.display = 'flex';
-    } else if (accountSession) {
-      // Check if user has premium plan before showing chat input
-      fetch(WORKER + '/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + accountSession }
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.ok && data.user && data.user.plan === 'premium') {
-          paywall.style.display = 'none';
-          inputRow.style.display = 'flex';
-        } else {
-          paywall.style.display = 'flex';
-          inputRow.style.display = 'none';
-        }
-      })
-      .catch(function() {
-        paywall.style.display = 'flex';
-        inputRow.style.display = 'none';
-      });
-    } else {
-      paywall.style.display = 'flex';
-      inputRow.style.display = 'none';
-    }
-  }
-  updatePaywall();
-
-  if (accountSession) {
-    unlockBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(accountSession);
-  } else {
-    unlockBtn.href = '/account/?error=login_required';
-  }
-
-  fab.addEventListener('click', function() {
-    var open = panel.classList.toggle('open');
-    fab.classList.toggle('open', open);
-    if (open) input.focus();
-  });
-
-  function getContext() {
-    var active = document.querySelector('.section-panel.active');
-    if (!active) return '';
-    var parts = [];
-    var lead = active.querySelector('.lead-headline');
-    if (lead) parts.push(lead.textContent);
-    var leadBody = active.querySelector('.lead-body');
-    if (leadBody) parts.push(leadBody.textContent);
-    active.querySelectorAll('.featured-headline').forEach(function(el) { parts.push(el.textContent); });
-    active.querySelectorAll('.featured-body').forEach(function(el) { parts.push(el.textContent); });
-    active.querySelectorAll('.compact-headline').forEach(function(el) { parts.push(el.textContent); });
-    return parts.join('\\n').substring(0, 6000);
-  }
-
-  function addMsg(role, text) {
-    var div = document.createElement('div');
-    div.className = role === 'user' ? 'chat-msg-user' : 'chat-msg-ai';
-    div.textContent = text;
-    msgs.appendChild(div);
-    msgs.scrollTop = msgs.scrollHeight;
-    return div;
-  }
-
-  async function sendMessage() {
-    var text = input.value.trim();
-    if (!text) return;
-    input.value = '';
-    sendBtn.disabled = true;
-    addMsg('user', text);
-
-    var context = getContext();
-    var userMsg = context ? 'Article context:\\n' + context + '\\n\\nQuestion: ' + text : text;
-    history_msgs.push({ role: 'user', content: userMsg });
-
-    var aiDiv = addMsg('ai', '');
-    aiDiv.classList.add('streaming');
-    var full = '';
-
-    try {
-      var chatHeaders = { 'Content-Type': 'application/json' };
-      if (accountSession) chatHeaders['Authorization'] = 'Bearer ' + accountSession;
-      var res = await fetch(WORKER + '/chat', {
-        method: 'POST',
-        headers: chatHeaders,
-        body: JSON.stringify({ session_id: sessionId, messages: history_msgs })
-      });
-
-      if (res.status === 403) {
-        localStorage.removeItem('gittimes-chat-session');
-        sessionId = null;
-        updatePaywall();
-        aiDiv.textContent = 'Session expired. Please unlock again.';
-        aiDiv.classList.remove('streaming');
-        sendBtn.disabled = false;
-        return;
-      }
-
-      if (!res.ok) throw new Error('Request failed');
-
-      var reader = res.body.getReader();
-      var decoder = new TextDecoder();
-      var buf = '';
-
-      while (true) {
-        var chunk = await reader.read();
-        if (chunk.done) break;
-        buf += decoder.decode(chunk.value, { stream: true });
-        var lines = buf.split('\\n');
-        buf = lines.pop();
-        for (var i = 0; i < lines.length; i++) {
-          var line = lines[i];
-          if (!line.startsWith('data: ')) continue;
-          var data = line.slice(6);
-          if (data === '[DONE]') continue;
-          try {
-            var parsed = JSON.parse(data);
-            var delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
-            if (delta && delta.content) {
-              full += delta.content;
-              aiDiv.textContent = full;
-              msgs.scrollTop = msgs.scrollHeight;
-            }
-          } catch(e) {}
-        }
-      }
-
-      history_msgs.push({ role: 'assistant', content: full });
-    } catch(e) {
-      aiDiv.textContent = full || 'Something went wrong. Please try again.';
-    }
-
-    aiDiv.classList.remove('streaming');
-    sendBtn.disabled = false;
-    input.focus();
-  }
-
-  sendBtn.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-})();
-</script>`;
+function renderChatScript(workerUrl, basePath) {
+  return `<script>window.__WORKER_URL=${JSON.stringify(workerUrl)};</script>` +
+         `<script src="${basePath}/chat.js"></script>`;
 }
 
 /**
@@ -487,15 +343,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
 
   const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
 
-  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
-  const analyticsScript = plausibleDomain
-    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
-    : "";
-  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
-  const cspConnectSrc = [
-    chatWorkerUrl ? " " + chatWorkerUrl : "",
-    plausibleDomain ? " https://plausible.io" : "",
-  ].join("");
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
 
   // OG meta tag values
   const frontPageLead = content.sections?.frontPage?.lead;
@@ -523,7 +371,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace(/\{\{NAVIGATION\}\}/g, navHtml)
     .replace(/\{\{BASE_PATH\}\}/g, options.basePath || "")
     .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")
-    .replace("{{CHAT_SCRIPT}}", chatWorkerUrl ? renderChatScript(chatWorkerUrl) : "")
+    .replace("{{CHAT_SCRIPT}}", chatWorkerUrl ? renderChatScript(chatWorkerUrl, options.basePath || "") : "")
     .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
     .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
     .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc)
@@ -595,15 +443,7 @@ async function assembleHtml(content, options = {}) {
 
   const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
 
-  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
-  const analyticsScript = plausibleDomain
-    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
-    : "";
-  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
-  const cspConnectSrc = [
-    chatWorkerUrl ? " " + chatWorkerUrl : "",
-    plausibleDomain ? " https://plausible.io" : "",
-  ].join("");
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
 
   // OG meta tag values
   const ogTitle = escapeHtml(
@@ -630,7 +470,7 @@ async function assembleHtml(content, options = {}) {
     .replace("{{SECTION_NAV}}", "")
     .replace("{{SECTION_PANELS}}", "")
     .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")
-    .replace("{{CHAT_SCRIPT}}", chatWorkerUrl ? renderChatScript(chatWorkerUrl) : "")
+    .replace("{{CHAT_SCRIPT}}", chatWorkerUrl ? renderChatScript(chatWorkerUrl, options.basePath || "") : "")
     .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
     .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
     .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc)
@@ -659,4 +499,4 @@ async function render(content) {
   return outPath;
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderMemesContent };

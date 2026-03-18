@@ -23,7 +23,7 @@ const X_SEARCH_TOOL = {
  * @param {object} repo - Repo object for context
  * @returns {object} { sentiment, blurb, postCount, topPost, _failed }
  */
-function parseXSentiment(text, repo) {
+function parseXSentiment(text, _repo) {
   if (!text || !text.trim()) {
     return { sentiment: "unknown", blurb: "", postCount: 0, topPost: null, _failed: true };
   }

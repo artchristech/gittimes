@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 
-const { SECTIONS, SECTION_ORDER } = require("./sections");
+const { SECTIONS } = require("./sections");
 
 const SITE_BASE = "https://gittimes.com";
 
@@ -147,7 +147,7 @@ function generatePromoHtml(data) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Git Times \u2014 ${escHtml(data.date)} \u2014 Promo</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><${"/"}script>
 <style>
 :root {
   --paper: #faf8f5;
@@ -626,7 +626,7 @@ document.fonts.ready.then(function() {
   window.__tl = tl;
   window.__promoReady = true;
 });
-<\/script>
+<${"/"}script>
 
 </body>
 </html>`;

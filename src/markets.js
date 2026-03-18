@@ -2,10 +2,8 @@
  * AI Markets page renderer.
  * Generates a full-page analytics view of AI model pricing, speed, and image gen data.
  */
-const fs = require("fs");
-const path = require("path");
-
 const { escapeHtml } = require("./render");
+const { loadTemplate, buildAnalytics } = require("./template-utils");
 const { formatPrice, formatTokPerSec, TRACKED_MODELS } = require("./ai-ticker");
 
 /**
@@ -52,13 +50,8 @@ function getModelHistory(history, modelKey) {
  */
 function renderMarketsPage(tickerData, fullMarket, options = {}) {
   const basePath = options.basePath || "";
-  const siteUrl = options.siteUrl || "https://gittimes.com";
 
-  const templatePath = path.join(__dirname, "..", "templates", "markets.html");
-  const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
-
-  const template = fs.readFileSync(templatePath, "utf-8");
-  const css = fs.readFileSync(cssPath, "utf-8");
+  const { template, css } = loadTemplate("markets");
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
@@ -180,41 +173,82 @@ function renderMarketsPage(tickerData, fullMarket, options = {}) {
     </div>
   </div>`;
 
-  // --- Full OpenRouter Catalog (top 50 by output price) ---
+  // --- All Models by Provider ---
   let catalogHtml = "";
   if (fullMarket && fullMarket.length > 0) {
-    const top = fullMarket.slice(0, 50);
-    const catalogRows = top.map((m) => {
-      const ctxLen = m.context_length ? (m.context_length >= 1000000 ? (m.context_length / 1000000).toFixed(1) + "M" : Math.round(m.context_length / 1000) + "k") : "—";
-      return `<tr>
-        <td class="catalog-name">${escapeHtml(m.name)}</td>
-        <td class="model-price">${formatPrice(m.input)}</td>
-        <td class="model-price">${formatPrice(m.output)}</td>
-        <td class="model-ctx">${ctxLen}</td>
-      </tr>`;
+    // Group by provider
+    const providerMap = {};
+    for (const m of fullMarket) {
+      const provider = m.id.split("/")[0];
+      if (!providerMap[provider]) providerMap[provider] = [];
+      providerMap[provider].push(m);
+    }
+
+    // Sort each provider's models by output price descending
+    for (const provider of Object.keys(providerMap)) {
+      providerMap[provider].sort((a, b) => b.output - a.output);
+    }
+
+    // Sort providers by their most expensive model (descending)
+    const trackedKeys = new Set(TRACKED_MODELS.map((t) => t.openrouterId));
+    const sortedProviders = Object.keys(providerMap).sort(
+      (a, b) => providerMap[b][0].output - providerMap[a][0].output
+    );
+
+    const formatCtx = (ctx) => ctx ? (ctx >= 1000000 ? (ctx / 1000000).toFixed(1) + "M" : Math.round(ctx / 1000) + "k") : "—";
+
+    const providerGroups = sortedProviders.map((provider) => {
+      const models = providerMap[provider];
+      // Flagship: first tracked model match, or most expensive
+      const flagship = models.find((m) => trackedKeys.has(m.id)) || models[0];
+      const rest = models.filter((m) => m !== flagship);
+
+      const flagshipRow = `<table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">${escapeHtml(flagship.name)}</td>
+          <td class="model-price">${formatPrice(flagship.input)}</td>
+          <td class="model-price">${formatPrice(flagship.output)}</td>
+          <td class="model-ctx">${formatCtx(flagship.context_length)}</td>
+        </tr></tbody>
+      </table>`;
+
+      let detailsHtml = "";
+      if (rest.length > 0) {
+        const restRows = rest.map((m) => `<tr>
+          <td class="catalog-name">${escapeHtml(m.name)}</td>
+          <td class="model-price">${formatPrice(m.input)}</td>
+          <td class="model-price">${formatPrice(m.output)}</td>
+          <td class="model-ctx">${formatCtx(m.context_length)}</td>
+        </tr>`).join("\n");
+
+        detailsHtml = `<details class="provider-more">
+          <summary>${rest.length} more model${rest.length === 1 ? "" : "s"}</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody>${restRows}</tbody>
+          </table>
+        </details>`;
+      }
+
+      return `<div class="provider-group">
+        <h3 class="provider-name">${escapeHtml(provider)}</h3>
+        ${flagshipRow}
+        ${detailsHtml}
+      </div>`;
     }).join("\n");
 
     catalogHtml = `<div class="markets-section">
-      <h2 class="markets-section-title">Full Model Catalog</h2>
-      <p class="markets-section-desc">Top 50 models by output price &middot; ${fullMarket.length} total models on OpenRouter</p>
-      <div class="markets-table-wrap">
-        <table class="markets-table markets-table-compact">
-          <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-          <tbody>${catalogRows}</tbody>
-        </table>
-      </div>
+      <h2 class="markets-section-title">All Models by Provider</h2>
+      <p class="markets-section-desc">${fullMarket.length} models across ${sortedProviders.length} providers on OpenRouter</p>
+      ${providerGroups}
     </div>`;
   }
 
   // --- Assemble ---
   const contentHtml = [indexHtml, pricingTableHtml, speedHtml, imageHtml, catalogHtml].join("\n");
 
-  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
-  const analyticsScript = plausibleDomain
-    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
-    : "";
-  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
-  const cspConnectSrc = plausibleDomain ? " https://plausible.io" : "";
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics();
 
   return template
     .replace("{{STYLES}}", css)

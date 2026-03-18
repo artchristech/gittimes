@@ -1,7 +1,5 @@
-const fs = require("fs");
-const path = require("path");
-
 const { escapeHtml } = require("./render");
+const { loadTemplate, buildAnalytics } = require("./template-utils");
 
 /**
  * Render the archive page listing all editions.
@@ -10,11 +8,7 @@ const { escapeHtml } = require("./render");
  * @returns {string} Complete HTML string
  */
 function renderArchivePage(manifest, basePath) {
-  const templatePath = path.join(__dirname, "..", "templates", "archive.html");
-  const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
-
-  const template = fs.readFileSync(templatePath, "utf-8");
-  const css = fs.readFileSync(cssPath, "utf-8");
+  const { template, css } = loadTemplate("archive");
 
   const rows = manifest.map((entry) => {
     const displayDate = new Date(entry.date + "T12:00:00Z").toLocaleDateString("en-US", {
@@ -34,12 +28,7 @@ function renderArchivePage(manifest, basePath) {
     </div>`;
   });
 
-  const plausibleDomain = process.env.PLAUSIBLE_DOMAIN || "";
-  const analyticsScript = plausibleDomain
-    ? `<script defer data-domain="${escapeHtml(plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
-    : "";
-  const cspScriptSrc = plausibleDomain ? " https://plausible.io" : "";
-  const cspConnectSrc = plausibleDomain ? " https://plausible.io" : "";
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics();
 
   return template
     .replace("{{STYLES}}", css)
