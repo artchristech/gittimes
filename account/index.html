@@ -1773,6 +1773,17 @@ body.account {
   border: 1px solid var(--rule-light);
 }
 
+.account-btn-danger {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.account-btn-danger:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 .account-error {
   padding: 40px 20px;
   text-align: center;
@@ -1844,6 +1855,7 @@ body.account {
       <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
       <button class="account-btn account-btn-secondary" id="account-newsletter-toggle">Unsubscribe from Newsletter</button>
       <button class="account-btn account-btn-secondary" id="account-logout">Sign Out</button>
+      <button class="account-btn account-btn-danger" id="account-delete">Delete Account</button>
     </div>
   </section>
 
@@ -1872,6 +1884,7 @@ body.account {
       var form = document.getElementById('magic-link-form');
       var status = document.getElementById('magic-link-status');
       var logoutBtn = document.getElementById('account-logout');
+      var deleteBtn = document.getElementById('account-delete');
       var upgradeBtn = document.getElementById('account-upgrade');
       var newsletterBtn = document.getElementById('account-newsletter-toggle');
 
@@ -1888,16 +1901,33 @@ body.account {
       // Handle error params
       var errorParam = params.get('error');
       if (errorParam) {
+        params.delete('error');
+        var qs2 = params.toString();
+        history.replaceState(null, '', location.pathname + (qs2 ? '?' + qs2 : ''));
+        if (errorParam === 'login_required') {
+          // Show login form with upgrade prompt
+          loginSection.style.display = 'block';
+          dashSection.style.display = 'none';
+          errorSection.style.display = 'none';
+          status.textContent = 'Please sign in to upgrade to Premium.';
+          status.className = 'subscribe-status';
+          return;
+        }
         loginSection.style.display = 'none';
         dashSection.style.display = 'none';
         errorSection.style.display = 'block';
         if (errorParam === 'expired_token') {
           document.getElementById('account-error-msg').textContent = 'This sign-in link has expired. Please request a new one.';
         }
-        params.delete('error');
-        var qs2 = params.toString();
-        history.replaceState(null, '', location.pathname + (qs2 ? '?' + qs2 : ''));
         return;
+      }
+
+      // Handle upgraded param
+      var upgradedParam = params.get('upgraded');
+      if (upgradedParam === 'true') {
+        params.delete('upgraded');
+        var qs3 = params.toString();
+        history.replaceState(null, '', location.pathname + (qs3 ? '?' + qs3 : ''));
       }
 
       var session = localStorage.getItem('gittimes-session');
@@ -1927,6 +1957,10 @@ body.account {
         if (user.plan !== 'premium') {
           upgradeBtn.style.display = 'inline-block';
           upgradeBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(session);
+        }
+        if (upgradedParam === 'true') {
+          status.textContent = 'You have been upgraded to Premium!';
+          status.className = 'subscribe-status success';
         }
       }
 
@@ -2015,6 +2049,36 @@ body.account {
         localStorage.removeItem('gittimes-session');
         session = null;
         showLogin();
+      });
+
+      // Delete Account
+      deleteBtn.addEventListener('click', function() {
+        if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+        if (!session) return;
+        deleteBtn.disabled = true;
+        fetch(WORKER + '/auth/delete-account', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + session }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            localStorage.removeItem('gittimes-session');
+            localStorage.removeItem('gittimes-chat-session');
+            session = null;
+            showLogin();
+            status.textContent = 'Your account has been deleted.';
+            status.className = 'subscribe-status success';
+          } else {
+            status.textContent = data.error || 'Failed to delete account.';
+            status.className = 'subscribe-status error';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error. Please try again.';
+          status.className = 'subscribe-status error';
+        })
+        .finally(function() { deleteBtn.disabled = false; });
       });
     })();
   </script>

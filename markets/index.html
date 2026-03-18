@@ -1775,6 +1775,17 @@ body.account {
   border: 1px solid var(--rule-light);
 }
 
+.account-btn-danger {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.account-btn-danger:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 .account-error {
   padding: 40px 20px;
   text-align: center;
@@ -2033,19 +2044,19 @@ body.account {
 
   <div class="markets-header">
     <h1>AI Markets</h1>
-    <p class="markets-date">Tuesday, March 17, 2026</p>
+    <p class="markets-date">Wednesday, March 18, 2026</p>
   </div>
 
   <div class="markets-index">
     <div class="markets-index-header">
       <h2 class="markets-section-title">Cost of Intelligence Index</h2>
-      <p class="markets-index-desc">Average output price across 12 tracked frontier models</p>
+      <p class="markets-index-desc">Average output price across 13 tracked frontier models</p>
     </div>
     <div class="markets-index-value">
-      <span class="markets-index-price">$5.52<span class="markets-index-unit">/M tokens</span></span>
-      <span class="markets-delta flat">&mdash;</span>
+      <span class="markets-index-price">$7.44<span class="markets-index-unit">/M tokens</span></span>
+      <span class="markets-delta down">&#9660; 63.7%</span>
     </div>
-    <div class="markets-index-chart"><svg class="sparkline" width="200" height="48" viewBox="0 0 200 48"><polyline points="0.0,46.0 200.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="markets-index-chart"><svg class="sparkline" width="200" height="48" viewBox="0 0 200 48"><polyline points="0.0,46.0 100.0,2.0 200.0,46.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   </div>
 <div class="markets-section">
     <h2 class="markets-section-title">Frontier Model Pricing</h2>
@@ -2056,21 +2067,39 @@ body.account {
           <th>Model</th><th>Provider</th><th>Input</th><th>Output</th><th>24h</th><th>Context</th><th>30d</th>
         </tr></thead>
         <tbody><tr>
-      <td class="model-name">Claude Opus</td>
+      <td class="model-name">Claude Opus 4.6</td>
       <td class="model-provider">Anthropic</td>
       <td class="model-price">$5</td>
       <td class="model-price">$25</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">1.0M</td>
+      <td class="model-ctx">—</td>
       <td class="model-spark"></td>
     </tr>
 <tr>
-      <td class="model-name">Claude Sonnet</td>
+      <td class="model-name">Claude Sonnet 4.6</td>
       <td class="model-provider">Anthropic</td>
       <td class="model-price">$3</td>
       <td class="model-price">$15</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">1.0M</td>
+      <td class="model-ctx">—</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">Claude Haiku 4.5</td>
+      <td class="model-provider">Anthropic</td>
+      <td class="model-price">$1</td>
+      <td class="model-price">$5</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">—</td>
+      <td class="model-spark"></td>
+    </tr>
+<tr>
+      <td class="model-name">GPT-5.4</td>
+      <td class="model-provider">OpenAI</td>
+      <td class="model-price">$0.20</td>
+      <td class="model-price">$1.25</td>
+      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
+      <td class="model-ctx">400k</td>
       <td class="model-spark"></td>
     </tr>
 <tr>
@@ -2080,13 +2109,13 @@ body.account {
       <td class="model-price">$8</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
-      <td class="model-spark"></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
-      <td class="model-name">GPT-4.1 Mini</td>
-      <td class="model-provider">OpenAI</td>
-      <td class="model-price">$0.40</td>
-      <td class="model-price">$1.60</td>
+      <td class="model-name">Gemini 3.1 Pro</td>
+      <td class="model-provider">Google</td>
+      <td class="model-price">$2</td>
+      <td class="model-price">$12</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
       <td class="model-spark"></td>
@@ -2098,37 +2127,28 @@ body.account {
       <td class="model-price">$10</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
-      <td class="model-spark"></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
-      <td class="model-name">Gemini 2.5 Flash</td>
-      <td class="model-provider">Google</td>
-      <td class="model-price">$0.15</td>
-      <td class="model-price">$0.60</td>
+      <td class="model-name">Grok 4.20</td>
+      <td class="model-provider">xAI</td>
+      <td class="model-price">$3</td>
+      <td class="model-price">$15</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">—</td>
       <td class="model-spark"></td>
     </tr>
 <tr>
-      <td class="model-name">Grok 3</td>
+      <td class="model-name">Grok 4.1 Fast</td>
       <td class="model-provider">xAI</td>
-      <td class="model-price">$0.30</td>
+      <td class="model-price">$0.20</td>
       <td class="model-price">$0.50</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">131k</td>
+      <td class="model-ctx">—</td>
       <td class="model-spark"></td>
     </tr>
 <tr>
-      <td class="model-name">Grok 3 Mini</td>
-      <td class="model-provider">xAI</td>
-      <td class="model-price">$0.30</td>
-      <td class="model-price">$0.50</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">131k</td>
-      <td class="model-spark"></td>
-    </tr>
-<tr>
-      <td class="model-name">DeepSeek V3</td>
+      <td class="model-name">DeepSeek V3.2</td>
       <td class="model-provider">DeepSeek</td>
       <td class="model-price">$0.15</td>
       <td class="model-price">$0.75</td>
@@ -2143,7 +2163,7 @@ body.account {
       <td class="model-price">$2.15</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">164k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
       <td class="model-name">Llama 4 Maverick</td>
@@ -2152,16 +2172,16 @@ body.account {
       <td class="model-price">$0.60</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
-      <td class="model-name">Mistral Large</td>
+      <td class="model-name">Mistral Large 3</td>
       <td class="model-provider">Mistral</td>
       <td class="model-price">$0.50</td>
       <td class="model-price">$1.50</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">262k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-ctx">—</td>
+      <td class="model-spark"></td>
     </tr></tbody>
       </table>
     </div>
@@ -2175,30 +2195,30 @@ body.account {
         <tbody><tr>
       <td class="speed-rank">1</td>
       <td class="speed-provider">Cerebras</td>
-      <td class="speed-model">Llama 3.3 70B</td>
-      <td class="speed-value">2.2k tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div></td>
+      <td class="speed-model">Llama 4 Maverick</td>
+      <td class="speed-value">969 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:39%"></div></div></td>
     </tr>
 <tr>
       <td class="speed-rank">2</td>
-      <td class="speed-provider">Groq</td>
-      <td class="speed-model">Llama 3.3 70B</td>
-      <td class="speed-value">750 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div></td>
+      <td class="speed-provider">SambaNova</td>
+      <td class="speed-model">Llama 4 Maverick</td>
+      <td class="speed-value">794 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:32%"></div></div></td>
     </tr>
 <tr>
       <td class="speed-rank">3</td>
-      <td class="speed-provider">SambaNova</td>
-      <td class="speed-model">Llama 3.1 405B</td>
-      <td class="speed-value">400 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:16%"></div></div></td>
+      <td class="speed-provider">Groq</td>
+      <td class="speed-model">Llama 4 Maverick</td>
+      <td class="speed-value">549 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></td>
     </tr>
 <tr>
       <td class="speed-rank">4</td>
       <td class="speed-provider">Fireworks</td>
-      <td class="speed-model">Llama 3.1 70B</td>
-      <td class="speed-value">220 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:9%"></div></div></td>
+      <td class="speed-model">Llama 4 Maverick</td>
+      <td class="speed-value">290 tok/s</td>
+      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:12%"></div></div></td>
     </tr></tbody>
       </table>
     </div>
@@ -2210,9 +2230,9 @@ body.account {
       <table class="markets-table">
         <thead><tr><th>Model</th><th>Price</th><th>Grade</th></tr></thead>
         <tbody><tr>
-      <td class="img-name">DALL-E 3 HD</td>
-      <td class="img-price">$0.08/img</td>
-      <td class="img-grade"><span class="grade-badge">A</span></td>
+      <td class="img-name">GPT Image 1.5</td>
+      <td class="img-price">$0.04/img</td>
+      <td class="img-grade"><span class="grade-badge">A+</span></td>
     </tr>
 <tr>
       <td class="img-name">Flux 1.1 Pro</td>
@@ -2220,26 +2240,26 @@ body.account {
       <td class="img-grade"><span class="grade-badge">A</span></td>
     </tr>
 <tr>
-      <td class="img-name">Imagen 3</td>
+      <td class="img-name">Imagen 4</td>
       <td class="img-price">$0.04/img</td>
       <td class="img-grade"><span class="grade-badge">A</span></td>
     </tr>
 <tr>
-      <td class="img-name">SD 3.5</td>
-      <td class="img-price">$0.07/img</td>
-      <td class="img-grade"><span class="grade-badge">B+</span></td>
+      <td class="img-name">Midjourney v7</td>
+      <td class="img-price">$0.05/img</td>
+      <td class="img-grade"><span class="grade-badge">A</span></td>
     </tr>
 <tr>
-      <td class="img-name">Flux Schnell</td>
-      <td class="img-price">$0.003/img</td>
-      <td class="img-grade"><span class="grade-badge">B</span></td>
+      <td class="img-name">SD 3.5 Large</td>
+      <td class="img-price">$0.07/img</td>
+      <td class="img-grade"><span class="grade-badge">B+</span></td>
     </tr></tbody>
       </table>
     </div>
   </div>
 <div class="markets-section">
       <h2 class="markets-section-title">Full Model Catalog</h2>
-      <p class="markets-section-desc">Top 50 models by output price &middot; 314 total models on OpenRouter</p>
+      <p class="markets-section-desc">Top 50 models by output price &middot; 317 total models on OpenRouter</p>
       <div class="markets-table-wrap">
         <table class="markets-table markets-table-compact">
           <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
