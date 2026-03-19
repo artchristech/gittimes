@@ -136,6 +136,7 @@ body {
   gap: 4px;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .ticker-item {
@@ -1188,6 +1189,41 @@ body {
   color: var(--ink-light);
 }
 
+/* === REPO AGE BADGES === */
+
+.repo-age {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.repo-age-fresh { background: #dbeafe; color: #1e40af; }
+.repo-age-young { background: #d1fae5; color: #065f46; }
+.repo-age-mature { background: #e5e7eb; color: #374151; }
+.repo-age-veteran { background: #fef3c7; color: #92400e; }
+
+[data-theme="dark"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
+[data-theme="dark"] .repo-age-mature { background: #374151; color: #d1d5db; }
+[data-theme="dark"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+
+[data-theme="sepia"] .repo-age-fresh { background: #c4b5a0; color: #3e3226; }
+[data-theme="sepia"] .repo-age-young { background: #a7c4a0; color: #1a3a1a; }
+[data-theme="sepia"] .repo-age-mature { background: #d4c9b5; color: #3e3226; }
+[data-theme="sepia"] .repo-age-veteran { background: #d4a844; color: #3e3226; }
+
+[data-theme="midnight"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="midnight"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
+[data-theme="midnight"] .repo-age-mature { background: #21262d; color: #8b949e; }
+[data-theme="midnight"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+
 /* === CHAT === */
 
 .chat-fab {
@@ -1416,6 +1452,10 @@ body {
     font-size: 11px;
     padding: 10px 14px;
     letter-spacing: 1px;
+  }
+
+  .ticker-more {
+    display: none;
   }
 }
 
@@ -1784,6 +1824,42 @@ body.account {
   color: #fff;
 }
 
+/* === PROVIDER GROUPS (Markets page) === */
+
+.provider-group { margin-bottom: 24px; }
+.provider-name {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule-light);
+  margin-bottom: 0;
+}
+.provider-flagship { font-weight: 600; }
+.provider-more { margin-top: 4px; }
+.provider-more summary {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.account-pricing {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .account-error {
   padding: 40px 20px;
   text-align: center;
@@ -1849,10 +1925,16 @@ body.account {
         <span class="account-label">Member Since</span>
         <span class="account-value" id="account-since"></span>
       </div>
+      <div class="account-row" id="account-usage-row" style="display:none">
+        <span class="account-label">Chat Messages</span>
+        <span class="account-value" id="account-usage"></span>
+      </div>
     </div>
+    <div id="account-pricing" class="account-pricing" style="display:none"></div>
     <div class="account-actions">
       <a href="/latest/" class="account-btn account-btn-primary">Read Latest Edition</a>
       <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
+      <button class="account-btn account-btn-secondary" id="account-manage-sub" style="display:none">Manage Subscription</button>
       <button class="account-btn account-btn-secondary" id="account-newsletter-toggle">Unsubscribe from Newsletter</button>
       <button class="account-btn account-btn-secondary" id="account-logout">Sign Out</button>
       <button class="account-btn account-btn-danger" id="account-delete">Delete Account</button>
@@ -1886,6 +1968,8 @@ body.account {
       var logoutBtn = document.getElementById('account-logout');
       var deleteBtn = document.getElementById('account-delete');
       var upgradeBtn = document.getElementById('account-upgrade');
+      var manageSubBtn = document.getElementById('account-manage-sub');
+      var pricingDiv = document.getElementById('account-pricing');
       var newsletterBtn = document.getElementById('account-newsletter-toggle');
 
       // Capture token from URL (magic link redirect)
@@ -1957,6 +2041,24 @@ body.account {
         if (user.plan !== 'premium') {
           upgradeBtn.style.display = 'inline-block';
           upgradeBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(session);
+          // Show pricing for free users
+          fetch(WORKER + '/pricing')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.ok) {
+                pricingDiv.innerHTML = 'Premium: ' + data.display + ' — Unlimited AI chat';
+                pricingDiv.style.display = 'block';
+              }
+            })
+            .catch(function() {});
+        } else {
+          // Premium user — show manage subscription button and chat usage
+          manageSubBtn.style.display = 'inline-block';
+          if (user.chatUsage) {
+            var usageRow = document.getElementById('account-usage-row');
+            usageRow.style.display = 'flex';
+            document.getElementById('account-usage').textContent = user.chatUsage.count + ' / 100 this month';
+          }
         }
         if (upgradedParam === 'true') {
           status.textContent = 'You have been upgraded to Premium!';
@@ -2036,6 +2138,30 @@ body.account {
         })
         .catch(function() {})
         .finally(function() { newsletterBtn.disabled = false; });
+      });
+
+      // Manage Subscription
+      manageSubBtn.addEventListener('click', function() {
+        if (!session) return;
+        manageSubBtn.disabled = true;
+        fetch(WORKER + '/billing/portal', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + session }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok && data.url) {
+            window.location.href = data.url;
+          } else {
+            status.textContent = data.error || 'Failed to open billing portal.';
+            status.className = 'subscribe-status error';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error. Please try again.';
+          status.className = 'subscribe-status error';
+        })
+        .finally(function() { manageSubBtn.disabled = false; });
       });
 
       // Logout

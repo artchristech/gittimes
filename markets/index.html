@@ -138,6 +138,7 @@ body {
   gap: 4px;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .ticker-item {
@@ -1190,6 +1191,41 @@ body {
   color: var(--ink-light);
 }
 
+/* === REPO AGE BADGES === */
+
+.repo-age {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.repo-age-fresh { background: #dbeafe; color: #1e40af; }
+.repo-age-young { background: #d1fae5; color: #065f46; }
+.repo-age-mature { background: #e5e7eb; color: #374151; }
+.repo-age-veteran { background: #fef3c7; color: #92400e; }
+
+[data-theme="dark"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
+[data-theme="dark"] .repo-age-mature { background: #374151; color: #d1d5db; }
+[data-theme="dark"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+
+[data-theme="sepia"] .repo-age-fresh { background: #c4b5a0; color: #3e3226; }
+[data-theme="sepia"] .repo-age-young { background: #a7c4a0; color: #1a3a1a; }
+[data-theme="sepia"] .repo-age-mature { background: #d4c9b5; color: #3e3226; }
+[data-theme="sepia"] .repo-age-veteran { background: #d4a844; color: #3e3226; }
+
+[data-theme="midnight"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="midnight"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
+[data-theme="midnight"] .repo-age-mature { background: #21262d; color: #8b949e; }
+[data-theme="midnight"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+
 /* === CHAT === */
 
 .chat-fab {
@@ -1418,6 +1454,10 @@ body {
     font-size: 11px;
     padding: 10px 14px;
     letter-spacing: 1px;
+  }
+
+  .ticker-more {
+    display: none;
   }
 }
 
@@ -1786,6 +1826,42 @@ body.account {
   color: #fff;
 }
 
+/* === PROVIDER GROUPS (Markets page) === */
+
+.provider-group { margin-bottom: 24px; }
+.provider-name {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule-light);
+  margin-bottom: 0;
+}
+.provider-flagship { font-weight: 600; }
+.provider-more { margin-top: 4px; }
+.provider-more summary {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.account-pricing {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .account-error {
   padding: 40px 20px;
   text-align: center;
@@ -2044,19 +2120,19 @@ body.account {
 
   <div class="markets-header">
     <h1>AI Markets</h1>
-    <p class="markets-date">Wednesday, March 18, 2026</p>
+    <p class="markets-date">Thursday, March 19, 2026</p>
   </div>
 
   <div class="markets-index">
     <div class="markets-index-header">
       <h2 class="markets-section-title">Cost of Intelligence Index</h2>
-      <p class="markets-index-desc">Average output price across 13 tracked frontier models</p>
+      <p class="markets-index-desc">Average output price across 11 tracked frontier models</p>
     </div>
     <div class="markets-index-value">
-      <span class="markets-index-price">$7.44<span class="markets-index-unit">/M tokens</span></span>
-      <span class="markets-delta down">&#9660; 63.7%</span>
+      <span class="markets-index-price">$23.64<span class="markets-index-unit">/M tokens</span></span>
+      <span class="markets-delta up">&#9650; 1568.4%</span>
     </div>
-    <div class="markets-index-chart"><svg class="sparkline" width="200" height="48" viewBox="0 0 200 48"><polyline points="0.0,46.0 100.0,2.0 200.0,46.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="markets-index-chart"><svg class="sparkline" width="200" height="48" viewBox="0 0 200 48"><polyline points="0.0,46.0 66.7,2.0 133.3,46.0 200.0,37.1" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   </div>
 <div class="markets-section">
     <h2 class="markets-section-title">Frontier Model Pricing</h2>
@@ -2072,8 +2148,8 @@ body.account {
       <td class="model-price">$5</td>
       <td class="model-price">$25</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">—</td>
-      <td class="model-spark"></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
       <td class="model-name">Claude Sonnet 4.6</td>
@@ -2081,35 +2157,26 @@ body.account {
       <td class="model-price">$3</td>
       <td class="model-price">$15</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">—</td>
-      <td class="model-spark"></td>
+      <td class="model-ctx">1.0M</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
-      <td class="model-name">Claude Haiku 4.5</td>
-      <td class="model-provider">Anthropic</td>
-      <td class="model-price">$1</td>
-      <td class="model-price">$5</td>
+      <td class="model-name">GPT-5.4 Pro</td>
+      <td class="model-provider">OpenAI</td>
+      <td class="model-price">$30</td>
+      <td class="model-price">$180</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">—</td>
+      <td class="model-ctx">1.1M</td>
       <td class="model-spark"></td>
     </tr>
 <tr>
       <td class="model-name">GPT-5.4</td>
       <td class="model-provider">OpenAI</td>
-      <td class="model-price">$0.20</td>
-      <td class="model-price">$1.25</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">400k</td>
-      <td class="model-spark"></td>
-    </tr>
-<tr>
-      <td class="model-name">GPT-4.1</td>
-      <td class="model-provider">OpenAI</td>
-      <td class="model-price">$2</td>
-      <td class="model-price">$8</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-price">$2.50</td>
+      <td class="model-price">$15</td>
+      <td class="model-delta"><span class="markets-delta up">&#9650;1100.0%</span></td>
+      <td class="model-ctx">1.1M</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
       <td class="model-name">Gemini 3.1 Pro</td>
@@ -2118,52 +2185,43 @@ body.account {
       <td class="model-price">$12</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
-      <td class="model-spark"></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
-      <td class="model-name">Gemini 2.5 Pro</td>
+      <td class="model-name">Gemini 3.1 Flash Lite</td>
       <td class="model-provider">Google</td>
-      <td class="model-price">$1.25</td>
-      <td class="model-price">$10</td>
+      <td class="model-price">$0.25</td>
+      <td class="model-price">$1.50</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"></td>
     </tr>
 <tr>
       <td class="model-name">Grok 4.20</td>
       <td class="model-provider">xAI</td>
-      <td class="model-price">$3</td>
-      <td class="model-price">$15</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">—</td>
-      <td class="model-spark"></td>
-    </tr>
-<tr>
-      <td class="model-name">Grok 4.1 Fast</td>
-      <td class="model-provider">xAI</td>
-      <td class="model-price">$0.20</td>
-      <td class="model-price">$0.50</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">—</td>
-      <td class="model-spark"></td>
+      <td class="model-price">$2</td>
+      <td class="model-price">$6</td>
+      <td class="model-delta"><span class="markets-delta down">&#9660;60.0%</span></td>
+      <td class="model-ctx">2.0M</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
       <td class="model-name">DeepSeek V3.2</td>
       <td class="model-provider">DeepSeek</td>
-      <td class="model-price">$0.15</td>
-      <td class="model-price">$0.75</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">33k</td>
-      <td class="model-spark"></td>
+      <td class="model-price">$0.32</td>
+      <td class="model-price">$0.89</td>
+      <td class="model-delta"><span class="markets-delta up">&#9650;18.7%</span></td>
+      <td class="model-ctx">164k</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
       <td class="model-name">DeepSeek R1</td>
       <td class="model-provider">DeepSeek</td>
-      <td class="model-price">$0.45</td>
-      <td class="model-price">$2.15</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">164k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-price">$0.70</td>
+      <td class="model-price">$2.50</td>
+      <td class="model-delta"><span class="markets-delta up">&#9650;16.3%</span></td>
+      <td class="model-ctx">64k</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 33.3,2.0 66.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
       <td class="model-name">Llama 4 Maverick</td>
@@ -2172,16 +2230,16 @@ body.account {
       <td class="model-price">$0.60</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 33.3,2.0 66.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr>
-      <td class="model-name">Mistral Large 3</td>
+      <td class="model-name">Mistral Large</td>
       <td class="model-provider">Mistral</td>
       <td class="model-price">$0.50</td>
       <td class="model-price">$1.50</td>
       <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">—</td>
-      <td class="model-spark"></td>
+      <td class="model-ctx">262k</td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr></tbody>
       </table>
     </div>
@@ -2235,335 +2293,2487 @@ body.account {
       <td class="img-grade"><span class="grade-badge">A+</span></td>
     </tr>
 <tr>
-      <td class="img-name">Flux 1.1 Pro</td>
-      <td class="img-price">$0.04/img</td>
+      <td class="img-name">Gemini 3 Pro Image</td>
+      <td class="img-price">$0.05/img</td>
+      <td class="img-grade"><span class="grade-badge">A+</span></td>
+    </tr>
+<tr>
+      <td class="img-name">FLUX.2 Max</td>
+      <td class="img-price">$0.07/img</td>
       <td class="img-grade"><span class="grade-badge">A</span></td>
     </tr>
 <tr>
-      <td class="img-name">Imagen 4</td>
-      <td class="img-price">$0.04/img</td>
+      <td class="img-name">Imagen 4 Ultra</td>
+      <td class="img-price">$0.06/img</td>
       <td class="img-grade"><span class="grade-badge">A</span></td>
     </tr>
 <tr>
-      <td class="img-name">Midjourney v7</td>
+      <td class="img-name">Midjourney v8</td>
       <td class="img-price">$0.05/img</td>
       <td class="img-grade"><span class="grade-badge">A</span></td>
     </tr>
 <tr>
-      <td class="img-name">SD 3.5 Large</td>
-      <td class="img-price">$0.07/img</td>
-      <td class="img-grade"><span class="grade-badge">B+</span></td>
+      <td class="img-name">Ideogram 3.0</td>
+      <td class="img-price">$0.04/img</td>
+      <td class="img-grade"><span class="grade-badge">A-</span></td>
+    </tr>
+<tr>
+      <td class="img-name">Recraft V4</td>
+      <td class="img-price">$0.04/img</td>
+      <td class="img-grade"><span class="grade-badge">A-</span></td>
     </tr></tbody>
       </table>
     </div>
   </div>
 <div class="markets-section">
-      <h2 class="markets-section-title">Full Model Catalog</h2>
-      <p class="markets-section-desc">Top 50 models by output price &middot; 317 total models on OpenRouter</p>
-      <div class="markets-table-wrap">
-        <table class="markets-table markets-table-compact">
-          <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-          <tbody><tr>
-        <td class="catalog-name">OpenAI: o1-pro</td>
-        <td class="model-price">$150</td>
-        <td class="model-price">$600</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+      <h2 class="markets-section-title">All Models by Provider</h2>
+      <p class="markets-section-desc">321 models across 53 providers on OpenRouter</p>
+      <div class="provider-group">
+        <h3 class="provider-name">openai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">OpenAI: GPT-5.4 Pro</td>
+          <td class="model-price">$30</td>
+          <td class="model-price">$180</td>
+          <td class="model-ctx">1.1M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>59 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">OpenAI: o1-pro</td>
+          <td class="model-price">$150</td>
+          <td class="model-price">$600</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.4 Pro</td>
-        <td class="model-price">$30</td>
-        <td class="model-price">$180</td>
-        <td class="model-ctx">1.1M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.2 Pro</td>
+          <td class="model-price">$21</td>
+          <td class="model-price">$168</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.2 Pro</td>
-        <td class="model-price">$21</td>
-        <td class="model-price">$168</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5 Pro</td>
+          <td class="model-price">$15</td>
+          <td class="model-price">$120</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5 Pro</td>
-        <td class="model-price">$15</td>
-        <td class="model-price">$120</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o3 Pro</td>
+          <td class="model-price">$20</td>
+          <td class="model-price">$80</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: o3 Pro</td>
-        <td class="model-price">$20</td>
-        <td class="model-price">$80</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o1</td>
+          <td class="model-price">$15</td>
+          <td class="model-price">$60</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Opus 4.1</td>
-        <td class="model-price">$15</td>
-        <td class="model-price">$75</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4 (older v0314)</td>
+          <td class="model-price">$30</td>
+          <td class="model-price">$60</td>
+          <td class="model-ctx">8k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Opus 4</td>
-        <td class="model-price">$15</td>
-        <td class="model-price">$75</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4</td>
+          <td class="model-price">$30</td>
+          <td class="model-price">$60</td>
+          <td class="model-ctx">8k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: o1</td>
-        <td class="model-price">$15</td>
-        <td class="model-price">$60</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o3 Deep Research</td>
+          <td class="model-price">$10</td>
+          <td class="model-price">$40</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4 (older v0314)</td>
-        <td class="model-price">$30</td>
-        <td class="model-price">$60</td>
-        <td class="model-ctx">8k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4 Turbo</td>
+          <td class="model-price">$10</td>
+          <td class="model-price">$30</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4</td>
-        <td class="model-price">$30</td>
-        <td class="model-price">$60</td>
-        <td class="model-ctx">8k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4 Turbo Preview</td>
+          <td class="model-price">$10</td>
+          <td class="model-price">$30</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: o3 Deep Research</td>
-        <td class="model-price">$10</td>
-        <td class="model-price">$40</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4 Turbo (older v1106)</td>
+          <td class="model-price">$10</td>
+          <td class="model-price">$30</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude 3.5 Sonnet</td>
-        <td class="model-price">$6</td>
-        <td class="model-price">$30</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o (extended)</td>
+          <td class="model-price">$6</td>
+          <td class="model-price">$18</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4 Turbo</td>
-        <td class="model-price">$10</td>
-        <td class="model-price">$30</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.4</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">1.1M</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4 Turbo Preview</td>
-        <td class="model-price">$10</td>
-        <td class="model-price">$30</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o (2024-05-13)</td>
+          <td class="model-price">$5</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4 Turbo (older v1106)</td>
-        <td class="model-price">$10</td>
-        <td class="model-price">$30</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.3 Chat</td>
+          <td class="model-price">$1.75</td>
+          <td class="model-price">$14</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Opus 4.6</td>
-        <td class="model-price">$5</td>
-        <td class="model-price">$25</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.3-Codex</td>
+          <td class="model-price">$1.75</td>
+          <td class="model-price">$14</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Opus 4.5</td>
-        <td class="model-price">$5</td>
-        <td class="model-price">$25</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.2-Codex</td>
+          <td class="model-price">$1.75</td>
+          <td class="model-price">$14</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4o (extended)</td>
-        <td class="model-price">$6</td>
-        <td class="model-price">$18</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.2 Chat</td>
+          <td class="model-price">$1.75</td>
+          <td class="model-price">$14</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.4</td>
-        <td class="model-price">$2.50</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">1.1M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.2</td>
+          <td class="model-price">$1.75</td>
+          <td class="model-price">$14</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Sonnet 4.6</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT Audio</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Perplexity: Sonar Pro Search</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.1-Codex-Max</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Sonnet 4.5</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.1</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">xAI: Grok 4</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">256k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.1 Chat</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">xAI: Grok 3</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">131k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.1-Codex</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude Sonnet 4</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5 Image</td>
+          <td class="model-price">$10</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">xAI: Grok 3 Beta</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">131k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5 Codex</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Perplexity: Sonar Pro</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o Audio</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude 3.7 Sonnet</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5 Chat</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Anthropic: Claude 3.7 Sonnet (thinking)</td>
-        <td class="model-price">$3</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">200k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4o (2024-05-13)</td>
-        <td class="model-price">$5</td>
-        <td class="model-price">$15</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o Search Preview</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.3 Chat</td>
-        <td class="model-price">$1.75</td>
-        <td class="model-price">$14</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o (2024-11-20)</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.3-Codex</td>
-        <td class="model-price">$1.75</td>
-        <td class="model-price">$14</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o (2024-08-06)</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.2-Codex</td>
-        <td class="model-price">$1.75</td>
-        <td class="model-price">$14</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4o</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.2 Chat</td>
-        <td class="model-price">$1.75</td>
-        <td class="model-price">$14</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o4 Mini Deep Research</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.2</td>
-        <td class="model-price">$1.75</td>
-        <td class="model-price">$14</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o3</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Amazon: Nova Premier 1.0</td>
-        <td class="model-price">$2.50</td>
-        <td class="model-price">$12.50</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4.1</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Google: Gemini 3.1 Pro Preview Custom Tools</td>
-        <td class="model-price">$2</td>
-        <td class="model-price">$12</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.4 Mini</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-price">$4.50</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Google: Gemini 3.1 Pro Preview</td>
-        <td class="model-price">$2</td>
-        <td class="model-price">$12</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o4 Mini High</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-price">$4.40</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Google: Nano Banana Pro (Gemini 3 Pro Image Preview)</td>
-        <td class="model-price">$2</td>
-        <td class="model-price">$12</td>
-        <td class="model-ctx">66k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o4 Mini</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-price">$4.40</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">Google: Gemini 3 Pro Preview</td>
-        <td class="model-price">$2</td>
-        <td class="model-price">$12</td>
-        <td class="model-ctx">1.0M</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o3 Mini High</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-price">$4.40</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT Audio</td>
-        <td class="model-price">$2.50</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: o3 Mini</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-price">$4.40</td>
+          <td class="model-ctx">200k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.1-Codex-Max</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-3.5 Turbo 16k</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$4</td>
+          <td class="model-ctx">16k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.1</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT Audio Mini</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-price">$2.40</td>
+          <td class="model-ctx">128k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.1 Chat</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5.1-Codex-Mini</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5.1-Codex</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5 Image Mini</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5 Image</td>
-        <td class="model-price">$10</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-5 Mini</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">400k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5 Codex</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">400k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-3.5 Turbo (older v0613)</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">4k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-4o Audio</td>
-        <td class="model-price">$2.50</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-3.5 Turbo Instruct</td>
+          <td class="model-price">$1.50</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">4k</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5 Chat</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">128k</td>
-      </tr>
+          <td class="catalog-name">OpenAI: GPT-4.1 Mini</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$1.60</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
 <tr>
-        <td class="catalog-name">OpenAI: GPT-5</td>
-        <td class="model-price">$1.25</td>
-        <td class="model-price">$10</td>
-        <td class="model-ctx">400k</td>
-      </tr></tbody>
-        </table>
+          <td class="catalog-name">OpenAI: GPT-3.5 Turbo</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-price">$1.50</td>
+          <td class="model-ctx">16k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: GPT-5.4 Nano</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-ctx">400k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: GPT-4o-mini Search Preview</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: GPT-4o-mini (2024-07-18)</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: GPT-4o-mini</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: GPT-5 Nano</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">400k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: GPT-4.1 Nano</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: gpt-oss-safeguard-20b</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: gpt-oss-120b</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.19</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">OpenAI: gpt-oss-20b</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">anthropic</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Anthropic: Claude Opus 4.6</td>
+          <td class="model-price">$5</td>
+          <td class="model-price">$25</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>12 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Anthropic: Claude Opus 4.1</td>
+          <td class="model-price">$15</td>
+          <td class="model-price">$75</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude Opus 4</td>
+          <td class="model-price">$15</td>
+          <td class="model-price">$75</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude 3.5 Sonnet</td>
+          <td class="model-price">$6</td>
+          <td class="model-price">$30</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude Opus 4.5</td>
+          <td class="model-price">$5</td>
+          <td class="model-price">$25</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude Sonnet 4.6</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude Sonnet 4.5</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude Sonnet 4</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude 3.7 Sonnet</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude 3.7 Sonnet (thinking)</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude Haiku 4.5</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$5</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude 3.5 Haiku</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$4</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Anthropic: Claude 3 Haiku</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-ctx">200k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">perplexity</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Perplexity: Sonar Pro Search</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">200k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>4 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Perplexity: Sonar Pro</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">200k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Perplexity: Sonar Reasoning Pro</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Perplexity: Sonar Deep Research</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Perplexity: Sonar</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">127k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">x-ai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">xAI: Grok 4.20 Beta</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">2.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>9 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">xAI: Grok 4</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">256k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 3</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 3 Beta</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$15</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 4.20 Multi-Agent Beta</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">2.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok Code Fast 1</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$1.50</td>
+          <td class="model-ctx">256k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 4.1 Fast</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">2.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 4 Fast</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">2.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 3 Mini</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">xAI: Grok 3 Mini Beta</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">amazon</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Amazon: Nova Premier 1.0</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$12.50</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>4 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Amazon: Nova Pro 1.0</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$3.20</td>
+          <td class="model-ctx">300k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Amazon: Nova 2 Lite</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Amazon: Nova Lite 1.0</td>
+          <td class="model-price">$0.06</td>
+          <td class="model-price">$0.24</td>
+          <td class="model-ctx">300k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Amazon: Nova Micro 1.0</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">google</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Google: Gemini 3.1 Pro Preview</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$12</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>21 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Google: Gemini 3.1 Pro Preview Custom Tools</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$12</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Nano Banana Pro (Gemini 3 Pro Image Preview)</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$12</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 3 Pro Preview</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$12</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.5 Pro</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.5 Pro Preview 06-05</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.5 Pro Preview 05-06</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-price">$3</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 3 Flash Preview</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-price">$3</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Nano Banana (Gemini 2.5 Flash Image)</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.5 Flash</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 3.1 Flash Lite Preview</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$1.50</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemma 2 27B</td>
+          <td class="model-price">$0.65</td>
+          <td class="model-price">$0.65</td>
+          <td class="model-ctx">8k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.5 Flash Lite Preview 09-2025</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.5 Flash Lite</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.0 Flash</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemini 2.0 Flash Lite</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemma 3 27B</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-price">$0.16</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemma 3 12B</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.13</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemma 2 9B</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.09</td>
+          <td class="model-ctx">8k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemma 3 4B</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Google: Gemma 3n 4B</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">cohere</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Cohere: Command A</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">256k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>3 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Cohere: Command R+ (08-2024)</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Cohere: Command R (08-2024)</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Cohere: Command R7B (12-2024)</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">inflection</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Inflection: Inflection 3 Pi</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">8k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>1 more model</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Inflection: Inflection 3 Productivity</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-price">$10</td>
+          <td class="model-ctx">8k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">ai21</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">AI21: Jamba Large 1.7</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">256k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">aion-labs</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">AionLabs: Aion-1.0</td>
+          <td class="model-price">$4</td>
+          <td class="model-price">$8</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>3 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">AionLabs: Aion-2.0</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$1.60</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AionLabs: Aion-RP 1.0 (8B)</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$1.60</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AionLabs: Aion-1.0-Mini</td>
+          <td class="model-price">$0.70</td>
+          <td class="model-price">$1.40</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">alpindale</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Goliath 120B</td>
+          <td class="model-price">$3.75</td>
+          <td class="model-price">$7.50</td>
+          <td class="model-ctx">6k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">writer</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Writer: Palmyra X5</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">mistralai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Mistral: Mistral Large 3 2512</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-price">$1.50</td>
+          <td class="model-ctx">262k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>24 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Mistral Large 2411</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral Large 2407</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Pixtral Large 2411</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mixtral 8x22B Instruct</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral Large</td>
+          <td class="model-price">$2</td>
+          <td class="model-price">$6</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Devstral 2 2512</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Medium 3.1</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Devstral Medium</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Medium 3</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Codestral 2508</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$0.90</td>
+          <td class="model-ctx">256k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Small 4</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Saba</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Small 3.1 24B</td>
+          <td class="model-price">$0.35</td>
+          <td class="model-price">$0.56</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mixtral 8x7B Instruct</td>
+          <td class="model-price">$0.54</td>
+          <td class="model-price">$0.54</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Small Creative</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Voxtral Small 24B 2507</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">32k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Devstral Small 1.1</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Ministral 3 14B 2512</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Small 3.2 24B</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral 7B Instruct v0.1</td>
+          <td class="model-price">$0.11</td>
+          <td class="model-price">$0.19</td>
+          <td class="model-ctx">3k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Ministral 3 8B 2512</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Ministral 3 3B 2512</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Small 3</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Mistral: Mistral Nemo</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">anthracite-org</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Magnum v4 72B</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$5</td>
+          <td class="model-ctx">16k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">qwen</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Qwen: Qwen-Max </td>
+          <td class="model-price">$1.04</td>
+          <td class="model-price">$4.16</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>46 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Qwen: Qwen3 Max Thinking</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-price">$3.90</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Max</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-price">$3.90</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Coder Plus</td>
+          <td class="model-price">$0.65</td>
+          <td class="model-price">$3.25</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 235B A22B Thinking</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$2.60</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5 397B A17B</td>
+          <td class="model-price">$0.39</td>
+          <td class="model-price">$2.34</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5-122B-A10B</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$2.08</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen VL Max</td>
+          <td class="model-price">$0.52</td>
+          <td class="model-price">$2.08</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 235B A22B</td>
+          <td class="model-price">$0.45</td>
+          <td class="model-price">$1.82</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5-27B</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$1.56</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5 Plus 2026-02-15</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$1.56</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 30B A3B Thinking</td>
+          <td class="model-price">$0.13</td>
+          <td class="model-price">$1.56</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 235B A22B Thinking 2507</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$1.50</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 8B Thinking</td>
+          <td class="model-price">$0.12</td>
+          <td class="model-price">$1.36</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5-35B-A3B</td>
+          <td class="model-price">$0.16</td>
+          <td class="model-price">$1.30</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Next 80B A3B Instruct</td>
+          <td class="model-price">$0.09</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Coder 480B A35B</td>
+          <td class="model-price">$0.22</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen2.5 Coder 32B Instruct</td>
+          <td class="model-price">$0.66</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Coder Flash</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.97</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 235B A22B Instruct</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.88</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen2.5 VL 72B Instruct</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Next 80B A3B Thinking</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen Plus 0728 (thinking)</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen Plus 0728</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen-Plus</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Coder Next</td>
+          <td class="model-price">$0.12</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen2.5 VL 32B Instruct</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: QwQ 32B</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.58</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 30B A3B Instruct</td>
+          <td class="model-price">$0.13</td>
+          <td class="model-price">$0.52</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 8B Instruct</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 VL 32B Instruct</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.42</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen VL Plus</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-price">$0.41</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 30B A3B Thinking 2507</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 8B</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">41k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen2.5 72B Instruct</td>
+          <td class="model-price">$0.12</td>
+          <td class="model-price">$0.39</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 30B A3B Instruct 2507</td>
+          <td class="model-price">$0.09</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 30B A3B</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-price">$0.28</td>
+          <td class="model-ctx">41k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 Coder 30B A3B Instruct</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.27</td>
+          <td class="model-ctx">160k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5-Flash</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 14B</td>
+          <td class="model-price">$0.06</td>
+          <td class="model-price">$0.24</td>
+          <td class="model-ctx">41k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 32B</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-price">$0.24</td>
+          <td class="model-ctx">41k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen2.5-VL 7B Instruct</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3.5-9B</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-ctx">256k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen-Turbo</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.13</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen3 235B A22B Instruct 2507</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen2.5 7B Instruct</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Qwen: Qwen2.5 Coder 7B Instruct</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.09</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">meta-llama</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Meta: Llama 4 Maverick</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>12 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Meta: Llama 3.1 405B (base)</td>
+          <td class="model-price">$4</td>
+          <td class="model-price">$4</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3 70B Instruct</td>
+          <td class="model-price">$0.51</td>
+          <td class="model-price">$0.74</td>
+          <td class="model-ctx">8k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3.1 70B Instruct</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3.2 3B Instruct</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.34</td>
+          <td class="model-ctx">80k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3.3 70B Instruct</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.32</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 4 Scout</td>
+          <td class="model-price">$0.08</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">328k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3.2 1B Instruct</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">60k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama Guard 4 12B</td>
+          <td class="model-price">$0.18</td>
+          <td class="model-price">$0.18</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Llama Guard 3 8B</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-price">$0.06</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3.1 8B Instruct</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-ctx">16k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3.2 11B Vision Instruct</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Meta: Llama 3 8B Instruct</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-ctx">8k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">switchpoint</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Switchpoint Router</td>
+          <td class="model-price">$0.85</td>
+          <td class="model-price">$3.40</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">arcee-ai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Arcee AI: Maestro Reasoning</td>
+          <td class="model-price">$0.90</td>
+          <td class="model-price">$3.30</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>4 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Arcee AI: Virtuoso Large</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Arcee AI: Coder Large</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Arcee AI: Spotlight</td>
+          <td class="model-price">$0.18</td>
+          <td class="model-price">$0.18</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Arcee AI: Trinity Mini</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">z-ai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Z.ai: GLM 5 Turbo</td>
+          <td class="model-price">$0.96</td>
+          <td class="model-price">$3.20</td>
+          <td class="model-ctx">203k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>9 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Z.ai: GLM 5</td>
+          <td class="model-price">$0.72</td>
+          <td class="model-price">$2.30</td>
+          <td class="model-ctx">80k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.5</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-price">$2.20</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.6</td>
+          <td class="model-price">$0.39</td>
+          <td class="model-price">$1.90</td>
+          <td class="model-ctx">205k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.5V</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-price">$1.80</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.7</td>
+          <td class="model-price">$0.39</td>
+          <td class="model-price">$1.75</td>
+          <td class="model-ctx">203k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.6V</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$0.90</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.5 Air</td>
+          <td class="model-price">$0.13</td>
+          <td class="model-price">$0.85</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4.7 Flash</td>
+          <td class="model-price">$0.06</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">203k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Z.ai: GLM 4 32B </td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">xiaomi</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Xiaomi: MiMo-V2-Pro</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$3</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>2 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Xiaomi: MiMo-V2-Omni</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Xiaomi: MiMo-V2-Flash</td>
+          <td class="model-price">$0.09</td>
+          <td class="model-price">$0.29</td>
+          <td class="model-ctx">262k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">relace</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Relace: Relace Search</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$3</td>
+          <td class="model-ctx">256k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>1 more model</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Relace: Relace Apply 3</td>
+          <td class="model-price">$0.85</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-ctx">256k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">nousresearch</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Nous: Hermes 4 405B</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$3</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>4 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Nous: Hermes 3 405B Instruct</td>
+          <td class="model-price">$1</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Nous: Hermes 4 70B</td>
+          <td class="model-price">$0.13</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Nous: Hermes 3 70B Instruct</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">NousResearch: Hermes 2 Pro - Llama-3 8B</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-ctx">8k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">sao10k</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Sao10K: Llama 3.1 70B Hanami x1</td>
+          <td class="model-price">$3</td>
+          <td class="model-price">$3</td>
+          <td class="model-ctx">16k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>4 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Sao10k: Llama 3 Euryale 70B v2.1</td>
+          <td class="model-price">$1.48</td>
+          <td class="model-price">$1.48</td>
+          <td class="model-ctx">8k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Sao10K: Llama 3.1 Euryale 70B v2.2</td>
+          <td class="model-price">$0.85</td>
+          <td class="model-price">$0.85</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Sao10K: Llama 3.3 Euryale 70B</td>
+          <td class="model-price">$0.65</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Sao10K: Llama 3 8B Lunaris</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-ctx">8k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">deepseek</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">DeepSeek: R1</td>
+          <td class="model-price">$0.70</td>
+          <td class="model-price">$2.50</td>
+          <td class="model-ctx">64k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>10 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">DeepSeek: R1 0528</td>
+          <td class="model-price">$0.45</td>
+          <td class="model-price">$2.15</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3.2 Speciale</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3</td>
+          <td class="model-price">$0.32</td>
+          <td class="model-price">$0.89</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: R1 Distill Llama 70B</td>
+          <td class="model-price">$0.70</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3.1 Terminus</td>
+          <td class="model-price">$0.21</td>
+          <td class="model-price">$0.78</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3 0324</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.77</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3.1</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3.2 Exp</td>
+          <td class="model-price">$0.27</td>
+          <td class="model-price">$0.41</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: DeepSeek V3.2</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$0.38</td>
+          <td class="model-ctx">164k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">DeepSeek: R1 Distill Qwen 32B</td>
+          <td class="model-price">$0.29</td>
+          <td class="model-price">$0.29</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">moonshotai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">MoonshotAI: Kimi K2.5</td>
+          <td class="model-price">$0.45</td>
+          <td class="model-price">$2.20</td>
+          <td class="model-ctx">262k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>3 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">MoonshotAI: Kimi K2 0711</td>
+          <td class="model-price">$0.55</td>
+          <td class="model-price">$2.20</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MoonshotAI: Kimi K2 Thinking</td>
+          <td class="model-price">$0.47</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MoonshotAI: Kimi K2 0905</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">minimax</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">MiniMax: MiniMax M1</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$2.20</td>
+          <td class="model-ctx">1.0M</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>6 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">MiniMax: MiniMax M2.7</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">205k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MiniMax: MiniMax M2.5</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">197k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MiniMax: MiniMax M2-her</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MiniMax: MiniMax-01</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-ctx">1.0M</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MiniMax: MiniMax M2</td>
+          <td class="model-price">$0.26</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">197k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">MiniMax: MiniMax M2.1</td>
+          <td class="model-price">$0.27</td>
+          <td class="model-price">$0.95</td>
+          <td class="model-ctx">197k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">bytedance-seed</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">ByteDance Seed: Seed-2.0-Lite</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">262k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>3 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">ByteDance Seed: Seed 1.6</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$2</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">ByteDance Seed: Seed-2.0-Mini</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">ByteDance Seed: Seed 1.6 Flash</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">262k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">morph</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Morph: Morph V3 Large</td>
+          <td class="model-price">$0.90</td>
+          <td class="model-price">$1.90</td>
+          <td class="model-ctx">262k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>1 more model</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Morph: Morph V3 Fast</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">82k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">deepcogito</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Deep Cogito: Cogito v2.1 671B</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">baidu</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Baidu: ERNIE 4.5 VL 424B A47B </td>
+          <td class="model-price">$0.42</td>
+          <td class="model-price">$1.25</td>
+          <td class="model-ctx">123k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>4 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Baidu: ERNIE 4.5 300B A47B </td>
+          <td class="model-price">$0.28</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-ctx">123k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Baidu: ERNIE 4.5 VL 28B A3B</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-price">$0.56</td>
+          <td class="model-ctx">30k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Baidu: ERNIE 4.5 21B A3B Thinking</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.28</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Baidu: ERNIE 4.5 21B A3B</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.28</td>
+          <td class="model-ctx">120k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">eleutherai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">EleutherAI: Llemma 7b</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">4k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">alfredpros</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">AlfredPros: CodeLLaMa 7B Instruct Solidity</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">4k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">nvidia</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">NVIDIA: Llama 3.1 Nemotron 70B Instruct</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-price">$1.20</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>5 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">NVIDIA: Nemotron Nano 12B 2 VL</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">NVIDIA: Nemotron 3 Super</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">NVIDIA: Llama 3.3 Nemotron Super 49B V1.5</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">NVIDIA: Nemotron 3 Nano 30B A3B</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">262k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">NVIDIA: Nemotron Nano 9B V2</td>
+          <td class="model-price">$0.04</td>
+          <td class="model-price">$0.16</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">prime-intellect</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Prime Intellect: INTELLECT-3</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$1.10</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">nex-agi</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Nex AGI: DeepSeek V3.1 Nex N1</td>
+          <td class="model-price">$0.27</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">mancer</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Mancer: Weaver (alpha)</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-price">$1</td>
+          <td class="model-ctx">8k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">tngtech</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">TNG: DeepSeek R1T2 Chimera</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$0.85</td>
+          <td class="model-ctx">164k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">kwaipilot</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Kwaipilot: KAT-Coder-Pro V1</td>
+          <td class="model-price">$0.21</td>
+          <td class="model-price">$0.83</td>
+          <td class="model-ctx">256k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">meituan</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Meituan: LongCat Flash Chat</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">thedrummer</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">TheDrummer: Skyfall 36B V2</td>
+          <td class="model-price">$0.55</td>
+          <td class="model-price">$0.80</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>3 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">TheDrummer: Cydonia 24B V4.1</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">131k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">TheDrummer: Rocinante 12B</td>
+          <td class="model-price">$0.17</td>
+          <td class="model-price">$0.43</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">TheDrummer: UnslopNemo 12B</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-price">$0.40</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">inception</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Inception: Mercury 2</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>2 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Inception: Mercury</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-ctx">128k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">Inception: Mercury Coder</td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$0.75</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">undi95</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">ReMM SLERP 13B</td>
+          <td class="model-price">$0.45</td>
+          <td class="model-price">$0.65</td>
+          <td class="model-ctx">6k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">microsoft</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">WizardLM-2 8x22B</td>
+          <td class="model-price">$0.62</td>
+          <td class="model-price">$0.62</td>
+          <td class="model-ctx">66k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>1 more model</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">Microsoft: Phi 4</td>
+          <td class="model-price">$0.07</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-ctx">16k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">upstage</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Upstage: Solar Pro 3</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">allenai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">AllenAI: Olmo 3.1 32B Instruct</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.60</td>
+          <td class="model-ctx">66k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>6 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">AllenAI: Olmo 3.1 32B Think</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AllenAI: Olmo 3 32B Think</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AllenAI: Molmo2 8B</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">37k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AllenAI: Olmo 3 7B Instruct</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AllenAI: Olmo 3 7B Think</td>
+          <td class="model-price">$0.12</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">66k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">AllenAI: Olmo 2 32B Instruct</td>
+          <td class="model-price">$0.05</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">tencent</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Tencent: Hunyuan A13B Instruct</td>
+          <td class="model-price">$0.14</td>
+          <td class="model-price">$0.57</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">alibaba</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">Tongyi DeepResearch 30B A3B</td>
+          <td class="model-price">$0.09</td>
+          <td class="model-price">$0.45</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">stepfun</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">StepFun: Step 3.5 Flash</td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.30</td>
+          <td class="model-ctx">256k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">bytedance</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">ByteDance: UI-TARS 7B </td>
+          <td class="model-price">$0.10</td>
+          <td class="model-price">$0.20</td>
+          <td class="model-ctx">128k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">essentialai</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">EssentialAI: Rnj 1 Instruct</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-price">$0.15</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">liquid</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">LiquidAI: LFM2-24B-A2B</td>
+          <td class="model-price">$0.03</td>
+          <td class="model-price">$0.12</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>2 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr>
+          <td class="catalog-name">LiquidAI: LFM2-8B-A1B</td>
+          <td class="model-price">$0.01</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-ctx">33k</td>
+        </tr>
+<tr>
+          <td class="catalog-name">LiquidAI: LFM2-2.6B</td>
+          <td class="model-price">$0.01</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-ctx">33k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">ibm-granite</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">IBM: Granite 4.0 Micro</td>
+          <td class="model-price">$0.02</td>
+          <td class="model-price">$0.11</td>
+          <td class="model-ctx">131k</td>
+        </tr></tbody>
+      </table>
+        
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">gryphe</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship">
+          <td class="catalog-name">MythoMax 13B</td>
+          <td class="model-price">$0.06</td>
+          <td class="model-price">$0.06</td>
+          <td class="model-ctx">4k</td>
+        </tr></tbody>
+      </table>
+        
       </div>
     </div>
 
