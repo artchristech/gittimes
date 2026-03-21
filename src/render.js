@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const { buildAnalytics } = require("./template-utils");
 
+const { SECTIONS } = require("./sections");
+
 let markedParse = null;
 
 async function initMarked() {
@@ -27,6 +29,19 @@ function escapeHtml(str) {
 function formatStars(n) {
   if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
   return n.toString();
+}
+
+/**
+ * Convert a headline string into a URL-safe slug.
+ * @param {string} text
+ * @returns {string}
+ */
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
 }
 
 const SAFE_TAGS = new Set([
@@ -135,20 +150,43 @@ function renderCompactArticle(article) {
       </article>`;
 }
 
-function renderHybridArticle(article, { isLead = false } = {}) {
+function renderTrendMeta(article) {
+  const repos = article._trendRepos || [];
+  const theme = article.repo.shortName || "trend";
+  const pills = repos.slice(0, 5).map(r =>
+    `<a class="trend-repo-pill" href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.name)}</a>`
+  ).join("");
+  const overflow = repos.length > 5 ? `<span class="trend-repo-overflow">+${repos.length - 5} more</span>` : "";
+  return `<div class="trend-meta">
+          <span class="trend-label">Trend</span><span class="trend-theme">${escapeHtml(theme)}</span>
+          <div class="trend-repos">${pills}${overflow}</div>
+        </div>`;
+}
+
+function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) {
   const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
   const headlineClass = isLead ? "hybrid-headline hybrid-headline-lead" : "hybrid-headline";
-  const articleClass = isLead ? "hybrid-article hybrid-lead" : "hybrid-article";
+  const isTrend = article._isTrend;
+  const articleClass = isLead ? "hybrid-article hybrid-lead" : isTrend ? "hybrid-article hybrid-trend" : "hybrid-article";
   const preview = previewBody(body, 3);
   const hasMore = preview !== body;
+  const slug = slugify(headline);
+
+  const shareLink = articleUrl
+    ? `<a class="hybrid-share" href="${escapeHtml(articleUrl)}" title="Permalink">&#128279;</a>`
+    : `<a class="hybrid-share" data-slug="${escapeHtml(slug)}" title="Permalink">&#128279;</a>`;
+
+  const metaHtml = isTrend
+    ? renderTrendMeta(article)
+    : `<div class="hybrid-meta">
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
+        </div>`;
 
   return `
-      <article class="${articleClass}">
-        <h3 class="${headlineClass}">${escapeHtml(headline)}</h3>
+      <article class="${articleClass}" data-slug="${escapeHtml(slug)}">
+        <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
         <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
-        <div class="hybrid-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
-        </div>
+        ${metaHtml}
         <div class="hybrid-preview">
           ${bodyToHtml(preview)}
         </div>
@@ -213,10 +251,6 @@ function renderDeepCuts(articles) {
 </section>`;
 }
 
-function renderMemesContent() {
-  return `<div class="section-empty">Memes section coming soon. Check back tomorrow!</div>`;
-}
-
 /**
  * Build navigation HTML for edition pages.
  * @param {object} nav - { prev?: { url, label }, next?: { url, label }, archive?: string }
@@ -264,8 +298,6 @@ function renderSectionNav(sectionOrder, sections, sectionConfigs) {
  * @returns {string} HTML string
  */
 function renderSectionContent(sectionData, sectionConfig) {
-  if (sectionConfig.isMemes) return renderMemesContent();
-
   if (!sectionData || sectionData.isEmpty || !sectionData.lead) {
     return `<div class="section-empty">No stories found for ${escapeHtml(sectionConfig.label)} today. Check back tomorrow!</div>`;
   }
@@ -334,7 +366,7 @@ function renderChatScript(workerUrl, basePath) {
  */
 async function assembleMultiSectionHtml(content, options = {}) {
   await initMarked();
-  const { SECTIONS, SECTION_ORDER } = require("./sections");
+  const { SECTION_ORDER } = require("./sections");
   const templatePath = path.join(__dirname, "..", "templates", "newspaper.html");
   const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
 
@@ -518,4 +550,65 @@ async function render(content) {
   return outPath;
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderMemesContent };
+/**
+ * Assemble a standalone article page.
+ * @param {object} article - Article object { headline, subheadline, body, repo, useCases, similarProjects, xSentiment }
+ * @param {object} options - { date, dateStr, sectionId, basePath, siteUrl }
+ * @returns {Promise<{ html: string, slug: string }>}
+ */
+async function assembleArticlePage(article, options = {}) {
+  await initMarked();
+  const templatePath = path.join(__dirname, "..", "templates", "article.html");
+  const cssPath = path.join(__dirname, "..", "styles", "newspaper.css");
+
+  const template = fs.readFileSync(templatePath, "utf-8");
+  const css = fs.readFileSync(cssPath, "utf-8");
+
+  const date = options.date || new Date();
+  const dateStr = options.dateStr || toDateStr(date);
+  const basePath = options.basePath || "";
+  const siteUrl = options.siteUrl || "https://gittimes.com";
+
+  const editionDate = date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const slug = slugify(article.headline);
+  const sectionConfig = SECTIONS[options.sectionId];
+  const sectionLabel = sectionConfig ? sectionConfig.label : "";
+
+  const articleContent = renderHybridArticle(article, { isLead: true });
+
+  const ogTitle = escapeHtml(article.headline + " \u2014 The Git Times");
+  const ogDescription = escapeHtml(article.subheadline || "");
+  const articleUrl = `${siteUrl}${basePath}/editions/${dateStr}/${slug}/`;
+  const shareText = encodeURIComponent(article.headline + " \u2014 The Git Times");
+  const shareUrl = encodeURIComponent(articleUrl);
+
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics();
+
+  const html = template
+    .replace("{{STYLES}}", css)
+    .replace("{{ARTICLE_HEADLINE}}", escapeHtml(article.headline))
+    .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
+    .replace(/\{\{DATE_STR\}\}/g, dateStr)
+    .replace(/\{\{BASE_PATH\}\}/g, basePath)
+    .replace("{{SECTION_LABEL}}", escapeHtml(sectionLabel))
+    .replace("{{ARTICLE_CONTENT}}", articleContent)
+    .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
+    .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
+    .replace("{{OG_URL}}", articleUrl)
+    .replace(/\{\{SHARE_TEXT\}\}/g, shareText)
+    .replace(/\{\{SHARE_URL\}\}/g, shareUrl)
+    .replace("{{FEED_URL}}", siteUrl + "/feed.xml")
+    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
+    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
+    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc);
+
+  return { html, slug };
+}
+
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge };

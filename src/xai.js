@@ -259,7 +259,7 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
 /**
  * Attach X sentiment data to eligible articles across all sections.
  * Eligible: lead + featured secondary (first 2 for frontPage, first 1 for others) + deepCuts.
- * Skips _isTrend articles and memes section.
+ * Skips _isTrend articles.
  * @param {object} sections - Generated sections keyed by section id
  * @param {object} client - OpenAI client
  * @param {function} llmLimit - p-limit limiter
@@ -269,7 +269,6 @@ async function _attachSentiment(sections, client, llmLimit, { fetchXSentimentFor
   const tasks = []; // { article, repo }
 
   for (const id of SECTION_ORDER) {
-    if (SECTIONS[id]?.isMemes) continue;
     const section = sections[id];
     if (!section || section.isEmpty) continue;
 
@@ -324,7 +323,7 @@ async function _attachSentiment(sections, client, llmLimit, { fetchXSentimentFor
 }
 
 /**
- * Internal helper: generate content for all non-memes sections, add memes placeholder,
+ * Internal helper: generate content for all sections,
  * pick tagline, and log article count.
  * @param {object} sections - { frontPage: { lead, secondary, quickHits }, ai: {...}, ... }
  * @param {object} client - OpenAI client
@@ -335,7 +334,6 @@ async function _generateBaseSections(sections, client, llmLimit, coverage) {
 
   const result = {};
   for (const id of SECTION_ORDER) {
-    if (SECTIONS[id].isMemes) continue;
     const sectionData = sections[id];
     if (!sectionData) {
       result[id] = { lead: null, secondary: [], quickHits: [], isEmpty: true };
@@ -345,15 +343,6 @@ async function _generateBaseSections(sections, client, llmLimit, coverage) {
     console.log(`  Generating ${config.label}...`);
     result[id] = await generateSectionContent(sectionData, config, client, llmLimit, coverage);
   }
-
-  // Memes section — blank placeholder
-  result["memes"] = {
-    lead: null,
-    secondary: [],
-    quickHits: [],
-    isEmpty: true,
-    isMemes: true,
-  };
 
   // Pick a daily pioneer quote for the masthead
   const tagline = mastheadQuote();
@@ -518,6 +507,11 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
           topics: [],
         },
         _isTrend: true,
+        _trendRepos: trend.repos.map(r => ({
+          name: r.full_name || r.name,
+          url: `https://github.com/${r.full_name || r.name}`,
+          language: r.language || null,
+        })),
       };
 
       if (!trendArticle._isFallback && result.frontPage) {
