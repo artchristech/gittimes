@@ -337,6 +337,14 @@
         });
       }
 
+      // Resolve article permalink URLs from data-slug attributes
+      (function() {
+        var base = window.location.pathname.replace(/\/$/, '');
+        document.querySelectorAll('.hybrid-share[data-slug]').forEach(function(link) {
+          link.href = base + '/' + link.getAttribute('data-slug') + '/';
+        });
+      })();
+
       // Hybrid article expand/collapse
       document.addEventListener('click', function(e) {
         var toggle = e.target.closest('.hybrid-toggle');

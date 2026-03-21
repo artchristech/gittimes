@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent } = require("../src/render");
+const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge } = require("../src/render");
 const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection } = require("../src/github");
 const { parseArticle, parseQuickHits, sanitizePrompt } = require("../src/xai");
 const { parseXSentiment } = require("../src/x-sentiment");
@@ -753,7 +753,7 @@ describe("section config", () => {
 
   it("topic sections have query with topics or languages", () => {
     for (const id of SECTION_ORDER) {
-      if (id === "frontPage" || id === "memes") continue;
+      if (id === "frontPage") continue;
       const config = SECTIONS[id];
       assert.ok(config.query, `${id} should have a query`);
       const hasTopic = config.query.topics && config.query.topics.length > 0;
@@ -949,11 +949,11 @@ describe("renderSectionContent", () => {
     assert.ok(!html.includes("compact-article"), "Should not use compact-article class");
   });
 
-  it("delegates memes to renderMemesContent", () => {
-    const config = { id: "memes", label: "Memes", isMemes: true };
+  it("renders empty state for section with no data", () => {
+    const config = { id: "gameDev", label: "GameDev" };
     const html = renderSectionContent(null, config);
     assert.ok(html.includes("section-empty"));
-    assert.ok(html.includes("Memes section coming soon"));
+    assert.ok(html.includes("GameDev"));
   });
 });
 
@@ -1072,17 +1072,6 @@ describe("parseXSentiment", () => {
   });
 });
 
-// --------------- renderMemesContent ---------------
-
-describe("renderMemesContent", () => {
-  it("returns coming soon placeholder", () => {
-    const _config = { id: "memes", label: "Memes", isMemes: true };
-    const html = renderMemesContent();
-    assert.ok(html.includes("section-empty"));
-    assert.ok(html.includes("Memes section coming soon"));
-  });
-});
-
 // --------------- renderSentimentBadge ---------------
 
 describe("renderSentimentBadge", () => {
@@ -1115,25 +1104,26 @@ describe("renderSentimentBadge", () => {
   });
 });
 
-// --------------- memes section config ---------------
+// --------------- gameDev section config ---------------
 
-describe("memes section config", () => {
-  it("memes exists in SECTIONS", () => {
-    assert.ok(SECTIONS.memes, "SECTIONS should contain memes");
-    assert.equal(SECTIONS.memes.id, "memes");
+describe("gameDev section config", () => {
+  it("gameDev exists in SECTIONS", () => {
+    assert.ok(SECTIONS.gameDev, "SECTIONS should contain gameDev");
+    assert.equal(SECTIONS.gameDev.id, "gameDev");
   });
 
-  it("memes has null query and isMemes flag", () => {
-    assert.equal(SECTIONS.memes.query, null);
-    assert.equal(SECTIONS.memes.isMemes, true);
+  it("gameDev has query with topics and languages", () => {
+    assert.ok(SECTIONS.gameDev.query);
+    assert.ok(SECTIONS.gameDev.query.topics.length > 0);
+    assert.ok(SECTIONS.gameDev.query.languages.length > 0);
   });
 
-  it("memes is in SECTION_ORDER", () => {
-    assert.ok(SECTION_ORDER.includes("memes"), "SECTION_ORDER should include memes");
+  it("gameDev is in SECTION_ORDER", () => {
+    assert.ok(SECTION_ORDER.includes("gameDev"), "SECTION_ORDER should include gameDev");
   });
 
-  it("memes is last in SECTION_ORDER", () => {
-    assert.equal(SECTION_ORDER[SECTION_ORDER.length - 1], "memes");
+  it("gameDev is last in SECTION_ORDER", () => {
+    assert.equal(SECTION_ORDER[SECTION_ORDER.length - 1], "gameDev");
   });
 });
 

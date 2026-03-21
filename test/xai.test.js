@@ -434,7 +434,6 @@ describe("_attachSentiment", () => {
         quickHits: [{ ...makeRepo("qh1"), summary: "Quick hit" }],
         isEmpty: false,
       },
-      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
     await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
@@ -463,7 +462,6 @@ describe("_attachSentiment", () => {
         quickHits: [],
         isEmpty: false,
       },
-      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
     await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
@@ -490,7 +488,6 @@ describe("_attachSentiment", () => {
         ],
         isEmpty: false,
       },
-      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
     await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
@@ -505,7 +502,6 @@ describe("_attachSentiment", () => {
     const sections = {
       frontPage: { lead: null, secondary: [], quickHits: [], isEmpty: true },
       ai: undefined,
-      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
     // Should not throw
@@ -539,7 +535,6 @@ describe("_attachSentiment", () => {
         quickHits: [],
         isEmpty: false,
       },
-      memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
     await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });

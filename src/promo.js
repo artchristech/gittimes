@@ -69,8 +69,8 @@ function extractEditionData(html) {
     const sectionId = panelMatch[1];
     const panelContent = panelMatch[2];
 
-    // Skip frontPage (already captured as lead) and memes
-    if (sectionId === "frontPage" || sectionId === "memes") continue;
+    // Skip frontPage (already captured as lead)
+    if (sectionId === "frontPage") continue;
 
     const config = SECTIONS[sectionId];
     if (!config) continue;

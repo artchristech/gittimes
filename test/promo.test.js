@@ -40,7 +40,8 @@ const MOCK_EDITION = `<!DOCTYPE html>
 <div class="section-panel" data-section="diy">
   <h2 class="lead-headline">DIY Section Lead</h2>
 </div>
-<div class="section-panel" data-section="memes">
+<div class="section-panel" data-section="gameDev">
+  <h2 class="lead-headline">GameDev Section Lead</h2>
 </div>
 <footer class="footer"></footer>
 </body>
@@ -68,9 +69,9 @@ describe("extractEditionData", () => {
     assert.equal(data.lead.repo, "org/repo");
   });
 
-  it("extracts section headlines excluding frontPage and memes", () => {
+  it("extracts section headlines excluding frontPage", () => {
     const data = extractEditionData(MOCK_EDITION);
-    assert.equal(data.sections.length, 5);
+    assert.equal(data.sections.length, 6);
     const labels = data.sections.map((s) => s.label);
     assert.ok(labels.includes("AI"));
     assert.ok(labels.includes("Robotics"));

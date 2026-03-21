@@ -62,15 +62,22 @@ const SECTIONS = {
       languages: [],
     },
   },
-  memes: {
-    id: "memes",
-    label: "Memes",
-    budget: { secondary: 0, quickHits: 0 },
-    query: null,
-    isMemes: true,
+  gameDev: {
+    id: "gameDev",
+    label: "GameDev",
+    budget: { secondary: 3, quickHits: 5 },
+    query: {
+      topics: [
+        "gamedev", "game-development", "game-engine", "godot", "unity",
+        "unreal-engine", "opengl", "vulkan", "webgl", "shader",
+        "pixel-art", "roguelike", "ecs", "physics-engine", "2d-game",
+        "3d-game",
+      ],
+      languages: ["GDScript", "GLSL", "HLSL"],
+    },
   },
 };
 
-const SECTION_ORDER = ["frontPage", "ai", "robotics", "cyber", "systems", "diy", "memes"];
+const SECTION_ORDER = ["frontPage", "ai", "robotics", "cyber", "systems", "diy", "gameDev"];
 
 module.exports = { SECTIONS, SECTION_ORDER };

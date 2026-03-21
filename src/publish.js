@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { assembleHtml, buildNavHtml } = require("./render");
+const { assembleHtml, assembleArticlePage, buildNavHtml, slugify } = require("./render");
 
 const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
@@ -136,6 +136,32 @@ async function publish(content, outDir, options = {}) {
   const latestDir = path.join(outDir, "latest");
   if (!fs.existsSync(latestDir)) fs.mkdirSync(latestDir, { recursive: true });
   fs.writeFileSync(path.join(latestDir, "index.html"), html);
+
+  // 5b. Generate individual article pages for shareability + SEO
+  const articlePageOpts = { date, dateStr, basePath, siteUrl };
+  let articleCount = 0;
+  if (content.sections) {
+    const { SECTION_ORDER } = require("./sections");
+    for (const sectionId of SECTION_ORDER) {
+      const section = content.sections[sectionId];
+      if (!section || section.isEmpty) continue;
+      const articles = [section.lead, ...(section.secondary || [])].filter(Boolean);
+      for (const article of articles) {
+        try {
+          const { html: articleHtml, slug } = await assembleArticlePage(article, { ...articlePageOpts, sectionId });
+          const articleDir = path.join(editionDir, slug);
+          if (!fs.existsSync(articleDir)) fs.mkdirSync(articleDir, { recursive: true });
+          fs.writeFileSync(path.join(articleDir, "index.html"), articleHtml);
+          articleCount++;
+        } catch (e) {
+          console.warn(`Warning: failed to generate article page for "${article.headline}": ${e.message}`);
+        }
+      }
+    }
+  }
+  if (articleCount > 0) {
+    console.log(`Generated ${articleCount} individual article pages`);
+  }
 
   // 6. Update previous edition's HTML to add "Next Edition" link
   if (prevEntry) {
