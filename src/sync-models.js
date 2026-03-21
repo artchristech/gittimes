@@ -14,6 +14,13 @@ const CURATED_PATH = path.join(DATA_DIR, "ai-models-curated.json");
 const OUTPUT_PATH = path.join(DATA_DIR, "ai-models.json");
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/models";
 
+function parseCachePrice(model) {
+  const raw = model.pricing?.input_cache_read;
+  if (!raw) return null;
+  const val = parseFloat(raw) * 1_000_000;
+  return isNaN(val) ? null : val;
+}
+
 /**
  * Fetch the full OpenRouter model catalog.
  */
@@ -63,6 +70,7 @@ function detectUntracked(catalog, trackedIds) {
       id: m.id,
       name: m.name || m.id,
       outputPrice: parseFloat(m.pricing.completion) * 1_000_000,
+      created: m.created || null,
     }))
     .sort((a, b) => b.outputPrice - a.outputPrice)
     .slice(0, 10);
@@ -116,6 +124,15 @@ async function main() {
         input: isNaN(input) ? null : input,
         output: isNaN(output) ? null : output,
         context_length: found.context_length || null,
+        cache_read_price: parseCachePrice(found),
+        max_completion_tokens: found.top_provider?.max_completion_tokens || null,
+        modality: found.architecture?.modality || null,
+        input_modalities: found.architecture?.input_modalities || null,
+        supported_parameters: found.supported_parameters || null,
+        description: found.description || null,
+        created: found.created || null,
+        expiration_date: found.expiration_date || null,
+        hugging_face_id: found.hugging_face_id || null,
         source: "openrouter",
       });
       matched++;
@@ -130,6 +147,15 @@ async function main() {
         input: prev?.input ?? null,
         output: prev?.output ?? null,
         context_length: prev?.context_length ?? null,
+        cache_read_price: prev?.cache_read_price ?? null,
+        max_completion_tokens: prev?.max_completion_tokens ?? null,
+        modality: prev?.modality ?? null,
+        input_modalities: prev?.input_modalities ?? null,
+        supported_parameters: prev?.supported_parameters ?? null,
+        description: prev?.description ?? null,
+        created: prev?.created ?? null,
+        expiration_date: prev?.expiration_date ?? null,
+        hugging_face_id: prev?.hugging_face_id ?? null,
         source: prev ? "previous-sync" : "missing",
       });
       missed++;

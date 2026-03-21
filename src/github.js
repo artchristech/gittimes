@@ -28,7 +28,9 @@ function _graphqlRequest(query, variables, token) {
       res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
         if (res.statusCode >= 400) {
-          reject(new Error(`GitHub GraphQL ${res.statusCode}: ${data.slice(0, 200)}`));
+          const err = new Error(`GitHub GraphQL ${res.statusCode}: ${data.slice(0, 200)}`);
+          err.statusCode = res.statusCode;
+          reject(err);
           return;
         }
         try {
@@ -60,7 +62,8 @@ async function graphqlRequest(query, variables, token) {
       console.warn(
         `GitHub GraphQL attempt ${info.attemptNumber} failed (${info.retriesLeft} left): ${msg}`
       );
-      if (/GitHub GraphQL 4\d{2}:/.test(msg)) {
+      const code = info.error?.statusCode;
+      if (code >= 400 && code < 500 && code !== 429) {
         throw new AbortError(msg);
       }
     },
@@ -86,7 +89,9 @@ function _request(url, token) {
         res.on("data", (chunk) => (data += chunk));
         res.on("end", () => {
           if (res.statusCode >= 400) {
-            reject(new Error(`GitHub API ${res.statusCode}: ${data.slice(0, 200)}`));
+            const err = new Error(`GitHub API ${res.statusCode}: ${data.slice(0, 200)}`);
+            err.statusCode = res.statusCode;
+            reject(err);
             return;
           }
           try {
@@ -111,7 +116,8 @@ async function request(url, token) {
       console.warn(
         `GitHub request attempt ${info.attemptNumber} failed (${info.retriesLeft} left): ${msg}`
       );
-      if (/GitHub API 4\d{2}:/.test(msg)) {
+      const code = info.error?.statusCode;
+      if (code >= 400 && code < 500 && code !== 429) {
         throw new AbortError(msg);
       }
     },

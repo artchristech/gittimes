@@ -1,5 +1,5 @@
 const { escapeHtml } = require("./render");
-const { loadTemplate, buildAnalytics } = require("./template-utils");
+const { applyTemplate } = require("./template-utils");
 
 /**
  * Render the archive page listing all editions.
@@ -8,8 +8,6 @@ const { loadTemplate, buildAnalytics } = require("./template-utils");
  * @returns {string} Complete HTML string
  */
 function renderArchivePage(manifest, basePath) {
-  const { template, css } = loadTemplate("archive");
-
   const rows = manifest.map((entry) => {
     const displayDate = new Date(entry.date + "T12:00:00Z").toLocaleDateString("en-US", {
       weekday: "long",
@@ -28,15 +26,8 @@ function renderArchivePage(manifest, basePath) {
     </div>`;
   });
 
-  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics();
-
-  return template
-    .replace("{{STYLES}}", css)
-    .replace(/\{\{BASE_PATH\}\}/g, basePath)
-    .replace("{{EDITION_LIST}}", rows.join("\n"))
-    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
-    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
-    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc);
+  return applyTemplate("archive", basePath)
+    .replace("{{EDITION_LIST}}", rows.join("\n"));
 }
 
 module.exports = { renderArchivePage };

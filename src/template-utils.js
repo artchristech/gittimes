@@ -40,4 +40,24 @@ function buildAnalytics(options = {}) {
   return { analyticsScript, cspScriptSrc, cspConnectSrc };
 }
 
-module.exports = { loadTemplate, buildAnalytics };
+/**
+ * Load a template and apply all standard placeholder replacements.
+ * @param {string} name - Template name (e.g. "landing", "archive", "account", "markets", "404")
+ * @param {string} basePath - Base path for links
+ * @param {object} [options]
+ * @param {string} [options.chatWorkerUrl] - Worker URL (overrides env)
+ * @returns {string} Template string with STYLES, BASE_PATH, ANALYTICS, and CSP replaced
+ */
+function applyTemplate(name, basePath, options = {}) {
+  const { template, css } = loadTemplate(name);
+  const chatWorkerUrl = options.chatWorkerUrl || process.env.CHAT_WORKER_URL || "";
+  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
+  return template
+    .replace("{{STYLES}}", css)
+    .replace(/\{\{BASE_PATH\}\}/g, basePath)
+    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
+    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
+    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc);
+}
+
+module.exports = { loadTemplate, buildAnalytics, applyTemplate };

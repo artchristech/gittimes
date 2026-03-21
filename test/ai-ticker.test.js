@@ -191,6 +191,81 @@ describe("snapshot persistence", () => {
   });
 });
 
+describe("enriched model data", () => {
+  it("new fields pass through from synced data with correct values", () => {
+    const tickerData = {
+      models: [
+        {
+          key: "claude-sonnet-4.6", label: "Claude Sonnet 4.6", provider: "Anthropic",
+          input: 3, output: 15, context_length: 1000000,
+          cache_read_price: 0.30, max_completion_tokens: 64000,
+          modality: "text+image->text", input_modalities: ["text", "image"],
+          supported_parameters: ["tools", "reasoning"],
+          description: "Fast and capable", created: 1710000000,
+          expiration_date: null, hugging_face_id: null,
+          inputDelta: null, outputDelta: null,
+        },
+      ],
+      bannerKeys: ["claude-sonnet-4.6"],
+      speed: [], images: [],
+    };
+    const m = tickerData.models[0];
+    assert.equal(m.cache_read_price, 0.30);
+    assert.equal(m.max_completion_tokens, 64000);
+    assert.equal(m.modality, "text+image->text");
+    assert.deepEqual(m.input_modalities, ["text", "image"]);
+    assert.deepEqual(m.supported_parameters, ["tools", "reasoning"]);
+    assert.equal(m.description, "Fast and capable");
+    assert.equal(m.created, 1710000000);
+    assert.equal(m.expiration_date, null);
+    assert.equal(m.hugging_face_id, null);
+  });
+
+  it("null fallback when fields are missing", () => {
+    const m = {
+      key: "test", label: "Test", provider: "Test",
+      input: 1, output: 2, context_length: null,
+      cache_read_price: null, max_completion_tokens: null,
+      modality: null, input_modalities: null,
+      supported_parameters: null, description: null,
+      created: null, expiration_date: null, hugging_face_id: null,
+    };
+    assert.equal(m.cache_read_price, null);
+    assert.equal(m.max_completion_tokens, null);
+    assert.equal(m.modality, null);
+    assert.equal(m.input_modalities, null);
+    assert.equal(m.supported_parameters, null);
+    assert.equal(m.description, null);
+    assert.equal(m.created, null);
+    assert.equal(m.expiration_date, null);
+    assert.equal(m.hugging_face_id, null);
+  });
+
+  it("snapshots still only contain key/input/output (no bloat)", () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ticker-enrich-"));
+    const tickerData = {
+      models: [
+        {
+          key: "claude-sonnet-4.6", label: "Claude Sonnet 4.6", input: 3, output: 15,
+          cache_read_price: 0.30, max_completion_tokens: 64000,
+          modality: "text+image->text", description: "Fast",
+        },
+      ],
+    };
+    saveSnapshot(tmpDir, tickerData);
+    const loaded = loadSnapshot(tmpDir);
+    const snap = loaded.models[0];
+    assert.equal(snap.key, "claude-sonnet-4.6");
+    assert.equal(snap.input, 3);
+    assert.equal(snap.output, 15);
+    assert.equal(snap.cache_read_price, undefined);
+    assert.equal(snap.max_completion_tokens, undefined);
+    assert.equal(snap.modality, undefined);
+    assert.equal(snap.description, undefined);
+    fs.rmSync(tmpDir, { recursive: true });
+  });
+});
+
 describe("curated data integrity", () => {
   it("loads tracked models from curated config", () => {
     assert.ok(TRACKED_MODELS.length >= 10);

@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent } = require("../src/render");
+const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderMemesContent } = require("../src/render");
 const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection } = require("../src/github");
 const { parseArticle, parseQuickHits, sanitizePrompt } = require("../src/xai");
 const { parseXSentiment } = require("../src/x-sentiment");
@@ -650,6 +650,87 @@ describe("renderCompactArticle", () => {
   });
 });
 
+// --------------- previewBody ---------------
+
+describe("previewBody", () => {
+  it("extracts first 3 sentences", () => {
+    const text = "First sentence. Second sentence. Third sentence. Fourth sentence. Fifth sentence.";
+    const preview = previewBody(text, 3);
+    assert.ok(preview.includes("First sentence."));
+    assert.ok(preview.includes("Third sentence."));
+    assert.ok(!preview.includes("Fourth sentence."));
+  });
+
+  it("returns full text when 3 or fewer sentences", () => {
+    const text = "One sentence. Two sentences.";
+    assert.equal(previewBody(text, 3), text);
+  });
+
+  it("returns empty string for empty input", () => {
+    assert.equal(previewBody(""), "");
+    assert.equal(previewBody(null), "");
+  });
+});
+
+// --------------- renderHybridArticle ---------------
+
+describe("renderHybridArticle", () => {
+  const baseArticle = {
+    headline: "Hybrid Test",
+    subheadline: "Hybrid Sub",
+    body: "First sentence here. Second sentence here. Third sentence here. Fourth sentence here. Fifth sentence here.",
+    useCases: ["Build apps", "Scale systems"],
+    similarProjects: ["Vite - faster builds"],
+    repo: { url: "https://github.com/test/hybrid", name: "test/hybrid", stars: 500, language: "Rust", releaseName: null },
+  };
+
+  it("renders headline, subheadline, meta, preview, insights, and toggle", () => {
+    const html = renderHybridArticle(baseArticle);
+    assert.ok(html.includes("hybrid-article"));
+    assert.ok(html.includes("hybrid-headline"));
+    assert.ok(html.includes("Hybrid Test"));
+    assert.ok(html.includes("hybrid-subheadline"));
+    assert.ok(html.includes("Hybrid Sub"));
+    assert.ok(html.includes("hybrid-meta"));
+    assert.ok(html.includes("hybrid-preview"));
+    assert.ok(html.includes("hybrid-full"));
+    assert.ok(html.includes("article-insights"));
+    assert.ok(html.includes("hybrid-toggle"));
+    assert.ok(html.includes("Read more"));
+  });
+
+  it("adds hybrid-lead class when isLead is true", () => {
+    const html = renderHybridArticle(baseArticle, { isLead: true });
+    assert.ok(html.includes("hybrid-lead"));
+    assert.ok(html.includes("hybrid-headline-lead"));
+  });
+
+  it("does not add hybrid-lead class by default", () => {
+    const html = renderHybridArticle(baseArticle);
+    assert.ok(!html.includes("hybrid-lead"));
+    assert.ok(!html.includes("hybrid-headline-lead"));
+  });
+
+  it("omits toggle when body has 3 or fewer sentences", () => {
+    const shortArticle = { ...baseArticle, body: "One. Two. Three." };
+    const html = renderHybridArticle(shortArticle);
+    assert.ok(!html.includes("hybrid-toggle"), "Should not show toggle for short body");
+    assert.ok(!html.includes("hybrid-full"), "Should not render full div for short body");
+  });
+
+  it("renders repo metadata", () => {
+    const html = renderHybridArticle(baseArticle);
+    assert.ok(html.includes("test/hybrid"));
+    assert.ok(html.includes("500 stars"));
+    assert.ok(html.includes("Rust"));
+  });
+
+  it("renders release name for lead articles", () => {
+    const html = renderHybridArticle({ ...baseArticle, repo: { ...baseArticle.repo, releaseName: "v2.0" } }, { isLead: true });
+    assert.ok(html.includes("v2.0"));
+  });
+});
+
 // --------------- section config ---------------
 
 describe("section config", () => {
@@ -834,7 +915,7 @@ describe("renderSectionContent", () => {
     const data = { lead: makeArticle("AI Lead"), secondary: [], quickHits: [], isEmpty: false };
     const html = renderSectionContent(data, config);
     assert.ok(html.includes("AI Lead"));
-    assert.ok(html.includes("lead-story"));
+    assert.ok(html.includes("hybrid-lead"));
   });
 
   it("renders full section with lead, secondary, quick hits", () => {
@@ -847,35 +928,25 @@ describe("renderSectionContent", () => {
     };
     const html = renderSectionContent(data, config);
     assert.ok(html.includes("FP Lead"));
-    assert.ok(html.includes("featured-grid"));
+    assert.ok(html.includes("hybrid-grid"));
     assert.ok(html.includes("quick-hits-section"));
     assert.ok(html.includes("quick-hits-toggle"));
   });
 
-  it("Front Page uses 2 featured articles", () => {
+  it("all secondary articles use hybrid format", () => {
     const config = { id: "frontPage", label: "Front Page" };
     const data = {
       lead: makeArticle("Lead"),
-      secondary: [makeArticle("F1"), makeArticle("F2"), makeArticle("C1")],
+      secondary: [makeArticle("S1"), makeArticle("S2"), makeArticle("S3")],
       quickHits: [],
       isEmpty: false,
     };
     const html = renderSectionContent(data, config);
-    const featuredCount = (html.match(/featured-article/g) || []).length;
-    assert.equal(featuredCount, 2);
-  });
-
-  it("topic section uses 1 featured article", () => {
-    const config = { id: "ai", label: "AI" };
-    const data = {
-      lead: makeArticle("Lead"),
-      secondary: [makeArticle("F1"), makeArticle("C1"), makeArticle("C2")],
-      quickHits: [],
-      isEmpty: false,
-    };
-    const html = renderSectionContent(data, config);
-    const featuredCount = (html.match(/featured-article/g) || []).length;
-    assert.equal(featuredCount, 1);
+    // All secondary articles should be hybrid (not featured/compact split)
+    const hybridCount = (html.match(/class="hybrid-article"/g) || []).length;
+    assert.equal(hybridCount, 3);
+    assert.ok(!html.includes("featured-article"), "Should not use featured-article class");
+    assert.ok(!html.includes("compact-article"), "Should not use compact-article class");
   });
 
   it("delegates memes to renderMemesContent", () => {
@@ -907,16 +978,16 @@ describe("renderDeepCuts", () => {
     const html = renderDeepCuts([makeArticle("Hidden Gem")]);
     assert.ok(html.includes("deep-cuts-section"));
     assert.ok(html.includes("Deep Cuts"));
-    assert.ok(html.includes("deep-cuts-grid"));
+    assert.ok(html.includes("hybrid-grid"));
     assert.ok(html.includes("Hidden Gem"));
   });
 
-  it("renders multiple sleeper articles", () => {
+  it("renders multiple sleeper articles as hybrid", () => {
     const html = renderDeepCuts([makeArticle("Gem One"), makeArticle("Gem Two")]);
     assert.ok(html.includes("Gem One"));
     assert.ok(html.includes("Gem Two"));
-    const featuredCount = (html.match(/featured-article/g) || []).length;
-    assert.equal(featuredCount, 2);
+    const hybridCount = (html.match(/class="hybrid-article"/g) || []).length;
+    assert.equal(hybridCount, 2);
   });
 });
 

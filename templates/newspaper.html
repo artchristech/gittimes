@@ -336,6 +336,17 @@
           qhToggle.textContent = expanded ? 'Show less' : 'Show more';
         });
       }
+
+      // Hybrid article expand/collapse
+      document.addEventListener('click', function(e) {
+        var toggle = e.target.closest('.hybrid-toggle');
+        if (!toggle) return;
+        var article = toggle.closest('.hybrid-article');
+        if (!article) return;
+        var expanded = article.classList.toggle('expanded');
+        toggle.textContent = expanded ? 'Read less' : 'Read more';
+        toggle.setAttribute('aria-expanded', expanded);
+      });
     })();
   </script>
 

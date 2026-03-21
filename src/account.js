@@ -1,4 +1,4 @@
-const { loadTemplate, buildAnalytics } = require("./template-utils");
+const { applyTemplate } = require("./template-utils");
 
 /**
  * Render the account page.
@@ -7,20 +7,10 @@ const { loadTemplate, buildAnalytics } = require("./template-utils");
  */
 function renderAccountPage(options = {}) {
   const basePath = options.basePath || "";
-
-  const { template, css } = loadTemplate("account");
-
   const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
 
-  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
-
-  return template
-    .replace("{{STYLES}}", css)
-    .replace(/\{\{BASE_PATH\}\}/g, basePath)
-    .replace(/\{\{WORKER_URL\}\}/g, chatWorkerUrl)
-    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
-    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
-    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc);
+  return applyTemplate("account", basePath, { chatWorkerUrl })
+    .replace(/\{\{WORKER_URL\}\}/g, chatWorkerUrl);
 }
 
 module.exports = { renderAccountPage };

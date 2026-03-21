@@ -1,5 +1,5 @@
 const { escapeHtml } = require("./render");
-const { loadTemplate, buildAnalytics } = require("./template-utils");
+const { applyTemplate } = require("./template-utils");
 
 /**
  * Render the landing page with recent editions and subscribe form.
@@ -9,8 +9,6 @@ const { loadTemplate, buildAnalytics } = require("./template-utils");
  */
 function renderLandingPage(manifest, options = {}) {
   const basePath = options.basePath || "";
-
-  const { template, css } = loadTemplate("landing");
 
   const recent = manifest.slice(0, 5);
   const cards = recent.map((entry) => {
@@ -31,16 +29,9 @@ function renderLandingPage(manifest, options = {}) {
   const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
   const subscribeUrl = chatWorkerUrl ? chatWorkerUrl + "/subscribe" : "";
 
-  const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
-
-  return template
-    .replace("{{STYLES}}", css)
-    .replace(/\{\{BASE_PATH\}\}/g, basePath)
+  return applyTemplate("landing", basePath, { chatWorkerUrl })
     .replace("{{EDITION_CARDS}}", cards.join("\n"))
-    .replace(/\{\{SUBSCRIBE_URL\}\}/g, subscribeUrl)
-    .replace("{{ANALYTICS_SCRIPT}}", analyticsScript)
-    .replace("{{CSP_SCRIPT_SRC}}", cspScriptSrc)
-    .replace("{{CSP_CONNECT_SRC}}", cspConnectSrc);
+    .replace(/\{\{SUBSCRIBE_URL\}\}/g, subscribeUrl);
 }
 
 module.exports = { renderLandingPage };

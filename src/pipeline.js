@@ -6,6 +6,7 @@ const { fetchAllSections } = require("./github");
 const { generateAllContent, generateEditorialContent, deduplicateContent } = require("./xai");
 const { loadHistory, computeDeltas } = require("./history");
 const { makeEditorialPlan } = require("./editorial");
+const { fetchXSentimentForRepo } = require("./x-sentiment");
 
 /**
  * Run the full content generation pipeline.
@@ -58,13 +59,13 @@ async function runPipeline(githubToken, xaiKey, options = {}) {
       if (editorialPlan.sleepers.length > 0) console.log(`  Sleepers: ${editorialPlan.sleepers.map((s) => s.repo.full_name).join(", ")}`);
     }
 
-    const editorialOpts = { githubToken, coverage };
+    const editorialOpts = { githubToken, coverage, fetchXSentimentForRepo };
     if (options.enrichRepo) editorialOpts.enrichRepo = options.enrichRepo;
     if (options.fetchStarTrajectory) editorialOpts.fetchStarTrajectory = options.fetchStarTrajectory;
 
     content = await generateEditorialContent(sections, xaiKey, editorialPlan, editorialOpts);
   } else {
-    content = await generateAllContent(sections, xaiKey, { coverage });
+    content = await generateAllContent(sections, xaiKey, { coverage, fetchXSentimentForRepo });
   }
 
   // Step 3: Dedup

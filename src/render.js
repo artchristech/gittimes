@@ -59,6 +59,13 @@ function bodyToHtml(text) {
     .join("\n      ");
 }
 
+function previewBody(text, sentenceCount = 3) {
+  if (!text) return "";
+  const sentences = text.match(/[^.!?]*[.!?]+[\s]*/g);
+  if (!sentences || sentences.length <= sentenceCount) return text;
+  return sentences.slice(0, sentenceCount).join("").trim();
+}
+
 function renderInsights(useCases, similarProjects) {
   if ((!useCases || useCases.length === 0) && (!similarProjects || similarProjects.length === 0)) {
     return "";
@@ -128,6 +135,32 @@ function renderCompactArticle(article) {
       </article>`;
 }
 
+function renderHybridArticle(article, { isLead = false } = {}) {
+  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const headlineClass = isLead ? "hybrid-headline hybrid-headline-lead" : "hybrid-headline";
+  const articleClass = isLead ? "hybrid-article hybrid-lead" : "hybrid-article";
+  const preview = previewBody(body, 3);
+  const hasMore = preview !== body;
+
+  return `
+      <article class="${articleClass}">
+        <h3 class="${headlineClass}">${escapeHtml(headline)}</h3>
+        <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
+        <div class="hybrid-meta">
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
+        </div>
+        <div class="hybrid-preview">
+          ${bodyToHtml(preview)}
+        </div>
+        ${hasMore ? `<div class="hybrid-full">
+          ${bodyToHtml(body)}
+        </div>` : ""}
+        ${renderInsights(useCases, similarProjects)}
+        ${renderSentimentBadge(xSentiment)}
+        ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
+      </article>`;
+}
+
 function renderQuickHit(hit) {
   return `
       <div class="quick-hit">
@@ -176,7 +209,7 @@ function renderDeepCuts(articles) {
   if (!articles || articles.length === 0) return "";
   return `<section class="deep-cuts-section">
   <h2 class="section-header">Deep Cuts</h2>
-  <div class="deep-cuts-grid">${articles.map(renderFeaturedArticle).join("\n")}</div>
+  <div class="hybrid-grid">${articles.map(a => renderHybridArticle(a)).join("\n")}</div>
 </section>`;
 }
 
@@ -237,27 +270,16 @@ function renderSectionContent(sectionData, sectionConfig) {
     return `<div class="section-empty">No stories found for ${escapeHtml(sectionConfig.label)} today. Check back tomorrow!</div>`;
   }
 
-  const isFrontPage = sectionConfig.id === "frontPage";
-  const featuredCount = isFrontPage ? 2 : 1;
-
   let html = "";
 
-  // Lead story
-  html += `<article class="lead-story">${renderLeadStory(sectionData.lead)}</article>`;
+  // Lead story — hybrid with visual prominence
+  html += renderHybridArticle(sectionData.lead, { isLead: true });
 
-  // Secondary section
+  // Secondary section — uniform hybrid grid
   if (sectionData.secondary.length > 0) {
-    const featured = sectionData.secondary.slice(0, featuredCount);
-    const compact = sectionData.secondary.slice(featuredCount);
-
     html += `<section class="secondary-section">`;
     html += `<h2 class="section-header">More Stories</h2>`;
-    if (featured.length > 0) {
-      html += `<div class="featured-grid">${featured.map(renderFeaturedArticle).join("\n")}</div>`;
-    }
-    if (compact.length > 0) {
-      html += `<div class="compact-grid">${compact.map(renderCompactArticle).join("\n")}</div>`;
-    }
+    html += `<div class="hybrid-grid">${sectionData.secondary.map(a => renderHybridArticle(a)).join("\n")}</div>`;
     html += `</section>`;
   }
 
@@ -416,18 +438,15 @@ async function assembleHtml(content, options = {}) {
   // Build lead section — only render if lead exists
   let leadSectionHtml = "";
   if (content.lead) {
-    leadSectionHtml = `<article class="lead-story">${renderLeadStory(content.lead)}</article>`;
+    leadSectionHtml = renderHybridArticle(content.lead, { isLead: true });
   }
 
   // Build secondary section — only render if there are secondary articles
   let secondarySectionHtml = "";
   if (content.secondary && content.secondary.length > 0) {
-    const featured = content.secondary.slice(0, 2);
-    const compact = content.secondary.slice(2);
     secondarySectionHtml = `<section class="secondary-section">
     <h2 class="section-header">More Stories</h2>
-    <div class="featured-grid">${featured.map(renderFeaturedArticle).join("\n")}</div>
-    ${compact.length > 0 ? `<div class="compact-grid">${compact.map(renderCompactArticle).join("\n")}</div>` : ""}
+    <div class="hybrid-grid">${content.secondary.map(a => renderHybridArticle(a)).join("\n")}</div>
   </section>`;
   }
 
@@ -499,4 +518,4 @@ async function render(content) {
   return outPath;
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderMemesContent };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, buildNavHtml, escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderMemesContent };

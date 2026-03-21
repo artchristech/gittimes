@@ -16,6 +16,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
 
 jobs:
   publish:
@@ -64,3 +65,17 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           keep_files: true
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          gh issue create \
+            --title "Daily edition failed: $(date +%Y-%m-%d)" \
+            --body "The daily edition pipeline failed on $(date '+%Y-%m-%d %H:%M %Z').
+
+          **Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Check the logs for details." \
+            --label "pipeline-failure"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

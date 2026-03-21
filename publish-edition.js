@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { execSync } = require("child_process");
+const { execSync, execFileSync } = require("child_process");
 const fs = require("fs");
 const { runPipeline } = require("./src/pipeline");
 const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent, readManifest } = require("./src/publish");
@@ -24,7 +24,8 @@ function syncSiteFromGhPages(outDir) {
   try {
     execSync("git fetch origin gh-pages", { stdio: "pipe" });
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-    execSync(`git archive origin/gh-pages | tar -x -C "${outDir}"`, { stdio: "pipe" });
+    const archive = execSync("git archive origin/gh-pages", { stdio: ["pipe", "pipe", "pipe"] });
+    execFileSync("tar", ["-x", "-C", outDir], { input: archive, stdio: ["pipe", "pipe", "pipe"] });
     console.log("Synced site/ from gh-pages branch");
   } catch {
     console.log("No gh-pages branch found, starting fresh");
@@ -117,29 +118,33 @@ async function main() {
   saveSnapshot(outDir, tickerData);
   console.log("AI ticker snapshot saved");
 
-  // Step 6: Send newsletter
-  const newsletterSecret = process.env.NEWSLETTER_SECRET;
-  const chatWorkerUrl = process.env.CHAT_WORKER_URL;
-  if (newsletterSecret && chatWorkerUrl) {
-    const updatedManifest = readManifest(outDir);
-    const latest = updatedManifest[0];
-    if (latest) {
-      const sent = await sendNewsletter({
-        workerUrl: chatWorkerUrl,
-        newsletterSecret,
-        edition: {
-          headline: latest.headline,
-          subheadline: latest.subheadline || "",
-          tagline: latest.tagline || "",
-          date: latest.date,
-          url: siteUrl + latest.url,
-          repos: (latest.repos || []).slice(0, 8),
-        },
-      });
-      console.log(`Newsletter sent to ${sent} subscribers`);
+  // Step 6: Send newsletter (non-fatal — edition is already on disk)
+  try {
+    const newsletterSecret = process.env.NEWSLETTER_SECRET;
+    const chatWorkerUrl = process.env.CHAT_WORKER_URL;
+    if (newsletterSecret && chatWorkerUrl) {
+      const updatedManifest = readManifest(outDir);
+      const latest = updatedManifest[0];
+      if (latest) {
+        const sent = await sendNewsletter({
+          workerUrl: chatWorkerUrl,
+          newsletterSecret,
+          edition: {
+            headline: latest.headline,
+            subheadline: latest.subheadline || "",
+            tagline: latest.tagline || "",
+            date: latest.date,
+            url: siteUrl + latest.url,
+            repos: (latest.repos || []).slice(0, 8),
+          },
+        });
+        console.log(`Newsletter sent to ${sent} subscribers`);
+      }
+    } else {
+      console.log("Newsletter skipped (NEWSLETTER_SECRET or CHAT_WORKER_URL not set)");
     }
-  } else {
-    console.log("Newsletter skipped (NEWSLETTER_SECRET or CHAT_WORKER_URL not set)");
+  } catch (err) {
+    console.warn(`Newsletter send failed (non-fatal): ${err.message}`);
   }
 
   // Step 7: Generate promo video (HTML + MP4)
@@ -148,9 +153,8 @@ async function main() {
     console.log(`Promo generated: ${promo.promoPath}`);
     // Record MP4 from the promo HTML
     try {
-      const { execSync: exec } = require("child_process");
       console.log("Recording promo video...");
-      exec(`node record-promo.js ${promo.dateStr} vertical`, {
+      execFileSync("node", ["record-promo.js", promo.dateStr, "vertical"], {
         stdio: "inherit",
         env: { ...process.env, PUBLISH_DIR: outDir },
       });

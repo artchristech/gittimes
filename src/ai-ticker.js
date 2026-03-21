@@ -75,10 +75,21 @@ async function fetchOpenRouterPrices(trackedModels) {
         const input = parseFloat(found.pricing.prompt) * 1_000_000;
         const output = parseFloat(found.pricing.completion) * 1_000_000;
         if (!isNaN(input) && !isNaN(output)) {
+          const rawCache = found.pricing?.input_cache_read;
+          const cacheVal = rawCache ? parseFloat(rawCache) * 1_000_000 : null;
           prices[model.key] = {
             input,
             output,
             context_length: found.context_length || null,
+            cache_read_price: (cacheVal != null && !isNaN(cacheVal)) ? cacheVal : null,
+            max_completion_tokens: found.top_provider?.max_completion_tokens || null,
+            modality: found.architecture?.modality || null,
+            input_modalities: found.architecture?.input_modalities || null,
+            supported_parameters: found.supported_parameters || null,
+            description: found.description || null,
+            created: found.created || null,
+            expiration_date: found.expiration_date || null,
+            hugging_face_id: found.hugging_face_id || null,
           };
         }
       }
@@ -164,7 +175,20 @@ async function getTickerData(outDir) {
   if (synced) {
     for (const m of synced.models) {
       if (m.input != null && m.output != null) {
-        modelPrices[m.key] = { input: m.input, output: m.output, context_length: m.context_length };
+        modelPrices[m.key] = {
+          input: m.input,
+          output: m.output,
+          context_length: m.context_length,
+          cache_read_price: m.cache_read_price ?? null,
+          max_completion_tokens: m.max_completion_tokens ?? null,
+          modality: m.modality ?? null,
+          input_modalities: m.input_modalities ?? null,
+          supported_parameters: m.supported_parameters ?? null,
+          description: m.description ?? null,
+          created: m.created ?? null,
+          expiration_date: m.expiration_date ?? null,
+          hugging_face_id: m.hugging_face_id ?? null,
+        };
       }
     }
     console.log(`[ai-ticker] Using synced data from ${synced.syncedAt?.slice(0, 10) || "unknown"}`);
@@ -203,6 +227,15 @@ async function getTickerData(outDir) {
       input: current.input,
       output: current.output,
       context_length: current.context_length,
+      cache_read_price: current.cache_read_price ?? null,
+      max_completion_tokens: current.max_completion_tokens ?? null,
+      modality: current.modality ?? null,
+      input_modalities: current.input_modalities ?? null,
+      supported_parameters: current.supported_parameters ?? null,
+      description: current.description ?? null,
+      created: current.created ?? null,
+      expiration_date: current.expiration_date ?? null,
+      hugging_face_id: current.hugging_face_id ?? null,
       inputDelta,
       outputDelta,
     };
@@ -235,13 +268,25 @@ function getFullMarketData() {
 
   return _cachedOpenRouterData
     .filter((m) => m.pricing && parseFloat(m.pricing.prompt) > 0)
-    .map((m) => ({
-      id: m.id,
-      name: m.name || m.id,
-      context_length: m.context_length || null,
-      input: parseFloat(m.pricing.prompt) * 1_000_000,
-      output: parseFloat(m.pricing.completion) * 1_000_000,
-    }))
+    .map((m) => {
+      const rawCache = m.pricing?.input_cache_read;
+      const cacheVal = rawCache ? parseFloat(rawCache) * 1_000_000 : null;
+      return {
+        id: m.id,
+        name: m.name || m.id,
+        context_length: m.context_length || null,
+        input: parseFloat(m.pricing.prompt) * 1_000_000,
+        output: parseFloat(m.pricing.completion) * 1_000_000,
+        cache_read_price: (cacheVal != null && !isNaN(cacheVal)) ? cacheVal : null,
+        max_completion_tokens: m.top_provider?.max_completion_tokens || null,
+        modality: m.architecture?.modality || null,
+        input_modalities: m.architecture?.input_modalities || null,
+        supported_parameters: m.supported_parameters || null,
+        created: m.created || null,
+        description: m.description || null,
+        hugging_face_id: m.hugging_face_id || null,
+      };
+    })
     .sort((a, b) => b.output - a.output);
 }
 

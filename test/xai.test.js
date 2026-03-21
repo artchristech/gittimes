@@ -2,6 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
 const { generateSectionContent, generateEditorialContent, parseArticle, chat, _attachSentiment } = require("../src/xai");
+const { fetchXSentimentForRepo } = require("../src/x-sentiment");
 
 // --------------- Mock helpers ---------------
 
@@ -436,7 +437,7 @@ describe("_attachSentiment", () => {
       memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
-    await _attachSentiment(sections, client, llmLimit);
+    await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
 
     assert.ok(sections.frontPage.lead.xSentiment, "Lead should have xSentiment");
     assert.equal(sections.frontPage.lead.xSentiment.sentiment, "buzzing");
@@ -465,7 +466,7 @@ describe("_attachSentiment", () => {
       memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
-    await _attachSentiment(sections, client, llmLimit);
+    await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
 
     assert.ok(sections.ai.lead.xSentiment, "Lead should have xSentiment");
     assert.equal(sections.ai.lead.xSentiment.sentiment, "positive");
@@ -492,7 +493,7 @@ describe("_attachSentiment", () => {
       memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
-    await _attachSentiment(sections, client, llmLimit);
+    await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
 
     assert.ok(sections.frontPage.deepCuts[0].xSentiment, "Deep cut should have xSentiment");
     assert.equal(sections.frontPage.deepCuts[0].xSentiment.sentiment, "quiet");
@@ -508,7 +509,7 @@ describe("_attachSentiment", () => {
     };
 
     // Should not throw
-    await _attachSentiment(sections, client, llmLimit);
+    await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
   });
 
   it("skips _isTrend articles", async () => {
@@ -541,7 +542,7 @@ describe("_attachSentiment", () => {
       memes: { lead: null, secondary: [], quickHits: [], isEmpty: true, isMemes: true },
     };
 
-    await _attachSentiment(sections, client, llmLimit);
+    await _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo });
 
     assert.ok(normalArticle.xSentiment, "Normal article should have xSentiment");
     assert.ok(!trendArticle.xSentiment, "Trend article should NOT have xSentiment");
@@ -584,7 +585,7 @@ describe("generateEditorialContent — sentiment", () => {
       sleepers: [],
     };
 
-    const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client });
+    const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client, fetchXSentimentForRepo });
 
     assert.ok(result.sections.frontPage.lead.xSentiment, "Breakout lead should have xSentiment");
     assert.equal(result.sections.frontPage.lead.xSentiment.sentiment, "buzzing");
@@ -613,7 +614,7 @@ describe("generateEditorialContent — sentiment", () => {
       };
 
       const editorialPlan = { breakout: null, trends: [], sleepers: [] };
-      const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client });
+      const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client, fetchXSentimentForRepo });
 
       assert.equal(sentimentCalls, 0, "Should not fetch sentiment when X_SENTIMENT=false");
       assert.ok(!result.sections.frontPage.lead.xSentiment, "Lead should NOT have xSentiment");

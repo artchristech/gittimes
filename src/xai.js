@@ -15,12 +15,13 @@ const {
 const { SECTIONS, SECTION_ORDER } = require("./sections");
 const { mastheadQuote } = require("./quotes");
 
-const MODEL = "grok-4-1-fast-reasoning";
+const MODEL = "grok-4.20-0309-reasoning";
 
 function createClient(apiKey) {
   return new OpenAI({
     baseURL: "https://api.x.ai/v1",
     apiKey,
+    timeout: 120_000,
   });
 }
 
@@ -87,7 +88,7 @@ async function chat(client, model, prompt, maxTokens = 1024, options = {}) {
       console.warn(
         `LLM attempt ${info.attemptNumber} failed (${info.retriesLeft} left): ${err.message || String(err)}`
       );
-      if (err.status && err.status >= 400 && err.status < 500) {
+      if (err.status && err.status >= 400 && err.status < 500 && err.status !== 429) {
         throw new AbortError(err.message);
       }
     },
@@ -263,8 +264,7 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
  * @param {object} client - OpenAI client
  * @param {function} llmLimit - p-limit limiter
  */
-async function _attachSentiment(sections, client, llmLimit) {
-  const { fetchXSentimentForRepo } = require("./x-sentiment");
+async function _attachSentiment(sections, client, llmLimit, { fetchXSentimentForRepo }) {
 
   const tasks = []; // { article, repo }
 
@@ -384,8 +384,8 @@ async function generateAllContent(sections, apiKey, options = {}) {
 
   const base = await _generateBaseSections(sections, client, llmLimit, coverage);
 
-  if (process.env.X_SENTIMENT !== "false") {
-    await _attachSentiment(base.sections, client, llmLimit);
+  if (process.env.X_SENTIMENT !== "false" && options.fetchXSentimentForRepo) {
+    await _attachSentiment(base.sections, client, llmLimit, { fetchXSentimentForRepo: options.fetchXSentimentForRepo });
   }
 
   return base;
@@ -428,8 +428,8 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
   if (editorialPlan.breakout) {
     try {
       console.log(`  Generating breakout article for ${editorialPlan.breakout.repo.full_name || editorialPlan.breakout.repo.name}...`);
-      const enrichRepo = options.enrichRepo || require("./github").enrichRepo;
-      const fetchStarTrajectory = options.fetchStarTrajectory || require("./star-history").fetchStarTrajectory;
+      const enrichRepo = options.enrichRepo;
+      const fetchStarTrajectory = options.fetchStarTrajectory;
       // Enrich the breakout repo if it's a raw GitHub object
       let breakoutRepo = editorialPlan.breakout.repo;
       if (!breakoutRepo.readmeExcerpt && breakoutRepo.full_name) {
@@ -543,7 +543,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
           continue;
         }
         console.log(`  Generating sleeper article for ${repoName}...`);
-        const enrichRepoFn = options.enrichRepo || require("./github").enrichRepo;
+        const enrichRepoFn = options.enrichRepo;
         // Enrich the sleeper repo if it's a raw GitHub object
         let sleeperRepo = sleeper.repo;
         if (!sleeperRepo.readmeExcerpt && sleeperRepo.full_name) {
@@ -589,8 +589,8 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     }
   }
 
-  if (process.env.X_SENTIMENT !== "false") {
-    await _attachSentiment(result, client, llmLimit);
+  if (process.env.X_SENTIMENT !== "false" && options.fetchXSentimentForRepo) {
+    await _attachSentiment(result, client, llmLimit, { fetchXSentimentForRepo: options.fetchXSentimentForRepo });
   }
 
   return { sections: result, tagline: base.tagline, editorialMeta };

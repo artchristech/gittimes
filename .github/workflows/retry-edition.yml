@@ -1,0 +1,46 @@
+name: Retry Daily Edition
+
+on:
+  workflow_run:
+    workflows: ["Daily Edition"]
+    types: [completed]
+
+permissions:
+  actions: write
+
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Check retry count
+        id: check
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          # Count today's runs of Daily Edition (completed + in_progress)
+          COUNT=$(gh run list \
+            --workflow "Daily Edition" \
+            --created "$TODAY" \
+            --limit 10 \
+            --json status \
+            --jq 'length')
+          echo "runs_today=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Daily Edition runs today: $COUNT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Wait and retry
+        if: ${{ steps.check.outputs.runs_today < 3 }}
+        run: |
+          echo "Waiting 15 minutes before retry..."
+          sleep 900
+          gh workflow run "Daily Edition"
+          echo "Retry triggered."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Skip retry
+        if: ${{ steps.check.outputs.runs_today >= 3 }}
+        run: echo "Retry cap reached (${{ steps.check.outputs.runs_today }} runs today). Not retrying."

@@ -11,6 +11,7 @@ async function sendNewsletter({ workerUrl, newsletterSecret, edition }) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(edition),
+    signal: AbortSignal.timeout(15_000),
   });
 
   const data = await res.json();
