@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-03-21T05:40:58.457Z",
+  "syncedAt": "2026-03-21T11:37:57.354Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
@@ -15,6 +15,31 @@
       "input": 5,
       "output": 25,
       "context_length": 1000000,
+      "cache_read_price": 0.5,
+      "max_completion_tokens": 128000,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p",
+        "verbosity"
+      ],
+      "description": "Opus 4.6 is Anthropic’s strongest model for coding and long-running professional tasks. It is built for agents that operate across entire workflows rather than single prompts, making it especially effective for large codebases, complex refactors, and multi-step debugging that unfolds over time. The model shows deeper contextual understanding, stronger problem decomposition, and greater reliability on hard engineering tasks than prior generations.\n\nBeyond coding, Opus 4.6 excels at sustained knowledge work. It produces near-production-ready documents, plans, and analyses in a single pass, and maintains coherence across very long outputs and extended sessions. This makes it a strong default for tasks that require persistence, judgment, and follow-through, such as technical design, migration planning, and end-to-end project execution.\n\nFor users upgrading from earlier Opus versions, see our [official migration guide here](https://openrouter.ai/docs/guides/guides/model-migrations/claude-4-6-opus)\n",
+      "created": 1770219050,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -25,6 +50,31 @@
       "input": 3,
       "output": 15,
       "context_length": 1000000,
+      "cache_read_price": 0.3,
+      "max_completion_tokens": 128000,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p",
+        "verbosity"
+      ],
+      "description": "Sonnet 4.6 is Anthropic's most capable Sonnet-class model yet, with frontier performance across coding, agents, and professional work. It excels at iterative development, complex codebase navigation, end-to-end project management with memory, polished document creation, and confident computer use for web QA and workflow automation.",
+      "created": 1771342990,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -35,6 +85,28 @@
       "input": 30,
       "output": 180,
       "context_length": 1050000,
+      "cache_read_price": null,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "description": "GPT-5.4 Pro is OpenAI's most advanced model, building on GPT-5.4's unified architecture with enhanced reasoning capabilities for complex, high-stakes tasks. It features a 1M+ token context window (922K input, 128K output) with support for text and image inputs. Optimized for step-by-step reasoning, instruction following, and accuracy, GPT-5.4 Pro excels at agentic coding, long-context workflows, and multi-step problem solving.",
+      "created": 1772734366,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -45,6 +117,28 @@
       "input": 2.5,
       "output": 15,
       "context_length": 1050000,
+      "cache_read_price": 0.25,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "description": "GPT-5.4 is OpenAI’s latest frontier model, unifying the Codex and GPT lines into a single system. It features a 1M+ token context window (922K input, 128K output) with support for text and image inputs, enabling high-context reasoning, coding, and multimodal analysis within the same workflow.\n\nThe model delivers improved performance in coding, document understanding, tool use, and instruction following. It is designed as a strong default for both general-purpose tasks and software engineering, capable of generating production-quality code, synthesizing information across multiple sources, and executing complex multi-step workflows with fewer iterations and greater token efficiency.",
+      "created": 1772734352,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -55,6 +149,33 @@
       "input": 2,
       "output": 12,
       "context_length": 1048576,
+      "cache_read_price": 0.19999999999999998,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "audio",
+        "file",
+        "image",
+        "text",
+        "video"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "description": "Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, improved agentic reliability, and more efficient token usage across complex workflows. Building on the multimodal foundation of the Gemini 3 series, it combines high-precision reasoning across text, image, video, audio, and code with a 1M-token context window. Reasoning Details must be preserved when using multi-turn tool calling, see our docs here: https://openrouter.ai/docs/use-cases/reasoning-tokens#preserving-reasoning. The 3.1 update introduces measurable gains in SWE benchmarks and real-world coding environments, along with stronger autonomous task execution in structured domains such as finance and spreadsheet-based workflows.\n\nDesigned for advanced development and agentic systems, Gemini 3.1 Pro Preview improves long-horizon stability and tool orchestration while increasing token efficiency. It introduces a new medium thinking level to better balance cost, speed, and performance. The model excels in agentic coding, structured planning, multimodal analysis, and workflow automation, making it well-suited for autonomous agents, financial modeling, spreadsheet automation, and high-context enterprise tasks.",
+      "created": 1771509627,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -65,6 +186,33 @@
       "input": 0.25,
       "output": 1.5,
       "context_length": 1048576,
+      "cache_read_price": 0.024999999999999998,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "description": "Gemini 3.1 Flash Lite Preview is Google's high-efficiency model optimized for high-volume use cases. It outperforms Gemini 2.5 Flash Lite on overall quality and approaches Gemini 2.5 Flash performance across key capabilities. Improvements span audio input/ASR, RAG snippet ranking, translation, data extraction, and code completion. Supports full thinking levels (minimal, low, medium, high) for fine-grained cost/performance trade-offs. Priced at half the cost of Gemini 3 Flash.",
+      "created": 1772512673,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -75,6 +223,31 @@
       "input": 2,
       "output": 6,
       "context_length": 2000000,
+      "cache_read_price": 0.19999999999999998,
+      "max_completion_tokens": null,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p"
+      ],
+      "description": "Grok 4.20 Beta is xAI's newest flagship model with industry-leading speed and agentic tool calling capabilities. It combines the lowest hallucination rate on the market with strict prompt adherance, delivering consistently precise and truthful responses.\n\nReasoning can be enabled/disabled using the `reasoning` `enabled` parameter in the API. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#controlling-reasoning-tokens)",
+      "created": 1773325354,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     },
     {
@@ -85,6 +258,31 @@
       "input": 0.32,
       "output": 0.8899999999999999,
       "context_length": 163840,
+      "cache_read_price": null,
+      "max_completion_tokens": 163840,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on nearly 15 trillion tokens, the reported evaluations reveal that the model outperforms other open-source models and rivals leading closed-source models.\n\nFor model details, please visit [the DeepSeek-V3 repo](https://github.com/deepseek-ai/DeepSeek-V3) for more information, or see the [launch announcement](https://api-docs.deepseek.com/news/news1226).",
+      "created": 1735241320,
+      "expiration_date": null,
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3",
       "source": "openrouter"
     },
     {
@@ -95,6 +293,31 @@
       "input": 0.7,
       "output": 2.5,
       "context_length": 64000,
+      "cache_read_price": null,
+      "max_completion_tokens": 16000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "description": "DeepSeek R1 is here: Performance on par with [OpenAI o1](/openai/o1), but open-sourced and with fully open reasoning tokens. It's 671B parameters in size, with 37B active in an inference pass.\n\nFully open-source model & [technical report](https://api-docs.deepseek.com/news/news250120).\n\nMIT licensed: Distill & commercialize freely!",
+      "created": 1737381095,
+      "expiration_date": null,
+      "hugging_face_id": "deepseek-ai/DeepSeek-R1",
       "source": "openrouter"
     },
     {
@@ -105,6 +328,34 @@
       "input": 0.15,
       "output": 0.6,
       "context_length": 1048576,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "description": "Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forward pass (400B total). It supports multilingual text and image input, and produces multilingual text and code output across 12 supported languages. Optimized for vision-language tasks, Maverick is instruction-tuned for assistant-like behavior, image reasoning, and general-purpose multimodal interaction.\n\nMaverick features early fusion for native multimodality and a 1 million token context window. It was trained on a curated mixture of public, licensed, and Meta-platform data, covering ~22 trillion tokens, with a knowledge cutoff in August 2024. Released on April 5, 2025 under the Llama 4 Community License, Maverick is suited for research and commercial applications requiring advanced multimodal understanding and high model throughput.",
+      "created": 1743881822,
+      "expiration_date": null,
+      "hugging_face_id": "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
       "source": "openrouter"
     },
     {
@@ -115,6 +366,30 @@
       "input": 0.5,
       "output": 1.5,
       "context_length": 262144,
+      "cache_read_price": 0.049999999999999996,
+      "max_completion_tokens": null,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "description": "Mistral Large 3 2512 is Mistral’s most capable model to date, featuring a sparse mixture-of-experts architecture with 41B active parameters (675B total), and released under the Apache 2.0 license.",
+      "created": 1764624472,
+      "expiration_date": null,
+      "hugging_face_id": null,
       "source": "openrouter"
     }
   ],
@@ -189,52 +464,62 @@
     {
       "id": "openai/o1-pro",
       "name": "OpenAI: o1-pro",
-      "outputPrice": 600
+      "outputPrice": 600,
+      "created": 1742423211
     },
     {
       "id": "openai/gpt-5.2-pro",
       "name": "OpenAI: GPT-5.2 Pro",
-      "outputPrice": 168
+      "outputPrice": 168,
+      "created": 1765389780
     },
     {
       "id": "openai/gpt-5-pro",
       "name": "OpenAI: GPT-5 Pro",
-      "outputPrice": 120
+      "outputPrice": 120,
+      "created": 1759776663
     },
     {
       "id": "openai/o3-pro",
       "name": "OpenAI: o3 Pro",
-      "outputPrice": 80
+      "outputPrice": 80,
+      "created": 1749598352
     },
     {
       "id": "anthropic/claude-opus-4.1",
       "name": "Anthropic: Claude Opus 4.1",
-      "outputPrice": 75
+      "outputPrice": 75,
+      "created": 1754411591
     },
     {
       "id": "anthropic/claude-opus-4",
       "name": "Anthropic: Claude Opus 4",
-      "outputPrice": 75
+      "outputPrice": 75,
+      "created": 1747931245
     },
     {
       "id": "openai/o1",
       "name": "OpenAI: o1",
-      "outputPrice": 60
+      "outputPrice": 60,
+      "created": 1734459999
     },
     {
       "id": "openai/gpt-4-0314",
       "name": "OpenAI: GPT-4 (older v0314)",
-      "outputPrice": 60
+      "outputPrice": 60,
+      "created": 1685232000
     },
     {
       "id": "openai/gpt-4",
       "name": "OpenAI: GPT-4",
-      "outputPrice": 60
+      "outputPrice": 60,
+      "created": 1685232000
     },
     {
       "id": "openai/o3-deep-research",
       "name": "OpenAI: o3 Deep Research",
-      "outputPrice": 40
+      "outputPrice": 40,
+      "created": 1760129661
     }
   ]
 }
