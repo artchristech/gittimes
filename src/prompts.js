@@ -5,7 +5,7 @@
  */
 function sanitizeRepoField(text) {
   if (!text) return text;
-  return String(text).replace(/\b(HEADLINE|SUBHEADLINE|BODY|USE_CASES|SIMILAR_PROJECTS)\s*:/gi, "$1 -");
+  return String(text).replace(/\b(HEADLINE|SUBHEADLINE|TAGLINE|DESCRIPTION|BODY|USE_CASES|SIMILAR_PROJECTS)\s*:/gi, "$1 -");
 }
 
 function timestampLine(repo) {
@@ -79,7 +79,7 @@ function leadArticlePrompt(repo, coverage) {
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
-  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
+  return `You are writing project descriptions for The Git Times, a daily catalog of trending GitHub projects for builders and developers. Your job is to tell readers what this project IS and what they can DO with it — clearly, directly, no filler.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -93,20 +93,16 @@ README EXCERPT:
 ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
-${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
-- The story is WHAT this project does and WHY it matters to builders — not how many stars it has.
-- Do not lead with, emphasize, or build narratives around star counts or GitHub popularity metrics.
-- Focus on: the problem it solves, how it works technically, what's new or different about it, and who should care.
-- Stars may be mentioned once for context but should never be the headline, lede, or thesis.
-Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need.
-Do not include a word count anywhere in the output.
-Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
+${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}GUIDELINES:
+- Be direct. No hype, no narrative, no newspaper prose.
+- Do not mention star counts, popularity, or GitHub metrics.
+- Focus on: what it is, what problem it solves, how it works, what makes it different.
+Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
 
-HEADLINE: [A compelling newspaper headline about what this project does or why it matters, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline, 12-20 words]
-BODY: [300-400 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+TAGLINE: [One sentence, max 20 words: what this project is and does. Direct, concrete, no hype.]
+DESCRIPTION: [2-3 sentences expanding on the tagline. What problem does it solve? How does it work? What makes it different? Be specific and technical.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -122,7 +118,7 @@ function secondaryArticlePrompt(repo, coverage) {
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
-  return `You are a technology journalist writing for The Git Times, a broadsheet newspaper for builders. Write a tight 150-200 word article about this GitHub project.
+  return `You are writing project descriptions for The Git Times, a daily catalog of trending GitHub projects for builders. Tell readers what this project IS and what they can DO with it.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -136,17 +132,14 @@ README EXCERPT:
 ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
-${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
-- Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
-Write in crisp newspaper style. No hype. Concrete details only.
-Do not include a word count anywhere in the output.
-Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
+${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}GUIDELINES:
+- Be direct. No hype, no narrative. Do not mention star counts or popularity.
+Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
 
-HEADLINE: [Newspaper headline about what this project does, 6-10 words]
-SUBHEADLINE: [Clarifying subheadline, 10-16 words]
-BODY: [150-200 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+TAGLINE: [One sentence, max 20 words: what this project is and does.]
+DESCRIPTION: [2-3 sentences. What problem does it solve? How does it work? What makes it different?]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -180,7 +173,7 @@ function breakoutArticlePrompt(repo, delta, coverage) {
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
-  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 400-500 word SPOTLIGHT article about this GitHub project that is gaining significant developer attention right now.
+  return `You are writing a SPOTLIGHT project description for The Git Times, a daily catalog of trending GitHub projects for builders. This project is gaining significant developer attention right now. Explain what it IS and what makes it technically interesting.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -195,19 +188,15 @@ ${readme || "(no readme available)"}
 
 ${release ? `RELEASE NOTES:\n${release}` : ""}
 
-${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
-- This project is getting attention. Your job is to explain WHY — what does it do, what problem does it solve, and what makes it technically interesting?
-- Do NOT lead with star counts, growth numbers, or popularity metrics. Those are not the story.
-- The story is the PROJECT — its capabilities, its approach, who it's for, and what it changes.
-- You may mention that it's gaining traction, but as context, not as the headline or lede.
-Do not include a word count anywhere in the output.
-Write entirely in English. Do not reference multilingual documentation, language badges, or translations.
+${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}GUIDELINES:
+- Be direct. No hype, no narrative. Do not lead with star counts or popularity metrics.
+- Focus on capabilities, technical approach, and what makes it different.
+Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
 
-HEADLINE: [A compelling newspaper headline about what this project does or changes, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline about its capabilities or significance, 12-20 words]
-BODY: [400-500 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+TAGLINE: [One sentence, max 20 words: what this project is and does.]
+DESCRIPTION: [3-4 sentences. What it does, what problem it solves, how it works technically, what makes it different. Be specific.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -226,22 +215,20 @@ function trendArticlePrompt(trend) {
     )
     .join("\n");
 
-  return `You are a senior technology journalist writing for The Git Times. Write a 250-350 word TREND article about an emerging pattern in open source.
+  return `You are writing a TREND description for The Git Times, a daily catalog of trending GitHub projects for builders. Describe an emerging pattern across multiple projects.
 
 TREND THEME: ${trend.theme}
 
 REPOS IN THIS CLUSTER:
 ${repoList}
 
-The story is the PATTERN, not any single repo. Reference individual repos as evidence of the trend. Explain what this cluster tells us about where open source is heading. Focus on what these projects do and what the pattern means technically — not on popularity metrics.
-Do not include a word count anywhere in the output.
+The story is the PATTERN, not any single repo. Reference individual repos as evidence.
 Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
 
-HEADLINE: [A compelling headline about the trend pattern, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline, 12-20 words]
-BODY: [250-350 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+TAGLINE: [One sentence, max 20 words: what this trend is about.]
+DESCRIPTION: [3-4 sentences. What pattern is emerging? What do these projects share? Why does it matter for builders?]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -259,7 +246,7 @@ function sleeperArticlePrompt(sleeper) {
   const language = repo.language || "Unknown";
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
 
-  return `You are a technology journalist writing for The Git Times "Deep Cuts" section — hidden gems most developers haven't discovered yet. Write a 150-200 word feature.
+  return `You are writing a "Deep Cuts" project description for The Git Times — hidden gems most developers haven't discovered yet. Tell readers what this project IS and what they can DO with it.
 
 PROJECT DATA:
 - Name: ${name}
@@ -269,15 +256,13 @@ PROJECT DATA:
 
 WHY SELECTED: ${sleeper.reason}
 
-Frame this as a discovery — what does this project do and why should builders pay attention? Focus on its capabilities and potential, not its popularity metrics.
-Do not include a word count anywhere in the output.
+Focus on capabilities, not popularity metrics.
 Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
 
-HEADLINE: [An intriguing headline about what this project does, 6-10 words]
-SUBHEADLINE: [A clarifying subheadline, 10-16 words]
-BODY: [150-200 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names.]
+TAGLINE: [One sentence, max 20 words: what this project is and does.]
+DESCRIPTION: [2-3 sentences. What does it do? What problem does it solve? Why should builders pay attention?]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]

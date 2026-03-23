@@ -36,8 +36,10 @@ function generateRss(manifest, siteUrl, limit = 20) {
   for (const entry of items) {
     const itemUrl = siteUrl + (entry.url || `/editions/${entry.date}/`);
     const pubDate = new Date(entry.date + "T12:00:00Z").toUTCString();
-    const title = entry.headline || "The Git Times Edition";
-    const description = entry.tagline || entry.subheadline || "";
+    const title = entry.headline
+      ? (entry.subheadline ? `${entry.headline} — ${entry.subheadline}` : entry.headline)
+      : "The Git Times Edition";
+    const description = entry.subheadline || entry.tagline || "";
 
     xml += `    <item>
       <title><![CDATA[${title}]]></title>
@@ -84,8 +86,10 @@ function generateAtom(manifest, siteUrl, limit = 20) {
   for (const entry of items) {
     const itemUrl = siteUrl + (entry.url || `/editions/${entry.date}/`);
     const entryUpdated = new Date(entry.date + "T12:00:00Z").toISOString();
-    const title = entry.headline || "The Git Times Edition";
-    const summary = entry.tagline || entry.subheadline || "";
+    const title = entry.headline
+      ? (entry.subheadline ? `${entry.headline} — ${entry.subheadline}` : entry.headline)
+      : "The Git Times Edition";
+    const summary = entry.subheadline || entry.tagline || "";
 
     xml += `  <entry>
     <title><![CDATA[${title}]]></title>

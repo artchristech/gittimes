@@ -29,12 +29,11 @@ function mockClient(responseFn) {
 /** Passthrough rate limiter — no actual concurrency limiting */
 const llmLimit = (fn) => fn();
 
-/** Build a well-formatted article response string */
-function goodArticle(headline, body = "Article body text here.") {
+/** Build a well-formatted article response string (catalog format) */
+function goodArticle(tagline, description = "Extended description of the project.") {
   return [
-    `HEADLINE: ${headline}`,
-    "SUBHEADLINE: A subtitle",
-    `BODY: ${body}`,
+    `TAGLINE: ${tagline}`,
+    `DESCRIPTION: ${description}`,
     "USE_CASES:",
     "1. Build web apps faster",
     "2. Replace legacy toolchains",
@@ -98,7 +97,9 @@ describe("generateArticleWithRetry (via generateSectionContent)", () => {
 
     const result = await generateSectionContent(sectionData, config, client, llmLimit);
 
-    assert.equal(result.lead.headline, "Great Framework");
+    // headline = repo display name, subheadline = tagline from LLM
+    assert.equal(result.lead.headline, "alpha");
+    assert.equal(result.lead.subheadline, "Great Framework");
     assert.equal(result.lead._isFallback, false);
     assert.ok(result.lead.repo, "Article should have repo attached");
     assert.equal(result.isEmpty, false);
@@ -141,7 +142,8 @@ describe("generateArticleWithRetry (via generateSectionContent)", () => {
 
     const result = await generateSectionContent(sectionData, config, client, llmLimit);
 
-    assert.equal(result.lead.headline, "Second Try Works");
+    assert.equal(result.lead.headline, "retry-works");
+    assert.equal(result.lead.subheadline, "Second Try Works");
     assert.equal(result.lead._isFallback, false);
   });
 
@@ -230,7 +232,8 @@ describe("generateSectionContent", () => {
 
     // good-sec should stay in secondary, bad-sec should be demoted
     assert.equal(result.secondary.length, 1, "Only 1 good secondary should remain");
-    assert.equal(result.secondary[0].headline, "Good Secondary");
+    // headline = repo display name in catalog format
+    assert.equal(result.secondary[0].headline, "good-sec");
     assert.ok(
       result.quickHits.length > 1,
       "Demoted article should be in quickHits"
@@ -258,7 +261,8 @@ describe("generateSectionContent", () => {
 
     const result = await generateSectionContent(sectionData, config, client, llmLimit);
 
-    assert.equal(result.lead.headline, "Promoted Secondary");
+    // headline = repo display name in catalog format
+    assert.equal(result.lead.headline, "good-sec");
     assert.equal(result.lead._isFallback, false);
     // The original bad lead should be demoted to quickHits
     assert.ok(
@@ -311,7 +315,8 @@ describe("generateEditorialContent — sleeper deep cuts", () => {
 
     assert.ok(result.sections.frontPage.deepCuts, "frontPage should have deepCuts");
     assert.equal(result.sections.frontPage.deepCuts.length, 1);
-    assert.equal(result.sections.frontPage.deepCuts[0].headline, "Hidden Gem Discovered");
+    // headline = repo display name in catalog format
+    assert.equal(result.sections.frontPage.deepCuts[0].headline, "hidden-gem");
     assert.equal(result.sections.frontPage.deepCuts[0]._isSleeper, true);
     assert.equal(result.editorialMeta.sleepers.length, 1);
     assert.equal(result.editorialMeta.sleepers[0].repo, "org/hidden-gem");

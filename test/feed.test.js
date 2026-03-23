@@ -52,16 +52,18 @@ describe("generateRss", () => {
     assert.ok(xml.includes('rel="self"'));
   });
 
-  it("renders items with CDATA titles", () => {
+  it("renders items with CDATA titles combining headline and subheadline", () => {
     const xml = generateRss(mockManifest, "https://gittimes.com");
-    assert.ok(xml.includes("<![CDATA[AI Takes Over GitHub Trending]]>"));
-    assert.ok(xml.includes("<![CDATA[Rust Momentum Continues]]>"));
+    // Catalog format: title = headline — subheadline
+    assert.ok(xml.includes("<![CDATA[AI Takes Over GitHub Trending — Neural networks dominate the charts]]>"));
+    assert.ok(xml.includes("<![CDATA[Rust Momentum Continues — Systems language gains ground]]>"));
   });
 
-  it("uses tagline as description, falls back to subheadline", () => {
+  it("uses subheadline as description, falls back to tagline", () => {
     const xml = generateRss(mockManifest, "https://gittimes.com");
-    assert.ok(xml.includes("<![CDATA[The age of AI builders]]>"));
-    // Third entry has empty tagline — falls back to subheadline
+    // subheadline is preferred for description now
+    assert.ok(xml.includes("<![CDATA[Neural networks dominate the charts]]>"));
+    // Third entry has subheadline — uses it
     assert.ok(xml.includes("<![CDATA[Several projects cross 100k stars]]>"));
   });
 
@@ -118,9 +120,9 @@ describe("generateAtom", () => {
     assert.ok(xml.includes('href="https://gittimes.com/feed.atom" rel="self"'));
   });
 
-  it("renders entries with CDATA titles", () => {
+  it("renders entries with CDATA titles combining headline and subheadline", () => {
     const xml = generateAtom(mockManifest, "https://gittimes.com");
-    assert.ok(xml.includes("<![CDATA[AI Takes Over GitHub Trending]]>"));
+    assert.ok(xml.includes("<![CDATA[AI Takes Over GitHub Trending — Neural networks dominate the charts]]>"));
   });
 
   it("includes entry links and ids", () => {

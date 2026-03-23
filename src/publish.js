@@ -154,7 +154,7 @@ async function publish(content, outDir, options = {}) {
           fs.writeFileSync(path.join(articleDir, "index.html"), articleHtml);
           articleCount++;
         } catch (e) {
-          console.warn(`Warning: failed to generate article page for "${article.headline}": ${e.message}`);
+          console.warn(`Warning: failed to generate article page for "${article.repo?.name || article.headline}": ${e.message}`);
         }
       }
     }
@@ -237,7 +237,11 @@ async function publish(content, outDir, options = {}) {
   const frontPageLead = content.sections
     ? (content.sections.frontPage && content.sections.frontPage.lead)
     : content.lead;
-  const headline = frontPageLead ? frontPageLead.headline : "The Git Times Edition";
+  // Use project display name as the manifest headline (catalog format)
+  const displayName = frontPageLead
+    ? (frontPageLead.repo?.shortName || frontPageLead.repo?.name || frontPageLead.headline)
+    : "The Git Times Edition";
+  const headline = displayName;
   const subheadline = frontPageLead ? frontPageLead.subheadline : "";
   const newEntry = {
     date: dateStr,
