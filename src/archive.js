@@ -17,11 +17,13 @@ function renderArchivePage(manifest, basePath) {
     });
     const url = entry.url || `${basePath}/editions/${entry.date}/`;
     const headline = entry.headline || "Edition";
+    const subheadline = entry.subheadline || "";
     const tagline = entry.tagline || "";
     return `
     <div class="archive-entry">
       <span class="archive-date">${escapeHtml(displayDate)}</span>
       <a href="${escapeHtml(url)}" class="archive-headline">${escapeHtml(headline)}</a>
+      ${subheadline ? `<span class="archive-subheadline">${escapeHtml(subheadline)}</span>` : ""}
       ${tagline ? `<span class="archive-tagline">${escapeHtml(tagline)}</span>` : ""}
     </div>`;
   });

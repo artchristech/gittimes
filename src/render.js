@@ -103,15 +103,16 @@ function renderInsights(useCases, similarProjects) {
 }
 
 function renderLeadStory(article) {
-  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const { subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const displayName = repo.shortName || repo.name || article.headline;
   return `
-    <h2 class="lead-headline">${escapeHtml(headline)}</h2>
+    <h2 class="lead-headline">${escapeHtml(displayName)}</h2>
     <p class="lead-subheadline">${escapeHtml(subheadline)}</p>
     <div class="lead-meta">
       <span><a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a></span>
       <span>${escapeHtml(repo.language)}</span>
       ${repo.releaseName ? `<span>Latest: ${escapeHtml(repo.releaseName)}</span>` : ""}
-      <span>${formatStars(repo.stars)} stars</span>
+      ${repo.stars ? `<span>${formatStars(repo.stars)} stars</span>` : ""}
       ${renderAgeBadge(repo)}
     </div>
     <div class="lead-body">
@@ -122,13 +123,14 @@ function renderLeadStory(article) {
 }
 
 function renderFeaturedArticle(article) {
-  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const { subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const displayName = repo.shortName || repo.name || article.headline;
   return `
       <article class="featured-article">
-        <h3 class="featured-headline">${escapeHtml(headline)}</h3>
+        <h3 class="featured-headline">${escapeHtml(displayName)}</h3>
         <p class="featured-subheadline">${escapeHtml(subheadline)}</p>
         <div class="featured-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)}${repo.stars ? ` · ${formatStars(repo.stars)} stars` : ""} ${renderAgeBadge(repo)}
         </div>
         <div class="featured-body">
           ${bodyToHtml(body)}
@@ -139,13 +141,14 @@ function renderFeaturedArticle(article) {
 }
 
 function renderCompactArticle(article) {
-  const { headline, subheadline, repo } = article;
+  const { subheadline, repo } = article;
+  const displayName = repo.shortName || repo.name || article.headline;
   return `
       <article class="compact-article">
-        <h3 class="compact-headline">${escapeHtml(headline)}</h3>
+        <h3 class="compact-headline">${escapeHtml(displayName)}</h3>
         <p class="compact-subheadline">${escapeHtml(subheadline)}</p>
         <div class="compact-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)}${repo.stars ? ` · ${formatStars(repo.stars)} stars` : ""} ${renderAgeBadge(repo)}
         </div>
       </article>`;
 }
@@ -165,37 +168,44 @@ function renderTrendMeta(article) {
 
 function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) {
   const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
-  const headlineClass = isLead ? "hybrid-headline hybrid-headline-lead" : "hybrid-headline";
   const isTrend = article._isTrend;
   const articleClass = isLead ? "hybrid-article hybrid-lead" : isTrend ? "hybrid-article hybrid-trend" : "hybrid-article";
-  const preview = previewBody(body, 3);
-  const hasMore = preview !== body;
-  const slug = slugify(headline);
+
+  // Project name is the display name; slug from repo name for stable URLs
+  const displayName = isTrend ? headline : (repo.shortName || repo.name || headline);
+  const slug = slugify(repo.name || headline);
 
   const shareLink = articleUrl
     ? `<a class="hybrid-share" href="${escapeHtml(articleUrl)}" title="Permalink">&#128279;</a>`
     : `<a class="hybrid-share" data-slug="${escapeHtml(slug)}" title="Permalink">&#128279;</a>`;
 
+  // Meta line: repo org/name, language, stars, age, release
   const metaHtml = isTrend
     ? renderTrendMeta(article)
     : `<div class="hybrid-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)}${repo.stars ? ` · ${formatStars(repo.stars)} stars` : ""} ${renderAgeBadge(repo)}${repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
         </div>`;
+
+  // Tagline (was subheadline) — the one-liner about what it does
+  const taglineHtml = subheadline
+    ? `<p class="hybrid-tagline">${escapeHtml(subheadline)}</p>`
+    : "";
+
+  // Description (was body) — 2-3 sentence expansion
+  const descriptionHtml = body
+    ? `<div class="hybrid-description">${bodyToHtml(body)}</div>`
+    : "";
+
+  const nameClass = isLead ? "hybrid-project-name hybrid-project-name-lead" : "hybrid-project-name";
 
   return `
       <article class="${articleClass}" data-slug="${escapeHtml(slug)}">
-        <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
-        <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
+        <h3 class="${nameClass}">${escapeHtml(displayName)} ${shareLink}</h3>
         ${metaHtml}
-        <div class="hybrid-preview">
-          ${bodyToHtml(preview)}
-        </div>
-        ${hasMore ? `<div class="hybrid-full">
-          ${bodyToHtml(body)}
-        </div>` : ""}
+        ${taglineHtml}
+        ${descriptionHtml}
         ${renderInsights(useCases, similarProjects)}
         ${renderSentimentBadge(xSentiment)}
-        ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
       </article>`;
 }
 
@@ -310,7 +320,7 @@ function renderSectionContent(sectionData, sectionConfig) {
   // Secondary section — uniform hybrid grid
   if (sectionData.secondary.length > 0) {
     html += `<section class="secondary-section">`;
-    html += `<h2 class="section-header">More Stories</h2>`;
+    html += `<h2 class="section-header">More Projects</h2>`;
     html += `<div class="hybrid-grid">${sectionData.secondary.map(a => renderHybridArticle(a)).join("\n")}</div>`;
     html += `</section>`;
   }
@@ -399,13 +409,16 @@ async function assembleMultiSectionHtml(content, options = {}) {
 
   const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
 
-  // OG meta tag values
+  // OG meta tag values — use project name instead of headline
   const frontPageLead = content.sections?.frontPage?.lead;
+  const frontPageDisplayName = frontPageLead
+    ? (frontPageLead.repo?.shortName || frontPageLead.repo?.name || frontPageLead.headline)
+    : null;
   const ogTitle = escapeHtml(
-    frontPageLead ? frontPageLead.headline + " — The Git Times" : "The Git Times — " + editionDate
+    frontPageDisplayName ? frontPageDisplayName + " — The Git Times" : "The Git Times — " + editionDate
   );
   const ogDescription = escapeHtml(
-    content.tagline || (frontPageLead ? frontPageLead.subheadline : "AI-generated newspaper for builders")
+    content.tagline || (frontPageLead ? frontPageLead.subheadline : "Daily catalog of trending GitHub projects for builders")
   );
   const siteUrl = options.siteUrl || "https://gittimes.com";
   const dateStr = options.dateStr || toDateStr(options.date || new Date());
@@ -477,7 +490,7 @@ async function assembleHtml(content, options = {}) {
   let secondarySectionHtml = "";
   if (content.secondary && content.secondary.length > 0) {
     secondarySectionHtml = `<section class="secondary-section">
-    <h2 class="section-header">More Stories</h2>
+    <h2 class="section-header">More Projects</h2>
     <div class="hybrid-grid">${content.secondary.map(a => renderHybridArticle(a)).join("\n")}</div>
   </section>`;
   }
@@ -496,12 +509,15 @@ async function assembleHtml(content, options = {}) {
 
   const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics({ chatWorkerUrl });
 
-  // OG meta tag values
+  // OG meta tag values — use project name instead of headline
+  const leadDisplayName = content.lead
+    ? (content.lead.repo?.shortName || content.lead.repo?.name || content.lead.headline)
+    : null;
   const ogTitle = escapeHtml(
-    content.lead ? content.lead.headline + " — The Git Times" : "The Git Times — " + editionDate
+    leadDisplayName ? leadDisplayName + " — The Git Times" : "The Git Times — " + editionDate
   );
   const ogDescription = escapeHtml(
-    content.tagline || (content.lead ? content.lead.subheadline : "AI-generated newspaper for builders")
+    content.tagline || (content.lead ? content.lead.subheadline : "Daily catalog of trending GitHub projects for builders")
   );
   const siteUrl = options.siteUrl || "https://gittimes.com";
   const dateStr = options.dateStr || toDateStr(options.date || new Date());
@@ -576,16 +592,17 @@ async function assembleArticlePage(article, options = {}) {
     day: "numeric",
   });
 
-  const slug = slugify(article.headline);
+  const displayName = article.repo ? (article.repo.shortName || article.repo.name || article.headline) : article.headline;
+  const slug = slugify(article.repo ? article.repo.name || article.headline : article.headline);
   const sectionConfig = SECTIONS[options.sectionId];
   const sectionLabel = sectionConfig ? sectionConfig.label : "";
 
   const articleContent = renderHybridArticle(article, { isLead: true });
 
-  const ogTitle = escapeHtml(article.headline + " \u2014 The Git Times");
+  const ogTitle = escapeHtml(displayName + " \u2014 The Git Times");
   const ogDescription = escapeHtml(article.subheadline || "");
   const articleUrl = `${siteUrl}${basePath}/editions/${dateStr}/${slug}/`;
-  const shareText = encodeURIComponent(article.headline + " \u2014 The Git Times");
+  const shareText = encodeURIComponent(displayName + " \u2014 The Git Times");
   const shareUrl = encodeURIComponent(articleUrl);
 
   const { analyticsScript, cspScriptSrc, cspConnectSrc } = buildAnalytics();
