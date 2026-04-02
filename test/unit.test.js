@@ -364,10 +364,10 @@ describe("categorizeDiverse", () => {
 // --------------- parseArticle ---------------
 
 describe("parseArticle", () => {
-  // New catalog format: TAGLINE + DESCRIPTION
-  const catalogText = [
-    "TAGLINE: Offline AI knowledge system with local models and tools.",
-    "DESCRIPTION: Bundles local models, archived tools, and knowledge bases into a single package. Built for scenarios where connectivity cannot be assumed. Supports medical archives and field use.",
+  const structuredText = [
+    "HEADLINE: Big New Framework",
+    "SUBHEADLINE: A subtitle here",
+    "BODY: First paragraph of the body.",
     "USE_CASES:",
     "1. Build web apps faster",
     "2. Replace legacy toolchains",
@@ -378,12 +378,11 @@ describe("parseArticle", () => {
     "3. esbuild - lower-level bundler",
   ].join("\n");
 
-  it("parses catalog format (TAGLINE + DESCRIPTION)", () => {
-    const result = parseArticle(catalogText, null);
-    // headline = repo display name (Untitled when no repo)
-    assert.equal(result.headline, "Untitled");
-    assert.equal(result.subheadline, "Offline AI knowledge system with local models and tools.");
-    assert.ok(result.body.startsWith("Bundles local models"));
+  it("parses all structured markers", () => {
+    const result = parseArticle(structuredText, null);
+    assert.equal(result.headline, "Big New Framework");
+    assert.equal(result.subheadline, "A subtitle here");
+    assert.equal(result.body, "First paragraph of the body.");
     assert.deepEqual(result.useCases, [
       "Build web apps faster",
       "Replace legacy toolchains",
@@ -394,13 +393,6 @@ describe("parseArticle", () => {
       "Turbopack - similar scope, different approach",
       "esbuild - lower-level bundler",
     ]);
-    assert.equal(result._isFallback, false);
-  });
-
-  it("uses repo display name as headline", () => {
-    const repo = { name: "cool/project", shortName: "project", description: "A cool project" };
-    const result = parseArticle(catalogText, repo);
-    assert.equal(result.headline, "project");
   });
 
   it("uses fallback when markers are missing", () => {
@@ -410,7 +402,7 @@ describe("parseArticle", () => {
       description: "A cool project",
     };
     const result = parseArticle("No markers here", repo);
-    assert.equal(result.headline, "project");
+    assert.equal(result.headline, "project: A cool project");
     assert.equal(result.subheadline, "A cool project");
     assert.equal(result.body, "A cool project");
   });
@@ -420,9 +412,10 @@ describe("parseArticle", () => {
     assert.equal(result.headline, "Untitled");
   });
 
-  it("falls back to legacy HEADLINE/BODY format", () => {
+  it("uses last occurrence of body marker", () => {
     const text = [
       "HEADLINE: The Headline",
+      "BODY: Wrong body",
       "BODY: Correct body",
       "USE_CASES:",
       "1. Some use case",
@@ -430,26 +423,10 @@ describe("parseArticle", () => {
       "1. Some project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
-    // Legacy: headline text goes to subheadline, display name is "Untitled"
-    assert.equal(result.headline, "Untitled");
-    assert.equal(result.subheadline, "The Headline");
+    assert.equal(result.headline, "The Headline");
     assert.equal(result.body, "Correct body");
     assert.deepEqual(result.useCases, ["Some use case"]);
     assert.deepEqual(result.similarProjects, ["Some project - comparison"]);
-  });
-
-  it("uses last occurrence of DESCRIPTION marker", () => {
-    const text = [
-      "TAGLINE: First tagline",
-      "DESCRIPTION: Wrong description",
-      "DESCRIPTION: Correct description",
-      "USE_CASES:",
-      "1. Some use case",
-      "SIMILAR_PROJECTS:",
-      "1. Some project - comparison",
-    ].join("\n");
-    const result = parseArticle(text, null);
-    assert.equal(result.body, "Correct description");
   });
 
   it("sets _isFallback to true when markers are missing", () => {
@@ -458,10 +435,10 @@ describe("parseArticle", () => {
     assert.equal(result._isFallback, true);
   });
 
-  it("sets _isFallback to false when catalog markers are present", () => {
+  it("sets _isFallback to false when markers are present", () => {
     const text = [
-      "TAGLINE: Good tagline",
-      "DESCRIPTION: Good description text",
+      "HEADLINE: Good Headline",
+      "BODY: Good body text",
       "USE_CASES:",
       "1. A use case",
       "SIMILAR_PROJECTS:",
@@ -471,17 +448,48 @@ describe("parseArticle", () => {
     assert.equal(result._isFallback, false);
   });
 
-  it("handles TAGLINE without DESCRIPTION", () => {
+  it("parses headline correctly when no subheadline present", () => {
     const text = [
-      "TAGLINE: Solo tagline",
+      "HEADLINE: Solo Headline",
+      "BODY: Some body text",
       "USE_CASES:",
       "1. A use case",
       "SIMILAR_PROJECTS:",
       "1. A project - comparison",
     ].join("\n");
     const result = parseArticle(text, null);
-    assert.equal(result.subheadline, "Solo tagline");
-    assert.equal(result._isFallback, false);
+    assert.equal(result.headline, "Solo Headline");
+    assert.equal(result.body, "Some body text");
+    assert.deepEqual(result.useCases, ["A use case"]);
+  });
+
+  it("does not confuse SUBHEADLINE for HEADLINE when both present", () => {
+    const text = [
+      "SUBHEADLINE: sub value",
+      "HEADLINE: real headline",
+      "BODY: body text",
+      "USE_CASES:",
+      "1. A use case",
+      "SIMILAR_PROJECTS:",
+      "1. A project - comparison",
+    ].join("\n");
+    const result = parseArticle(text, null);
+    assert.equal(result.headline, "real headline");
+    assert.equal(result.subheadline, "sub value");
+  });
+
+  it("produces fallback when only SUBHEADLINE is present (no HEADLINE)", () => {
+    const text = [
+      "SUBHEADLINE: just a sub",
+      "BODY: body text",
+      "USE_CASES:",
+      "1. A use case",
+      "SIMILAR_PROJECTS:",
+      "1. A project - comparison",
+    ].join("\n");
+    const result = parseArticle(text, null);
+    assert.equal(result._isFallback, true);
+    assert.equal(result.headline, "Untitled");
   });
 });
 
@@ -573,12 +581,12 @@ describe("renderFeaturedArticle", () => {
     headline: "Featured Headline",
     subheadline: "Featured Sub",
     body: "Featured body text",
-    repo: { url: "https://github.com/test/feat", name: "test/feat", shortName: "feat", stars: 2000, language: "TypeScript" },
+    repo: { url: "https://github.com/test/feat", name: "test/feat", stars: 2000, language: "TypeScript" },
   };
 
-  it("renders project name and body text", () => {
+  it("renders headline and body text", () => {
     const html = renderFeaturedArticle({ ...baseArticle, useCases: [], similarProjects: [] });
-    assert.ok(html.includes("feat"));
+    assert.ok(html.includes("Featured Headline"));
     assert.ok(html.includes("featured-headline"));
     assert.ok(html.includes("Featured body text"));
     assert.ok(html.includes("featured-body"));
@@ -611,12 +619,12 @@ describe("renderCompactArticle", () => {
     headline: "Compact Headline",
     subheadline: "Compact Sub",
     body: "This body should not appear",
-    repo: { url: "https://github.com/test/cmp", name: "test/cmp", shortName: "cmp", stars: 800, language: "Go" },
+    repo: { url: "https://github.com/test/cmp", name: "test/cmp", stars: 800, language: "Go" },
   };
 
-  it("renders project name and subheadline", () => {
+  it("renders headline and subheadline", () => {
     const html = renderCompactArticle(baseArticle);
-    assert.ok(html.includes("cmp"));
+    assert.ok(html.includes("Compact Headline"));
     assert.ok(html.includes("compact-headline"));
     assert.ok(html.includes("Compact Sub"));
     assert.ok(html.includes("compact-subheadline"));
@@ -668,36 +676,46 @@ describe("previewBody", () => {
 
 describe("renderHybridArticle", () => {
   const baseArticle = {
-    headline: "hybrid",
-    subheadline: "Hybrid tagline description",
-    body: "Extended description of the project.",
+    headline: "Hybrid Test",
+    subheadline: "Hybrid Sub",
+    body: "First sentence here. Second sentence here. Third sentence here. Fourth sentence here. Fifth sentence here.",
     useCases: ["Build apps", "Scale systems"],
     similarProjects: ["Vite - faster builds"],
-    repo: { url: "https://github.com/test/hybrid", name: "test/hybrid", shortName: "hybrid", stars: 500, language: "Rust", releaseName: null },
+    repo: { url: "https://github.com/test/hybrid", name: "test/hybrid", stars: 500, language: "Rust", releaseName: null },
   };
 
-  it("renders project name, tagline, meta, description, and insights", () => {
+  it("renders headline, subheadline, meta, preview, insights, and toggle", () => {
     const html = renderHybridArticle(baseArticle);
     assert.ok(html.includes("hybrid-article"));
-    assert.ok(html.includes("hybrid-project-name"));
-    assert.ok(html.includes("hybrid"));
-    assert.ok(html.includes("hybrid-tagline"));
-    assert.ok(html.includes("Hybrid tagline description"));
+    assert.ok(html.includes("hybrid-headline"));
+    assert.ok(html.includes("Hybrid Test"));
+    assert.ok(html.includes("hybrid-subheadline"));
+    assert.ok(html.includes("Hybrid Sub"));
     assert.ok(html.includes("hybrid-meta"));
-    assert.ok(html.includes("hybrid-description"));
+    assert.ok(html.includes("hybrid-preview"));
+    assert.ok(html.includes("hybrid-full"));
     assert.ok(html.includes("article-insights"));
+    assert.ok(html.includes("hybrid-toggle"));
+    assert.ok(html.includes("Read more"));
   });
 
   it("adds hybrid-lead class when isLead is true", () => {
     const html = renderHybridArticle(baseArticle, { isLead: true });
     assert.ok(html.includes("hybrid-lead"));
-    assert.ok(html.includes("hybrid-project-name-lead"));
+    assert.ok(html.includes("hybrid-headline-lead"));
   });
 
   it("does not add hybrid-lead class by default", () => {
     const html = renderHybridArticle(baseArticle);
     assert.ok(!html.includes("hybrid-lead"));
-    assert.ok(!html.includes("hybrid-project-name-lead"));
+    assert.ok(!html.includes("hybrid-headline-lead"));
+  });
+
+  it("omits toggle when body has 3 or fewer sentences", () => {
+    const shortArticle = { ...baseArticle, body: "One. Two. Three." };
+    const html = renderHybridArticle(shortArticle);
+    assert.ok(!html.includes("hybrid-toggle"), "Should not show toggle for short body");
+    assert.ok(!html.includes("hybrid-full"), "Should not render full div for short body");
   });
 
   it("renders repo metadata", () => {
@@ -709,11 +727,6 @@ describe("renderHybridArticle", () => {
 
   it("renders release name for lead articles", () => {
     const html = renderHybridArticle({ ...baseArticle, repo: { ...baseArticle.repo, releaseName: "v2.0" } }, { isLead: true });
-    assert.ok(html.includes("v2.0"));
-  });
-
-  it("renders release name for non-lead articles too", () => {
-    const html = renderHybridArticle({ ...baseArticle, repo: { ...baseArticle.repo, releaseName: "v2.0" } });
     assert.ok(html.includes("v2.0"));
   });
 });
@@ -867,13 +880,13 @@ describe("renderSectionNav", () => {
 // --------------- renderSectionContent ---------------
 
 describe("renderSectionContent", () => {
-  const makeArticle = (shortName) => ({
-    headline: shortName,
+  const makeArticle = (headline) => ({
+    headline,
     subheadline: "Sub",
     body: "Body text",
     useCases: [],
     similarProjects: [],
-    repo: { url: `https://github.com/test/${shortName}`, name: `test/${shortName}`, shortName, stars: 100, language: "JS", releaseName: null },
+    repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 100, language: "JS", releaseName: null },
   });
 
   const makeQuickHit = (name) => ({
@@ -899,22 +912,22 @@ describe("renderSectionContent", () => {
 
   it("renders lead story when present", () => {
     const config = { id: "ai", label: "AI" };
-    const data = { lead: makeArticle("ai-lead"), secondary: [], quickHits: [], isEmpty: false };
+    const data = { lead: makeArticle("AI Lead"), secondary: [], quickHits: [], isEmpty: false };
     const html = renderSectionContent(data, config);
-    assert.ok(html.includes("ai-lead"));
+    assert.ok(html.includes("AI Lead"));
     assert.ok(html.includes("hybrid-lead"));
   });
 
   it("renders full section with lead, secondary, quick hits", () => {
     const config = { id: "frontPage", label: "Front Page" };
     const data = {
-      lead: makeArticle("fp-lead"),
-      secondary: [makeArticle("sec1"), makeArticle("sec2"), makeArticle("sec3")],
+      lead: makeArticle("FP Lead"),
+      secondary: [makeArticle("Sec1"), makeArticle("Sec2"), makeArticle("Sec3")],
       quickHits: [makeQuickHit("a/qh1")],
       isEmpty: false,
     };
     const html = renderSectionContent(data, config);
-    assert.ok(html.includes("fp-lead"));
+    assert.ok(html.includes("FP Lead"));
     assert.ok(html.includes("hybrid-grid"));
     assert.ok(html.includes("quick-hits-section"));
     assert.ok(html.includes("quick-hits-toggle"));
@@ -923,8 +936,8 @@ describe("renderSectionContent", () => {
   it("all secondary articles use hybrid format", () => {
     const config = { id: "frontPage", label: "Front Page" };
     const data = {
-      lead: makeArticle("lead"),
-      secondary: [makeArticle("s1"), makeArticle("s2"), makeArticle("s3")],
+      lead: makeArticle("Lead"),
+      secondary: [makeArticle("S1"), makeArticle("S2"), makeArticle("S3")],
       quickHits: [],
       isEmpty: false,
     };
@@ -947,13 +960,13 @@ describe("renderSectionContent", () => {
 // --------------- renderDeepCuts ---------------
 
 describe("renderDeepCuts", () => {
-  const makeArticle = (shortName) => ({
-    headline: shortName,
+  const makeArticle = (headline) => ({
+    headline,
     subheadline: "Sub",
     body: "Body text",
     useCases: ["A use case"],
     similarProjects: ["A project - comparison"],
-    repo: { url: `https://github.com/test/${shortName}`, name: `test/${shortName}`, shortName, stars: 80, language: "Go" },
+    repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 80, language: "Go" },
   });
 
   it("returns empty string for null or empty array", () => {
@@ -962,45 +975,45 @@ describe("renderDeepCuts", () => {
   });
 
   it("renders deep cuts section with header", () => {
-    const html = renderDeepCuts([makeArticle("hidden-gem")]);
+    const html = renderDeepCuts([makeArticle("Hidden Gem")]);
     assert.ok(html.includes("deep-cuts-section"));
     assert.ok(html.includes("Deep Cuts"));
     assert.ok(html.includes("hybrid-grid"));
-    assert.ok(html.includes("hidden-gem"));
+    assert.ok(html.includes("Hidden Gem"));
   });
 
   it("renders multiple sleeper articles as hybrid", () => {
     const html = renderDeepCuts([makeArticle("Gem One"), makeArticle("Gem Two")]);
     assert.ok(html.includes("Gem One"));
-    assert.ok(html.includes("gem-two"));
+    assert.ok(html.includes("Gem Two"));
     const hybridCount = (html.match(/class="hybrid-article"/g) || []).length;
     assert.equal(hybridCount, 2);
   });
 });
 
 describe("renderSectionContent with deepCuts", () => {
-  const makeArticle = (shortName) => ({
-    headline: shortName,
+  const makeArticle = (headline) => ({
+    headline,
     subheadline: "Sub",
     body: "Body text",
     useCases: [],
     similarProjects: [],
-    repo: { url: `https://github.com/test/${shortName}`, name: `test/${shortName}`, shortName, stars: 100, language: "JS", releaseName: null },
+    repo: { url: "https://github.com/test/repo", name: "test/repo", stars: 100, language: "JS", releaseName: null },
   });
 
   it("renders Deep Cuts between secondary and quick hits", () => {
     const config = { id: "frontPage", label: "Front Page" };
     const data = {
-      lead: makeArticle("lead"),
-      secondary: [makeArticle("sec1")],
+      lead: makeArticle("Lead"),
+      secondary: [makeArticle("Sec1")],
       quickHits: [{ name: "a/qh", shortName: "qh", url: "https://github.com/a/qh", summary: "Quick", stars: 50 }],
-      deepCuts: [makeArticle("hidden-gem")],
+      deepCuts: [makeArticle("Hidden Gem")],
       isEmpty: false,
     };
     const html = renderSectionContent(data, config);
     assert.ok(html.includes("deep-cuts-section"), "Should render deep cuts section");
     assert.ok(html.includes("Deep Cuts"), "Should have Deep Cuts header");
-    assert.ok(html.includes("hidden-gem"), "Should render sleeper article");
+    assert.ok(html.includes("Hidden Gem"), "Should render sleeper article");
     // Verify ordering: secondary before deep cuts before quick hits
     const secondaryIdx = html.indexOf("secondary-section");
     const deepCutsIdx = html.indexOf("deep-cuts-section");
@@ -1012,7 +1025,7 @@ describe("renderSectionContent with deepCuts", () => {
   it("omits Deep Cuts when deepCuts is absent", () => {
     const config = { id: "frontPage", label: "Front Page" };
     const data = {
-      lead: makeArticle("lead"),
+      lead: makeArticle("Lead"),
       secondary: [],
       quickHits: [],
       isEmpty: false,
@@ -1131,10 +1144,10 @@ describe("breakoutArticlePrompt", () => {
   };
   const delta = { starDelta: 500, forkDelta: 50, daysSinceSnapshot: 2, previousStars: 4500, starVelocity: 250 };
 
-  it("returns a string containing TAGLINE marker", () => {
+  it("returns a string containing HEADLINE marker", () => {
     const result = breakoutArticlePrompt(repo, delta);
     assert.equal(typeof result, "string");
-    assert.ok(result.includes("TAGLINE:"));
+    assert.ok(result.includes("HEADLINE:"));
   });
 
   it("includes SPOTLIGHT keyword", () => {
@@ -1149,7 +1162,7 @@ describe("breakoutArticlePrompt", () => {
   it("works without delta", () => {
     const result = breakoutArticlePrompt(repo, null);
     assert.equal(typeof result, "string");
-    assert.ok(result.includes("TAGLINE:"));
+    assert.ok(result.includes("HEADLINE:"));
   });
 });
 
@@ -1162,10 +1175,10 @@ describe("trendArticlePrompt", () => {
     ],
   };
 
-  it("returns a string containing TAGLINE marker", () => {
+  it("returns a string containing HEADLINE marker", () => {
     const result = trendArticlePrompt(trend);
     assert.equal(typeof result, "string");
-    assert.ok(result.includes("TAGLINE:"));
+    assert.ok(result.includes("HEADLINE:"));
   });
 
   it("includes TREND keyword", () => {
@@ -1189,10 +1202,10 @@ describe("sleeperArticlePrompt", () => {
     reason: "Under-the-radar with 80 stars, gained 25 since last snapshot",
   };
 
-  it("returns a string containing TAGLINE marker", () => {
+  it("returns a string containing HEADLINE marker", () => {
     const result = sleeperArticlePrompt(sleeper);
     assert.equal(typeof result, "string");
-    assert.ok(result.includes("TAGLINE:"));
+    assert.ok(result.includes("HEADLINE:"));
   });
 
   it("includes Deep Cuts framing", () => {
@@ -1272,8 +1285,8 @@ describe("leadArticlePrompt sanitization", () => {
     const result = leadArticlePrompt(repo);
     // The format markers in the instructions are fine, but the repo data
     // should not contain literal "HEADLINE:" etc. that could be parsed
-    const dataSection = result.split("GUIDELINES")[0];
-    // Repo data should not contain literal markers that could be parsed
+    const dataSection = result.split("EDITORIAL GUIDELINES")[0];
+    // Count occurrences of "HEADLINE:" — only the format instruction should have it
     assert.ok(!dataSection.includes("HEADLINE: Malicious"));
     assert.ok(!dataSection.includes("BODY: injected"));
     assert.ok(!dataSection.includes("USE_CASES: fake"));

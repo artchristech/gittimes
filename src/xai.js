@@ -37,7 +37,7 @@ function _repoId(repoOrArticle) {
   return r.full_name || r.name || null;
 }
 
-const ARTICLE_MARKERS = /\bTAGLINE:|DESCRIPTION:|HEADLINE:|BODY:/;
+const ARTICLE_MARKERS = /\bHEADLINE:|BODY:/;
 
 function pickStructuredOutput(msg) {
   const content = (msg.content || "").trim();
@@ -113,35 +113,18 @@ function parseNumberedList(block) {
 function parseArticle(text, repo) {
   // Use LAST occurrence of each marker — reasoning models echo the format
   // instructions early in their thinking, then produce the real output later.
+  const headlineMatch = lastMatch(text, /(?:^|\n)\bHEADLINE:\s*(.+)/);
+  const subheadlineMatch = lastMatch(text, /SUBHEADLINE:\s*(.+)/);
 
-  // New format: TAGLINE + DESCRIPTION (catalog style)
-  const taglineMatch = lastMatch(text, /(?:^|\n)\bTAGLINE:\s*(.+)/);
-  // For DESCRIPTION, find the last DESCRIPTION: marker and grab everything until USE_CASES:
-  let description = null;
-  const descMarkers = [...text.matchAll(/DESCRIPTION:\s*/g)];
-  if (descMarkers.length) {
-    const lastDescStart = descMarkers[descMarkers.length - 1].index + descMarkers[descMarkers.length - 1][0].length;
+  // For BODY, find the last BODY: marker and grab everything until the last USE_CASES:
+  let body = null;
+  const bodyMarkers = [...text.matchAll(/BODY:\s*/g)];
+  if (bodyMarkers.length) {
+    const lastBodyStart = bodyMarkers[bodyMarkers.length - 1].index + bodyMarkers[bodyMarkers.length - 1][0].length;
     const ucMarkers = [...text.matchAll(/USE_CASES:/g)];
     const lastUcStart = ucMarkers.length ? ucMarkers[ucMarkers.length - 1].index : text.length;
-    if (lastDescStart < lastUcStart) {
-      description = text.slice(lastDescStart, lastUcStart).trim();
-    }
-  }
-
-  // Legacy fallback: HEADLINE + BODY format (for old cached responses)
-  let headline = null;
-  let body = null;
-  if (!taglineMatch && !description) {
-    const headlineMatch = lastMatch(text, /(?:^|\n)\bHEADLINE:\s*(.+)/);
-    headline = headlineMatch?.[1]?.trim() || null;
-    const bodyMarkers = [...text.matchAll(/BODY:\s*/g)];
-    if (bodyMarkers.length) {
-      const lastBodyStart = bodyMarkers[bodyMarkers.length - 1].index + bodyMarkers[bodyMarkers.length - 1][0].length;
-      const ucMarkers2 = [...text.matchAll(/USE_CASES:/g)];
-      const lastUcStart2 = ucMarkers2.length ? ucMarkers2[ucMarkers2.length - 1].index : text.length;
-      if (lastBodyStart < lastUcStart2) {
-        body = text.slice(lastBodyStart, lastUcStart2).trim();
-      }
+    if (lastBodyStart < lastUcStart) {
+      body = text.slice(lastBodyStart, lastUcStart).trim();
     }
   }
 
@@ -164,19 +147,18 @@ function parseArticle(text, repo) {
     similarProjects = parseNumberedList(text.slice(lastSpEnd));
   }
 
-  const tagline = taglineMatch?.[1]?.trim() || null;
-  const repoDisplayName = repo ? (repo.shortName || repo.name || "").split("/").pop() : "Untitled";
+  const headline = headlineMatch?.[1]?.trim() || null;
+  const subheadline = subheadlineMatch?.[1]?.trim() || "";
 
-  // Map to article fields: headline = display name, subheadline = tagline, body = description
-  const failed = !tagline && !headline && !description && !body;
+  const failed = !headline || !body;
   if (failed && repo) {
     console.warn(`Warning: Failed to parse structured output for ${repo.name}, using fallback`);
   }
 
   return {
-    headline: repoDisplayName,
-    subheadline: tagline || headline || (repo ? repo.description : ""),
-    body: description || body || (repo ? repo.description : text),
+    headline: headline || (repo ? `${repo.shortName}: ${repo.description}`.slice(0, 80) : "Untitled"),
+    subheadline: subheadline || (repo ? repo.description : ""),
+    body: body || (repo ? repo.description : text),
     useCases,
     similarProjects,
     _isFallback: failed,
@@ -229,14 +211,13 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
   }
 
   const isFrontPage = sectionConfig.id === "frontPage";
-  // Catalog format: tagline + description + use cases + similar projects — much less text
-  const leadTokens = isFrontPage ? 800 : 600;
+  const leadTokens = isFrontPage ? 2000 : 1200;
 
   // Lead + all secondary articles in parallel (with parse-level retry)
   const [leadArticle, ...allSecondary] = await Promise.all([
     generateArticleWithRetry(client, MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit, coverage),
     ...sectionData.secondary.map((r) =>
-      generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 500, llmLimit, coverage)
+      generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 800, llmLimit, coverage)
     ),
   ]);
 
@@ -467,7 +448,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
       }
 
       const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta, coverage);
-      const raw = await llmLimit(() => chat(client, MODEL, breakoutPrompt, 800));
+      const raw = await llmLimit(() => chat(client, MODEL, breakoutPrompt, 2500));
       const breakoutArticle = { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo };
 
       if (!breakoutArticle._isFallback && result.frontPage && result.frontPage.lead) {

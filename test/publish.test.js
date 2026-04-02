@@ -135,8 +135,7 @@ describe("publish", () => {
     const manifest = JSON.parse(fs.readFileSync(path.join(tmpDir, "editions", "manifest.json"), "utf-8"));
     assert.equal(manifest.length, 1);
     assert.equal(manifest[0].date, "2026-02-23");
-    // Catalog format: manifest headline is repo display name
-    assert.equal(manifest[0].headline, "org/repo");
+    assert.equal(manifest[0].headline, "Big News");
   });
 
   it("edition HTML contains navigation", async () => {
@@ -166,7 +165,7 @@ describe("publish", () => {
     await publish(mockContent, tmpDir, { date: date2, basePath: "" });
 
     const archiveHtml = fs.readFileSync(path.join(tmpDir, "archive", "index.html"), "utf-8");
-    assert.ok(archiveHtml.includes("org/repo"));
+    assert.ok(archiveHtml.includes("Big News"));
     assert.ok(archiveHtml.includes("/editions/2026-02-22/"));
     assert.ok(archiveHtml.includes("/editions/2026-02-23/"));
   });
