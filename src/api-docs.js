@@ -1,0 +1,230 @@
+const { applyTemplate } = require("./template-utils");
+const { SECTIONS, SECTION_ORDER } = require("./sections");
+
+/**
+ * Render the API docs page.
+ * @param {string} basePath
+ * @returns {string} Complete HTML string
+ */
+function renderApiDocsPage(basePath) {
+  const sectionsData = SECTION_ORDER.map((id) => ({
+    id,
+    label: SECTIONS[id].label,
+    topics: SECTIONS[id].query?.topics || [],
+    languages: SECTIONS[id].query?.languages || [],
+  }));
+
+  return applyTemplate("api-docs", basePath)
+    .replace("{{SECTIONS_JSON}}", JSON.stringify(sectionsData, null, 2));
+}
+
+/**
+ * Generate OpenAPI 3.1 specification for the GitTimes API.
+ * @returns {object}
+ */
+function generateOpenApiSpec() {
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "GitTimes API",
+      version: "1.0.0",
+      description: "Access GitTimes edition data, trending repos, star history, and coverage. The same data is available via MCP server (stdio) for AI agent integration.",
+      contact: { url: "https://gittimes.com" },
+    },
+    servers: [
+      { url: "http://localhost:3717", description: "Local development server" },
+    ],
+    paths: {
+      "/api/editions": {
+        get: {
+          summary: "List recent editions",
+          description: "Returns edition summaries sorted newest-first with headlines, dates, taglines, and repo counts.",
+          parameters: [
+            { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 10 }, description: "Number of editions to return" },
+          ],
+          responses: {
+            200: {
+              description: "Array of edition summaries",
+              content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/EditionSummary" } } } },
+            },
+          },
+        },
+      },
+      "/api/editions/latest": {
+        get: {
+          summary: "Get latest edition",
+          description: "Returns the most recent edition with full details including all featured repos and article excerpts.",
+          responses: {
+            200: { description: "Full edition detail", content: { "application/json": { schema: { $ref: "#/components/schemas/Edition" } } } },
+            404: { description: "No editions found" },
+          },
+        },
+      },
+      "/api/editions/{date}": {
+        get: {
+          summary: "Get edition by date",
+          parameters: [
+            { name: "date", in: "path", required: true, schema: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" }, description: "Edition date (YYYY-MM-DD)" },
+          ],
+          responses: {
+            200: { description: "Full edition detail", content: { "application/json": { schema: { $ref: "#/components/schemas/Edition" } } } },
+            404: { description: "Edition not found" },
+          },
+        },
+      },
+      "/api/repos/search": {
+        get: {
+          summary: "Search featured repos",
+          description: "Search for repos that have been featured in GitTimes editions. Returns grouped by repo with edition appearances and article headlines.",
+          parameters: [
+            { name: "q", in: "query", required: true, schema: { type: "string", maxLength: 200 }, description: "Repo name or partial match" },
+          ],
+          responses: {
+            200: { description: "Map of repo names to edition appearances", content: { "application/json": { schema: { type: "object", additionalProperties: { type: "array", items: { $ref: "#/components/schemas/RepoAppearance" } } } } } },
+            400: { description: "Missing query parameter" },
+          },
+        },
+      },
+      "/api/repos/{owner}/{name}/history": {
+        get: {
+          summary: "Get repo star history",
+          description: "Star, fork, and issue snapshots over the last 14 days with computed velocity summary.",
+          parameters: [
+            { name: "owner", in: "path", required: true, schema: { type: "string" } },
+            { name: "name", in: "path", required: true, schema: { type: "string" } },
+          ],
+          responses: {
+            200: { description: "Repo snapshot history", content: { "application/json": { schema: { $ref: "#/components/schemas/RepoHistory" } } } },
+            404: { description: "No snapshot history for this repo" },
+          },
+        },
+      },
+      "/api/repos/{owner}/{name}/coverage": {
+        get: {
+          summary: "Get repo coverage",
+          description: "How many times a repo has been featured across editions, with article headlines.",
+          parameters: [
+            { name: "owner", in: "path", required: true, schema: { type: "string" } },
+            { name: "name", in: "path", required: true, schema: { type: "string" } },
+            { name: "lookback", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 30 }, description: "Number of recent editions to check" },
+          ],
+          responses: {
+            200: { description: "Repo coverage data", content: { "application/json": { schema: { $ref: "#/components/schemas/RepoCoverage" } } } },
+            404: { description: "Repo not featured" },
+          },
+        },
+      },
+      "/api/sections": {
+        get: {
+          summary: "List newspaper sections",
+          description: "All GitTimes sections with their topic tags, languages, and article budgets.",
+          responses: {
+            200: { description: "Array of section definitions", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Section" } } } } },
+          },
+        },
+      },
+      "/api/trending": {
+        get: {
+          summary: "Get trending repos",
+          description: "Repos ranked by star velocity between the two most recent snapshots.",
+          parameters: [
+            { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 50, default: 15 }, description: "Number of repos to return" },
+          ],
+          responses: {
+            200: { description: "Trending repos with velocity data", content: { "application/json": { schema: { $ref: "#/components/schemas/TrendingResult" } } } },
+          },
+        },
+      },
+      "/api/stats": {
+        get: {
+          summary: "Get archive statistics",
+          description: "Aggregate stats: total editions, unique repos featured, date range, snapshot counts.",
+          responses: {
+            200: { description: "Archive statistics", content: { "application/json": { schema: { $ref: "#/components/schemas/Stats" } } } },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        EditionSummary: {
+          type: "object",
+          properties: {
+            date: { type: "string", description: "YYYY-MM-DD" },
+            headline: { type: "string" },
+            subheadline: { type: "string" },
+            tagline: { type: "string" },
+            url: { type: "string", format: "uri" },
+            repo_count: { type: "integer" },
+          },
+        },
+        Edition: {
+          type: "object",
+          properties: {
+            date: { type: "string" },
+            headline: { type: "string" },
+            subheadline: { type: "string" },
+            tagline: { type: "string" },
+            url: { type: "string", format: "uri" },
+            repos: { type: "array", items: { type: "object", properties: { name: { type: "string" }, headline: { type: "string", nullable: true } } } },
+            article_count: { type: "integer" },
+            articles: { type: "array", items: { type: "object", properties: { headline: { type: "string" }, body: { type: "string", description: "First 500 chars of article text" }, repo: { type: "string", nullable: true } } } },
+          },
+        },
+        RepoAppearance: {
+          type: "object",
+          properties: {
+            edition_date: { type: "string" },
+            article_headline: { type: "string", nullable: true },
+            edition_headline: { type: "string" },
+          },
+        },
+        RepoHistory: {
+          type: "object",
+          properties: {
+            repo: { type: "string" },
+            snapshots: { type: "array", items: { type: "object", properties: { date: { type: "string" }, stars: { type: "integer" }, forks: { type: "integer" }, issues: { type: "integer" } } } },
+            summary: { type: "object", properties: { latest_stars: { type: "integer" }, star_delta: { type: "integer" }, days_tracked: { type: "integer" }, avg_daily_stars: { type: "number", nullable: true } } },
+          },
+        },
+        RepoCoverage: {
+          type: "object",
+          properties: {
+            repo: { type: "string" },
+            times_featured: { type: "integer" },
+            appearances: { type: "array", items: { $ref: "#/components/schemas/RepoAppearance" } },
+          },
+        },
+        Section: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            label: { type: "string" },
+            topics: { type: "array", items: { type: "string" } },
+            languages: { type: "array", items: { type: "string" } },
+            budget: { type: "object", properties: { secondary: { type: "integer" }, quickHits: { type: "integer" } } },
+          },
+        },
+        TrendingResult: {
+          type: "object",
+          properties: {
+            period: { type: "object", properties: { from: { type: "string" }, to: { type: "string" }, days: { type: "integer" } } },
+            repos: { type: "array", items: { type: "object", properties: { name: { type: "string" }, stars: { type: "integer" }, star_delta: { type: "integer" }, daily_velocity: { type: "number" }, forks: { type: "integer" }, issues: { type: "integer" } } } },
+          },
+        },
+        Stats: {
+          type: "object",
+          properties: {
+            total_editions: { type: "integer" },
+            unique_repos_featured: { type: "integer" },
+            oldest_edition: { type: "string" },
+            newest_edition: { type: "string" },
+            repos_with_snapshots: { type: "integer" },
+          },
+        },
+      },
+    },
+  };
+}
+
+module.exports = { renderApiDocsPage, generateOpenApiSpec };

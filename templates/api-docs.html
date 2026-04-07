@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <title>The Git Times — API &amp; MCP Documentation</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta property="og:title" content="The Git Times — API Documentation">
+  <meta property="og:description" content="Access GitTimes data via REST API or MCP server. Edition archives, trending repos, star velocity, and more.">
+  <meta property="og:site_name" content="The Git Times">
+  <meta name="description" content="GitTimes API and MCP server documentation. Query editions, trending repos, star history, and coverage data programmatically.">
+  <link rel="alternate" type="application/json" href="{{BASE_PATH}}/docs/openapi.json" title="OpenAPI specification">
+
+  <style>
+{{STYLES}}
+
+    .docs-content {
+      max-width: 52rem;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      line-height: 1.7;
+    }
+    .docs-content h2 {
+      font-family: var(--font-headline);
+      font-size: 1.5rem;
+      margin-top: 2.5rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 2px solid var(--color-rule);
+    }
+    .docs-content h3 {
+      font-family: var(--font-headline);
+      font-size: 1.15rem;
+      margin-top: 1.8rem;
+    }
+    .docs-content p, .docs-content li {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+    .docs-content code {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.88rem;
+      background: var(--color-surface, #f5f3ef);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+    }
+    .docs-content pre {
+      background: var(--color-surface, #f5f3ef);
+      border: 1px solid var(--color-rule, #d4c9b8);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .docs-content pre code {
+      background: none;
+      padding: 0;
+    }
+    .endpoint-card {
+      border: 1px solid var(--color-rule, #d4c9b8);
+      border-radius: 4px;
+      margin: 1rem 0;
+      padding: 1rem 1.25rem;
+    }
+    .endpoint-card .method {
+      display: inline-block;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.8rem;
+      font-weight: bold;
+      background: var(--color-accent, #2d5016);
+      color: #fff;
+      padding: 0.15em 0.5em;
+      border-radius: 3px;
+      margin-right: 0.5em;
+    }
+    .endpoint-card .path {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .endpoint-card .desc {
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--color-muted, #666);
+    }
+    .endpoint-card .params {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .endpoint-card .params dt {
+      font-family: var(--font-mono, monospace);
+      font-weight: 600;
+      margin-top: 0.3rem;
+    }
+    .endpoint-card .params dd {
+      margin-left: 1rem;
+      color: var(--color-muted, #666);
+    }
+    .toc {
+      border: 1px solid var(--color-rule, #d4c9b8);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .toc ul { margin: 0.3rem 0 0 1.2rem; padding: 0; }
+    .toc li { font-size: 0.9rem; margin: 0.2rem 0; }
+    .toc a { color: var(--color-link, #2d5016); }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.1em 0.5em;
+      border-radius: 3px;
+      margin-left: 0.3em;
+      vertical-align: middle;
+    }
+    .badge-mcp { background: #e8d5f5; color: #5b2d8e; }
+    .badge-rest { background: #d5e8f5; color: #1a4a7a; }
+  </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="{{BASE_PATH}}/account/" class="masthead-account">Account</a>
+    <a href="{{BASE_PATH}}/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
+    <h1 class="masthead-title"><a href="{{BASE_PATH}}/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
+    <div class="masthead-meta">
+      <span>API &amp; MCP Documentation</span>
+    </div>
+  </header>
+
+  <div class="docs-content">
+
+    <p>Access GitTimes data programmatically via a <strong>REST API</strong> or <strong>MCP server</strong> (Model Context Protocol). Both expose the same data: edition archives, trending repos, star velocity, and coverage history.</p>
+
+    <div class="toc">
+      <strong>Contents</strong>
+      <ul>
+        <li><a href="#quick-start">Quick Start</a></li>
+        <li><a href="#mcp-server">MCP Server</a> <span class="badge badge-mcp">MCP</span></li>
+        <li><a href="#rest-api">REST API</a> <span class="badge badge-rest">REST</span></li>
+        <li><a href="#endpoints">Endpoint Reference</a></li>
+        <li><a href="#data-model">Data Model</a></li>
+        <li><a href="#openapi">Machine-Readable Spec</a></li>
+      </ul>
+    </div>
+
+    <h2 id="quick-start">Quick Start</h2>
+
+    <h3>MCP (for Claude Code, Cursor, and other MCP clients)</h3>
+    <p>Add to your MCP client configuration:</p>
+    <pre><code>{
+  "mcpServers": {
+    "gittimes": {
+      "command": "node",
+      "args": ["/path/to/gittimes/mcp-server.js"]
+    }
+  }
+}</code></pre>
+    <p>Your agent can then call tools like <code>get_latest_edition</code>, <code>search_repos</code>, and <code>get_trending_repos</code> directly.</p>
+
+    <h3>REST API (for scripts, agents, and integrations)</h3>
+    <pre><code># Start the server
+node api-server.js
+
+# Query the latest edition
+curl http://localhost:3717/api/editions/latest
+
+# Search for repos
+curl "http://localhost:3717/api/repos/search?q=react"</code></pre>
+
+    <h2 id="mcp-server">MCP Server</h2>
+
+    <p>The MCP server uses <strong>stdio transport</strong> and exposes 9 tools. It reads directly from the GitTimes SQLite database and generated HTML files. No network requests, no API keys required.</p>
+
+    <h3>Available Tools</h3>
+
+    <table style="width:100%;font-size:0.9rem;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:2px solid var(--color-rule,#d4c9b8);text-align:left">
+          <th style="padding:0.4rem 0.5rem">Tool</th>
+          <th style="padding:0.4rem 0.5rem">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>list_editions</code></td><td style="padding:0.4rem 0.5rem">Recent editions with headlines, dates, repo counts</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_edition</code></td><td style="padding:0.4rem 0.5rem">Full edition detail by date (repos + article excerpts)</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_latest_edition</code></td><td style="padding:0.4rem 0.5rem">Most recent edition with full details</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>search_repos</code></td><td style="padding:0.4rem 0.5rem">Find repos featured in any edition by name</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_repo_history</code></td><td style="padding:0.4rem 0.5rem">Star/fork/issue snapshots over 14 days</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_repo_coverage</code></td><td style="padding:0.4rem 0.5rem">How many editions featured a repo</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_sections</code></td><td style="padding:0.4rem 0.5rem">Newspaper sections with topics and languages</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_trending_repos</code></td><td style="padding:0.4rem 0.5rem">Repos ranked by star velocity</td></tr>
+        <tr><td style="padding:0.4rem 0.5rem"><code>get_edition_stats</code></td><td style="padding:0.4rem 0.5rem">Aggregate archive stats</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="rest-api">REST API</h2>
+
+    <p>Lightweight HTTP server (Node.js built-in <code>http</code> module, no frameworks). Binds to <code>127.0.0.1:3717</code> by default. Override with <code>HOST</code> and <code>PORT</code> environment variables.</p>
+
+    <p>All responses are JSON with <code>Access-Control-Allow-Origin: *</code> for browser/agent access.</p>
+
+    <h2 id="endpoints">Endpoint Reference</h2>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/editions</span>
+      <div class="desc">List recent editions with headlines, dates, and repo counts.</div>
+      <dl class="params">
+        <dt>?limit=10</dt><dd>Number of editions (1-100, default 10)</dd>
+      </dl>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/editions/latest</span>
+      <div class="desc">Full detail for the most recent edition, including all featured repos and article excerpts.</div>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/editions/:date</span>
+      <div class="desc">Full detail for a specific edition by date.</div>
+      <dl class="params">
+        <dt>:date</dt><dd>Edition date in YYYY-MM-DD format (e.g. <code>2026-03-27</code>)</dd>
+      </dl>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/repos/search</span>
+      <div class="desc">Search for repos featured across editions. Returns grouped by repo with edition appearances.</div>
+      <dl class="params">
+        <dt>?q=react</dt><dd>Repo name or partial match (required, max 200 chars)</dd>
+      </dl>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/repos/:owner/:name/history</span>
+      <div class="desc">Star, fork, and issue snapshots over the last 14 days. Includes computed star velocity.</div>
+      <dl class="params">
+        <dt>:owner/:name</dt><dd>Full repo identifier (e.g. <code>facebook/react</code>)</dd>
+      </dl>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/repos/:owner/:name/coverage</span>
+      <div class="desc">How many times a repo has been featured, with article headlines per edition.</div>
+      <dl class="params">
+        <dt>:owner/:name</dt><dd>Full repo identifier</dd>
+        <dt>?lookback=30</dt><dd>Number of recent editions to check (1-100, default 30)</dd>
+      </dl>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/sections</span>
+      <div class="desc">All newspaper sections with their topic tags, languages, and article budgets.</div>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/trending</span>
+      <div class="desc">Repos with the highest star velocity between the two most recent snapshots.</div>
+      <dl class="params">
+        <dt>?limit=15</dt><dd>Number of repos (1-50, default 15)</dd>
+      </dl>
+    </div>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/stats</span>
+      <div class="desc">Aggregate archive statistics: total editions, unique repos, date range, snapshot counts.</div>
+    </div>
+
+    <h2 id="data-model">Data Model</h2>
+
+    <h3>Edition</h3>
+    <pre><code>{
+  "date": "2026-03-27",
+  "headline": "Article headline for the lead story",
+  "subheadline": "Context on why this matters",
+  "tagline": "\u201cDaily quote\u201d \u2014 Author",
+  "url": "https://gittimes.com/editions/2026-03-27/",
+  "repos": [
+    { "name": "owner/repo", "headline": "Article headline" }
+  ],
+  "article_count": 15,
+  "articles": [
+    { "headline": "...", "body": "First 500 chars...", "repo": "owner/repo" }
+  ]
+}</code></pre>
+
+    <h3>Trending Repo</h3>
+    <pre><code>{
+  "name": "owner/repo",
+  "stars": 15000,
+  "star_delta": 500,
+  "daily_velocity": 71.4,
+  "forks": 2000,
+  "issues": 145
+}</code></pre>
+
+    <h3>Repo History</h3>
+    <pre><code>{
+  "repo": "owner/repo",
+  "snapshots": [
+    { "date": "2026-03-27", "stars": 15000, "forks": 2000, "issues": 145 },
+    { "date": "2026-03-16", "stars": 14500, "forks": 1950, "issues": 140 }
+  ],
+  "summary": {
+    "latest_stars": 15000,
+    "star_delta": 500,
+    "days_tracked": 11,
+    "avg_daily_stars": 45.5
+  }
+}</code></pre>
+
+    <h3>Sections</h3>
+    <p>GitTimes publishes 7 sections daily:</p>
+    <pre><code>{{SECTIONS_JSON}}</code></pre>
+
+    <h2 id="openapi">Machine-Readable Spec</h2>
+    <p>An OpenAPI 3.1 specification is available at <a href="{{BASE_PATH}}/docs/openapi.json"><code>/docs/openapi.json</code></a> for automated agent discovery and integration.</p>
+
+    <h3>Feeds</h3>
+    <p>GitTimes also publishes standard syndication feeds:</p>
+    <ul>
+      <li><a href="{{BASE_PATH}}/feed.xml">RSS 2.0</a> (<code>/feed.xml</code>)</li>
+      <li><a href="{{BASE_PATH}}/feed.atom">Atom 1.0</a> (<code>/feed.atom</code>)</li>
+    </ul>
+
+  </div>
+
+  <footer class="footer">
+    <nav class="edition-nav">
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
+      <a href="{{BASE_PATH}}/archive/">Archive</a>
+    </nav>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+  </footer>
+
+</body>
+</html>

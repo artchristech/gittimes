@@ -7,6 +7,7 @@ const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
 const { renderAccountPage } = require("./account");
 const { renderMarketsPage } = require("./markets");
+const { renderApiDocsPage, generateOpenApiSpec } = require("./api-docs");
 const { generateRss, generateAtom } = require("./feed");
 const { loadTemplate, buildAnalytics } = require("./template-utils");
 const db = require("./db");
@@ -332,7 +333,13 @@ async function publish(content, outDir, options = {}) {
   if (!fs.existsSync(accountDir)) fs.mkdirSync(accountDir, { recursive: true });
   fs.writeFileSync(path.join(accountDir, "index.html"), renderAccountPage({ basePath, siteUrl }));
 
-  // 14. Copy chat.js to outDir for external script loading
+  // 14. Generate API docs page + OpenAPI spec
+  const docsDir = path.join(outDir, "docs");
+  if (!fs.existsSync(docsDir)) fs.mkdirSync(docsDir, { recursive: true });
+  fs.writeFileSync(path.join(docsDir, "index.html"), renderApiDocsPage(basePath));
+  fs.writeFileSync(path.join(docsDir, "openapi.json"), JSON.stringify(generateOpenApiSpec(), null, 2));
+
+  // 15. Copy chat.js to outDir for external script loading
   const chatJsSrc = path.join(__dirname, "..", "public", "chat.js");
   if (fs.existsSync(chatJsSrc)) {
     fs.copyFileSync(chatJsSrc, path.join(outDir, "chat.js"));
