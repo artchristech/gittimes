@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
-  <title>The Git Times — Archive</title>
+  <title>The Git Times — API &amp; MCP Documentation</title>
   
-  <meta property="og:title" content="The Git Times — Archive">
-  <meta property="og:description" content="Browse all editions of The Git Times">
+  <meta property="og:title" content="The Git Times — API Documentation">
+  <meta property="og:description" content="Access GitTimes data via REST API or MCP server. Edition archives, trending repos, star velocity, and more.">
   <meta property="og:site_name" content="The Git Times">
+  <meta name="description" content="GitTimes API and MCP server documentation. Query editions, trending repos, star history, and coverage data programmatically.">
+  <link rel="alternate" type="application/json" href="/docs/openapi.json" title="OpenAPI specification">
 
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
@@ -2153,6 +2155,109 @@ body.account {
   margin-bottom: 20px;
 }
 
+
+    .docs-content {
+      max-width: 52rem;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      line-height: 1.7;
+    }
+    .docs-content h2 {
+      font-family: var(--font-headline);
+      font-size: 1.5rem;
+      margin-top: 2.5rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 2px solid var(--color-rule);
+    }
+    .docs-content h3 {
+      font-family: var(--font-headline);
+      font-size: 1.15rem;
+      margin-top: 1.8rem;
+    }
+    .docs-content p, .docs-content li {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+    .docs-content code {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.88rem;
+      background: var(--color-surface, #f5f3ef);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+    }
+    .docs-content pre {
+      background: var(--color-surface, #f5f3ef);
+      border: 1px solid var(--color-rule, #d4c9b8);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .docs-content pre code {
+      background: none;
+      padding: 0;
+    }
+    .endpoint-card {
+      border: 1px solid var(--color-rule, #d4c9b8);
+      border-radius: 4px;
+      margin: 1rem 0;
+      padding: 1rem 1.25rem;
+    }
+    .endpoint-card .method {
+      display: inline-block;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.8rem;
+      font-weight: bold;
+      background: var(--color-accent, #2d5016);
+      color: #fff;
+      padding: 0.15em 0.5em;
+      border-radius: 3px;
+      margin-right: 0.5em;
+    }
+    .endpoint-card .path {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .endpoint-card .desc {
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--color-muted, #666);
+    }
+    .endpoint-card .params {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .endpoint-card .params dt {
+      font-family: var(--font-mono, monospace);
+      font-weight: 600;
+      margin-top: 0.3rem;
+    }
+    .endpoint-card .params dd {
+      margin-left: 1rem;
+      color: var(--color-muted, #666);
+    }
+    .toc {
+      border: 1px solid var(--color-rule, #d4c9b8);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .toc ul { margin: 0.3rem 0 0 1.2rem; padding: 0; }
+    .toc li { font-size: 0.9rem; margin: 0.2rem 0; }
+    .toc a { color: var(--color-link, #2d5016); }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.1em 0.5em;
+      border-radius: 3px;
+      margin-left: 0.3em;
+      vertical-align: middle;
+    }
+    .badge-mcp { background: #e8d5f5; color: #5b2d8e; }
+    .badge-rest { background: #d5e8f5; color: #1a4a7a; }
   </style>
   <script>
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
@@ -2165,263 +2270,323 @@ body.account {
     <a href="/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
     <h1 class="masthead-title"><a href="/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
     <div class="masthead-meta">
-      <span>Archive</span>
+      <span>API &amp; MCP Documentation</span>
     </div>
   </header>
 
-  <section class="archive-list">
-    <h2 class="section-header">All Editions</h2>
-    
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, April 8, 2026</span>
-      <a href="/editions/2026-04-08/" class="archive-headline">Developers Whip Claude AI Into Faster Code Generation</a>
-      <span class="archive-tagline">“You never change things by fighting the existing reality. To change something, build a new model that makes the existing model obsolete.” — Buckminster Fuller</span>
+  <div class="docs-content">
+
+    <p>Access GitTimes data programmatically via a <strong>REST API</strong> or <strong>MCP server</strong> (Model Context Protocol). Both expose the same data: edition archives, trending repos, star velocity, and coverage history.</p>
+
+    <div class="toc">
+      <strong>Contents</strong>
+      <ul>
+        <li><a href="#quick-start">Quick Start</a></li>
+        <li><a href="#mcp-server">MCP Server</a> <span class="badge badge-mcp">MCP</span></li>
+        <li><a href="#rest-api">REST API</a> <span class="badge badge-rest">REST</span></li>
+        <li><a href="#endpoints">Endpoint Reference</a></li>
+        <li><a href="#data-model">Data Model</a></li>
+        <li><a href="#openapi">Machine-Readable Spec</a></li>
+      </ul>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Tuesday, April 7, 2026</span>
-      <a href="/editions/2026-04-07/" class="archive-headline">Rust Rewrite Delivers Efficient Web Data Fetching for AI Agents</a>
-      <span class="archive-tagline">“The major problems of the world are the result of the difference between how nature works and the way people think.” — Gregory Bateson</span>
+    <h2 id="quick-start">Quick Start</h2>
+
+    <h3>MCP (for Claude Code, Cursor, and other MCP clients)</h3>
+    <p>Add to your MCP client configuration:</p>
+    <pre><code>{
+  "mcpServers": {
+    "gittimes": {
+      "command": "node",
+      "args": ["/path/to/gittimes/mcp-server.js"]
+    }
+  }
+}</code></pre>
+    <p>Your agent can then call tools like <code>get_latest_edition</code>, <code>search_repos</code>, and <code>get_trending_repos</code> directly.</p>
+
+    <h3>REST API (for scripts, agents, and integrations)</h3>
+    <pre><code># Start the server
+node api-server.js
+
+# Query the latest edition
+curl http://localhost:3717/api/editions/latest
+
+# Search for repos
+curl "http://localhost:3717/api/repos/search?q=react"</code></pre>
+
+    <h2 id="mcp-server">MCP Server</h2>
+
+    <p>The MCP server uses <strong>stdio transport</strong> and exposes 9 tools. It reads directly from the GitTimes SQLite database and generated HTML files. No network requests, no API keys required.</p>
+
+    <h3>Available Tools</h3>
+
+    <table style="width:100%;font-size:0.9rem;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:2px solid var(--color-rule,#d4c9b8);text-align:left">
+          <th style="padding:0.4rem 0.5rem">Tool</th>
+          <th style="padding:0.4rem 0.5rem">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>list_editions</code></td><td style="padding:0.4rem 0.5rem">Recent editions with headlines, dates, repo counts</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_edition</code></td><td style="padding:0.4rem 0.5rem">Full edition detail by date (repos + article excerpts)</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_latest_edition</code></td><td style="padding:0.4rem 0.5rem">Most recent edition with full details</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>search_repos</code></td><td style="padding:0.4rem 0.5rem">Find repos featured in any edition by name</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_repo_history</code></td><td style="padding:0.4rem 0.5rem">Star/fork/issue snapshots over 14 days</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_repo_coverage</code></td><td style="padding:0.4rem 0.5rem">How many editions featured a repo</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_sections</code></td><td style="padding:0.4rem 0.5rem">Newspaper sections with topics and languages</td></tr>
+        <tr style="border-bottom:1px solid var(--color-rule,#d4c9b8)"><td style="padding:0.4rem 0.5rem"><code>get_trending_repos</code></td><td style="padding:0.4rem 0.5rem">Repos ranked by star velocity</td></tr>
+        <tr><td style="padding:0.4rem 0.5rem"><code>get_edition_stats</code></td><td style="padding:0.4rem 0.5rem">Aggregate archive stats</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="rest-api">REST API</h2>
+
+    <p>Lightweight HTTP server (Node.js built-in <code>http</code> module, no frameworks). Binds to <code>127.0.0.1:3717</code> by default. Override with <code>HOST</code> and <code>PORT</code> environment variables.</p>
+
+    <p>All responses are JSON with <code>Access-Control-Allow-Origin: *</code> for browser/agent access.</p>
+
+    <h2 id="endpoints">Endpoint Reference</h2>
+
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/editions</span>
+      <div class="desc">List recent editions with headlines, dates, and repo counts.</div>
+      <dl class="params">
+        <dt>?limit=10</dt><dd>Number of editions (1-100, default 10)</dd>
+      </dl>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Monday, April 6, 2026</span>
-      <a href="/editions/2026-04-06/" class="archive-headline">Caveman Syntax Slashes LLM Token Usage While Preserving Accuracy</a>
-      <span class="archive-tagline">“It has become appallingly obvious that our technology has exceeded our humanity.” — Albert Einstein</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/editions/latest</span>
+      <div class="desc">Full detail for the most recent edition, including all featured repos and article excerpts.</div>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, April 5, 2026</span>
-      <a href="/editions/2026-04-05/" class="archive-headline">Apfel Brings Apple&#39;s On-Device LLM to the Command Line</a>
-      <span class="archive-tagline">“The best way to predict the future is to invent it.” — Alan Kay</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/editions/:date</span>
+      <div class="desc">Full detail for a specific edition by date.</div>
+      <dl class="params">
+        <dt>:date</dt><dd>Edition date in YYYY-MM-DD format (e.g. <code>2026-03-27</code>)</dd>
+      </dl>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, April 4, 2026</span>
-      <a href="/editions/2026-04-04/" class="archive-headline">oh-my-openagent v3.14 Refines Multi-Model Agent Harness</a>
-      <span class="archive-tagline">“We are what we behold. We shape our tools and then our tools shape us.” — John Culkin</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/repos/search</span>
+      <div class="desc">Search for repos featured across editions. Returns grouped by repo with edition appearances.</div>
+      <dl class="params">
+        <dt>?q=react</dt><dd>Repo name or partial match (required, max 200 chars)</dd>
+      </dl>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Friday, April 3, 2026</span>
-      <a href="/editions/2026-04-03/" class="archive-headline">DeerFlow 2.0 Rewrites the Playbook for Long-Horizon AI Agents</a>
-      <span class="archive-tagline">“Tools for conviviality are those which give each person who uses them the greatest opportunity to enrich the environment with the fruits of their vision.” — Ivan Illich</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/repos/:owner/:name/history</span>
+      <div class="desc">Star, fork, and issue snapshots over the last 14 days. Includes computed star velocity.</div>
+      <dl class="params">
+        <dt>:owner/:name</dt><dd>Full repo identifier (e.g. <code>facebook/react</code>)</dd>
+      </dl>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Thursday, April 2, 2026</span>
-      <a href="/editions/2026-04-02/" class="archive-headline">GoClaw Delivers Secure Multi-Tenant AI Agent Platform</a>
-      <span class="archive-tagline">“New technology is not additive; it is ecological. A new medium does not add something; it changes everything.” — Neil Postman</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/repos/:owner/:name/coverage</span>
+      <div class="desc">How many times a repo has been featured, with article headlines per edition.</div>
+      <dl class="params">
+        <dt>:owner/:name</dt><dd>Full repo identifier</dd>
+        <dt>?lookback=30</dt><dd>Number of recent editions to check (1-100, default 30)</dd>
+      </dl>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, April 1, 2026</span>
-      <a href="/editions/2026-04-01/" class="archive-headline">colleague-skill</a>
-      <span class="archive-tagline">“For a successful technology, reality must take precedence over public relations, for nature cannot be fooled.” — Richard Feynman</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/sections</span>
+      <div class="desc">All newspaper sections with their topic tags, languages, and article budgets.</div>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Tuesday, March 31, 2026</span>
-      <a href="/editions/2026-03-31/" class="archive-headline">Codex Plugin Brings OpenAI Reviews to Claude Code</a>
-      <span class="archive-tagline">“The medium is the message.” — Marshall McLuhan</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/trending</span>
+      <div class="desc">Repos with the highest star velocity between the two most recent snapshots.</div>
+      <dl class="params">
+        <dt>?limit=15</dt><dd>Number of repos (1-50, default 15)</dd>
+      </dl>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 30, 2026</span>
-      <a href="/editions/2026-03-30/" class="archive-headline">Lightweight CLI Proxy Slashes LLM Token Costs for Developers</a>
-      <span class="archive-tagline">“Technology is not a neutral tool. It is a system that carries its own values.” — Ursula Franklin</span>
+    <div class="endpoint-card">
+      <span class="method">GET</span><span class="path">/api/stats</span>
+      <div class="desc">Aggregate archive statistics: total editions, unique repos, date range, snapshot counts.</div>
     </div>
 
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, March 29, 2026</span>
-      <a href="/editions/2026-03-29/" class="archive-headline">CC Switch Integrates GitHub Copilot in Major Desktop Update</a>
-      <span class="archive-tagline">“Progress imposes not only new possibilities for the future but new restrictions.” — Norbert Wiener</span>
-    </div>
+    <h2 id="data-model">Data Model</h2>
 
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, March 28, 2026</span>
-      <a href="/editions/2026-03-28/" class="archive-headline">Open Source AI Dashboard Creates Unified Global Intelligence Monitoring System</a>
-      <span class="archive-tagline">“The purpose of a system is what it does.” — Stafford Beer</span>
-    </div>
+    <h3>Edition</h3>
+    <pre><code>{
+  "date": "2026-03-27",
+  "headline": "Article headline for the lead story",
+  "subheadline": "Context on why this matters",
+  "tagline": "\u201cDaily quote\u201d \u2014 Author",
+  "url": "https://gittimes.com/editions/2026-03-27/",
+  "repos": [
+    { "name": "owner/repo", "headline": "Article headline" }
+  ],
+  "article_count": 15,
+  "articles": [
+    { "headline": "...", "body": "First 500 chars...", "repo": "owner/repo" }
+  ]
+}</code></pre>
 
-    <div class="archive-entry">
-      <span class="archive-date">Friday, March 27, 2026</span>
-      <a href="/editions/2026-03-27/" class="archive-headline">AI Skill Tracks 30-Day Trends Across Social and Tech Platforms</a>
-      <span class="archive-tagline">“The art challenges the technology, and the technology inspires the art.” — John Lasseter</span>
-    </div>
+    <h3>Trending Repo</h3>
+    <pre><code>{
+  "name": "owner/repo",
+  "stars": 15000,
+  "star_delta": 500,
+  "daily_velocity": 71.4,
+  "forks": 2000,
+  "issues": 145
+}</code></pre>
 
-    <div class="archive-entry">
-      <span class="archive-date">Thursday, March 26, 2026</span>
-      <a href="/editions/2026-03-26/" class="archive-headline">Pascal Editor Brings Precision 3D Building Design to the Browser</a>
-      <span class="archive-tagline">“We are called to be architects of the future, not its victims.” — Buckminster Fuller</span>
-    </div>
+    <h3>Repo History</h3>
+    <pre><code>{
+  "repo": "owner/repo",
+  "snapshots": [
+    { "date": "2026-03-27", "stars": 15000, "forks": 2000, "issues": 145 },
+    { "date": "2026-03-16", "stars": 14500, "forks": 1950, "issues": 140 }
+  ],
+  "summary": {
+    "latest_stars": 15000,
+    "star_delta": 500,
+    "days_tracked": 11,
+    "avg_daily_stars": 45.5
+  }
+}</code></pre>
 
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, March 25, 2026</span>
-      <a href="/editions/2026-03-25/" class="archive-headline">DeerFlow Orchestrates Sub-Agents for Complex Research and Coding Tasks</a>
-      <span class="archive-tagline">“The factory of the future will have only two employees, a man and a dog. The man will be there to feed the dog. The dog will be there to keep the man from touching the equipment.” — Warren Bennis</span>
-    </div>
+    <h3>Sections</h3>
+    <p>GitTimes publishes 7 sections daily:</p>
+    <pre><code>[
+  {
+    "id": "frontPage",
+    "label": "Front Page",
+    "topics": [],
+    "languages": []
+  },
+  {
+    "id": "ai",
+    "label": "AI",
+    "topics": [
+      "ai",
+      "machine-learning",
+      "deep-learning",
+      "llm",
+      "gpt",
+      "neural-network",
+      "nlp",
+      "computer-vision",
+      "generative-ai",
+      "transformers"
+    ],
+    "languages": [
+      "Jupyter Notebook"
+    ]
+  },
+  {
+    "id": "robotics",
+    "label": "Robotics",
+    "topics": [
+      "robotics",
+      "robot",
+      "ros",
+      "autonomous",
+      "drone",
+      "embedded",
+      "iot",
+      "arduino",
+      "sensor"
+    ],
+    "languages": []
+  },
+  {
+    "id": "cyber",
+    "label": "Cyber",
+    "topics": [
+      "security",
+      "cybersecurity",
+      "hacking",
+      "pentest",
+      "vulnerability",
+      "exploit",
+      "ctf",
+      "malware",
+      "encryption"
+    ],
+    "languages": []
+  },
+  {
+    "id": "systems",
+    "label": "Systems",
+    "topics": [],
+    "languages": [
+      "Rust",
+      "Go",
+      "C",
+      "C++",
+      "Zig"
+    ]
+  },
+  {
+    "id": "diy",
+    "label": "DIY",
+    "topics": [
+      "diy",
+      "maker",
+      "hardware",
+      "3d-printing",
+      "home-automation",
+      "self-hosted",
+      "homelab",
+      "raspberry-pi"
+    ],
+    "languages": []
+  },
+  {
+    "id": "gameDev",
+    "label": "GameDev",
+    "topics": [
+      "gamedev",
+      "game-development",
+      "game-engine",
+      "godot",
+      "unity",
+      "unreal-engine",
+      "opengl",
+      "vulkan",
+      "webgl",
+      "shader",
+      "pixel-art",
+      "roguelike",
+      "ecs",
+      "physics-engine",
+      "2d-game",
+      "3d-game"
+    ],
+    "languages": [
+      "GDScript",
+      "GLSL",
+      "HLSL"
+    ]
+  }
+]</code></pre>
 
-    <div class="archive-entry">
-      <span class="archive-date">Tuesday, March 24, 2026</span>
-      <a href="/editions/2026-03-24/" class="archive-headline">MoneyPrinterV2 Automates Online Income Generation Through Smart Tools</a>
-      <span class="archive-tagline">“Consider what the world would lose if each mind were to do its own indexing.” — Vannevar Bush</span>
-    </div>
+    <h2 id="openapi">Machine-Readable Spec</h2>
+    <p>An OpenAPI 3.1 specification is available at <a href="/docs/openapi.json"><code>/docs/openapi.json</code></a> for automated agent discovery and integration.</p>
 
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 23, 2026</span>
-      <a href="/editions/2026-03-23/" class="archive-headline">OpenViking Applies Filesystem Model to AI Agent Context</a>
-      <span class="archive-tagline">“Everywhere we remain unfree and chained to technology, whether we passionately affirm or deny it.” — Martin Heidegger</span>
-    </div>
+    <h3>Feeds</h3>
+    <p>GitTimes also publishes standard syndication feeds:</p>
+    <ul>
+      <li><a href="/feed.xml">RSS 2.0</a> (<code>/feed.xml</code>)</li>
+      <li><a href="/feed.atom">Atom 1.0</a> (<code>/feed.atom</code>)</li>
+    </ul>
 
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, March 22, 2026</span>
-      <a href="/editions/2026-03-22/" class="archive-headline">Offline AI Knowledge System Prepares Users for Disconnected Worlds</a>
-      <span class="archive-tagline">“Technology is anything that wasn&#39;t around when you were born.” — Alan Kay</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, March 21, 2026</span>
-      <a href="/editions/2026-03-21/" class="archive-headline">Mole V1.30 Supercharges Mac Cleanup with Edge-Case Hardening</a>
-      <span class="archive-tagline">“The best material model of a cat is another, or preferably the same, cat.” — Norbert Wiener</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Friday, March 20, 2026</span>
-      <a href="/editions/2026-03-20/" class="archive-headline">Everything Claude Code Supercharges AI Coding Agents into Production Beasts</a>
-      <span class="archive-tagline">“We shape our tools, and thereafter our tools shape us.” — Marshall McLuhan</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Thursday, March 19, 2026</span>
-      <a href="/editions/2026-03-19/" class="archive-headline">AIRI&#39;s Alpha Release Polishes Game-Playing AI Companions for Everyday Use</a>
-      <span class="archive-tagline">“We are as gods and might as well get good at it.” — Stewart Brand</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, March 18, 2026</span>
-      <a href="/editions/2026-03-18/" class="archive-headline">Superpowers Framework Turns AI Coding Agents into Methodical Engineers</a>
-      <span class="archive-tagline">“The information you have is not the information you want. The information you want is not the information you need.” — Neil Postman</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Tuesday, March 17, 2026</span>
-      <a href="/editions/2026-03-17/" class="archive-headline">Attention Residuals Let Transformers Selectively Tap Deeper Layer Wisdom</a>
-      <span class="archive-tagline">“We live in a society exquisitely dependent on science and technology, in which hardly anyone knows anything about science and technology.” — Carl Sagan</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 16, 2026</span>
-      <a href="/editions/2026-03-16/" class="archive-headline">Lightpanda Delivers Zig-Built Headless Browser for Lightning-Fast AI Automation</a>
-      <span class="archive-tagline">“We drive into the future using only our rearview mirror.” — Marshall McLuhan</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, March 15, 2026</span>
-      <a href="/editions/2026-03-15/" class="archive-headline">Lightpanda: Zig-Powered Headless Browser Turbocharges AI Automation</a>
-      <span class="archive-tagline">“Technology is a gift of God. After the gift of life it is perhaps the greatest of God&#39;s gifts.” — Freeman Dyson</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, March 14, 2026</span>
-      <a href="/editions/2026-03-14/" class="archive-headline">gstack Turns Claude into a Slash-Command Dev Team for Solo Builders</a>
-      <span class="archive-tagline">“We can only see a short distance ahead, but we can see plenty there that needs to be done.” — Alan Turing</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Friday, March 13, 2026</span>
-      <a href="/editions/2026-03-13/" class="archive-headline">CLI-Anything Turns Any Desktop App into AI Agent Command Line</a>
-      <span class="archive-tagline">“The economy of human time is the next advantage of machinery in manufactures.” — Charles Babbage</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Thursday, March 12, 2026</span>
-      <a href="/editions/2026-03-12/" class="archive-headline">OpenClaw Delivers Always-On Personal AI Across Every Chat App You Use</a>
-      <span class="archive-tagline">“There&#39;s no sense in being precise when you don&#39;t even know what you&#39;re talking about.” — John von Neumann</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, March 11, 2026</span>
-      <a href="/editions/2026-03-11/" class="archive-headline">GitHub Repo Exposes System Prompts Fueling Top AI Coding Agents</a>
-      <span class="archive-tagline">“Civilization advances by extending the number of important operations which we can perform without thinking about them.” — Alfred North Whitehead</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Tuesday, March 10, 2026</span>
-      <a href="/editions/2026-03-10/" class="archive-headline">NullClaw Delivers Tiny Zig AI Assistant for Any Hardware</a>
-      <span class="archive-tagline">“One accurate measurement is worth a thousand expert opinions.” — Grace Hopper</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 9, 2026</span>
-      <a href="/editions/2026-03-09/" class="archive-headline">AI Agents Automate Frontier LLM Research on a Single GPU Overnight</a>
-      <span class="archive-tagline">“Those who can imagine anything, can create the impossible.” — Alan Turing</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, March 8, 2026</span>
-      <a href="/editions/2026-03-08/" class="archive-headline">Antigravity Awesome Skills Arms AI Agents with 1,273 Battle-Tested Coding Playbooks</a>
-      <span class="archive-tagline">“Science is what we understand well enough to explain to a computer; art is everything else.” — Donald Knuth</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, March 7, 2026</span>
-      <a href="/editions/2026-03-07/" class="archive-headline">AirI Unleashes Self-Hosted AI Companions That Play Games and Chat in Real Time</a>
-      <span class="archive-tagline">“At each increase of knowledge, as well as on the contrivance of every new tool, human labour becomes abridged.” — Charles Babbage</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Friday, March 6, 2026</span>
-      <a href="/editions/2026-03-06/" class="archive-headline">PinchTab Gives AI Agents Lightning-Fast Control Over Chrome Browsers</a>
-      <span class="archive-tagline">“The best programs are written so that computing machines can perform them quickly and so that human beings can understand them clearly.” — Donald Knuth</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Thursday, March 5, 2026</span>
-      <a href="/editions/2026-03-05/" class="archive-headline">One CLI Masters Google Workspace APIs Dynamically for Devs and AI Agents</a>
-      <span class="archive-tagline">“Programs are meant to be read by humans and only incidentally for computers to execute.” — Donald Knuth</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Wednesday, March 4, 2026</span>
-      <a href="/editions/2026-03-04/" class="archive-headline">Open-Source World Monitor Delivers Palantir-Like Global Intelligence Dashboard</a>
-      <span class="archive-tagline">“In mathematics you don&#39;t understand things. You just get used to them.” — John von Neumann</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Tuesday, March 3, 2026</span>
-      <a href="/editions/2026-03-03/" class="archive-headline">Desloppify Harnesses AI Agents to Sculpt Sloppy Code into Beautiful Engineering</a>
-      <span class="archive-tagline">“Before you become too entranced with gorgeous gadgets, remember that the greatest invention of all was the book.” — Arthur C. Clarke</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Monday, March 2, 2026</span>
-      <a href="/editions/2026-03-02/" class="archive-headline">Reverse-Engineered APIs Unlock Neural Training on Apple Neural Engine</a>
-      <span class="archive-tagline">“Sometimes it is the people no one imagines anything of who do the things that no one can imagine.” — Alan Turing</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Sunday, March 1, 2026</span>
-      <a href="/editions/2026-03-01/" class="archive-headline">Claude Context Mode Compresses Tool Outputs to Salvage AI Context Windows</a>
-      <span class="archive-tagline">“Premature optimization is the root of all evil.” — Donald Knuth</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Saturday, February 28, 2026</span>
-      <a href="/editions/2026-02-28/" class="archive-headline">CoPaw Launches as Self-Hosted AI Assistant for Developers</a>
-      <span class="archive-tagline">“Any sufficiently advanced technology is indistinguishable from magic.” — Arthur C. Clarke</span>
-    </div>
-
-    <div class="archive-entry">
-      <span class="archive-date">Friday, February 27, 2026</span>
-      <a href="/editions/2026-02-27/" class="archive-headline">OpenClaw&#39;s memory-lancedb-pro Plugin Supercharges Agent Memory with Hybrid Retrieval</a>
-      <span class="archive-tagline">“Errors using inadequate data are much less than those using no data at all.” — Charles Babbage</span>
-    </div>
-  </section>
+  </div>
 
   <footer class="footer">
     <nav class="edition-nav">
       <a href="/latest/">Latest Edition</a>
+      <a href="/archive/">Archive</a>
     </nav>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>
