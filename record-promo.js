@@ -87,57 +87,54 @@ async function recordPromo(dateStr, format) {
   const totalFrames = Math.ceil(duration * FPS);
   console.log(`Timeline: ${duration.toFixed(1)}s — ${totalFrames} frames`);
 
-  // Capture each frame — seek timeline, wait for paint, screenshot
-  // Use CDP session for more reliable frame capture on long timelines
-  const cdp = await page.createCDPSession();
+  try {
+    for (let i = 0; i <= totalFrames; i++) {
+      const time = i / FPS;
 
-  for (let i = 0; i <= totalFrames; i++) {
-    const time = i / FPS;
+      // Retry loop for transient detached-frame errors
+      let attempts = 0;
+      while (true) {
+        try {
+          await page.evaluate((t) => {
+            window.__tl.time(t);
+            window.__tl.invalidate();
+          }, time);
 
-    // Retry loop for transient detached-frame errors
-    let attempts = 0;
-    while (true) {
-      try {
-        await page.evaluate((t) => {
-          window.__tl.time(t);
-          window.__tl.invalidate();
-        }, time);
+          // Brief delay for CSS/layout to settle
+          await new Promise((r) => setTimeout(r, 15));
 
-        // Brief delay for CSS/layout to settle
-        await new Promise((r) => setTimeout(r, 15));
+          const framePath = path.join(framesDir, `frame-${String(i).padStart(5, "0")}.png`);
+          await page.screenshot({ path: framePath, type: "png" });
+          break;
+        } catch (err) {
+          attempts++;
+          if (attempts >= 3 || !err.message.includes("detached")) throw err;
+          // Wait and retry — frame may reattach after GC/layout
+          await new Promise((r) => setTimeout(r, 200));
+        }
+      }
 
-        const framePath = path.join(framesDir, `frame-${String(i).padStart(5, "0")}.png`);
-        await page.screenshot({ path: framePath, type: "png" });
-        break;
-      } catch (err) {
-        attempts++;
-        if (attempts >= 3 || !err.message.includes("detached")) throw err;
-        // Wait and retry — frame may reattach after GC/layout
-        await new Promise((r) => setTimeout(r, 200));
+      if (i % FPS === 0) {
+        process.stdout.write(`  ${Math.round((i / totalFrames) * 100)}%`);
       }
     }
 
-    if (i % FPS === 0) {
-      process.stdout.write(`  ${Math.round((i / totalFrames) * 100)}%`);
-    }
+    console.log(`  100% — ${totalFrames + 1} frames captured`);
+    await browser.close();
+
+    // Stitch with ffmpeg
+    console.log("Encoding MP4...");
+    execSync(
+      `ffmpeg -y -framerate ${FPS} -i "${framesDir}/frame-%05d.png" ` +
+        `-c:v libx264 -pix_fmt yuv420p -crf 18 -preset slow ` +
+        `-vf "scale=${width}:${height}" "${mp4Path}"`,
+      { stdio: "pipe" }
+    );
+  } finally {
+    // Always clean up frame dir, even if capture or ffmpeg threw
+    if (fs.existsSync(framesDir)) fs.rmSync(framesDir, { recursive: true });
+    if (browser.connected) await browser.close().catch(() => {});
   }
-
-  cdp.detach();
-
-  console.log(`  100% — ${totalFrames + 1} frames captured`);
-  await browser.close();
-
-  // Stitch with ffmpeg
-  console.log("Encoding MP4...");
-  execSync(
-    `ffmpeg -y -framerate ${FPS} -i "${framesDir}/frame-%05d.png" ` +
-      `-c:v libx264 -pix_fmt yuv420p -crf 18 -preset slow ` +
-      `-vf "scale=${width}:${height}" "${mp4Path}"`,
-    { stdio: "pipe" }
-  );
-
-  // Clean up frames
-  fs.rmSync(framesDir, { recursive: true });
 
   console.log(`\nVideo ready: ${mp4Path}`);
   return mp4Path;

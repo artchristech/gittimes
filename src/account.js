@@ -9,6 +9,10 @@ function renderAccountPage(options = {}) {
   const basePath = options.basePath || "";
   const chatWorkerUrl = process.env.CHAT_WORKER_URL || "";
 
+  if (!chatWorkerUrl) {
+    console.warn("Warning: CHAT_WORKER_URL not set — /account/ login and Stripe flows will not work");
+  }
+
   return applyTemplate("account", basePath, { chatWorkerUrl })
     .replace(/\{\{WORKER_URL\}\}/g, chatWorkerUrl);
 }

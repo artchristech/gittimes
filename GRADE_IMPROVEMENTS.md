@@ -1,5 +1,5 @@
 # Grade Improvements Playbook
-_Scope: Full Application | Last graded: 2026-03-18_
+_Scope: Full Application | Last graded: 2026-03-18 | Last hardening sweep: 2026-04-17_
 
 ## Strategies & Hard Rules
 Principles that should always/never apply in this codebase.

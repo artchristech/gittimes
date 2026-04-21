@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { assembleHtml, assembleArticlePage, buildNavHtml, slugify } = require("./render");
+const { assembleHtml, assembleArticlePage, buildNavHtml } = require("./render");
 
 const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
