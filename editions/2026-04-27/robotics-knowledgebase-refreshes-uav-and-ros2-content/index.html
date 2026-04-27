@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
-  <title>The Git Times — AI Markets</title>
+  <title>Robotics Knowledgebase Refreshes UAV and ROS2 Content — The Git Times</title>
   
-  <meta property="og:title" content="The Git Times — AI Markets">
-  <meta property="og:description" content="AI model pricing, inference speed, and market data — updated daily">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Robotics Knowledgebase Refreshes UAV and ROS2 Content — The Git Times">
+  <meta property="og:description" content="Eight-year-old wiki adds practical systems guides for current autonomous platforms">
+  <meta property="og:url" content="https://gittimes.com/editions/2026-04-27/robotics-knowledgebase-refreshes-uav-and-ros2-content/">
   <meta property="og:site_name" content="The Git Times">
-  <meta name="description" content="AI model pricing, inference speed, and market data — updated daily">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Robotics Knowledgebase Refreshes UAV and ROS2 Content — The Git Times">
+  <meta name="twitter:description" content="Eight-year-old wiki adds practical systems guides for current autonomous platforms">
+  <meta name="description" content="Eight-year-old wiki adds practical systems guides for current autonomous platforms">
+  <link rel="canonical" href="{{OG_URL}}">
+  <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
   <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
@@ -2155,537 +2162,178 @@ body.account {
 }
 
 
-/* === MARKETS PAGE === */
-
-.markets-header {
-  text-align: center;
-  padding: 16px 0 24px;
-  border-bottom: 2px solid var(--rule);
-  margin-bottom: 32px;
-}
-
-.markets-header h1 {
-  font-family: var(--font-headline);
-  font-size: 28px;
-  font-weight: 900;
-  margin-bottom: 4px;
-}
-
-.markets-date {
+.article-page-back {
+  display: inline-block;
   font-family: var(--font-meta);
-  font-size: 12px;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.markets-section {
-  margin-bottom: 40px;
-}
-
-.markets-section-title {
-  font-family: var(--font-headline);
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--rule-light);
-  padding-bottom: 8px;
-}
-
-.markets-section-desc {
-  font-family: var(--font-meta);
-  font-size: 11px;
-  color: var(--ink-faint);
+  font-size: 13px;
+  color: var(--ink-light);
+  text-decoration: none;
   margin-bottom: 16px;
 }
-
-/* Index */
-
-.markets-index {
-  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
-  border: 1px solid var(--rule-light);
-  border-radius: 4px;
-  padding: 20px 24px;
-  margin-bottom: 40px;
-}
-
-.markets-index-header {
-  margin-bottom: 12px;
-}
-
-.markets-index-desc {
-  font-family: var(--font-meta);
-  font-size: 11px;
-  color: var(--ink-faint);
-  margin-top: 4px;
-}
-
-.markets-index-value {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.markets-index-price {
-  font-family: var(--font-headline);
-  font-size: 36px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.markets-index-unit {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--ink-faint);
-}
-
-.markets-index-chart {
-  margin-top: 8px;
-}
-
-/* Deltas */
-
-.markets-delta {
-  font-family: var(--font-meta);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.markets-delta.down {
-  color: #16a34a;
-}
-
-.markets-delta.up {
-  color: #dc2626;
-}
-
-.markets-delta.flat {
-  color: var(--ink-faint);
-}
-
-[data-theme="dark"] .markets-delta.down,
-[data-theme="midnight"] .markets-delta.down {
-  color: #4ade80;
-}
-
-[data-theme="dark"] .markets-delta.up,
-[data-theme="midnight"] .markets-delta.up {
-  color: #f87171;
-}
-
-/* Tables */
-
-.markets-table-wrap {
-  overflow-x: auto;
-}
-
-.markets-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-meta);
-  font-size: 13px;
-}
-
-.markets-table th {
-  text-align: left;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--ink-faint);
-  padding: 6px 10px;
-  border-bottom: 2px solid var(--rule);
-  white-space: nowrap;
-}
-
-.markets-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--rule-light);
-  white-space: nowrap;
-}
-
-.markets-table tbody tr:hover {
-  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
-}
-
-.markets-table-compact td {
-  padding: 5px 10px;
-  font-size: 12px;
-}
-
-.model-name, .catalog-name {
-  font-weight: 600;
-  white-space: normal;
-  min-width: 140px;
-}
-
-.model-provider, .speed-provider {
-  color: var(--ink-light);
-}
-
-.model-price {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-}
-
-.model-ctx {
-  color: var(--ink-faint);
-  font-size: 12px;
-}
-
-.speed-rank {
-  color: var(--ink-faint);
-  font-weight: 700;
-  width: 24px;
-}
-
-.speed-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.bar-track {
-  width: 100px;
-  height: 6px;
-  background: var(--rule-light);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
-}
-
-.grade-badge {
-  font-weight: 700;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--accent) 15%, transparent);
+.article-page-back:hover {
   color: var(--accent);
 }
-
-.sparkline {
-  display: block;
-}
-
-.modality-badge {
+.article-page-section-badge {
   display: inline-block;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 1px 4px;
-  margin-left: 4px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--ink) 8%, transparent);
-  color: var(--ink-faint);
-  vertical-align: middle;
-}
-
-.feature-badges {
-  display: block;
-  margin-top: 2px;
-}
-
-.feature-badge {
-  font-size: 9px;
-  color: var(--ink-faint);
-}
-
-.feature-badge + .feature-badge::before {
-  content: "\00b7";
-  margin: 0 3px;
-}
-
-.cache-price {
-  display: block;
-  font-size: 10px;
-  color: var(--ink-faint);
-}
-
-.model-hf-link {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px dotted var(--ink-faint);
-}
-
-.model-hf-link:hover {
-  border-bottom-style: solid;
-}
-
-.markets-callout {
-  border-left: 3px solid var(--accent);
-  background: color-mix(in srgb, var(--accent) 5%, var(--paper));
-  padding: 12px 16px;
-  margin-bottom: 32px;
   font-family: var(--font-meta);
-  font-size: 12px;
-}
-
-.markets-callout ul {
-  margin: 8px 0 0;
-  padding-left: 18px;
-}
-
-.markets-callout li {
-  margin-bottom: 4px;
-}
-
-.markets-callout-title {
-  font-family: var(--font-headline);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.model-added {
   font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.article-page-cta {
+  display: block;
+  text-align: center;
+  margin: 48px auto 24px;
+  padding: 14px 32px;
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--paper);
+  background: var(--ink);
+  border: none;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+.article-page-cta:hover {
+  background: var(--accent);
+}
+.article-page-share {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 13px;
   color: var(--ink-faint);
 }
-
-/* Responsive */
-
-@media (max-width: 600px) {
-  .markets-index-price { font-size: 28px; }
-  .markets-table { font-size: 12px; }
-  .model-spark, .speed-bar { display: none; }
-  .modality-badge, .feature-badges, .cache-price { display: none; }
+.article-page-share a {
+  color: var(--ink-light);
+  text-decoration: none;
+  font-weight: 500;
+}
+.article-page-share a:hover {
+  color: var(--accent);
 }
   </style>
-  <script>
-    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
-  </script>
 </head>
 <body>
 
   <header class="masthead">
-    <a href="/account/" class="masthead-account">Account</a>
-    <a href="/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
-    <h1 class="masthead-title"><a href="/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
-    <div class="masthead-meta"><span>AI Markets</span></div>
+    <span class="masthead-date">Monday, April 27, 2026</span>
+    <h1 class="masthead-title"><a href="/editions/2026-04-27/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
   </header>
 
-  <div class="markets-header">
-    <h1>AI Markets</h1>
-    <p class="markets-date">Monday, April 27, 2026</p>
-  </div>
+  <main style="max-width:720px;margin:0 auto">
+    <a class="article-page-back" href="/editions/2026-04-27/">&larr; Full Edition</a>
+    <span class="article-page-section-badge">Robotics</span>
 
-  <div class="markets-index">
-    <div class="markets-index-header">
-      <h2 class="markets-section-title">Cost of Intelligence Index</h2>
-      <p class="markets-index-desc">Average output price across 11 tracked frontier models</p>
-    </div>
-    <div class="markets-index-value">
-      <span class="markets-index-price">$23.64<span class="markets-index-unit">/M tokens</span></span>
-      <span class="markets-delta flat">&mdash;</span>
-    </div>
-    <div class="markets-index-chart"><svg class="sparkline" width="200" height="48" viewBox="0 0 200 48"><polyline points="0.0,2.0 6.9,2.0 13.8,2.0 20.7,2.0 27.6,2.0 34.5,2.0 41.4,2.0 48.3,2.0 55.2,2.0 62.1,2.0 69.0,2.0 75.9,2.0 82.8,2.0 89.7,2.0 96.6,2.0 103.4,2.0 110.3,2.0 117.2,2.0 124.1,2.0 131.0,2.0 137.9,2.0 144.8,2.0 151.7,2.0 158.6,2.0 165.5,2.0 172.4,2.0 179.3,2.0 186.2,2.0 193.1,2.0 200.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  </div>
-<div class="markets-section">
-    <h2 class="markets-section-title">Frontier Model Pricing</h2>
-    <p class="markets-section-desc">Per 1M tokens &middot; Prices from OpenRouter &middot; Updated daily</p>
-    <div class="markets-table-wrap">
-      <table class="markets-table">
-        <thead><tr>
-          <th>Model</th><th>Provider</th><th>Input</th><th>Output</th><th>24h</th><th>Context</th><th>30d</th>
-        </tr></thead>
-        <tbody><tr>
-      <td class="model-name"><span title="Opus 4.6 is Anthropic’s strongest model for coding and long-running professional tasks. It is built for agents that operate across entire workflows rather than single prompts, making it especially effective...">Claude Opus 4.6</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">Anthropic</td>
-      <td class="model-price">$5<span class="cache-price">cache: $0.50</span></td>
-      <td class="model-price">$25</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="Sonnet 4.6 is Anthropic&#39;s most capable Sonnet-class model yet, with frontier performance across coding, agents, and professional work. It excels at iterative development, complex codebase navigation, end-to-end project management with...">Claude Sonnet 4.6</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">Anthropic</td>
-      <td class="model-price">$3<span class="cache-price">cache: $0.30</span></td>
-      <td class="model-price">$15</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="GPT-5.4 Pro is OpenAI&#39;s most advanced model, building on GPT-5.4&#39;s unified architecture with enhanced reasoning capabilities for complex, high-stakes tasks. It features a 1M+ token context window (922K input, 128K...">GPT-5.4 Pro</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">OpenAI</td>
-      <td class="model-price">$30</td>
-      <td class="model-price">$180</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 128,000 tokens">1.1M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="GPT-5.4 is OpenAI’s latest frontier model, unifying the Codex and GPT lines into a single system. It features a 1M+ token context window (922K input, 128K output) with support for...">GPT-5.4</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">OpenAI</td>
-      <td class="model-price">$2.50<span class="cache-price">cache: $0.25</span></td>
-      <td class="model-price">$15</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 128,000 tokens">1.1M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, improved agentic reliability, and more efficient token usage across complex workflows. Building on the multimodal foundation...">Gemini 3.1 Pro</span><span class="modality-badge">aud</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">Google</td>
-      <td class="model-price">$2<span class="cache-price">cache: $0.20</span></td>
-      <td class="model-price">$12</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="Gemini 3.1 Flash Lite Preview is Google&#39;s high-efficiency model optimized for high-volume use cases. It outperforms Gemini 2.5 Flash Lite on overall quality and approaches Gemini 2.5 Flash performance across...">Gemini 3.1 Flash Lite</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="modality-badge">aud</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">Google</td>
-      <td class="model-price">$0.25<span class="cache-price">cache: $0.02</span></td>
-      <td class="model-price">$1.50</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="Grok 4.20 Beta is xAI&#39;s newest flagship model with industry-leading speed and agentic tool calling capabilities. It combines the lowest hallucination rate on the market with strict prompt adherance, delivering consistently precise and truthful responses.
+    
+      <article class="hybrid-article hybrid-lead" data-slug="robotics-knowledgebase-refreshes-uav-and-ros2-content">
+        <h3 class="hybrid-headline hybrid-headline-lead">Robotics Knowledgebase Refreshes UAV and ROS2 Content <a class="hybrid-share" data-slug="robotics-knowledgebase-refreshes-uav-and-ros2-content" title="Permalink">&#128279;</a></h3>
+        <p class="hybrid-subheadline">Eight-year-old wiki adds practical systems guides for current autonomous platforms</p>
+        <div class="hybrid-meta">
+          <a href="https://github.com/RoboticsKnowledgebase/roboticsknowledgebase.github.io" target="_blank">RoboticsKnowledgebase/roboticsknowledgebase.github.io</a> · JavaScript · 176 stars <span class="repo-age repo-age-veteran">Est. 2017</span>
+        </div>
+        <div class="hybrid-preview">
+          <p>The Robotics Knowledgebase received its largest content expansion in two years following an April 2026 update that added 18 new articles on drone integration and modern fabrication methods. The CMU-linked open wiki continues to capture the “tribal knowledge” required to move robotic systems from theory to working hardware—details routinely omitted from textbooks and vendor manuals.</p>
+<p>The site maintains a strict systems-based approach.</p>
 
-Reasoning can be enabled/disabled using the `reasoning` `enabled` parameter in the API. [Learn more in our docs](https://openrouter.ai/docs/use-cases/reasoning-tokens#controlling-reasoning-tokens)">Grok 4.20</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">xAI</td>
-      <td class="model-price">$2<span class="cache-price">cache: $0.20</span></td>
-      <td class="model-price">$6</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">2.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V3" title="DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on nearly 15 trillion tokens, the reported evaluations...">DeepSeek V3.2</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
-      <td class="model-provider">DeepSeek</td>
-      <td class="model-price">$0.32</td>
-      <td class="model-price">$0.89</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 16,384 tokens">164k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-R1" title="DeepSeek R1 is here: Performance on par with [OpenAI o1](/openai/o1), but open-sourced and with fully open reasoning tokens. It&#39;s 671B parameters in size, with 37B active in an inference pass....">DeepSeek R1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-      <td class="model-provider">DeepSeek</td>
-      <td class="model-price">$0.70</td>
-      <td class="model-price">$2.50</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 16,000 tokens">64k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct" title="Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forward...">Llama 4 Maverick</a><span class="modality-badge">img</span></td>
-      <td class="model-provider">Meta</td>
-      <td class="model-price">$0.15</td>
-      <td class="model-price">$0.60</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx" title="Max output: 16,384 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr>
-<tr>
-      <td class="model-name"><span title="Mistral Large 3 2512 is Mistral’s most capable model to date, featuring a sparse mixture-of-experts architecture with 41B active parameters (675B total), and released under the Apache 2.0 license.">Mistral Large</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
-      <td class="model-provider">Mistral</td>
-      <td class="model-price">$0.50<span class="cache-price">cache: $0.05</span></td>
-      <td class="model-price">$1.50</td>
-      <td class="model-delta"><span class="markets-delta flat">&mdash;</span></td>
-      <td class="model-ctx">262k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
-    </tr></tbody>
-      </table>
+        </div>
+        <div class="hybrid-full">
+          <p>The Robotics Knowledgebase received its largest content expansion in two years following an April 2026 update that added 18 new articles on drone integration and modern fabrication methods. The CMU-linked open wiki continues to capture the “tribal knowledge” required to move robotic systems from theory to working hardware—details routinely omitted from textbooks and vendor manuals.</p>
+<p>The site maintains a strict systems-based approach. Instead of isolated component tutorials, entries demonstrate how sensing, actuation, programming, and navigation layers interact in deployed robots. New material covers sensor fusion pipelines for UAVs, reliable motor control under variable loads, and integration patterns for ROS2 navigation stacks.</p>
+<p>Contributors follow a precise workflow. They copy the Markdown template from <code>/_templates/template.md</code>, save files in kebab-case within the appropriate <code>/wiki</code> subdirectory, and use absolute paths for all images and cross-references. Every addition requires edits to <code>_data/navigation.yml</code> and the parent category’s <code>index.md</code>. Local preview uses a rbenv-managed Ruby environment and Bundler, allowing authors to verify layout and links before submitting pull requests.</p>
+<p>As commercial and hobbyist interest in autonomous drones accelerates, these concrete implementation notes have become essential references for builders who need systems that survive real-world conditions rather than lab demonstrations.</p>
+<p>**</p>
+
+        </div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Hobbyists integrating sensors on custom UAV platforms</li><li>Engineers documenting ROS2 navigation deployment patterns</li><li>Researchers sharing reliable actuation calibration methods</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>ROS Wiki - supplies API references but lacks hands-on systems integration</li><li>PX4 Documentation - focuses on drone firmware rather than full robotics stack</li><li>Hackaday.io - features project logs instead of structured, peer-reviewed wiki articles</li></ul></div></div>
+        
+        <button class="hybrid-toggle" aria-expanded="false">Read more</button>
+      </article>
+
+    <div class="article-page-share">
+      <span>Share:</span>
+      <a href="https://twitter.com/intent/tweet?text=Robotics%20Knowledgebase%20Refreshes%20UAV%20and%20ROS2%20Content%20%E2%80%94%20The%20Git%20Times&url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-04-27%2Frobotics-knowledgebase-refreshes-uav-and-ros2-content%2F" target="_blank" rel="noopener">X</a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-04-27%2Frobotics-knowledgebase-refreshes-uav-and-ros2-content%2F" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-04-27%2Frobotics-knowledgebase-refreshes-uav-and-ros2-content%2F&t=Robotics%20Knowledgebase%20Refreshes%20UAV%20and%20ROS2%20Content%20%E2%80%94%20The%20Git%20Times" target="_blank" rel="noopener">HN</a>
     </div>
-  </div>
-<div class="markets-section">
-    <h2 class="markets-section-title">Inference Speed Leaderboard</h2>
-    <p class="markets-section-desc">Output tokens per second &middot; Curated benchmarks</p>
-    <div class="markets-table-wrap">
-      <table class="markets-table">
-        <thead><tr><th>#</th><th>Provider</th><th>Model</th><th>Speed</th><th></th></tr></thead>
-        <tbody><tr>
-      <td class="speed-rank">1</td>
-      <td class="speed-provider">Cerebras</td>
-      <td class="speed-model">Llama 4 Maverick</td>
-      <td class="speed-value">969 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:39%"></div></div></td>
-    </tr>
-<tr>
-      <td class="speed-rank">2</td>
-      <td class="speed-provider">SambaNova</td>
-      <td class="speed-model">Llama 4 Maverick</td>
-      <td class="speed-value">794 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:32%"></div></div></td>
-    </tr>
-<tr>
-      <td class="speed-rank">3</td>
-      <td class="speed-provider">Groq</td>
-      <td class="speed-model">Llama 4 Maverick</td>
-      <td class="speed-value">549 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></td>
-    </tr>
-<tr>
-      <td class="speed-rank">4</td>
-      <td class="speed-provider">Fireworks</td>
-      <td class="speed-model">Llama 4 Maverick</td>
-      <td class="speed-value">290 tok/s</td>
-      <td class="speed-bar"><div class="bar-track"><div class="bar-fill" style="width:12%"></div></div></td>
-    </tr></tbody>
-      </table>
-    </div>
-  </div>
-<div class="markets-section">
-    <h2 class="markets-section-title">Image Generation</h2>
-    <p class="markets-section-desc">Cost per image &middot; Editorial quality grades</p>
-    <div class="markets-table-wrap">
-      <table class="markets-table">
-        <thead><tr><th>Model</th><th>Price</th><th>Grade</th></tr></thead>
-        <tbody><tr>
-      <td class="img-name">GPT Image 1.5</td>
-      <td class="img-price">$0.04/img</td>
-      <td class="img-grade"><span class="grade-badge">A+</span></td>
-    </tr>
-<tr>
-      <td class="img-name">Gemini 3 Pro Image</td>
-      <td class="img-price">$0.05/img</td>
-      <td class="img-grade"><span class="grade-badge">A+</span></td>
-    </tr>
-<tr>
-      <td class="img-name">FLUX.2 Max</td>
-      <td class="img-price">$0.07/img</td>
-      <td class="img-grade"><span class="grade-badge">A</span></td>
-    </tr>
-<tr>
-      <td class="img-name">Imagen 4 Ultra</td>
-      <td class="img-price">$0.06/img</td>
-      <td class="img-grade"><span class="grade-badge">A</span></td>
-    </tr>
-<tr>
-      <td class="img-name">Midjourney v8</td>
-      <td class="img-price">$0.05/img</td>
-      <td class="img-grade"><span class="grade-badge">A</span></td>
-    </tr>
-<tr>
-      <td class="img-name">Ideogram 3.0</td>
-      <td class="img-price">$0.04/img</td>
-      <td class="img-grade"><span class="grade-badge">A-</span></td>
-    </tr>
-<tr>
-      <td class="img-name">Recraft V4</td>
-      <td class="img-price">$0.04/img</td>
-      <td class="img-grade"><span class="grade-badge">A-</span></td>
-    </tr></tbody>
-      </table>
-    </div>
-  </div>
+
+    <a class="article-page-cta" href="/editions/2026-04-27/">Read Today's Full Edition</a>
+  </main>
 
   <footer class="footer">
-    <nav class="edition-nav">
-      <a href="/latest/">Latest Edition</a>
-      <a href="/archive/">Archive</a>
-    </nav>
-    <p>Pricing data from <a href="https://openrouter.ai" style="color:var(--accent)">OpenRouter</a>. Speed and image data editorially curated.</p>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var defaults = {
+        theme: 'light', font: 'serif', size: 'medium', width: 'normal',
+        bgH: '40', bgS: '18', bgL: '97',
+        txH: '0', txS: '0', txL: '10'
+      };
+      var presets = {
+        light:    { bgH: 40,  bgS: 18, bgL: 97, txH: 0,   txS: 0,  txL: 10 },
+        dark:     { bgH: 240, bgS: 8,  bgL: 11, txH: 30,  txS: 6,  txL: 87 },
+        sepia:    { bgH: 40,  bgS: 42, bgL: 90, txH: 28,  txS: 28, txL: 20 },
+        midnight: { bgH: 215, bgS: 30, bgL: 7,  txH: 210, txS: 10, txL: 82 }
+      };
+      var state = {};
+      Object.keys(defaults).forEach(function (key) {
+        state[key] = localStorage.getItem('gittimes-' + key) || defaults[key];
+      });
+      function hsl(h, s, l) { return 'hsl(' + h + ',' + s + '%,' + l + '%)'; }
+      function deriveColors(h, s, l) {
+        var bgLight = parseInt(l);
+        var isDark = bgLight < 50;
+        return isDark ? {
+          inkLight: hsl(h, Math.max(s - 10, 0), Math.min(parseInt(l) + 30, 80)),
+          inkFaint: hsl(h, Math.max(s - 15, 0), Math.min(parseInt(l) + 18, 60)),
+          rule: hsl(h, Math.max(s - 10, 0), Math.min(parseInt(l) + 60, 90)),
+          ruleLight: hsl(h, Math.max(s - 12, 0), Math.min(parseInt(l) + 12, 35))
+        } : {
+          inkLight: hsl(h, Math.max(s - 5, 0), Math.max(parseInt(l) - 55, 20)),
+          inkFaint: hsl(h, Math.max(s - 8, 0), Math.max(parseInt(l) - 40, 40)),
+          rule: hsl(h, Math.max(s - 5, 0), Math.max(parseInt(l) - 70, 10)),
+          ruleLight: hsl(h, Math.max(s - 10, 0), Math.max(parseInt(l) - 12, 70))
+        };
+      }
+      function apply() {
+        Object.keys(state).forEach(function (key) {
+          root.setAttribute('data-' + key, state[key]);
+        });
+        var bgH = state.bgH, bgS = state.bgS, bgL = state.bgL;
+        var txH = state.txH, txS = state.txS, txL = state.txL;
+        var d = deriveColors(bgH, bgS, bgL);
+        root.style.setProperty('--paper', hsl(bgH, bgS, bgL));
+        root.style.setProperty('--ink', hsl(txH, txS, txL));
+        root.style.setProperty('--ink-light', d.inkLight);
+        root.style.setProperty('--ink-faint', d.inkFaint);
+        root.style.setProperty('--rule', d.rule);
+        root.style.setProperty('--rule-light', d.ruleLight);
+        var accentH = (parseInt(bgH) + 180) % 360;
+        root.style.setProperty('--accent', hsl(accentH, 65, parseInt(bgL) < 50 ? 60 : 35));
+      }
+      apply();
+      // Hybrid article expand/collapse
+      document.addEventListener('click', function(e) {
+        var toggle = e.target.closest('.hybrid-toggle');
+        if (!toggle) return;
+        var article = toggle.closest('.hybrid-article');
+        if (!article) return;
+        var expanded = article.classList.toggle('expanded');
+        toggle.textContent = expanded ? 'Read less' : 'Read more';
+        toggle.setAttribute('aria-expanded', expanded);
+      });
+    })();
+  </script>
 
 </body>
 </html>
