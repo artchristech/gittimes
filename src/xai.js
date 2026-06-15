@@ -15,13 +15,21 @@ const {
 const { SECTIONS, SECTION_ORDER } = require("./sections");
 const { mastheadQuote } = require("./quotes");
 
-const MODEL = "grok-4.20-0309-reasoning";
+// Provider is env-driven. Defaults to a free OpenRouter model so the daily
+// edition can generate at $0; override with LLM_MODEL / LLM_BASE_URL.
+const MODEL = process.env.LLM_MODEL || "nvidia/nemotron-3-super-120b-a12b:free";
+const BASE_URL = process.env.LLM_BASE_URL || "https://openrouter.ai/api/v1";
 
 function createClient(apiKey) {
   return new OpenAI({
-    baseURL: "https://api.x.ai/v1",
-    apiKey,
+    baseURL: BASE_URL,
+    apiKey: apiKey || process.env.OPENROUTER_API_KEY || process.env.XAI_API_KEY,
     timeout: 120_000,
+    // OpenRouter attribution headers (ignored by other providers).
+    defaultHeaders: {
+      "HTTP-Referer": "https://gittimes.com",
+      "X-Title": "The Git Times",
+    },
   });
 }
 
@@ -60,6 +68,12 @@ async function _chat(client, model, prompt, maxTokens = 1024, options = {}) {
       max_tokens: maxTokens,
       temperature: 0.7,
     };
+    // OpenRouter: disable model "thinking" so the structured HEADLINE:/BODY:
+    // output isn't eaten by a free reasoning model's token budget. Set
+    // LLM_REASONING=true to re-enable. Non-OpenRouter providers ignore this.
+    if (process.env.LLM_REASONING !== "true") {
+      params.reasoning = { enabled: false };
+    }
     if (options.tools) params.tools = options.tools;
     const response = await client.chat.completions.create(params);
     if (!response.choices?.length) {

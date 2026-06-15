@@ -51,7 +51,8 @@ jobs:
         run: node publish-edition.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          X_SENTIMENT: "false" # Grok-only x_search; disabled on OpenRouter free models
           PUBLISH_DIR: ./site
           SITE_BASE_URL: https://gittimes.com
           BASE_PATH: ""

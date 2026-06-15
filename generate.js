@@ -6,20 +6,20 @@ const { closeDb } = require("./src/db");
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
-  const xaiKey = process.env.XAI_API_KEY;
+  const llmKey = process.env.OPENROUTER_API_KEY || process.env.XAI_API_KEY;
 
   if (!githubToken) {
     console.error("Missing GITHUB_TOKEN in .env");
     process.exit(1);
   }
-  if (!xaiKey) {
-    console.error("Missing XAI_API_KEY in .env");
+  if (!llmKey) {
+    console.error("Missing OPENROUTER_API_KEY in .env");
     process.exit(1);
   }
 
   console.log("=== The Git Times Generator ===\n");
 
-  const { content } = await runPipeline(githubToken, xaiKey);
+  const { content } = await runPipeline(githubToken, llmKey);
 
   // Render to static HTML
   await render(content);

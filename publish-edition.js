@@ -34,14 +34,14 @@ function syncSiteFromGhPages(outDir) {
 
 async function main() {
   const githubToken = process.env.GITHUB_TOKEN;
-  const xaiKey = process.env.XAI_API_KEY;
+  const llmKey = process.env.OPENROUTER_API_KEY || process.env.XAI_API_KEY;
 
   if (!githubToken) {
     console.error("Missing GITHUB_TOKEN in .env");
     process.exit(1);
   }
-  if (!xaiKey) {
-    console.error("Missing XAI_API_KEY in .env");
+  if (!llmKey) {
+    console.error("Missing OPENROUTER_API_KEY in .env");
     process.exit(1);
   }
 
@@ -62,7 +62,7 @@ async function main() {
   const manifest = readManifest(outDir);
   const recentEditionDates = manifest.slice(0, 7).map((e) => e.date);
 
-  const { content, rawCandidates } = await runPipeline(githubToken, xaiKey, {
+  const { content, rawCandidates } = await runPipeline(githubToken, llmKey, {
     outDir,
     recentRepoNames,
     recentLeadRepos,
