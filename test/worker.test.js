@@ -53,7 +53,7 @@ function createMockEnv() {
     STRIPE_SECRET_KEY: "sk_test_123",
     STRIPE_WEBHOOK_SECRET: "whsec_test_123",
     STRIPE_PRICE_ID: "price_test_123",
-    XAI_API_KEY: "xai_test_123",
+    OPENROUTER_API_KEY: "or_test_123",
     RESEND_API_KEY: "re_test_123",
     NEWSLETTER_SECRET: "newsletter_test_secret",
     ALLOWED_ORIGIN: "https://gittimes.com",
@@ -139,9 +139,12 @@ let env;
 let origFetch;
 let mockFetchFn;
 
+let lastChatRequest;
+
 describe("Worker endpoints", () => {
   beforeEach(() => {
     env = createMockEnv();
+    lastChatRequest = null;
     origFetch = globalThis.fetch;
     mockFetchFn = (url, opts) => {
       if (url.includes("resend.com"))
@@ -159,7 +162,8 @@ describe("Worker endpoints", () => {
         return new Response(JSON.stringify({ url: "https://checkout.stripe.com/test" }), { status: 200 });
       if (url.includes("api.stripe.com/v1/subscriptions/") && opts?.method === "DELETE")
         return new Response(JSON.stringify({ status: "canceled" }), { status: 200 });
-      if (url.includes("api.x.ai")) {
+      if (url.includes("openrouter.ai")) {
+        lastChatRequest = { url, opts };
         const stream = new ReadableStream({
           start(c) {
             c.enqueue(new TextEncoder().encode('data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n'));
@@ -562,6 +566,26 @@ describe("Worker endpoints", () => {
       );
       assert.equal(res.status, 200);
       assert.equal(res.headers.get("Content-Type"), "text/event-stream");
+      // Migrated to OpenRouter: correct endpoint + key, no leftover xAI.
+      assert.ok(lastChatRequest, "chat request was proxied");
+      assert.ok(lastChatRequest.url.startsWith("https://openrouter.ai/api/v1"));
+      assert.equal(lastChatRequest.opts.headers.Authorization, "Bearer or_test_123");
+      const sent = JSON.parse(lastChatRequest.opts.body);
+      assert.equal(sent.model, "nvidia/nemotron-3-super-120b-a12b:free");
+      assert.equal(sent.stream, true);
+    });
+
+    it("honors env.CHAT_MODEL override", async () => {
+      env.CHAT_MODEL = "anthropic/claude-haiku";
+      const token = await createSession(env, "ovr@test.com", "premium");
+      await worker.fetch(
+        req("POST", "/chat", {
+          body: { messages: [{ role: "user", content: "hello" }] },
+          headers: { Authorization: "Bearer " + token },
+        }),
+        env,
+      );
+      assert.equal(JSON.parse(lastChatRequest.opts.body).model, "anthropic/claude-haiku");
     });
 
     it("blocks free user without session_id", async () => {

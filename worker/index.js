@@ -1,4 +1,7 @@
-const CHAT_MODEL = "grok-3-mini";
+// Chat provider — OpenRouter (OpenAI-compatible), matching src/xai.js. Free by default;
+// override via env.CHAT_MODEL / env.LLM_BASE_URL.
+const CHAT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+const CHAT_BASE_URL = "https://openrouter.ai/api/v1";
 
 // --- Stats counter helpers ---
 
@@ -733,11 +736,12 @@ const handler = {
 
       }
 
-      // Proxy to xAI with streaming
-      const xaiRes = await fetch("https://api.x.ai/v1/chat/completions", {
+      // Proxy to the LLM provider (OpenRouter) with streaming
+      const baseUrl = env.LLM_BASE_URL || CHAT_BASE_URL;
+      const aiRes = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${env.XAI_API_KEY}`,
+          Authorization: `Bearer ${env.OPENROUTER_API_KEY || env.XAI_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -754,14 +758,14 @@ const handler = {
         }),
       });
 
-      if (!xaiRes.ok) {
+      if (!aiRes.ok) {
         return new Response(JSON.stringify({ error: "AI service error" }), {
           status: 502,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      return new Response(xaiRes.body, {
+      return new Response(aiRes.body, {
         status: 200,
         headers: {
           ...corsHeaders,
