@@ -76,7 +76,7 @@ async function sendMagicLinkEmail(email, url, env) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "The Git Times <noreply@gittimes.com>",
+      from: env.EMAIL_FROM || "The Git Times <noreply@gittimes.com>",
       to: [email],
       subject: "Sign in to The Git Times",
       html: `<p>Click the link below to sign in to your Git Times account:</p><p><a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p><p>If you didn't request this, you can safely ignore this email.</p>`,
@@ -93,7 +93,7 @@ async function sendPaymentFailedEmail(email, env) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "The Git Times <noreply@gittimes.com>",
+      from: env.EMAIL_FROM || "The Git Times <noreply@gittimes.com>",
       to: [email],
       subject: "Action Required: Payment Failed — The Git Times",
       html: `<p>Your most recent payment for The Git Times Premium failed.</p><p>Please update your payment method within 3 days to keep your Premium access.</p><p><a href="https://gittimes.com/account/">Manage your account</a></p><p>If you don't update your payment, your account will revert to the Free plan.</p>`,
@@ -110,7 +110,7 @@ async function sendUpgradeEmail(email, env) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "The Git Times <noreply@gittimes.com>",
+      from: env.EMAIL_FROM || "The Git Times <noreply@gittimes.com>",
       to: [email],
       subject: "Welcome to Premium — The Git Times",
       html: `<p>You're now a Premium member of The Git Times!</p><p>You have unlimited access to AI-powered chat about trending repos and developer news.</p><p><a href="https://gittimes.com/account/">Visit your account</a></p><p>Thank you for supporting The Git Times.</p>`,
@@ -837,7 +837,7 @@ const handler = {
           const token = await generateUnsubscribeToken(email, env.NEWSLETTER_SECRET);
           const unsubscribeUrl = `${url.origin}/newsletter/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`;
           emailPayloads.push({
-            from: "The Git Times <noreply@gittimes.com>",
+            from: env.EMAIL_FROM || "The Git Times <noreply@gittimes.com>",
             to: [email],
             subject: headline || "Today's Git Times",
             html: renderNewsletterHtml({
