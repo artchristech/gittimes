@@ -693,6 +693,75 @@ body {
   text-decoration: underline;
 }
 
+.hybrid-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.hybrid-actions .hybrid-toggle {
+  margin-top: 0;
+}
+
+/* "Ask about this story" — hidden until chat.js loads (CHAT_WORKER_URL set). */
+.hybrid-ask {
+  display: none;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+body.chat-on .hybrid-ask {
+  display: inline-block;
+}
+
+.hybrid-ask:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Chat story-focus bar */
+.chat-context {
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-light);
+}
+
+.chat-context-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-context-clear {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.chat-context-clear:hover {
+  color: var(--accent);
+}
+
 .hybrid-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
