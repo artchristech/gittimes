@@ -1,0 +1,12 @@
+[Unit]
+Description=GitTimes daily publish (keeps the local DB fresh for the API)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/gittimes
+EnvironmentFile=/opt/gittimes/deploy/publish.env
+# Generates the edition + writes repo_snapshots into data/gittimes.db.
+# X_SENTIMENT stays off (Grok-only); OpenRouter-only.
+ExecStart=/usr/bin/npm run publish

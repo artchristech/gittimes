@@ -1,0 +1,10 @@
+[Unit]
+Description=Run GitTimes publish daily (refresh API data)
+
+[Timer]
+# 07:30 UTC — shortly after the GitHub Actions edition (07:00 UTC), staggered.
+OnCalendar=*-*-* 07:30:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

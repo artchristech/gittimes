@@ -1,0 +1,21 @@
+[Unit]
+Description=GitTimes agent API (x402-paid REST surface)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Adjust WorkingDirectory/User to match the snapback layout.
+WorkingDirectory=/opt/gittimes
+EnvironmentFile=/opt/gittimes/deploy/api.env
+ExecStart=/usr/bin/node api-server.js
+Restart=on-failure
+RestartSec=3
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/gittimes/data
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
