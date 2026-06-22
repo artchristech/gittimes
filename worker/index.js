@@ -69,6 +69,10 @@ function generateToken() {
 }
 
 async function sendMagicLinkEmail(email, url, env) {
+  if (!env.RESEND_API_KEY) {
+    console.error("magic-link: RESEND_API_KEY not set");
+    return false;
+  }
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -82,6 +86,10 @@ async function sendMagicLinkEmail(email, url, env) {
       html: `<p>Click the link below to sign in to your Git Times account:</p><p><a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p><p>If you didn't request this, you can safely ignore this email.</p>`,
     }),
   });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`magic-link Resend send failed (${res.status}) to ${email}: ${body}`);
+  }
   return res.ok;
 }
 
@@ -289,7 +297,13 @@ const handler = {
       // Use worker URL for verify endpoint
       const verifyUrl = `${url.origin}/auth/verify?token=${token}`;
 
-      await sendMagicLinkEmail(email, verifyUrl, env);
+      const sent = await sendMagicLinkEmail(email, verifyUrl, env);
+      if (!sent) {
+        return new Response(JSON.stringify({ ok: false, error: "Could not send the sign-in email. Please try again shortly." }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       return new Response(JSON.stringify({ ok: true, message: "Check your email for a sign-in link." }), {
         status: 200,
