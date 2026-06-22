@@ -8,17 +8,25 @@
   var input = document.getElementById('chat-input');
   var sendBtn = document.getElementById('chat-send');
   var unlockBtn = document.getElementById('chat-unlock-btn');
+  var ctxBar = document.getElementById('chat-context');
+  var ctxLabel = document.getElementById('chat-context-label');
+  var ctxClear = document.getElementById('chat-context-clear');
+
+  if (!fab || !panel) return; // chat not on this page
 
   var sessionId = localStorage.getItem('gittimes-chat-session');
   var accountSession = localStorage.getItem('gittimes-session');
   var history_msgs = [];
+  var scoped = null; // { el, title } when focused on a single story
+
+  // Reveal the per-article "Ask about this" buttons now that chat is available.
+  document.body.classList.add('chat-on');
 
   function updatePaywall() {
     if (sessionId) {
       paywall.style.display = 'none';
       inputRow.style.display = 'flex';
     } else if (accountSession) {
-      // Check if user has premium plan before showing chat input
       fetch(WORKER + '/auth/me', {
         headers: { 'Authorization': 'Bearer ' + accountSession }
       })
@@ -49,25 +57,89 @@
     unlockBtn.href = '/account/?error=login_required';
   }
 
+  function openPanel() {
+    if (!panel.classList.contains('open')) {
+      panel.classList.add('open');
+      fab.classList.add('open');
+    }
+    input.focus();
+  }
+
   fab.addEventListener('click', function() {
     var open = panel.classList.toggle('open');
     fab.classList.toggle('open', open);
     if (open) input.focus();
   });
 
-  function getContext() {
-    var active = document.querySelector('.section-panel.active');
-    if (!active) return '';
+  // --- Context assembly ---
+
+  function articleTitle(article) {
+    var hh = article.querySelector('.hybrid-headline');
+    if (!hh) return 'this story';
+    var clone = hh.cloneNode(true);
+    var share = clone.querySelector('.hybrid-share');
+    if (share) share.remove();
+    return clone.textContent.trim() || 'this story';
+  }
+
+  function articleContext(article) {
+    if (!article) return '';
     var parts = [];
-    var lead = active.querySelector('.lead-headline');
-    if (lead) parts.push(lead.textContent);
-    var leadBody = active.querySelector('.lead-body');
-    if (leadBody) parts.push(leadBody.textContent);
-    active.querySelectorAll('.featured-headline').forEach(function(el) { parts.push(el.textContent); });
-    active.querySelectorAll('.featured-body').forEach(function(el) { parts.push(el.textContent); });
-    active.querySelectorAll('.compact-headline').forEach(function(el) { parts.push(el.textContent); });
+    parts.push(articleTitle(article));
+    var sub = article.querySelector('.hybrid-subheadline');
+    if (sub) parts.push(sub.textContent.trim());
+    var facts = [];
+    if (article.dataset.repo) facts.push('Repo: ' + article.dataset.repo);
+    if (article.dataset.stars) facts.push(article.dataset.stars + ' stars');
+    if (article.dataset.lang) facts.push(article.dataset.lang);
+    if (article.dataset.sentiment) facts.push('X sentiment: ' + article.dataset.sentiment);
+    if (article.dataset.url) facts.push(article.dataset.url);
+    if (facts.length) parts.push(facts.join(' · '));
+    var full = article.querySelector('.hybrid-full') || article.querySelector('.hybrid-preview');
+    if (full) parts.push(full.textContent.trim());
+    return parts.join('\n').substring(0, 4000);
+  }
+
+  function sectionContext() {
+    var active = document.querySelector('.section-panel.active') || document;
+    var parts = [];
+    active.querySelectorAll('.hybrid-headline').forEach(function(el) { parts.push(el.textContent.trim()); });
+    active.querySelectorAll('.hybrid-subheadline').forEach(function(el) { parts.push(el.textContent.trim()); });
+    active.querySelectorAll('.hybrid-preview').forEach(function(el) { parts.push(el.textContent.trim()); });
     return parts.join('\n').substring(0, 6000);
   }
+
+  function getContext() {
+    if (scoped && scoped.el && document.body.contains(scoped.el)) return articleContext(scoped.el);
+    return sectionContext();
+  }
+
+  // --- Story focus ---
+
+  function setScope(article) {
+    scoped = { el: article, title: articleTitle(article) };
+    ctxLabel.textContent = 'Asking about: ' + scoped.title;
+    ctxBar.style.display = 'flex';
+    input.placeholder = 'Ask about this story…';
+  }
+
+  function clearScope() {
+    scoped = null;
+    ctxBar.style.display = 'none';
+    input.placeholder = 'Ask about an article…';
+  }
+
+  if (ctxClear) ctxClear.addEventListener('click', clearScope);
+
+  // Delegated: any "Ask about this" button focuses the chat on its article.
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest && e.target.closest('.hybrid-ask');
+    if (!btn) return;
+    var article = btn.closest('.hybrid-article');
+    if (!article) return;
+    setScope(article);
+    openPanel();
+  });
 
   function addMsg(role, text) {
     var div = document.createElement('div');
@@ -86,7 +158,8 @@
     addMsg('user', text);
 
     var context = getContext();
-    var userMsg = context ? 'Article context:\n' + context + '\n\nQuestion: ' + text : text;
+    var label = scoped ? 'Story in focus' : "Today's stories";
+    var userMsg = context ? label + ':\n' + context + '\n\nQuestion: ' + text : text;
     history_msgs.push({ role: 'user', content: userMsg });
 
     var aiDiv = addMsg('ai', '');

@@ -182,8 +182,20 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
           <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
         </div>`;
 
+  // Rich data attributes so the chat can scope to this exact story (repo facts the
+  // reader can't see in the body). Hidden from view; consumed by chat.js.
+  const dataAttrs = [
+    `data-slug="${escapeHtml(slug)}"`,
+    repo && repo.name ? `data-repo="${escapeHtml(repo.name)}"` : "",
+    repo && repo.stars != null ? `data-stars="${repo.stars}"` : "",
+    repo && repo.language ? `data-lang="${escapeHtml(repo.language)}"` : "",
+    repo && repo.url ? `data-url="${escapeHtml(repo.url)}"` : "",
+    xSentiment && !xSentiment._failed && xSentiment.sentiment && xSentiment.sentiment !== "unknown"
+      ? `data-sentiment="${escapeHtml(xSentiment.sentiment)}"` : "",
+  ].filter(Boolean).join(" ");
+
   return `
-      <article class="${articleClass}" data-slug="${escapeHtml(slug)}">
+      <article class="${articleClass}" ${dataAttrs}>
         <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
         <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
         ${metaHtml}
@@ -195,7 +207,10 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
         </div>` : ""}
         ${renderInsights(useCases, similarProjects)}
         ${renderSentimentBadge(xSentiment)}
-        ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
+        <div class="hybrid-actions">
+          ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
+          <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
+        </div>
       </article>`;
 }
 
@@ -339,8 +354,12 @@ function renderChatUi() {
   </button>
   <div class="chat-panel" id="chat-panel">
     <div class="chat-header">Git Times Chat</div>
+    <div class="chat-context" id="chat-context" style="display:none">
+      <span class="chat-context-label" id="chat-context-label"></span>
+      <button class="chat-context-clear" id="chat-context-clear" type="button" aria-label="Clear story focus">&times;</button>
+    </div>
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-msg-ai">Ask me anything about today's articles.</div>
+      <div class="chat-msg-ai">Ask about today's stories &mdash; or hit &ldquo;Ask about this&rdquo; on any article to focus on one.</div>
     </div>
     <div class="chat-paywall" id="chat-paywall">
       <p>Unlock AI chat to ask questions about today's stories.</p>
