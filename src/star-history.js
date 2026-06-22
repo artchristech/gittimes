@@ -1,4 +1,7 @@
-const { graphqlRequest } = require("./github");
+// NOTE: github.js and star-history.js form a require cycle, and github.js reassigns its
+// module.exports at the bottom. Requiring graphqlRequest at module load (top-level) would
+// capture github's pre-reassignment exports object and see undefined forever. So we require
+// it lazily inside fetchStarTrajectory, by which point the module cache is fully populated.
 
 const pLimitP = import("p-limit");
 
@@ -32,6 +35,7 @@ async function fetchStarTrajectory(fullName, token) {
   if (!owner || !name) return null;
 
   try {
+    const { graphqlRequest } = require("./github"); // lazy: cycle-safe, cache is populated by call time
     const result = await graphqlRequest(TRAJECTORY_QUERY, { owner, name }, token);
 
     const repo = result.data?.repository;
