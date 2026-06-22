@@ -11,6 +11,19 @@ Debt mood: clean — 18 grade items still resolved, no new ones opened by today'
 
 ## Entries
 
+### 2026-06-22 — Worker deploy prep (one-shot human-product activation)
+**Did:** Made the dormant reader product a credentials-only activation. Confirmed the CI is
+already wired (`deploy-worker.yml` auto-deploys on `worker/**` via `CF_API_TOKEN`;
+`daily-edition.yml` already passes `CHAT_WORKER_URL` so editions render the chat once that
+secret exists). Added `CHAT_MODEL` to `wrangler.toml` (paid-model swap before charging is
+now one line). Wrote `deploy/WORKER_DEPLOY.md` — exact runbook for Cloudflare (login + 4 KV
+namespaces), Stripe ($5 price + webhook), Resend, the 7 `wrangler secret put`s, the two repo
+secrets (`CF_API_TOKEN`, `CHAT_WORKER_URL`), and verification. Added `deploy/worker-preflight.sh`
+— checks KV ids filled, 7 worker secrets present, repo secrets set, free-model warning, and
+a live `/pricing` probe; prints READY / NOT READY. Run today it correctly reports NOT READY
+with the precise remaining steps.
+**Gate:** purely credentialed (user provides Cloudflare/Stripe/Resend). No code blocks it.
+
 ### 2026-06-22 — interactive AI newspaper: per-article "Ask about this story"
 **Did:** Built out the human product's interactive chat. Found+fixed a latent bug: `getContext()` in `public/chat.js` read `.lead-headline`/`.featured-headline` (the old non-hybrid renderer) so current editions sent the chat EMPTY context. Rewrote it for the live `.hybrid-*` markup. Added per-article focus: every article now renders an "Ask about this" button (`renderHybridArticle`) carrying rich data attributes (repo/stars/lang/url/sentiment) the reader can't see in the body; clicking it opens the chat scoped to that one story with a "Asking about: <title>" focus bar (clearable back to whole-section). The ask buttons are hidden by default and only revealed when `chat.js` loads (`body.chat-on`), so they don't appear as dead UI when the Worker isn't deployed. Chat message now labels context as "Story in focus" vs "Today's stories". 406 tests green.
 **Still dormant:** the whole chat activates only once the Worker is deployed + `CHAT_WORKER_URL` is set (Cloudflare/Stripe/Resend creds — user to provide). This is the client/UX half, ready to light up.
