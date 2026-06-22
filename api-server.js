@@ -27,6 +27,7 @@ const path = require("path");
 const fs = require("fs");
 
 const db = require("./src/db");
+const x402 = require("./src/x402");
 const { SECTIONS, SECTION_ORDER } = require("./src/sections");
 
 const DATA_DIR = path.resolve(__dirname, "data");
@@ -51,6 +52,21 @@ function json(res, data, status = 200) {
 
 function notFound(res, msg = "Not found") {
   json(res, { error: msg }, 404);
+}
+
+/**
+ * Gate a paid resource via x402. Returns true if the caller may proceed;
+ * otherwise writes the 402 (or 400) response and returns false.
+ */
+async function gate(req, res, resource) {
+  const pay = await x402.checkPayment(req, resource, DATA_DIR);
+  if (pay.ok) return true;
+  if (pay.requirements) {
+    json(res, { ...pay.requirements, ...(pay.error ? { error: pay.error } : {}) }, pay.status || 402);
+  } else {
+    json(res, { error: pay.error || "Payment required" }, pay.status || 402);
+  }
+  return false;
 }
 
 function parseQuery(url) {
@@ -296,7 +312,7 @@ function handleStats() {
 // Router
 // ---------------------------------------------------------------------------
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
       "Access-Control-Allow-Origin": "*",
@@ -314,7 +330,12 @@ const server = http.createServer((req, res) => {
   const query = parseQuery(req.url);
 
   try {
-    // GET /api/editions
+    // GET /v1/payment/info — x402 discovery (free)
+    if (p === "/v1/payment/info") {
+      return json(res, x402.paymentInfo());
+    }
+
+    // GET /api/editions  (free — index/teaser)
     if (p === "/api/editions") {
       return json(res, handleEditions(query));
     }
@@ -327,40 +348,45 @@ const server = http.createServer((req, res) => {
       return json(res, result);
     }
 
-    // GET /api/editions/:date
+    // GET /api/editions/:date  (paid — full edition + articles)
     const editionMatch = p.match(/^\/api\/editions\/(\d{4}-\d{2}-\d{2})$/);
     if (editionMatch) {
+      if (!(await gate(req, res, p))) return;
       const result = handleEditionByDate(editionMatch[1]);
       return result ? json(res, result) : notFound(res, `No edition for ${editionMatch[1]}`);
     }
 
-    // GET /api/repos/search?q=...
+    // GET /api/repos/search?q=...  (paid)
     if (p === "/api/repos/search") {
+      if (!(await gate(req, res, p))) return;
       const result = handleSearchRepos(query);
       return result.error ? json(res, result, 400) : json(res, result);
     }
 
-    // GET /api/repos/:owner/:name/history
+    // GET /api/repos/:owner/:name/history  (paid — snapshot trajectory)
     const historyMatch = p.match(/^\/api\/repos\/([^/]+)\/([^/]+)\/history$/);
     if (historyMatch) {
+      if (!(await gate(req, res, p))) return;
       const result = handleRepoHistory(`${historyMatch[1]}/${historyMatch[2]}`);
       return result ? json(res, result) : notFound(res, "No snapshot history for this repo");
     }
 
-    // GET /api/repos/:owner/:name/coverage
+    // GET /api/repos/:owner/:name/coverage  (paid)
     const coverageMatch = p.match(/^\/api\/repos\/([^/]+)\/([^/]+)\/coverage$/);
     if (coverageMatch) {
+      if (!(await gate(req, res, p))) return;
       const result = handleRepoCoverage(`${coverageMatch[1]}/${coverageMatch[2]}`, query);
       return result ? json(res, result) : notFound(res, "Repo not featured in any edition");
     }
 
-    // GET /api/sections
+    // GET /api/sections  (free)
     if (p === "/api/sections") {
       return json(res, handleSections());
     }
 
-    // GET /api/trending
+    // GET /api/trending  (paid — the core agent signal)
     if (p === "/api/trending") {
+      if (!(await gate(req, res, p))) return;
       const result = handleTrending(query);
       return result.error ? json(res, result, 400) : json(res, result);
     }
@@ -372,19 +398,31 @@ const server = http.createServer((req, res) => {
 
     // GET / — index of available endpoints
     if (p === "/" || p === "/api") {
+      const c = x402.config();
       return json(res, {
         name: "GitTimes API",
-        version: "1.0.0",
-        endpoints: [
+        version: "1.1.0",
+        description: "Structured feed of what builders are shipping — readable by humans, queryable by agents.",
+        payment: {
+          protocol: "x402",
+          enabled: c.enabled,
+          price_per_call_usdc: c.priceUsdc,
+          network: c.network,
+          discovery: "GET /v1/payment/info",
+        },
+        free_endpoints: [
           "GET /api/editions?limit=10",
           "GET /api/editions/latest",
+          "GET /api/sections",
+          "GET /api/stats",
+          "GET /v1/payment/info",
+        ],
+        paid_endpoints: [
           "GET /api/editions/:date",
           "GET /api/repos/search?q=react",
           "GET /api/repos/:owner/:name/history",
           "GET /api/repos/:owner/:name/coverage?lookback=30",
-          "GET /api/sections",
           "GET /api/trending?limit=15",
-          "GET /api/stats",
         ],
       });
     }

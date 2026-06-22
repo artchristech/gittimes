@@ -84,6 +84,13 @@ function _initSchema(db) {
       PRIMARY KEY (date, repo_name)
     );
 
+    CREATE TABLE IF NOT EXISTS x402_payments (
+      tx_hash    TEXT PRIMARY KEY,
+      resource   TEXT NOT NULL DEFAULT '',
+      amount     TEXT NOT NULL DEFAULT '0',
+      created_at TEXT NOT NULL DEFAULT ''
+    );
+
     CREATE INDEX IF NOT EXISTS idx_edition_repos_repo ON edition_repos(repo_name);
     CREATE INDEX IF NOT EXISTS idx_repo_snapshots_repo ON repo_snapshots(repo_name);
     CREATE INDEX IF NOT EXISTS idx_used_quotes_text ON used_quotes(quote_text, author);
