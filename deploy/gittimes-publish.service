@@ -5,8 +5,11 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/gittimes
-EnvironmentFile=/opt/gittimes/deploy/publish.env
+User=chris
+WorkingDirectory=/home/chris/gittimes
+EnvironmentFile=/home/chris/gittimes/deploy/publish.env
 # Generates the edition + writes repo_snapshots into data/gittimes.db.
 # X_SENTIMENT stays off (Grok-only); OpenRouter-only.
 ExecStart=/usr/bin/npm run publish
+StandardOutput=journal
+StandardError=journal

@@ -5,17 +5,14 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-# Adjust WorkingDirectory/User to match the snapback layout.
-WorkingDirectory=/opt/gittimes
-EnvironmentFile=/opt/gittimes/deploy/api.env
+User=chris
+WorkingDirectory=/home/chris/gittimes
+EnvironmentFile=/home/chris/gittimes/deploy/api.env
 ExecStart=/usr/bin/node api-server.js
 Restart=on-failure
 RestartSec=3
-# Hardening
-NoNewPrivileges=true
-ProtectSystem=strict
-ReadWritePaths=/opt/gittimes/data
-PrivateTmp=true
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

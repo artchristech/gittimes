@@ -17,8 +17,8 @@ until the first publish runs.)
 ## One-time setup
 
 ```bash
-sudo git clone https://github.com/artchristech/gittimes.git /opt/gittimes
-cd /opt/gittimes
+sudo git clone https://github.com/artchristech/gittimes.git /home/chris/gittimes
+cd /home/chris/gittimes
 npm ci --omit=dev          # better-sqlite3, openai, etc.
 
 # 1) Publish env (generation): needs GitHub + OpenRouter
@@ -26,7 +26,7 @@ cat > deploy/publish.env <<'EOF'
 GITHUB_TOKEN=ghp_...
 OPENROUTER_API_KEY=sk-or-...
 X_SENTIMENT=false
-PUBLISH_DIR=/opt/gittimes/site
+PUBLISH_DIR=/home/chris/gittimes/site
 EOF
 
 # 2) API env. Bind to localhost and reverse-proxy, OR 0.0.0.0 if firewalled.
