@@ -9,9 +9,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cloudflare/wrangler-action@v3
+      - name: Skip when CF_API_TOKEN is not configured
+        if: ${{ env.CF_API_TOKEN == '' }}
+        run: echo "CF_API_TOKEN not set — skipping CI deploy. Worker is deployed manually via 'wrangler deploy'. Add the CF_API_TOKEN repo secret to enable auto-deploy."
+      - name: Deploy worker
+        if: ${{ env.CF_API_TOKEN != '' }}
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: worker
