@@ -18,6 +18,7 @@ describe("x402 middleware", () => {
     TMP = fs.mkdtempSync(path.join(os.tmpdir(), "gt-x402-"));
     process.env.X402_RECEIVER = RECEIVER;
     process.env.X402_MODE = "sim";
+    process.env.X402_ALLOW_SIM = "true"; // sim must be explicitly opted in (fail-closed in prod)
     process.env.X402_PRICE_USDC = "0.01";
     process.env.X402_NETWORK = "base";
   });
@@ -26,6 +27,7 @@ describe("x402 middleware", () => {
     db.closeDb();
     delete process.env.X402_RECEIVER;
     delete process.env.X402_MODE;
+    delete process.env.X402_ALLOW_SIM;
     delete process.env.X402_PRICE_USDC;
     delete process.env.X402_NETWORK;
     try { fs.rmSync(TMP, { recursive: true, force: true }); } catch {}
@@ -84,6 +86,13 @@ describe("x402 middleware", () => {
     const r = await x402.checkPayment(mockReq({ "x-payment": "@@@not-valid@@@" }), "/api/trending", TMP);
     assert.equal(r.ok, false);
     assert.equal(r.status, 400);
+  });
+
+  it("sim mode is refused unless X402_ALLOW_SIM=true (fails closed to onchain)", () => {
+    delete process.env.X402_ALLOW_SIM;
+    assert.equal(x402.config().mode, "onchain"); // sim ignored without opt-in
+    process.env.X402_ALLOW_SIM = "true";
+    assert.equal(x402.config().mode, "sim"); // restored
   });
 
   it("paywall is open (free) when no receiver is configured", async () => {

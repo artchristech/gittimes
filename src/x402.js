@@ -44,7 +44,10 @@ function config() {
   const net = NETWORKS[network] || NETWORKS.base;
   const receiver = process.env.X402_RECEIVER || null;
   const priceUsdc = parseFloat(process.env.X402_PRICE_USDC || "0.01");
-  const mode = receiver ? process.env.X402_MODE || "onchain" : "off";
+  let mode = receiver ? process.env.X402_MODE || "onchain" : "off";
+  // Fail closed: sim mode accepts fabricated payments, so it must be explicitly
+  // opted into (tests/dev). A stray X402_MODE=sim in prod falls back to onchain.
+  if (mode === "sim" && process.env.X402_ALLOW_SIM !== "true") mode = "onchain";
   return {
     enabled: !!receiver,
     mode,
@@ -156,7 +159,21 @@ async function verifyOnChain(txHash, c) {
     const to = "0x" + (log.topics[2] || "").slice(-40).toLowerCase();
     if (to !== recv) continue;
     const value = BigInt(log.data); // uint256 amount
-    if (value >= want) return { ok: true, amount: value.toString() };
+    if (value < want) continue;
+    // Freshness: reject stale transfers so an attacker can't claim an arbitrary
+    // old inbound transfer to the receiver. Defense-in-depth only — the full fix
+    // is binding payment to a server-minted nonce (see SECURITY note in checkPayment).
+    const freshnessSec = parseInt(process.env.X402_FRESHNESS_SECONDS || "900", 10);
+    try {
+      const block = await rpc(c, "eth_getBlockByNumber", [receipt.blockNumber, false]);
+      const tsMs = parseInt(block.timestamp, 16) * 1000;
+      if (Date.now() - tsMs > freshnessSec * 1000) {
+        return { ok: false, error: "payment transaction is stale; send a fresh payment" };
+      }
+    } catch {
+      // RPC hiccup fetching the block — don't hard-fail a verified transfer.
+    }
+    return { ok: true, amount: value.toString() };
   }
   return {
     ok: false,
@@ -183,6 +200,11 @@ function verifySim(payment, c) {
  * Gate a paid resource.
  * @returns {Promise<{ok:true, txHash?, free?:true} | {ok:false, status:402|400, requirements?, error?}>}
  */
+// SECURITY (before enabling the paywall in prod): payment is currently matched by
+// "a USDC transfer of >= price to the receiver, used once, recently". It is NOT yet
+// bound to a server-minted nonce, so a fresh inbound transfer to the receiver from an
+// unrelated party could in principle be claimed once. Before monetizing, bind the
+// payment to a per-request nonce (EIP-3009 / facilitator) — tracked as a hard gate.
 async function checkPayment(req, resource, dataDir) {
   const c = config();
   if (!c.enabled) return { ok: true, free: true };

@@ -54,13 +54,32 @@ sudo systemctl enable --now gittimes-api.service
 sudo systemctl enable --now gittimes-publish.timer
 ```
 
-## Reverse proxy (recommended)
+## Reverse proxy + rate limiting (REQUIRED before public exposure)
 
-Front it at `api.gittimes.com` with the proxy the other services use, e.g. Caddy:
+The app has no built-in rate limiting; the API binds `127.0.0.1` only. **Do not expose
+it without an nginx rate limit in front.** Needs DNS: `api.gittimes.com` A-record →
+`66.55.144.173` (the apex `gittimes.com` points at GitHub Pages, not this box), then
+certbot for TLS. nginx vhost (mirrors the glyph site):
 
-```
-api.gittimes.com {
-    reverse_proxy 127.0.0.1:3717
+```nginx
+# /etc/nginx/conf.d/gittimes-ratelimit.conf
+limit_req_zone $binary_remote_addr zone=gittimes_api:10m rate=10r/s;
+
+# /etc/nginx/sites-enabled/gittimes-api
+server {
+    server_name api.gittimes.com;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    client_max_body_size 8k;            # GET-only API; reject large bodies
+
+    location / {
+        limit_req zone=gittimes_api burst=20 nodelay;
+        limit_req_status 429;
+        proxy_pass http://127.0.0.1:3717;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+    # TLS managed by certbot
 }
 ```
 

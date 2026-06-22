@@ -32,6 +32,9 @@ function getDb(dataDir) {
   _dbPath = dbFile;
   _db.pragma("journal_mode = WAL");
   _db.pragma("foreign_keys = ON");
+  // Wait (don't throw) if another writer holds the lock — the API's x402 payment
+  // insert can race the daily publish job's large transaction.
+  _db.pragma("busy_timeout = 5000");
   _initSchema(_db);
   return _db;
 }
