@@ -47,7 +47,8 @@ function parseXSentiment(text, _repo) {
 }
 
 /**
- * Fetch X.com sentiment for a specific repo via Grok's x_search tool.
+ * Fetch X.com sentiment for a specific repo via an x_search-capable provider.
+ * Opt-in (X_SENTIMENT=true) and inert on OpenRouter, which has no x_search tool.
  * @param {object} client - OpenAI client
  * @param {function} llmLimit - p-limit limiter
  * @param {object} repo - Repo object with name, shortName, etc.

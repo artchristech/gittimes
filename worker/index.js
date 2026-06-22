@@ -741,7 +741,7 @@ const handler = {
       const aiRes = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${env.OPENROUTER_API_KEY || env.XAI_API_KEY}`,
+          Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-04-07T06:18:58.322Z",
+  "syncedAt": "2026-06-22T11:46:09.575Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
@@ -17,13 +17,15 @@
       "context_length": 1000000,
       "cache_read_price": 0.5,
       "max_completion_tokens": 128000,
-      "modality": "text+image->text",
+      "modality": "text+image+file->text",
       "input_modalities": [
         "text",
-        "image"
+        "image",
+        "file"
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
@@ -52,13 +54,15 @@
       "context_length": 1000000,
       "cache_read_price": 0.3,
       "max_completion_tokens": 128000,
-      "modality": "text+image->text",
+      "modality": "text+image+file->text",
       "input_modalities": [
         "text",
-        "image"
+        "image",
+        "file"
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
@@ -95,6 +99,7 @@
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
@@ -127,6 +132,7 @@
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
@@ -255,17 +261,18 @@
       "openrouterId": "deepseek/deepseek-chat",
       "label": "DeepSeek V3.2",
       "provider": "DeepSeek",
-      "input": 0.32,
-      "output": 0.8899999999999999,
-      "context_length": 163840,
+      "input": 0.20020000000000002,
+      "output": 0.8000999999999999,
+      "context_length": 131072,
       "cache_read_price": null,
-      "max_completion_tokens": 163840,
+      "max_completion_tokens": 16000,
       "modality": "text->text",
       "input_modalities": [
         "text"
       ],
       "supported_parameters": [
         "frequency_penalty",
+        "logit_bias",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -273,6 +280,7 @@
         "response_format",
         "seed",
         "stop",
+        "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
@@ -292,7 +300,7 @@
       "provider": "DeepSeek",
       "input": 0.7,
       "output": 2.5,
-      "context_length": 64000,
+      "context_length": 163840,
       "cache_read_price": null,
       "max_completion_tokens": 16000,
       "modality": "text->text",
@@ -302,12 +310,15 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "presence_penalty",
         "reasoning",
         "repetition_penalty",
+        "response_format",
         "seed",
         "stop",
+        "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
@@ -338,6 +349,7 @@
       "supported_parameters": [
         "frequency_penalty",
         "logit_bias",
+        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -350,6 +362,7 @@
         "tool_choice",
         "tools",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "description": "Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forward...",
@@ -368,10 +381,11 @@
       "context_length": 262144,
       "cache_read_price": 0.049999999999999996,
       "max_completion_tokens": null,
-      "modality": "text+image->text",
+      "modality": "text+image+file->text",
       "input_modalities": [
         "text",
-        "image"
+        "image",
+        "file"
       ],
       "supported_parameters": [
         "frequency_penalty",
@@ -468,10 +482,22 @@
       "created": 1742423211
     },
     {
+      "id": "openai/gpt-5.5-pro",
+      "name": "OpenAI: GPT-5.5 Pro",
+      "outputPrice": 180,
+      "created": 1777051896
+    },
+    {
       "id": "openai/gpt-5.2-pro",
       "name": "OpenAI: GPT-5.2 Pro",
       "outputPrice": 168,
       "created": 1765389780
+    },
+    {
+      "id": "anthropic/claude-opus-4.7-fast",
+      "name": "Anthropic: Claude Opus 4.7 (Fast)",
+      "outputPrice": 150,
+      "created": 1778613011
     },
     {
       "id": "openai/gpt-5-pro",
@@ -504,22 +530,10 @@
       "created": 1734459999
     },
     {
-      "id": "openai/gpt-4-0314",
-      "name": "OpenAI: GPT-4 (older v0314)",
-      "outputPrice": 60,
-      "created": 1685232000
-    },
-    {
       "id": "openai/gpt-4",
       "name": "OpenAI: GPT-4",
       "outputPrice": 60,
       "created": 1685232000
-    },
-    {
-      "id": "openai/o3-deep-research",
-      "name": "OpenAI: o3 Deep Research",
-      "outputPrice": 40,
-      "created": 1760129661
     }
   ]
 }

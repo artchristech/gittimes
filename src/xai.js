@@ -23,7 +23,7 @@ const BASE_URL = process.env.LLM_BASE_URL || "https://openrouter.ai/api/v1";
 function createClient(apiKey) {
   return new OpenAI({
     baseURL: BASE_URL,
-    apiKey: apiKey || process.env.OPENROUTER_API_KEY || process.env.XAI_API_KEY,
+    apiKey: apiKey || process.env.OPENROUTER_API_KEY,
     timeout: 120_000,
     // OpenRouter attribution headers (ignored by other providers).
     defaultHeaders: {
@@ -387,7 +387,9 @@ async function generateAllContent(sections, apiKey, options = {}) {
 
   const base = await _generateBaseSections(sections, client, llmLimit, coverage);
 
-  if (process.env.X_SENTIMENT !== "false" && options.fetchXSentimentForRepo) {
+  // X sentiment is opt-in (X_SENTIMENT=true): it needs a provider with the x_search tool
+  // (Grok), which OpenRouter does not offer. Off by default since dropping xAI.
+  if (process.env.X_SENTIMENT === "true" && options.fetchXSentimentForRepo) {
     await _attachSentiment(base.sections, client, llmLimit, { fetchXSentimentForRepo: options.fetchXSentimentForRepo });
   }
 
@@ -597,7 +599,9 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     }
   }
 
-  if (process.env.X_SENTIMENT !== "false" && options.fetchXSentimentForRepo) {
+  // X sentiment is opt-in (X_SENTIMENT=true): it needs a provider with the x_search tool
+  // (Grok), which OpenRouter does not offer. Off by default since dropping xAI.
+  if (process.env.X_SENTIMENT === "true" && options.fetchXSentimentForRepo) {
     await _attachSentiment(result, client, llmLimit, { fetchXSentimentForRepo: options.fetchXSentimentForRepo });
   }
 

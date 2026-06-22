@@ -549,41 +549,48 @@ describe("_attachSentiment", () => {
 
 describe("generateEditorialContent — sentiment", () => {
   it("attaches xSentiment to breakout article after it replaces lead", async () => {
-    const client = mockClient((prompt) => {
-      if (prompt.includes("Search X.com")) return goodSentiment("buzzing");
-      return goodArticle("Breakout Story");
-    });
+    const origEnv = process.env.X_SENTIMENT;
+    process.env.X_SENTIMENT = "true"; // sentiment is opt-in since dropping xAI/x_search
+    try {
+      const client = mockClient((prompt) => {
+        if (prompt.includes("Search X.com")) return goodSentiment("buzzing");
+        return goodArticle("Breakout Story");
+      });
 
-    const sections = {
-      frontPage: {
-        lead: makeRepo("original-lead"),
-        secondary: [],
-        quickHits: [],
-      },
-    };
-
-    const editorialPlan = {
-      breakout: {
-        repo: {
-          full_name: "org/breakout",
-          name: "org/breakout",
-          description: "A breakout project",
-          stargazers_count: 5000,
-          language: "TypeScript",
-          topics: [],
-          url: "https://github.com/org/breakout",
+      const sections = {
+        frontPage: {
+          lead: makeRepo("original-lead"),
+          secondary: [],
+          quickHits: [],
         },
-        reason: "Massive star growth",
-        delta: { stars: 2000 },
-      },
-      trends: [],
-      sleepers: [],
-    };
+      };
 
-    const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client, fetchXSentimentForRepo });
+      const editorialPlan = {
+        breakout: {
+          repo: {
+            full_name: "org/breakout",
+            name: "org/breakout",
+            description: "A breakout project",
+            stargazers_count: 5000,
+            language: "TypeScript",
+            topics: [],
+            url: "https://github.com/org/breakout",
+          },
+          reason: "Massive star growth",
+          delta: { stars: 2000 },
+        },
+        trends: [],
+        sleepers: [],
+      };
 
-    assert.ok(result.sections.frontPage.lead.xSentiment, "Breakout lead should have xSentiment");
-    assert.equal(result.sections.frontPage.lead.xSentiment.sentiment, "buzzing");
+      const result = await generateEditorialContent(sections, "fake-key", editorialPlan, { client, fetchXSentimentForRepo });
+
+      assert.ok(result.sections.frontPage.lead.xSentiment, "Breakout lead should have xSentiment");
+      assert.equal(result.sections.frontPage.lead.xSentiment.sentiment, "buzzing");
+    } finally {
+      if (origEnv === undefined) delete process.env.X_SENTIMENT;
+      else process.env.X_SENTIMENT = origEnv;
+    }
   });
 
   it("skips sentiment when X_SENTIMENT=false", async () => {
