@@ -59,21 +59,23 @@ body {
 
 /* === MASTHEAD === */
 
+/* Compact masthead — halved in height so the lead story clears the fold.
+   The point of a front page is to win the read, not to admire the nameplate. */
 .masthead {
   position: relative;
   text-align: center;
-  padding: 32px 0 22px;
-  border-top: 4px double var(--rule);
-  border-bottom: 4px double var(--rule);
-  margin-bottom: 40px;
+  padding: 16px 0 13px;
+  border-top: 3px double var(--rule);
+  border-bottom: 3px double var(--rule);
+  margin-bottom: 18px;
 }
 
 .masthead-date {
   position: absolute;
-  top: 12px;
-  right: 52px;
+  top: 15px;
+  right: 4px;
   font-family: var(--font-meta);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -81,20 +83,20 @@ body {
 
 .masthead-title {
   font-family: var(--font-headline);
-  font-size: 64px;
+  font-size: 38px;
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .masthead-tagline {
   font-family: var(--font-headline);
   font-style: italic;
-  font-size: 16px;
+  font-size: 13px;
   color: var(--ink-light);
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 /* === AI TICKER === */
@@ -751,104 +753,148 @@ body {
   text-decoration: underline;
 }
 
-/* Front-page "From the Wire" teaser — the day's top non-repo headline, so real
-   news (announcements, papers) is visible on the front page, not buried. */
-.wire-teaser {
-  margin: 0 0 32px;
-  padding: 18px 22px 16px;
-  border: 1px solid var(--rule-light);
-  border-top: 3px solid var(--accent);
-  background: color-mix(in srgb, var(--paper) 92%, var(--accent) 3%);
+/* ===== FRONT PAGE — THE SPLIT (lead + "Across the Desk" rail) ===== */
+.front-hero {
+  display: grid;
+  grid-template-columns: 1.9fr 1fr;
+  gap: 0;
+  margin-bottom: 48px;
 }
 
-.wire-teaser-kicker {
+.front-lead-col {
+  padding-right: 34px;
+  border-right: 1px solid var(--rule-light);
+}
+
+/* In the split, the lead drops its own box chrome — the column rule frames it. */
+.front-lead-col .hybrid-lead {
+  padding: 0;
+  border: none;
+}
+
+.front-lead-col .hybrid-headline-lead {
+  font-size: 46px;
+  line-height: 1.04;
+  letter-spacing: -0.5px;
+}
+
+/* The section-lead rail */
+.desk-rail {
+  padding-left: 26px;
+}
+
+.rail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 9px;
+  margin-bottom: 2px;
+}
+
+.rail-sub {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-faint);
+}
+
+.ritem {
+  display: block;
+  padding: 14px 14px 14px 16px;
+  margin-left: -16px;
+  border-bottom: 1px solid var(--rule-light);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+}
+
+.ritem:hover {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--paper) 92%, var(--ink) 5%);
+  transform: translateX(2px);
+}
+
+.ritem-sec {
   display: block;
   font-family: var(--font-meta);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9.5px;
+  font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 8px;
 }
 
-.wire-teaser-lead {
-  display: block;
+.ritem-head {
   font-family: var(--font-headline);
-  font-size: 22px;
   font-weight: 700;
-  line-height: 1.25;
+  font-size: 17px;
+  line-height: 1.22;
+  margin: 4px 0 5px;
   color: var(--ink);
-  text-decoration: none;
 }
 
-.wire-teaser-lead:hover {
-  color: var(--accent);
-}
-
-.wire-teaser-meta {
-  font-family: var(--font-meta);
-  font-size: 12px;
-  color: var(--ink-faint);
-  margin-top: 6px;
-}
-
-.wire-teaser-discuss {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.wire-teaser-discuss:hover {
-  text-decoration: underline;
-}
-
-.wire-teaser-list {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 14px 0 0;
-  border-top: 1px solid var(--rule-light);
-  display: grid;
-  gap: 8px;
-}
-
-.wire-teaser-item {
+.ritem-meta {
   display: flex;
+  gap: 10px;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.wire-teaser-item a {
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.wire-teaser-item a:hover {
-  color: var(--accent);
-}
-
-.wire-teaser-src {
   font-family: var(--font-meta);
   font-size: 11px;
   color: var(--ink-faint);
 }
 
-.wire-teaser-more {
-  display: inline-block;
-  margin-top: 14px;
-  font-family: var(--font-meta);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--accent);
-  text-decoration: none;
+.ritem-stars {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
 }
 
-.wire-teaser-more:hover {
-  text-decoration: underline;
+@media (max-width: 820px) {
+  .front-hero { grid-template-columns: 1fr; }
+  .front-lead-col {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--rule-light);
+    padding-bottom: 24px;
+  }
+  .desk-rail { padding-left: 0; margin-top: 28px; }
+  .front-lead-col .hybrid-headline-lead { font-size: 36px; }
+}
+
+/* ===== SCROLL MOTION ===== */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--paper)));
+  z-index: 200;
+  transition: width 0.08s linear;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[data-reveal].in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .scroll-progress { display: none; }
 }
 
 .article-source {
@@ -2415,10 +2461,10 @@ body.landing {
 
 .masthead-account {
   position: absolute;
-  top: 12px;
-  left: 52px;
+  top: 15px;
+  left: 4px;
   font-family: var(--font-meta);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-faint);
   text-decoration: none;
   text-transform: uppercase;
@@ -2609,6 +2655,7 @@ body.account {
 </style>
 </head>
 <body>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
   <div class="toolbar">
     <button class="toolbar-trigger" id="toolbar-toggle" aria-label="Display settings">
@@ -2693,7 +2740,8 @@ body.account {
   <nav class="edition-nav"><a href="/editions/2026-03-26/">&larr; Previous Edition</a> · <a href="/archive/">Archive</a> · <a href="/editions/2026-03-28/">Next Edition &rarr;</a></nav>
 
   <div class="section-panel active" data-section="frontPage">
-      <article class="hybrid-article hybrid-lead" data-slug="ai-skill-tracks-30-day-trends-across-social-and-tech-platforms">
+      <div class="front-hero">
+      <div class="front-lead-col" data-reveal><article class="hybrid-article hybrid-lead" data-slug="ai-skill-tracks-30-day-trends-across-social-and-tech-platforms">
         <h3 class="hybrid-headline hybrid-headline-lead">AI Skill Tracks 30-Day Trends Across Social and Tech Platforms <a class="hybrid-share" data-slug="ai-skill-tracks-30-day-trends-across-social-and-tech-platforms" title="Permalink">&#128279;</a></h3>
         <p class="hybrid-subheadline">Comprehensive research agent delivers grounded insights from recent online conversations to keep builders informed and competitive</p>
         <div class="hybrid-meta">
@@ -2726,7 +2774,43 @@ body.account {
         <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Developers synthesizing latest AI trends from multiple platforms</li><li>Engineers comparing competing tools through community data analysis</li><li>Builders creating automatic personal research libraries over time</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>Perplexity - provides general AI search but lacks this skill&#39;s strict 30-day community focus and multi-platform synthesis</li><li>CrewAI - offers frameworks for building custom agents whereas this delivers a ready-to-use, opinionated research pipeline for Claude Code</li><li>AutoGen - enables multi-agent collaboration while this specializes in timely social listening and grounded narrative generation</li></ul></div></div>
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
-      </article><section class="secondary-section"><h2 class="section-header">More Stories</h2><div class="hybrid-grid">
+      </article></div>
+      
+    <aside class="desk-rail" aria-label="Across the Desk">
+      <div class="rail-head">Across the Desk <span class="rail-sub">today, by section</span></div>
+      
+        <a class="ritem section-jump" href="#" data-section="ai" data-reveal>
+          <span class="ritem-sec">AI</span>
+          <h3 class="ritem-head">Rasbt&#39;s LLM Repository Adds Advanced Finetuning Modules</h3>
+          <div class="ritem-meta"><span class="ritem-repo">rasbt/LLMs-from-scratch</span><span class="ritem-stars">89.4k stars</span></div>
+        </a>
+        <a class="ritem section-jump" href="#" data-section="robotics" data-reveal>
+          <span class="ritem-sec">Robotics</span>
+          <h3 class="ritem-head">Autoware Updates Rust Installation in Latest Release</h3>
+          <div class="ritem-meta"><span class="ritem-repo">autowarefoundation/autoware</span><span class="ritem-stars">11.3k stars</span></div>
+        </a>
+        <a class="ritem section-jump" href="#" data-section="cyber" data-reveal>
+          <span class="ritem-sec">Cyber</span>
+          <h3 class="ritem-head">Proxmox VE Scripts Add BirdNET and Core Reliability Fixes</h3>
+          <div class="ritem-meta"><span class="ritem-repo">community-scripts/ProxmoxVE</span><span class="ritem-stars">27.3k stars</span></div>
+        </a>
+        <a class="ritem section-jump" href="#" data-section="systems" data-reveal>
+          <span class="ritem-sec">Systems</span>
+          <h3 class="ritem-head">Ghostty Extends Its Reach with Mature Cross-Platform Terminal Library</h3>
+          <div class="ritem-meta"><span class="ritem-repo">ghostty-org/ghostty</span><span class="ritem-stars">48.9k stars</span></div>
+        </a>
+        <a class="ritem section-jump" href="#" data-section="diy" data-reveal>
+          <span class="ritem-sec">DIY</span>
+          <h3 class="ritem-head">HAL 4.5 Release Strengthens Netlist Reverse Engineering Framework</h3>
+          <div class="ritem-meta"><span class="ritem-repo">emsec/hal</span><span class="ritem-stars">789 stars</span></div>
+        </a>
+        <a class="ritem section-jump" href="#" data-section="gameDev" data-reveal>
+          <span class="ritem-sec">GameDev</span>
+          <h3 class="ritem-head">SaschaWillems Maintains Essential Vulkan C++ Examples</h3>
+          <div class="ritem-meta"><span class="ritem-repo">SaschaWillems/Vulkan</span><span class="ritem-stars">11.8k stars</span></div>
+        </a>
+    </aside>
+    </div><section class="secondary-section" data-reveal><h2 class="section-header">More on the Front Page</h2><div class="hybrid-grid">
       <article class="hybrid-article" data-slug="markit-tool-converts-files-and-media-to-markdown">
         <h3 class="hybrid-headline">Markit Tool Converts Files and Media to Markdown <a class="hybrid-share" data-slug="markit-tool-converts-files-and-media-to-markdown" title="Permalink">&#128279;</a></h3>
         <p class="hybrid-subheadline">TypeScript utility handles documents, data, images and audio with optional LLM processing</p>
@@ -3975,7 +4059,7 @@ body.account {
         });
       });
       // "More on the AI Wire" teaser link jumps to the AI Wire tab
-      document.querySelectorAll('.wire-teaser-more[data-section]').forEach(function(link) {
+      document.querySelectorAll('.section-jump[data-section]').forEach(function(link) {
         link.addEventListener('click', function(e) {
           e.preventDefault();
           var target = document.querySelector('.section-tab[data-section="' + link.getAttribute('data-section') + '"]');
@@ -4026,6 +4110,42 @@ body.account {
         var expanded = article.classList.toggle('expanded');
         toggle.textContent = expanded ? 'Read less' : 'Read more';
         toggle.setAttribute('aria-expanded', expanded);
+      });
+
+      // Scroll progress bar
+      var __sp = document.getElementById('scroll-progress');
+      if (__sp) {
+        var __onScroll = function() {
+          var d = document.documentElement;
+          var max = d.scrollHeight - d.clientHeight;
+          __sp.style.width = (max > 0 ? (d.scrollTop / max) * 100 : 0) + '%';
+        };
+        document.addEventListener('scroll', __onScroll, { passive: true });
+        __onScroll();
+      }
+      // Reveal-on-scroll (staggered; re-arms on tab switch)
+      var __reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function __arm(root) {
+        var els = [].slice.call((root || document).querySelectorAll('[data-reveal]:not(.in)'));
+        if (!els.length) return;
+        if (__reduce || !('IntersectionObserver' in window)) { els.forEach(function(el){ el.classList.add('in'); }); return; }
+        var io = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) {
+            if (!e.isIntersecting) return;
+            var el = e.target;
+            var sibs = [].slice.call(el.parentNode.querySelectorAll('[data-reveal]'));
+            el.style.transitionDelay = (Math.max(sibs.indexOf(el), 0) * 70) + 'ms';
+            el.classList.add('in'); io.unobserve(el);
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+        els.forEach(function(el){ io.observe(el); });
+      }
+      __arm(document);
+      document.querySelectorAll('.section-tab').forEach(function(t) {
+        t.addEventListener('click', function() {
+          var p = document.querySelector('.section-panel[data-section="' + t.getAttribute('data-section') + '"]');
+          if (p) setTimeout(function(){ __arm(p); }, 30);
+        });
       });
     })();
   </script>
