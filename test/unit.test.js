@@ -570,7 +570,9 @@ describe("renderLeadStory", () => {
     const html = renderLeadStory({ ...baseArticle, useCases: ["Build web apps", "Replace tools"], similarProjects: ["Vite - faster"] });
     assert.ok(html.includes("article-insights"), "Should contain article-insights div");
     assert.ok(html.includes("Build web apps"));
-    assert.ok(html.includes("Vite - faster"));
+    // Similar Projects was dropped (ungrounded); only Use Cases render.
+    assert.ok(!html.includes("Vite - faster"));
+    assert.ok(!html.includes("Similar Projects"));
   });
 });
 
@@ -596,7 +598,8 @@ describe("renderFeaturedArticle", () => {
     const html = renderFeaturedArticle({ ...baseArticle, useCases: ["Build apps"], similarProjects: ["Vite - faster"] });
     assert.ok(html.includes("article-insights"), "Should contain article-insights div");
     assert.ok(html.includes("Build apps"));
-    assert.ok(html.includes("Vite - faster"));
+    // Similar Projects was dropped (ungrounded); only Use Cases render.
+    assert.ok(!html.includes("Vite - faster"));
   });
 
   it("omits article-insights when empty", () => {

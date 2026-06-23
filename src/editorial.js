@@ -35,6 +35,22 @@ function _repoText(repo) {
   return parts.join(" ");
 }
 
+// Cache one word-boundary regex per keyword. Substring matching (the old
+// `text.includes(kw)`) produced false themes — "storage" matched "rag",
+// "video" matched "ide", "rapid" matched "api". A boundary that treats
+// hyphens as separators keeps "ai-agent" matching "agent" while rejecting
+// those accidental substrings.
+const _kwRegexCache = new Map();
+function _keywordMatches(text, kw) {
+  let re = _kwRegexCache.get(kw);
+  if (!re) {
+    const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    re = new RegExp(`(?:^|[^a-z0-9])${esc}(?:[^a-z0-9]|$)`, "i");
+    _kwRegexCache.set(kw, re);
+  }
+  return re.test(text);
+}
+
 /**
  * Find the repo with the highest breakout score.
  * Score = absoluteGain * (1 + min(relativeGain, 10))
@@ -50,12 +66,16 @@ function _hasNonEnglishContent(repo) {
   return matches !== null && matches.length > text.length * 0.15;
 }
 
-function identifyBreakout(repos, deltas) {
-  if (!deltas || deltas.size === 0) return null;
+/**
+ * Rank breakout candidates by star-momentum score. This is the FILTER step —
+ * it shortlists who is moving — not the editorial decision of what leads. The
+ * editor-in-chief (an LLM) chooses the lead from this shortlist on significance.
+ * @returns {Array<{ repo, delta, reason, score }>} sorted best-first
+ */
+function rankBreakoutCandidates(repos, deltas, limit = 6) {
+  if (!deltas || deltas.size === 0) return [];
 
-  let best = null;
-  let bestScore = 0;
-
+  const scored = [];
   for (const repo of repos) {
     const delta = deltas.get(repo.full_name);
     if (!delta || delta.starDelta === null || delta.starDelta < 100) continue;
@@ -69,18 +89,23 @@ function identifyBreakout(repos, deltas) {
     const trajectoryMultiplier = (pattern && TRAJECTORY_MULTIPLIERS[pattern]) || 1.0;
     const score = baseScore * trajectoryMultiplier;
 
-    if (score > bestScore) {
-      bestScore = score;
-      let reason = `Gained ${absoluteGain.toLocaleString()} stars (${delta.previousStars ? Math.round(relativeGain * 100) + "%" : "new"} growth) in ${delta.daysSinceSnapshot} day(s)`;
-      if (trajectoryMultiplier !== 1.0) {
-        reason += ` [trajectory: ${pattern}, ${trajectoryMultiplier}x]`;
-      }
-
-      best = { repo, delta, reason };
+    let reason = `Gained ${absoluteGain.toLocaleString()} stars (${delta.previousStars ? Math.round(relativeGain * 100) + "%" : "new"} growth) in ${delta.daysSinceSnapshot} day(s)`;
+    if (trajectoryMultiplier !== 1.0) {
+      reason += ` [trajectory: ${pattern}, ${trajectoryMultiplier}x]`;
     }
+
+    scored.push({ repo, delta, reason, score });
   }
 
-  return best;
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit);
+}
+
+function identifyBreakout(repos, deltas) {
+  const ranked = rankBreakoutCandidates(repos, deltas, 1);
+  if (ranked.length === 0) return null;
+  const { repo, delta, reason } = ranked[0];
+  return { repo, delta, reason };
 }
 
 /**
@@ -96,7 +121,7 @@ function clusterTrends(repos) {
     const text = _repoText(repo);
 
     for (const [theme, keywords] of Object.entries(THEME_KEYWORDS)) {
-      const matches = keywords.some((kw) => text.includes(kw));
+      const matches = keywords.some((kw) => _keywordMatches(text, kw));
       if (matches) {
         if (!clusters[theme]) clusters[theme] = [];
         // Avoid duplicates within a cluster
@@ -107,12 +132,26 @@ function clusterTrends(repos) {
     }
   }
 
-  // Filter to clusters with 2+ repos, sort by size descending, cap at 3
-  return Object.entries(clusters)
+  // Filter to clusters with 2+ repos, sort by size descending.
+  const sorted = Object.entries(clusters)
     .filter(([, repos]) => repos.length >= 2)
-    .sort((a, b) => b[1].length - a[1].length)
-    .slice(0, 3)
-    .map(([theme, repos]) => ({ theme, repos }));
+    .sort((a, b) => b[1].length - a[1].length);
+
+  // Diversity cap: pick up to 3 trends, but skip a cluster that mostly repeats
+  // repos already covered by a chosen trend. Without this, ai-agents/llm-tools/
+  // dev-tools all match the same agent repos and the edition runs "agents" three
+  // times. A new trend must bring a majority of fresh repos.
+  const selected = [];
+  const usedRepos = new Set();
+  for (const [theme, repos] of sorted) {
+    const names = repos.map((r) => r.full_name || r.name);
+    const overlap = names.filter((n) => usedRepos.has(n)).length;
+    if (selected.length > 0 && overlap > repos.length * 0.5) continue;
+    selected.push({ theme, repos });
+    names.forEach((n) => usedRepos.add(n));
+    if (selected.length >= 3) break;
+  }
+  return selected;
 }
 
 /**
@@ -148,6 +187,26 @@ function identifySleepers(repos, deltas) {
   return candidates.slice(0, 2);
 }
 
+// Detect a release whose only "news" is a patch bump with no material change.
+// A point release like v3.16.3 with thin/boilerplate notes is churn, not a
+// story — it should be demoted to Quick Hits rather than inflated into a
+// headline. A repo with no semver release, an x.y.0 minor/major, or notes that
+// describe real change (new features, breaking changes, adoption) is NOT churn.
+const MATERIAL_CHANGE_RE = /\b(add(ed|s)?|new|introduc\w*|support|breaking|launch\w*|redesign\w*|rewr\w*|rework\w*|major|migrat\w*|deprecat\w*|remove[ds]?|first release|initial release|now\s+\w+|overhaul\w*|revamp\w*)\b/i;
+
+function isVersionChurn(repo) {
+  if (!repo) return false;
+  const name = repo.releaseName || "";
+  const m = name.match(/v?(\d+)\.(\d+)\.(\d+)/);
+  if (!m) return false; // no semver release tag → not a churn case
+  const patch = parseInt(m[3], 10);
+  if (patch === 0) return false; // x.y.0 = minor/major bump, material enough
+  const notes = (repo.releaseNotes || "").trim();
+  if (MATERIAL_CHANGE_RE.test(notes)) return false; // notes describe real change
+  // Patch release with thin, non-material notes → version churn.
+  return notes.length < 240;
+}
+
 /**
  * Orchestrate editorial decisions.
  * @param {Array} allRepos - Raw GitHub repo objects
@@ -155,7 +214,10 @@ function identifySleepers(repos, deltas) {
  * @returns {{ breakout: object|null, trends: Array, sleepers: Array, remaining: Array }}
  */
 function makeEditorialPlan(allRepos, deltas) {
-  const breakout = identifyBreakout(allRepos, deltas);
+  const breakoutCandidates = rankBreakoutCandidates(allRepos, deltas, 6);
+  const breakout = breakoutCandidates.length > 0
+    ? { repo: breakoutCandidates[0].repo, delta: breakoutCandidates[0].delta, reason: breakoutCandidates[0].reason }
+    : null;
   const trends = clusterTrends(allRepos);
   const sleepers = identifySleepers(allRepos, deltas);
 
@@ -175,7 +237,7 @@ function makeEditorialPlan(allRepos, deltas) {
 
   const remaining = allRepos.filter((r) => !assigned.has(r.full_name || r.name));
 
-  return { breakout, trends, sleepers, remaining };
+  return { breakout, breakoutCandidates, trends, sleepers, remaining };
 }
 
-module.exports = { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, TRAJECTORY_MULTIPLIERS };
+module.exports = { identifyBreakout, rankBreakoutCandidates, clusterTrends, identifySleepers, makeEditorialPlan, isVersionChurn, TRAJECTORY_MULTIPLIERS };

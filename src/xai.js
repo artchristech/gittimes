@@ -10,10 +10,12 @@ const {
   breakoutArticlePrompt,
   trendArticlePrompt,
   sleeperArticlePrompt,
+  chooseLeadPrompt,
 } = require("./prompts");
 
 const { SECTIONS, SECTION_ORDER } = require("./sections");
 const { mastheadQuote } = require("./quotes");
+const { isVersionChurn } = require("./editorial");
 
 // Provider is env-driven. Defaults to a free OpenRouter model so the daily
 // edition can generate at $0; override with LLM_MODEL / LLM_BASE_URL.
@@ -227,16 +229,32 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
   const isFrontPage = sectionConfig.id === "frontPage";
   const leadTokens = isFrontPage ? 2000 : 1200;
 
-  // Lead + all secondary articles in parallel (with parse-level retry)
+  // Demote version-churn secondaries (a patch bump with no material change is
+  // not a story) to Quick Hits before spending an LLM call on a full article.
+  const churnToQuickHits = [];
+  const materialSecondary = [];
+  for (const r of sectionData.secondary) {
+    if (isVersionChurn(r)) {
+      churnToQuickHits.push({ ...r, summary: r.description });
+    } else {
+      materialSecondary.push(r);
+    }
+  }
+  if (churnToQuickHits.length > 0) {
+    console.log(`  Demoted ${churnToQuickHits.length} version-churn release(s) to Quick Hits in ${sectionConfig.label}`);
+  }
+
+  // Lead + material secondary articles in parallel (with parse-level retry)
   const [leadArticle, ...allSecondary] = await Promise.all([
     generateArticleWithRetry(client, MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit, coverage),
-    ...sectionData.secondary.map((r) =>
+    ...materialSecondary.map((r) =>
       generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 800, llmLimit, coverage)
     ),
   ]);
 
   // Quick hits
   let quickHits = sectionData.quickHits || [];
+  quickHits = quickHits.concat(churnToQuickHits);
   if (quickHits.length > 0) {
     const quickHitsRaw = await llmLimit(() => chat(client, MODEL, quickHitPrompt(quickHits), 600));
     quickHits = parseQuickHits(quickHitsRaw, quickHits);
@@ -397,6 +415,35 @@ async function generateAllContent(sections, apiKey, options = {}) {
 }
 
 /**
+ * Editor-in-chief: choose the front-page lead from the breakout shortlist on
+ * SIGNIFICANCE, not star velocity. The shortlist (ranked by momentum) is the
+ * filter; this LLM call is the decision. Falls back to the top-ranked candidate
+ * if the editor is unavailable or returns an unusable choice.
+ * @returns {Promise<{ chosen, why, viaEditor }>}
+ */
+async function chooseEditorialLead(client, candidates, llmLimit) {
+  const fallback = { chosen: candidates[0], why: null, viaEditor: false };
+  if (!candidates || candidates.length <= 1) return fallback;
+
+  try {
+    const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates), 300));
+    const leadMatch = lastMatch(raw, /LEAD:\s*#?(\d+)/);
+    const whyMatch = lastMatch(raw, /WHY:\s*(.+)/);
+    if (!leadMatch) return fallback;
+    const idx = parseInt(leadMatch[1], 10) - 1;
+    if (!(idx >= 0 && idx < candidates.length)) return fallback;
+    return {
+      chosen: candidates[idx],
+      why: whyMatch?.[1]?.trim() || null,
+      viaEditor: true,
+    };
+  } catch (err) {
+    console.warn(`Editor-in-chief lead selection failed, using top momentum candidate: ${err.message}`);
+    return fallback;
+  }
+}
+
+/**
  * Generate content with editorial intelligence.
  * Runs existing section generation, then overlays breakout/trend/sleeper articles.
  * @param {object} sections - { frontPage: {...}, ai: {...}, ... }
@@ -417,7 +464,26 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
   const base = await _generateBaseSections(sections, client, llmLimit, coverage);
   const result = base.sections;
 
-  const editorialMeta = { breakout: null, trends: [], sleepers: [] };
+  const editorialMeta = { breakout: null, trends: [], sleepers: [], leadEditor: null };
+
+  // Editor-in-chief: pick the lead from the breakout shortlist on significance,
+  // not star velocity. Mutates editorialPlan.breakout to the chosen candidate.
+  const candidates = editorialPlan.breakoutCandidates && editorialPlan.breakoutCandidates.length > 0
+    ? editorialPlan.breakoutCandidates
+    : (editorialPlan.breakout ? [editorialPlan.breakout] : []);
+  if (candidates.length > 0) {
+    const decision = await chooseEditorialLead(client, candidates, llmLimit);
+    editorialPlan.breakout = { repo: decision.chosen.repo, delta: decision.chosen.delta, reason: decision.chosen.reason };
+    editorialMeta.leadEditor = {
+      chosen: decision.chosen.repo.full_name || decision.chosen.repo.name,
+      why: decision.why,
+      viaEditor: decision.viaEditor,
+      consideredCount: candidates.length,
+    };
+    if (decision.viaEditor) {
+      console.log(`  Editor-in-chief lead: ${editorialMeta.leadEditor.chosen}${decision.why ? ` — ${decision.why}` : ""}`);
+    }
+  }
 
   // Build a set of all repos already placed in any section
   const editorialSeen = new Set();
@@ -674,4 +740,4 @@ function deduplicateContent(content) {
   return removed;
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment, deduplicateContent };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment, deduplicateContent, chooseEditorialLead };

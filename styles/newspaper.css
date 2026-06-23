@@ -602,6 +602,60 @@ body {
   text-decoration: underline;
 }
 
+/* The AI Wire — non-repo headlines from the wider web */
+.ai-wire {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--rule-light, #d8d2c4);
+  border-left: 3px solid var(--accent, #b91c1c);
+  background: var(--panel-bg, rgba(0, 0, 0, 0.02));
+}
+
+.ai-wire-header {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+}
+
+.ai-wire-sub {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.ai-wire-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ai-wire-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ai-wire-link {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ai-wire-link:hover {
+  text-decoration: underline;
+}
+
+.ai-wire-src {
+  font-size: 12px;
+  opacity: 0.65;
+}
+
 .hybrid-preview {
   font-size: 14px;
   line-height: 1.6;
@@ -628,14 +682,18 @@ body {
   margin-bottom: 8px;
 }
 
+/* Expanded keeps the preview (the lede) visible and reveals the remainder
+   beneath it. The full block holds only the text past the preview, so the
+   body is never duplicated in the markup. */
 .hybrid-article.expanded .hybrid-preview {
-  max-height: 0;
-  opacity: 0;
+  max-height: 1000px;
+  opacity: 1;
 }
 
 .hybrid-article.expanded .hybrid-full {
-  max-height: 3000px;
+  max-height: 5000px;
   opacity: 1;
+  margin-top: 8px;
 }
 
 .hybrid-lead .hybrid-preview {

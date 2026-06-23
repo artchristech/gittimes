@@ -65,6 +65,6 @@ module.exports = [
     },
   },
   {
-    ignores: ["node_modules/", "dist/", "site/", "data/"],
+    ignores: ["node_modules/", "dist/", "site/", "data/", "**/.wrangler/", ".fleet/"],
   },
 ];

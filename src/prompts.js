@@ -8,6 +8,11 @@ function sanitizeRepoField(text) {
   return String(text).replace(/\b(HEADLINE|SUBHEADLINE|BODY|USE_CASES|SIMILAR_PROJECTS)\s*:/gi, "$1 -");
 }
 
+// Forces every article to carry one honest limitation or open question, so the
+// piece reads as reporting rather than a rewritten README. Shared across prompts.
+const HONEST_LIMITATION_GUIDELINE = `- A press release lists only strengths; an article is honest. You MUST surface one genuine limitation, trade-off, maturity gap, or open question — e.g. early version, narrow scope, missing platform, heavy dependency, unproven at scale, or a design choice that won't suit everyone. Base it on the data; if the data is thin, raise the most important question a builder would ask before adopting. Do not invent flaws and do not let it become marketing ("the only catch is it's too powerful").
+`;
+
 function timestampLine(repo) {
   const parts = [];
   if (repo.createdAt) parts.push(`Created: ${repo.createdAt}`);
@@ -42,8 +47,8 @@ function editorialFramingDirective(repo) {
 FRESHNESS DIRECTIVE — This project is ${ageLabel}. It is NOT new.
 - Do NOT introduce this project as if readers are hearing about it for the first time.
 - Assume your audience is aware this project exists.
-- The news hook MUST be something recent: a new release, a major update, a breaking change, a significant adoption milestone, or a shift in direction.
-- If there is no recent release or change data available, focus on a specific current use case or integration that is timely — not a general overview.
+- If there is a genuine recent hook — a new capability, a breaking change, a major release, or a real adoption milestone — lead with it.
+- Do NOT manufacture a hook. A patch/point release with no material change is NOT news; never headline a version number for its own sake. If nothing substantive has changed, write about why the project matters to builders right now — a specific use case, a non-obvious strength, or a real trade-off — rather than inventing significance.
 - Frame: "what's changed" or "why it matters now", never "meet this project."
 `;
 }
@@ -98,7 +103,7 @@ ${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL
 - Do not lead with, emphasize, or build narratives around star counts or GitHub popularity metrics.
 - Focus on: the problem it solves, how it works technically, what's new or different about it, and who should care.
 - Stars may be mentioned once for context but should never be the headline, lede, or thesis.
-Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need.
+${HONEST_LIMITATION_GUIDELINE}Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need.
 Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
@@ -106,15 +111,11 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling newspaper headline about what this project does or why it matters, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline, 12-20 words]
-BODY: [300-400 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+BODY: [300-400 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, missing capability, or open question a builder should weigh.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
-3. [8-12 word use case]
-SIMILAR_PROJECTS:
-1. [project-name] - [how it compares in 1 sentence]
-2. [project-name] - [how it compares]
-3. [project-name] - [how it compares]`;
+3. [8-12 word use case]`;
 }
 
 function secondaryArticlePrompt(repo, coverage) {
@@ -138,7 +139,7 @@ ${readme || "(no readme available)"}
 ${release ? `RELEASE NOTES:\n${release}` : ""}
 ${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
 - Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
-Write in crisp newspaper style. No hype. Concrete details only.
+${HONEST_LIMITATION_GUIDELINE}Write in crisp newspaper style. No hype. Concrete details only.
 Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
@@ -146,15 +147,11 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [Newspaper headline about what this project does, 6-10 words]
 SUBHEADLINE: [Clarifying subheadline, 10-16 words]
-BODY: [150-200 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+BODY: [150-200 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with one sentence beginning **The catch:** naming an honest limitation or open question.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
-3. [8-12 word use case]
-SIMILAR_PROJECTS:
-1. [project-name] - [how it compares]
-2. [project-name] - [how it compares]
-3. [project-name] - [how it compares]`;
+3. [8-12 word use case]`;
 }
 
 function quickHitPrompt(repos) {
@@ -200,22 +197,18 @@ ${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL
 - Do NOT lead with star counts, growth numbers, or popularity metrics. Those are not the story.
 - The story is the PROJECT — its capabilities, its approach, who it's for, and what it changes.
 - You may mention that it's gaining traction, but as context, not as the headline or lede.
-Do not include a word count anywhere in the output.
+${HONEST_LIMITATION_GUIDELINE}Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations.
 
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling newspaper headline about what this project does or changes, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline about its capabilities or significance, 12-20 words]
-BODY: [400-500 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+BODY: [400-500 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, or open question.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
-3. [8-12 word use case]
-SIMILAR_PROJECTS:
-1. [project-name] - [how it compares in 1 sentence]
-2. [project-name] - [how it compares]
-3. [project-name] - [how it compares]`;
+3. [8-12 word use case]`;
 }
 
 function trendArticlePrompt(trend) {
@@ -234,6 +227,7 @@ REPOS IN THIS CLUSTER:
 ${repoList}
 
 The story is the PATTERN, not any single repo. Reference individual repos as evidence of the trend. Explain what this cluster tells us about where open source is heading. Focus on what these projects do and what the pattern means technically — not on popularity metrics.
+- Be honest about the pattern: end the body with a short paragraph beginning **The catch:** noting where the trend is overhyped, immature, fragmented, or still unproven — the counter-take a skeptical builder would raise.
 Do not include a word count anywhere in the output.
 Write entirely in English.
 
@@ -241,15 +235,11 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling headline about the trend pattern, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline, 12-20 words]
-BODY: [250-350 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate.]
+BODY: [250-350 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with a **The catch:** paragraph as instructed above.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
-3. [8-12 word use case]
-SIMILAR_PROJECTS:
-1. [project-name] - [how it compares in 1 sentence]
-2. [project-name] - [how it compares]
-3. [project-name] - [how it compares]`;
+3. [8-12 word use case]`;
 }
 
 function sleeperArticlePrompt(sleeper) {
@@ -270,6 +260,7 @@ PROJECT DATA:
 WHY SELECTED: ${sleeper.reason}
 
 Frame this as a discovery — what does this project do and why should builders pay attention? Focus on its capabilities and potential, not its popularity metrics.
+- Stay honest: end with one sentence beginning **The catch:** naming why it's still under the radar — early, niche, rough edges, or unproven.
 Do not include a word count anywhere in the output.
 Write entirely in English.
 
@@ -277,15 +268,11 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [An intriguing headline about what this project does, 6-10 words]
 SUBHEADLINE: [A clarifying subheadline, 10-16 words]
-BODY: [150-200 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names.]
+BODY: [150-200 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names. End with a **The catch:** sentence as instructed above.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
-3. [8-12 word use case]
-SIMILAR_PROJECTS:
-1. [project-name] - [how it compares]
-2. [project-name] - [how it compares]
-3. [project-name] - [how it compares]`;
+3. [8-12 word use case]`;
 }
 
 function editorInChiefPrompt(candidateSummary) {
@@ -302,6 +289,40 @@ Based on this data, respond with:
 Be specific. Reference repo names. Prioritize signal over noise.`;
 }
 
+/**
+ * Build a one-line summary per breakout candidate for the lead editor.
+ * @param {Array<{repo, reason}>} candidates
+ * @returns {string}
+ */
+function candidateSummaryLines(candidates) {
+  return candidates
+    .map((c, i) => {
+      const r = c.repo;
+      const name = r.full_name || r.name;
+      const desc = sanitizeRepoField(r.description) || "no description";
+      const lang = r.language || "Unknown";
+      const topics = (r.topics || []).slice(0, 4).join(", ");
+      return `${i + 1}. ${name} — ${desc} | ${lang}${topics ? ` | topics: ${topics}` : ""} | momentum: ${c.reason}`;
+    })
+    .join("\n");
+}
+
+/**
+ * The editor-in-chief's lead decision. Star momentum is why these candidates
+ * surfaced (the filter); it is explicitly NOT the basis for the choice. The
+ * editor picks the single most SIGNIFICANT story and returns a parseable choice.
+ */
+function chooseLeadPrompt(candidates) {
+  return `You are the Editor-in-Chief of The Git Times, a daily newspaper for builders. These candidates all gained GitHub stars recently — that momentum is only why they crossed your desk. Your job is to choose which ONE leads the front page based on SIGNIFICANCE to builders: genuine impact, novelty, a real shift in what's possible, or consequence for how people build. Do NOT choose the one with the most stars for being popular; popularity is not significance. A quietly important release should beat a viral list or a meme repo.
+
+CANDIDATES:
+${candidateSummaryLines(candidates)}
+
+Respond EXACTLY in this format, nothing else:
+LEAD: [the single number of the story that should lead]
+WHY: [one sentence on why it is the most significant — not the most popular]`;
+}
+
 module.exports = {
   sanitizeRepoField,
   editorialFramingDirective,
@@ -313,4 +334,6 @@ module.exports = {
   trendArticlePrompt,
   sleeperArticlePrompt,
   editorInChiefPrompt,
+  candidateSummaryLines,
+  chooseLeadPrompt,
 };

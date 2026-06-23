@@ -7,6 +7,8 @@ const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, 
 const { snapshotHistory } = require("./src/history");
 const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
+const { fetchAIHeadlines } = require("./src/ai-headlines");
+const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
 const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
@@ -82,6 +84,11 @@ async function main() {
   console.log(`AI ticker: ${tickerData.models.length} models, ${tickerData.speed.length} speed providers, ${tickerData.images.length} image models`);
   if (fullMarketData) console.log(`AI markets: ${fullMarketData.length} models in full catalog`);
 
+  // Step 2c: Non-repo AI intake (the AI Wire) — the day's top AI stories from the
+  // wider web, so the paper isn't blind to headlines that aren't trending repos.
+  const aiHeadlines = await fetchAIHeadlines({ limit: 5 });
+  const aiWireHtml = renderAIWire(aiHeadlines);
+
   // Step 3: Validate content
   const dryRun = process.argv.includes("--dry-run");
   const validation = validateContent(content);
@@ -105,7 +112,7 @@ async function main() {
   }
 
   // Step 4: Publish edition
-  await publish(content, outDir, { siteUrl, basePath, tickerHtml, tickerData, fullMarketData });
+  await publish(content, outDir, { siteUrl, basePath, tickerHtml, tickerData, fullMarketData, aiWireHtml });
 
   // Step 5: Snapshot history for editorial intelligence
   const editorialEnabled = process.env.EDITORIAL !== "false";

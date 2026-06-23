@@ -81,29 +81,34 @@ function previewBody(text, sentenceCount = 3) {
   return sentences.slice(0, sentenceCount).join("").trim();
 }
 
-function renderInsights(useCases, similarProjects) {
-  if ((!useCases || useCases.length === 0) && (!similarProjects || similarProjects.length === 0)) {
+// The remainder is the body MINUS the preview, so the collapsed teaser and the
+// expanded continuation never duplicate text. Complementary to previewBody by
+// construction (same sentence split). Returns "" when there's no extra content.
+function remainderBody(text, sentenceCount = 3) {
+  if (!text) return "";
+  const sentences = text.match(/[^.!?]*[.!?]+[\s]*/g);
+  if (!sentences || sentences.length <= sentenceCount) return "";
+  return sentences.slice(sentenceCount).join("").trim();
+}
+
+// "Similar Projects" was dropped: it was ungrounded LLM recall (no comparison
+// data fed to the model) and a credibility liability. Only Use Cases remain,
+// which are derived from the repo's own README/release data.
+function renderInsights(useCases) {
+  if (!useCases || useCases.length === 0) {
     return "";
   }
   let html = `<div class="article-insights">`;
-  if (useCases && useCases.length > 0) {
-    html += `<div class="insights-col">`;
-    html += `<span class="insights-label">Use Cases</span>`;
-    html += `<ul>${useCases.map((uc) => `<li>${escapeHtml(uc)}</li>`).join("")}</ul>`;
-    html += `</div>`;
-  }
-  if (similarProjects && similarProjects.length > 0) {
-    html += `<div class="insights-col">`;
-    html += `<span class="insights-label">Similar Projects</span>`;
-    html += `<ul>${similarProjects.map((sp) => `<li>${escapeHtml(sp)}</li>`).join("")}</ul>`;
-    html += `</div>`;
-  }
+  html += `<div class="insights-col">`;
+  html += `<span class="insights-label">Use Cases</span>`;
+  html += `<ul>${useCases.map((uc) => `<li>${escapeHtml(uc)}</li>`).join("")}</ul>`;
+  html += `</div>`;
   html += `</div>`;
   return html;
 }
 
 function renderLeadStory(article) {
-  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const { headline, subheadline, body, useCases, repo, xSentiment } = article;
   return `
     <h2 class="lead-headline">${escapeHtml(headline)}</h2>
     <p class="lead-subheadline">${escapeHtml(subheadline)}</p>
@@ -116,13 +121,13 @@ function renderLeadStory(article) {
     </div>
     <div class="lead-body">
       ${bodyToHtml(body)}
-      ${renderInsights(useCases, similarProjects)}
+      ${renderInsights(useCases)}
       ${renderSentimentBadge(xSentiment)}
     </div>`;
 }
 
 function renderFeaturedArticle(article) {
-  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const { headline, subheadline, body, useCases, repo, xSentiment } = article;
   return `
       <article class="featured-article">
         <h3 class="featured-headline">${escapeHtml(headline)}</h3>
@@ -133,7 +138,7 @@ function renderFeaturedArticle(article) {
         <div class="featured-body">
           ${bodyToHtml(body)}
         </div>
-        ${renderInsights(useCases, similarProjects)}
+        ${renderInsights(useCases)}
         ${renderSentimentBadge(xSentiment)}
       </article>`;
 }
@@ -164,12 +169,13 @@ function renderTrendMeta(article) {
 }
 
 function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) {
-  const { headline, subheadline, body, useCases, similarProjects, repo, xSentiment } = article;
+  const { headline, subheadline, body, useCases, repo, xSentiment } = article;
   const headlineClass = isLead ? "hybrid-headline hybrid-headline-lead" : "hybrid-headline";
   const isTrend = article._isTrend;
   const articleClass = isLead ? "hybrid-article hybrid-lead" : isTrend ? "hybrid-article hybrid-trend" : "hybrid-article";
   const preview = previewBody(body, 3);
-  const hasMore = preview !== body;
+  const rest = remainderBody(body, 3);
+  const hasMore = rest.length > 0;
   const slug = slugify(headline);
 
   const shareLink = articleUrl
@@ -203,9 +209,9 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
           ${bodyToHtml(preview)}
         </div>
         ${hasMore ? `<div class="hybrid-full">
-          ${bodyToHtml(body)}
+          ${bodyToHtml(rest)}
         </div>` : ""}
-        ${renderInsights(useCases, similarProjects)}
+        ${renderInsights(useCases)}
         ${renderSentimentBadge(xSentiment)}
         <div class="hybrid-actions">
           ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
@@ -347,6 +353,34 @@ function renderSectionContent(sectionData, sectionConfig) {
   return html;
 }
 
+/**
+ * The AI Wire — a briefing of the day's top non-repo AI stories from the wider
+ * web (Hacker News). Breaks the GitHub-only ceiling: the paper can point at the
+ * actual headline even when it isn't a trending repo. Returns "" when empty.
+ * @param {Array<{title,url,source,points,comments,discussionUrl}>} headlines
+ * @param {object} [options] - { limit }
+ */
+function renderAIWire(headlines, options = {}) {
+  if (!headlines || headlines.length === 0) return "";
+  const limit = options.limit || headlines.length;
+  const items = headlines.slice(0, limit).map((h) => {
+    const discussion = h.discussionUrl
+      ? ` &middot; <a class="ai-wire-discuss" href="${escapeHtml(h.discussionUrl)}" target="_blank" rel="noopener">${h.comments} comments</a>`
+      : "";
+    return `
+        <li class="ai-wire-item">
+          <a class="ai-wire-link" href="${escapeHtml(h.url)}" target="_blank" rel="noopener">${escapeHtml(h.title)}</a>
+          <span class="ai-wire-src">${escapeHtml(h.source)}${discussion}</span>
+        </li>`;
+  }).join("");
+  return `
+    <section class="ai-wire" aria-label="The AI Wire">
+      <h2 class="ai-wire-header">The AI Wire <span class="ai-wire-sub">&mdash; beyond GitHub: what builders are reading today</span></h2>
+      <ul class="ai-wire-list">${items}
+      </ul>
+    </section>`;
+}
+
 function renderChatUi() {
   return `
   <button class="chat-fab" id="chat-fab" aria-label="Chat">
@@ -441,6 +475,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
     .replace("{{EDITION_TAGLINE}}", escapeHtml(content.tagline))
     .replace("{{AI_TICKER}}", options.tickerHtml || "")
+    .replace("{{AI_WIRE}}", options.aiWireHtml || "")
     .replace("{{SECTION_NAV}}", sectionNavHtml)
     .replace("{{SECTION_PANELS}}", panelsHtml)
     // Clear legacy placeholders that are unused in multi-section mode
@@ -457,7 +492,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace("{{FEED_URL}}", siteUrl + "/feed.xml")
     .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
     .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
-    .replace("{{OG_URL}}", ogUrl);
+    .replace(/\{\{OG_URL\}\}/g, ogUrl);
 
   return html;
 }
@@ -543,6 +578,7 @@ async function assembleHtml(content, options = {}) {
     .replace(/\{\{BASE_PATH\}\}/g, options.basePath || "")
     // Clear multi-section placeholders unused in legacy mode
     .replace("{{AI_TICKER}}", options.tickerHtml || "")
+    .replace("{{AI_WIRE}}", options.aiWireHtml || "")
     .replace("{{SECTION_NAV}}", "")
     .replace("{{SECTION_PANELS}}", "")
     .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")
@@ -553,7 +589,7 @@ async function assembleHtml(content, options = {}) {
     .replace("{{FEED_URL}}", siteUrl + "/feed.xml")
     .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
     .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
-    .replace("{{OG_URL}}", ogUrl);
+    .replace(/\{\{OG_URL\}\}/g, ogUrl);
 
   return html;
 }
@@ -636,4 +672,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire };
