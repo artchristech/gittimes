@@ -8,13 +8,13 @@
   
   <meta property="og:type" content="article">
   <meta property="og:title" content="AgentSpace Unifies Humans and AI Agents in Shared Workspace — The Git Times">
-  <meta property="og:description" content="TypeScript platform enables collaborative workflows with role-based agents and audit trails">
+  <meta property="og:description" content="TypeScript platform enables governed collaboration between human teams and digital workers">
   <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/agentspace-unifies-humans-and-ai-agents-in-shared-workspace/">
   <meta property="og:site_name" content="The Git Times">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AgentSpace Unifies Humans and AI Agents in Shared Workspace — The Git Times">
-  <meta name="twitter:description" content="TypeScript platform enables collaborative workflows with role-based agents and audit trails">
-  <meta name="description" content="TypeScript platform enables collaborative workflows with role-based agents and audit trails">
+  <meta name="twitter:description" content="TypeScript platform enables governed collaboration between human teams and digital workers">
+  <meta name="description" content="TypeScript platform enables governed collaboration between human teams and digital workers">
   <link rel="canonical" href="{{OG_URL}}">
   <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
@@ -623,6 +623,60 @@ body {
   text-decoration: underline;
 }
 
+/* The AI Wire — non-repo headlines from the wider web */
+.ai-wire {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--rule-light, #d8d2c4);
+  border-left: 3px solid var(--accent, #b91c1c);
+  background: var(--panel-bg, rgba(0, 0, 0, 0.02));
+}
+
+.ai-wire-header {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+}
+
+.ai-wire-sub {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.ai-wire-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ai-wire-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ai-wire-link {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ai-wire-link:hover {
+  text-decoration: underline;
+}
+
+.ai-wire-src {
+  font-size: 12px;
+  opacity: 0.65;
+}
+
 .hybrid-preview {
   font-size: 14px;
   line-height: 1.6;
@@ -649,14 +703,18 @@ body {
   margin-bottom: 8px;
 }
 
+/* Expanded keeps the preview (the lede) visible and reveals the remainder
+   beneath it. The full block holds only the text past the preview, so the
+   body is never duplicated in the markup. */
 .hybrid-article.expanded .hybrid-preview {
-  max-height: 0;
-  opacity: 0;
+  max-height: 1000px;
+  opacity: 1;
 }
 
 .hybrid-article.expanded .hybrid-full {
-  max-height: 3000px;
+  max-height: 5000px;
   opacity: 1;
+  margin-top: 8px;
 }
 
 .hybrid-lead .hybrid-preview {
@@ -1607,12 +1665,41 @@ body.chat-on .hybrid-ask {
 }
 
 .chat-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--rule-light);
   font-family: var(--font-meta);
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
+}
+
+.chat-header-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.chat-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: chat-pulse 2s infinite;
+}
+
+@keyframes chat-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .chat-messages {
@@ -1661,6 +1748,86 @@ body.chat-on .hybrid-ask {
 @keyframes chat-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* Markdown rendered inside AI replies */
+.chat-msg-ai p { margin: 0 0 8px; }
+.chat-msg-ai p:last-child { margin-bottom: 0; }
+.chat-msg-ai ul,
+.chat-msg-ai ol { margin: 4px 0 8px; padding-left: 18px; }
+.chat-msg-ai li { margin-bottom: 3px; }
+.chat-msg-ai strong { font-weight: 700; }
+.chat-msg-ai code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.chat-msg-ai pre {
+  background: color-mix(in srgb, var(--ink) 88%, #000 12%);
+  color: #f5f3ef;
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 6px 0 10px;
+}
+.chat-msg-ai pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 12px;
+}
+.chat-msg-ai a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Starter-question chips */
+.chat-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.chat-starter {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-light);
+  background: color-mix(in srgb, var(--paper) 86%, var(--accent) 14%);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 14px;
+  padding: 5px 11px;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chat-starter:hover {
+  background: color-mix(in srgb, var(--paper) 76%, var(--accent) 24%);
+  border-color: var(--accent);
+}
+
+.chat-upgrade-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.chat-upgrade-link:hover { text-decoration: underline; }
+
+.chat-byline {
+  padding: 7px 16px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  color: var(--ink-faint);
+  text-align: center;
 }
 
 .chat-paywall {
@@ -2302,21 +2469,21 @@ body.account {
     <span class="article-page-section-badge">Front Page</span>
 
     
-      <article class="hybrid-article hybrid-lead" data-slug="agentspace-unifies-humans-and-ai-agents-in-shared-workspace" data-repo="HKUDS/AgentSpace" data-stars="284" data-lang="TypeScript" data-url="https://github.com/HKUDS/AgentSpace">
+      <article class="hybrid-article hybrid-lead" data-slug="agentspace-unifies-humans-and-ai-agents-in-shared-workspace" data-repo="HKUDS/AgentSpace" data-stars="292" data-lang="TypeScript" data-url="https://github.com/HKUDS/AgentSpace">
         <h3 class="hybrid-headline hybrid-headline-lead">AgentSpace Unifies Humans and AI Agents in Shared Workspace <a class="hybrid-share" data-slug="agentspace-unifies-humans-and-ai-agents-in-shared-workspace" title="Permalink">&#128279;</a></h3>
-        <p class="hybrid-subheadline">TypeScript platform enables collaborative workflows with role-based agents and audit trails</p>
+        <p class="hybrid-subheadline">TypeScript platform enables governed collaboration between human teams and digital workers</p>
         <div class="hybrid-meta">
-          <a href="https://github.com/HKUDS/AgentSpace" target="_blank">HKUDS/AgentSpace</a> · TypeScript · 284 stars <span class="repo-age repo-age-fresh">1d old</span>
+          <a href="https://github.com/HKUDS/AgentSpace" target="_blank">HKUDS/AgentSpace</a> · TypeScript · 292 stars <span class="repo-age repo-age-fresh">1d old</span>
         </div>
         <div class="hybrid-preview">
-          <p>AgentSpace is a TypeScript-based collaborative workspace designed for human and AI agent teams to work together as a unified unit. Rather than treating agents as isolated tools, the platform positions them as first-class teammates with defined roles, owners, and responsibilities. It enables multi-agent workflows within a shared environment where humans and agents coordinate tasks, schedule executions, and transfer agents across teams.</p>
+          <p>AgentSpace is a TypeScript-based collaborative workspace designed to integrate AI agents as first-class teammates alongside humans. Rather than treating agents as isolated tools, the platform assigns them defined roles, owners, and responsibilities within a shared environment. Teams can recruit purpose-built agents, schedule their tasks, and coordinate multi-agent workflows through a unified interface.</p>
 
         </div>
         <div class="hybrid-full">
-          <p>AgentSpace is a TypeScript-based collaborative workspace designed for human and AI agent teams to work together as a unified unit. Rather than treating agents as isolated tools, the platform positions them as first-class teammates with defined roles, owners, and responsibilities. It enables multi-agent workflows within a shared environment where humans and agents coordinate tasks, schedule executions, and transfer agents across teams. Key features include permission controls for sensitive actions, comprehensive audit trails logging agent decisions and outputs, and mechanisms to recruit, assign, and govern agents organization-wide. The project launched on June 22, 2026, and saw rapid early adoption, with 284 stars within its first day. Developers can initialize the platform using <code>npm run setup &amp;&amp; npm run dev:web</code>. AgentSpace aims to bring organizational structure to human-agent collaboration, addressing the gap in current frameworks that lack support for team-based, scalable agent deployment.</p>
+          <p>Governance features include permission controls, approval workflows, and full audit trails to ensure accountability for sensitive actions. Agents can be transferred across departments, supporting organizational scaling. Deployment options include a hosted platform mode for quick setup and a self-hosted alternative for teams needing infrastructure control. The project launched just one day ago and has already gained 292 stars, indicating rapid early interest. Developers can start with <code>npm run setup &amp;&amp; npm run dev:web</code> to initialize the environment.<br>The catch: As a one-day-old project, AgentSpace lacks proven scalability data and real-world organizational case studies to validate its governance model under complex, enterprise-level workloads.</p>
 
         </div>
-        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Dev teams assigning coding agents to specific modules with clear ownership</li><li>HR departments onboarding AI agents for resume screening with approval workflows</li><li>Operations groups scheduling automated agents for nightly system audits</li></ul></div><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>LangChain - Focuses on agent development but lacks built-in team workspace and governance</li><li>AutoGen - Enables multi-agent conversations but does not support role-based agent assignment or audit trails</li><li>CrewAI - Facilitates agent collaboration but misses organizational-level permission controls and transfer mechanisms</li></ul></div></div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Dev teams assigning coding agents to routine bug fixes</li><li>HR departments onboarding agents for policy query handling</li><li>Ops teams scheduling agents for nightly system health checks</li></ul></div></div>
         
         <div class="hybrid-actions">
           <button class="hybrid-toggle" aria-expanded="false">Read more</button>
@@ -2335,7 +2502,7 @@ body.account {
   </main>
 
   <footer class="footer">
-    <p>The Git Times aims to provide information that inspires people to build.</p>
+    <p>The Git Times · A daily read of what builders are shipping.</p>
   </footer>
 
   <script>

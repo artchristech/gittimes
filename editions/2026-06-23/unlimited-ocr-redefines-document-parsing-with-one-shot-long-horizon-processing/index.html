@@ -8,13 +8,13 @@
   
   <meta property="og:type" content="article">
   <meta property="og:title" content="Unlimited-OCR Redefines Document Parsing with One-Shot Long-Horizon Processing — The Git Times">
-  <meta property="og:description" content="Baidu’s new model processes entire documents or multi-page PDFs in a single pass, eliminating chunking and preserving context across vast text spans.">
+  <meta property="og:description" content="Baidu&#39;s new model handles entire PDFs or multi-page documents in a single inference pass, eliminating chunking overhead">
   <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/unlimited-ocr-redefines-document-parsing-with-one-shot-long-horizon-processing/">
   <meta property="og:site_name" content="The Git Times">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Unlimited-OCR Redefines Document Parsing with One-Shot Long-Horizon Processing — The Git Times">
-  <meta name="twitter:description" content="Baidu’s new model processes entire documents or multi-page PDFs in a single pass, eliminating chunking and preserving context across vast text spans.">
-  <meta name="description" content="Baidu’s new model processes entire documents or multi-page PDFs in a single pass, eliminating chunking and preserving context across vast text spans.">
+  <meta name="twitter:description" content="Baidu&#39;s new model handles entire PDFs or multi-page documents in a single inference pass, eliminating chunking overhead">
+  <meta name="description" content="Baidu&#39;s new model handles entire PDFs or multi-page documents in a single inference pass, eliminating chunking overhead">
   <link rel="canonical" href="{{OG_URL}}">
   <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
@@ -623,6 +623,60 @@ body {
   text-decoration: underline;
 }
 
+/* The AI Wire — non-repo headlines from the wider web */
+.ai-wire {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--rule-light, #d8d2c4);
+  border-left: 3px solid var(--accent, #b91c1c);
+  background: var(--panel-bg, rgba(0, 0, 0, 0.02));
+}
+
+.ai-wire-header {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+}
+
+.ai-wire-sub {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.ai-wire-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ai-wire-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ai-wire-link {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ai-wire-link:hover {
+  text-decoration: underline;
+}
+
+.ai-wire-src {
+  font-size: 12px;
+  opacity: 0.65;
+}
+
 .hybrid-preview {
   font-size: 14px;
   line-height: 1.6;
@@ -649,14 +703,18 @@ body {
   margin-bottom: 8px;
 }
 
+/* Expanded keeps the preview (the lede) visible and reveals the remainder
+   beneath it. The full block holds only the text past the preview, so the
+   body is never duplicated in the markup. */
 .hybrid-article.expanded .hybrid-preview {
-  max-height: 0;
-  opacity: 0;
+  max-height: 1000px;
+  opacity: 1;
 }
 
 .hybrid-article.expanded .hybrid-full {
-  max-height: 3000px;
+  max-height: 5000px;
   opacity: 1;
+  margin-top: 8px;
 }
 
 .hybrid-lead .hybrid-preview {
@@ -1607,12 +1665,41 @@ body.chat-on .hybrid-ask {
 }
 
 .chat-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--rule-light);
   font-family: var(--font-meta);
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
+}
+
+.chat-header-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.chat-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: chat-pulse 2s infinite;
+}
+
+@keyframes chat-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .chat-messages {
@@ -1661,6 +1748,86 @@ body.chat-on .hybrid-ask {
 @keyframes chat-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* Markdown rendered inside AI replies */
+.chat-msg-ai p { margin: 0 0 8px; }
+.chat-msg-ai p:last-child { margin-bottom: 0; }
+.chat-msg-ai ul,
+.chat-msg-ai ol { margin: 4px 0 8px; padding-left: 18px; }
+.chat-msg-ai li { margin-bottom: 3px; }
+.chat-msg-ai strong { font-weight: 700; }
+.chat-msg-ai code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.chat-msg-ai pre {
+  background: color-mix(in srgb, var(--ink) 88%, #000 12%);
+  color: #f5f3ef;
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 6px 0 10px;
+}
+.chat-msg-ai pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 12px;
+}
+.chat-msg-ai a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Starter-question chips */
+.chat-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.chat-starter {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-light);
+  background: color-mix(in srgb, var(--paper) 86%, var(--accent) 14%);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 14px;
+  padding: 5px 11px;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chat-starter:hover {
+  background: color-mix(in srgb, var(--paper) 76%, var(--accent) 24%);
+  border-color: var(--accent);
+}
+
+.chat-upgrade-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.chat-upgrade-link:hover { text-decoration: underline; }
+
+.chat-byline {
+  padding: 7px 16px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  color: var(--ink-faint);
+  text-align: center;
 }
 
 .chat-paywall {
@@ -2302,30 +2469,26 @@ body.account {
     <span class="article-page-section-badge">Front Page</span>
 
     
-      <article class="hybrid-article hybrid-lead" data-slug="unlimited-ocr-redefines-document-parsing-with-one-shot-long-horizon-processing" data-repo="baidu/Unlimited-OCR" data-stars="1308" data-lang="Python" data-url="https://github.com/baidu/Unlimited-OCR">
+      <article class="hybrid-article hybrid-lead" data-slug="unlimited-ocr-redefines-document-parsing-with-one-shot-long-horizon-processing" data-repo="baidu/Unlimited-OCR" data-stars="1955" data-lang="Python" data-url="https://github.com/baidu/Unlimited-OCR">
         <h3 class="hybrid-headline hybrid-headline-lead">Unlimited-OCR Redefines Document Parsing with One-Shot Long-Horizon Processing <a class="hybrid-share" data-slug="unlimited-ocr-redefines-document-parsing-with-one-shot-long-horizon-processing" title="Permalink">&#128279;</a></h3>
-        <p class="hybrid-subheadline">Baidu’s new model processes entire documents or multi-page PDFs in a single pass, eliminating chunking and preserving context across vast text spans.</p>
+        <p class="hybrid-subheadline">Baidu&#39;s new model handles entire PDFs or multi-page documents in a single inference pass, eliminating chunking overhead</p>
         <div class="hybrid-meta">
-          <a href="https://github.com/baidu/Unlimited-OCR" target="_blank">baidu/Unlimited-OCR</a> · Python · 1.3k stars <span class="repo-age repo-age-fresh">5d old</span>
+          <a href="https://github.com/baidu/Unlimited-OCR" target="_blank">baidu/Unlimited-OCR</a> · Python · 2k stars <span class="repo-age repo-age-fresh">5d old</span>
         </div>
         <div class="hybrid-preview">
-          <p>Baidu’s Unlimited-OCR project, released just five days ago, is rapidly gaining traction among developers for its radical approach to optical character recognition and document understanding. Rather than breaking documents into fixed-size chunks — a common bottleneck in OCR pipelines that loses contextual continuity — Unlimited-OCR processes entire images or multi-page PDFs in a single forward pass, supporting sequence lengths up to 32,768 tokens. This “one-shot long-horizon parsing” capability enables the model to maintain structural and semantic coherence across pages, columns, tables, and mixed-layout documents without the reassembly errors or information loss typical of sliding-window approaches.</p>
+          <p>Unlimited-OCR, a newly released open-source project from Baidu, is turning heads in the developer community for its ambitious approach to optical character recognition and document understanding. Rather than processing documents page-by-page or in fixed-size chunks—a common bottleneck in OCR pipelines—Unlimited-OCR aims to parse arbitrarily long documents, including multi-page PDFs, in a single forward pass. Built on a vision-language architecture and released just five days ago, the model leverages long-context transformer capabilities to maintain coherence across hundreds or even thousands of tokens, enabling what the team calls “one-shot long-horizon parsing.</p>
 
         </div>
         <div class="hybrid-full">
-          <p>Baidu’s Unlimited-OCR project, released just five days ago, is rapidly gaining traction among developers for its radical approach to optical character recognition and document understanding. Rather than breaking documents into fixed-size chunks — a common bottleneck in OCR pipelines that loses contextual continuity — Unlimited-OCR processes entire images or multi-page PDFs in a single forward pass, supporting sequence lengths up to 32,768 tokens. This “one-shot long-horizon parsing” capability enables the model to maintain structural and semantic coherence across pages, columns, tables, and mixed-layout documents without the reassembly errors or information loss typical of sliding-window approaches.  </p>
-<p>At its core, Unlimited-OCR builds upon the Deepseek-OCR foundation but introduces architectural innovations that allow it to scale context windows without quadratic computational explosion. The model leverages efficient attention mechanisms and optimized token packing, enabling inference on consumer-grade NVIDIA GPUs using bfloat16 precision. The README provides clear, ready-to-run code for both single-image and multi-page workflows, with distinct configurations: “gundam” mode (image_size=640, crop_mode=True) for high-resolution single documents, and “base” mode (image_size=1024, crop_mode=False) for multi-page or PDF processing. Notably, PDF handling is streamlined — users convert pages to images via PyMuPDF, then feed them directly into the multi-page inference pipeline, avoiding complex intermediate representations.  </p>
-<p>What makes this technically compelling is not just the scale, but the consistency. By processing whole documents atomically, Unlimited-OCR preserves cross-element relationships — such as a table header spanning two columns or a footnote referencing text on a prior page — that fragmented methods often miss. The model’s ability to handle prompts like <code>document parsing.</code> or <code>Multi page parsing.</code> suggests a unified interface for diverse layout tasks, hinting at a move toward general-purpose document AI rather than specialized OCR engines.  </p>
-<p>The project’s explosive early adoption — 1,315 stars in under a week — reflects a pent-up demand for tools that treat documents as holistic entities. Developers working in legal tech, academic digitization, financial reporting, and archival preservation are particularly drawn to its ability to handle irregular formats without preprocessing overhead. Unlike traditional OCR stacks that require layout analysis, zone detection, and post-processing stitching, Unlimited-OCR aims to deliver coherent, structured output straight from the pixel grid.  </p>
-<p>SIMILAR_PROJECTS:  </p>
-<ol>
-<li>Donut - Focuses on single-image document understanding with limited context length, struggling with multi-page coherence.  </li>
-<li>LayoutLMv3 - Excels at form understanding but relies on predefined layout tokens and struggles with arbitrary long documents.  </li>
-<li>Nougat - Specializes in academic PDF-to-LaTeX conversion but processes pages independently, losing cross-page context.</li>
-</ol>
+          <p>”  </p>
+<p>At its core, Unlimited-OCR extends the Deepseek-OCR foundation with architectural tweaks designed to handle extended visual sequences. The model accepts either a single image or a list of image frames (derived from PDF pages) and processes them holistically, guided by a text prompt such as “document parsing.” Inference is handled via Hugging Face’s <code>transformers</code> library, with the model loaded using <code>AutoModel</code> and <code>AutoTokenizer</code>, requiring <code>trust_remote_code=True</code> due to custom code in the repository. The README provides clear examples for single-image, multi-page, and PDF workflows, the latter involving a lightweight PyMuPDF-based conversion step to rasterize pages before feeding them into the model.  </p>
+<p>What makes this technically intriguing is the model’s ability to sustain context over extremely long sequences—up to 32,768 tokens in the examples—while avoiding the fragmentation and reassembly errors typical of sliding-window or chunk-based OCR systems. By processing the entire document at once, Unlimited-OCR better preserves layout relationships, cross-references, and semantic flow across pages, which is particularly valuable for structured documents like legal contracts, technical manuals, or multi-column academic papers. The project also highlights efficiency gains: no need for complex stitching logic or post-processing to merge fragmented outputs.  </p>
+<p>Built and tested on Python 3.12.3 with CUDA 12.9, the model relies on a specific stack including PyTorch 2.10, Transformers 4.57.1, and specialized libraries like <code>einops</code> and <code>pymupdf</code>. While the inference code is concise and accessible, the requirement to trust remote code introduces a security consideration for production environments, as it executes arbitrary code from the model hub.  </p>
+<p>The project’s rapid traction—nearly 2,000 stars in under a week—suggests strong resonance with developers frustrated by the limitations of current OCR tools in handling lengthy, complex documents. Its appeal lies not just in performance, but in simplifying the developer experience: one model, one call, end-to-end parsing.  </p>
+<p><strong>The catch:</strong> As a very recent release with limited public evaluation beyond the arXiv paper and ModelScope hosting, Unlimited-OCR’s real-world robustness, licensing terms, and long-term maintenance remain unproven at scale, leaving early adopters to weigh innovation against operational risk.</p>
 
         </div>
-        <div class="article-insights"><div class="insights-col"><span class="insights-label">Similar Projects</span><ul><li>Donut - Focuses on single-image document understanding with limited context length, struggling with multi-page coherence.</li><li>LayoutLMv3 - Excels at form understanding but relies on predefined layout tokens and struggles with arbitrary long documents.</li><li>Nougat - Specializes in academic PDF-to-LaTeX conversion but processes pages independently, losing cross-page context.</li><li>Legal teams parsing multi-hundred-page contracts with embedded tables and annotations</li><li>Archivists digitizing fragile historical manuscripts with non-standard layouts and marginalia</li><li>Financial analysts extracting structured data from inconsistent quarterly report PDFs at scale</li></ul></div></div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Developers parsing multi-page legal contracts in a single pass</li><li>Researchers extracting text from lengthy technical manuals</li><li>Engineers automating invoice processing across varied document lengths</li></ul></div></div>
         
         <div class="hybrid-actions">
           <button class="hybrid-toggle" aria-expanded="false">Read more</button>
@@ -2344,7 +2507,7 @@ body.account {
   </main>
 
   <footer class="footer">
-    <p>The Git Times aims to provide information that inspires people to build.</p>
+    <p>The Git Times · A daily read of what builders are shipping.</p>
   </footer>
 
   <script>
