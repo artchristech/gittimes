@@ -421,43 +421,79 @@ function renderAIWire(headlines, options = {}) {
 }
 
 /**
- * Front-page teaser for the AI Wire. The front page is built entirely from
- * trending GitHub repos, so genuine news with no repo (a lab announcement, a
- * paper) was structurally invisible there — it only ever lived in the buried
- * wire block. This surfaces the day's single most-discussed non-repo headline
- * on the front page itself. Grounded by construction: a real headline + link,
- * never an LLM-written body, so it adds news without inventing claims.
- * Returns "" when there are no headlines.
- * @param {Array<{title,url,source,points,comments,discussionUrl}>} headlines
- * @param {object} [options] - { max }
+ * "Across the Desk" — the front-page rail. Today's lead headline from every
+ * other section (AI, Robotics, Cyber, …), so the front page leads with editorial
+ * signal across the whole paper instead of a flat link list. Each item jumps to
+ * its section tab. Returns "" when no section has a lead.
+ * @param {object} sections - { frontPage, ai, robotics, ... }
+ * @param {object} sectionConfigs - SECTIONS config
+ * @param {string[]} order - section id order
  */
-function renderWireTeaser(headlines, options = {}) {
-  if (!headlines || headlines.length === 0) return "";
-  const max = options.max || 3;
-  const items = headlines.slice(0, max);
-  const lead = items[0];
-  const leadDiscuss = lead.discussionUrl
-    ? ` &middot; <a class="wire-teaser-discuss" href="${escapeHtml(lead.discussionUrl)}" target="_blank" rel="noopener">${lead.comments} comments</a>`
-    : "";
-  const rest = items
-    .slice(1)
-    .map(
-      (h) => `
-          <li class="wire-teaser-item">
-            <a href="${escapeHtml(h.url)}" target="_blank" rel="noopener">${escapeHtml(h.title)}</a>
-            <span class="wire-teaser-src">${escapeHtml(h.source)}</span>
-          </li>`
-    )
+function renderDeskRail(sections, sectionConfigs, order) {
+  const items = order
+    .filter((id) => id !== "frontPage" && id !== "aiWire")
+    .map((id) => ({ id, config: sectionConfigs[id], data: sections[id] }))
+    .filter((s) => s.config && s.data && !s.data.isEmpty && s.data.lead && s.data.lead.headline);
+  if (items.length === 0) return "";
+
+  const rows = items
+    .map(({ id, config, data }) => {
+      const a = data.lead;
+      const repo = a.repo || {};
+      const repoName = repo.name ? `<span class="ritem-repo">${escapeHtml(repo.name)}</span>` : "";
+      const stars = repo.stars != null ? `<span class="ritem-stars">${formatStars(repo.stars)} stars</span>` : "";
+      return `
+        <a class="ritem section-jump" href="#" data-section="${escapeHtml(id)}" data-reveal>
+          <span class="ritem-sec">${escapeHtml(config.label)}</span>
+          <h3 class="ritem-head">${escapeHtml(a.headline)}</h3>
+          <div class="ritem-meta">${repoName}${stars}</div>
+        </a>`;
+    })
     .join("");
-  const restHtml = rest ? `<ul class="wire-teaser-list">${rest}</ul>` : "";
+
   return `
-    <aside class="wire-teaser" aria-label="From the AI Wire">
-      <span class="wire-teaser-kicker">From the Wire</span>
-      <a class="wire-teaser-lead" href="${escapeHtml(lead.url)}" target="_blank" rel="noopener">${escapeHtml(lead.title)}</a>
-      <div class="wire-teaser-meta">${escapeHtml(lead.source)}${leadDiscuss}</div>
-      ${restHtml}
-      <a class="wire-teaser-more" data-section="aiWire" href="#">More on the AI Wire &rarr;</a>
+    <aside class="desk-rail" aria-label="Across the Desk">
+      <div class="rail-head">Across the Desk <span class="rail-sub">today, by section</span></div>
+      ${rows}
     </aside>`;
+}
+
+/**
+ * Front-page panel — the Split. Lead story on the left, the section-lead rail on
+ * the right (the hero), then More on the Front Page + Quick Hits below. Reuses
+ * renderHybridArticle for the lead so chat/expand behavior is preserved.
+ */
+function renderFrontPagePanel(sections, sectionConfigs, order) {
+  const fp = sections.frontPage;
+  if (!fp || fp.isEmpty || !fp.lead) {
+    return `<div class="section-empty">No stories on the front page today. Check back tomorrow!</div>`;
+  }
+
+  let html = `<div class="front-hero">
+      <div class="front-lead-col" data-reveal>${renderHybridArticle(fp.lead, { isLead: true })}</div>
+      ${renderDeskRail(sections, sectionConfigs, order)}
+    </div>`;
+
+  if (fp.secondary && fp.secondary.length > 0) {
+    html += `<section class="secondary-section" data-reveal>`;
+    html += `<h2 class="section-header">More on the Front Page</h2>`;
+    html += `<div class="hybrid-grid">${fp.secondary.map((a) => renderHybridArticle(a)).join("\n")}</div>`;
+    html += `</section>`;
+  }
+
+  if (fp.deepCuts && fp.deepCuts.length > 0) {
+    html += renderDeepCuts(fp.deepCuts);
+  }
+
+  if (fp.quickHits && fp.quickHits.length > 0) {
+    html += `<section class="quick-hits-section" data-reveal>`;
+    html += `<h2 class="section-header">Quick Hits</h2>`;
+    html += `<div class="quick-hits-list">${fp.quickHits.map(renderQuickHit).join("\n")}</div>`;
+    html += `<button class="quick-hits-toggle">Show more</button>`;
+    html += `</section>`;
+  }
+
+  return html;
 }
 
 function renderChatUi() {
@@ -543,11 +579,9 @@ async function assembleMultiSectionHtml(content, options = {}) {
   // Build section nav
   const sectionNavHtml = renderSectionNav(navOrder, navSections, navConfigs);
 
-  // Front-page wire teaser: surface the day's top non-repo headline so real news
-  // (announcements, papers) is visible on the front page, not buried in a tab.
-  const wireTeaserHtml = hasWire ? renderWireTeaser(wireHeadlines) : "";
-
-  // Build section panels (Front Page first/active, AI Wire second)
+  // Build section panels (Front Page first/active, AI Wire second). The front
+  // page is the Split: lead story left + "Across the Desk" section-lead rail
+  // right, then More + Quick Hits below.
   const panelsHtml = navOrder.map((id, i) => {
     const activeClass = i === 0 ? " active" : "";
     let panelContent;
@@ -555,11 +589,10 @@ async function assembleMultiSectionHtml(content, options = {}) {
       panelContent = hasWire
         ? aiWirePanelHtml
         : `<div class="section-empty">The AI Wire is quiet today. Check back tomorrow!</div>`;
+    } else if (id === "frontPage") {
+      panelContent = renderFrontPagePanel(content.sections, SECTIONS, navOrder);
     } else {
       panelContent = renderSectionContent(content.sections[id], SECTIONS[id]);
-      if (id === "frontPage" && wireTeaserHtml) {
-        panelContent = wireTeaserHtml + panelContent;
-      }
     }
     return `<div class="section-panel${activeClass}" data-section="${escapeHtml(id)}">${panelContent}</div>`;
   }).join("\n");
@@ -782,4 +815,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderWireTeaser, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderDeskRail, renderFrontPagePanel, renderSourceLine };
