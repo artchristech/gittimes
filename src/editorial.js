@@ -12,14 +12,20 @@ const TRAJECTORY_MULTIPLIERS = {
 };
 
 const THEME_KEYWORDS = {
-  "ai-agents": ["agent", "ai-agent", "autonomous", "autogen", "crew", "langchain", "langgraph", "agentic"],
-  "llm-tools": ["llm", "gpt", "openai", "anthropic", "gemini", "ollama", "inference", "transformer", "fine-tune", "rag", "embedding"],
+  "ai-agents": ["agent", "ai-agent", "autonomous", "autogen", "crew", "langchain", "langgraph", "agentic", "multi-agent", "tool-use"],
+  "mcp": ["mcp", "model-context-protocol", "mcp-server"],
+  "llm-tools": ["llm", "gpt", "openai", "anthropic", "claude", "gemini", "ollama", "transformer", "prompt", "chatbot"],
+  "rag-search": ["rag", "retrieval", "vector-search", "semantic-search", "reranker", "knowledge-base", "embedding", "vector-db"],
+  "inference": ["inference", "quantization", "quantized", "gguf", "vllm", "serving", "kv-cache", "throughput"],
+  "local-ai": ["local-llm", "on-device", "offline-ai", "edge-ai", "local-first"],
+  "model-training": ["fine-tune", "fine-tuning", "lora", "rlhf", "pretrain", "distillation"],
+  "evals": ["eval", "evals", "benchmark", "leaderboard", "red-team", "guardrail"],
   "rust-systems": ["rust", "memory-safe", "wasm", "tokio", "async-runtime"],
   "dev-tools": ["cli", "devtool", "linter", "formatter", "bundler", "build-tool", "vscode", "neovim", "ide", "terminal", "developer-tools"],
   "self-hosted": ["self-hosted", "selfhosted", "homelab", "home-automation", "docker", "kubernetes", "k8s"],
   "security-tools": ["security", "cybersecurity", "pentest", "vulnerability", "exploit", "encryption", "auth"],
   "web-frameworks": ["web", "react", "vue", "svelte", "nextjs", "frontend", "backend", "api", "rest", "graphql", "http"],
-  "data-infra": ["database", "data", "analytics", "etl", "streaming", "kafka", "postgres", "redis", "vector-db"],
+  "data-infra": ["database", "data", "analytics", "etl", "streaming", "kafka", "postgres", "redis"],
 };
 
 /**
@@ -106,6 +112,56 @@ function identifyBreakout(repos, deltas) {
   if (ranked.length === 0) return null;
   const { repo, delta, reason } = ranked[0];
   return { repo, delta, reason };
+}
+
+/**
+ * The editor-in-chief's candidate slate. The +100-star breakout bar usually
+ * yields a single qualifier, which starves the editor (one candidate = no real
+ * choice = de-facto star velocity). This guarantees a real slate: start with the
+ * breakouts, then backfill with lower movers, then with the highest-star recent
+ * repos — so the editor always has something to weigh on significance.
+ * @returns {Array<{repo, delta, reason, score}>}
+ */
+function selectLeadCandidates(repos, deltas, opts = {}) {
+  const { min = 4, max = 6 } = opts;
+  const out = rankBreakoutCandidates(repos, deltas, max);
+  const have = new Set(out.map((c) => c.repo.full_name || c.repo.name));
+
+  const add = (repo, reason, score) => {
+    const id = repo.full_name || repo.name;
+    if (have.has(id) || _hasNonEnglishContent(repo)) return;
+    have.add(id);
+    out.push({ repo, delta: (deltas && deltas.get(repo.full_name)) || null, reason, score });
+  };
+
+  // Tier 2: any positive mover below the +100 bar, by gain.
+  if (out.length < min && deltas) {
+    const movers = [];
+    for (const repo of repos) {
+      const d = deltas.get(repo.full_name);
+      if (d && d.starDelta != null && d.starDelta > 0 && d.starDelta < 100) {
+        movers.push({ repo, gain: d.starDelta });
+      }
+    }
+    movers.sort((a, b) => b.gain - a.gain);
+    for (const m of movers) {
+      if (out.length >= min) break;
+      add(m.repo, `Gained ${m.gain} stars recently`, m.gain);
+    }
+  }
+
+  // Tier 3: highest-star recent repos with no usable delta — significance, not momentum.
+  if (out.length < min) {
+    const byStars = repos
+      .filter((r) => (r.stargazers_count || 0) > 0)
+      .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+    for (const repo of byStars) {
+      if (out.length >= min) break;
+      add(repo, `Notable project (${(repo.stargazers_count || 0).toLocaleString()} stars)`, 0);
+    }
+  }
+
+  return out.slice(0, max);
 }
 
 /**
@@ -214,10 +270,12 @@ function isVersionChurn(repo) {
  * @returns {{ breakout: object|null, trends: Array, sleepers: Array, remaining: Array }}
  */
 function makeEditorialPlan(allRepos, deltas) {
-  const breakoutCandidates = rankBreakoutCandidates(allRepos, deltas, 6);
-  const breakout = breakoutCandidates.length > 0
-    ? { repo: breakoutCandidates[0].repo, delta: breakoutCandidates[0].delta, reason: breakoutCandidates[0].reason }
+  // Breakout (the >=100 headline signal) stays strict; the editor's slate is broadened.
+  const strictBreakouts = rankBreakoutCandidates(allRepos, deltas, 6);
+  const breakout = strictBreakouts.length > 0
+    ? { repo: strictBreakouts[0].repo, delta: strictBreakouts[0].delta, reason: strictBreakouts[0].reason }
     : null;
+  const breakoutCandidates = selectLeadCandidates(allRepos, deltas, { min: 4, max: 6 });
   const trends = clusterTrends(allRepos);
   const sleepers = identifySleepers(allRepos, deltas);
 
@@ -240,4 +298,4 @@ function makeEditorialPlan(allRepos, deltas) {
   return { breakout, breakoutCandidates, trends, sleepers, remaining };
 }
 
-module.exports = { identifyBreakout, rankBreakoutCandidates, clusterTrends, identifySleepers, makeEditorialPlan, isVersionChurn, TRAJECTORY_MULTIPLIERS };
+module.exports = { identifyBreakout, rankBreakoutCandidates, selectLeadCandidates, clusterTrends, identifySleepers, makeEditorialPlan, isVersionChurn, TRAJECTORY_MULTIPLIERS };

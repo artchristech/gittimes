@@ -107,6 +107,15 @@ function renderInsights(useCases) {
   return html;
 }
 
+// Make the basis of every article explicit so readers can trace claims to their
+// source. Skipped for trend pieces (no single repo) and when there's no link.
+function renderSourceLine(article) {
+  const repo = article.repo;
+  if (!repo || !repo.url || repo.url === "#" || article._isTrend) return "";
+  const basis = repo.releaseName ? "README and release notes" : "project README";
+  return `<p class="article-source">Source: <a href="${escapeHtml(repo.url)}" target="_blank" rel="noopener">${escapeHtml(repo.name)}</a> &mdash; based on the ${basis}.</p>`;
+}
+
 function renderLeadStory(article) {
   const { headline, subheadline, body, useCases, repo, xSentiment } = article;
   return `
@@ -122,6 +131,7 @@ function renderLeadStory(article) {
     <div class="lead-body">
       ${bodyToHtml(body)}
       ${renderInsights(useCases)}
+      ${renderSourceLine(article)}
       ${renderSentimentBadge(xSentiment)}
     </div>`;
 }
@@ -139,6 +149,7 @@ function renderFeaturedArticle(article) {
           ${bodyToHtml(body)}
         </div>
         ${renderInsights(useCases)}
+        ${renderSourceLine(article)}
         ${renderSentimentBadge(xSentiment)}
       </article>`;
 }
@@ -212,6 +223,7 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
           ${bodyToHtml(rest)}
         </div>` : ""}
         ${renderInsights(useCases)}
+        ${renderSourceLine(article)}
         ${renderSentimentBadge(xSentiment)}
         <div class="hybrid-actions">
           ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
@@ -361,9 +373,12 @@ function renderSectionContent(sectionData, sectionConfig) {
  * @param {object} [options] - { limit }
  */
 function renderAIWire(headlines, options = {}) {
-  if (!headlines || headlines.length === 0) return "";
-  const limit = options.limit || headlines.length;
-  const items = headlines.slice(0, limit).map((h) => {
+  const research = options.research || [];
+  const hasStories = headlines && headlines.length > 0;
+  if (!hasStories && research.length === 0) return "";
+  const limit = options.limit || (headlines ? headlines.length : 0);
+
+  const renderItem = (h) => {
     const discussion = h.discussionUrl
       ? ` &middot; <a class="ai-wire-discuss" href="${escapeHtml(h.discussionUrl)}" target="_blank" rel="noopener">${h.comments} comments</a>`
       : "";
@@ -372,12 +387,23 @@ function renderAIWire(headlines, options = {}) {
           <a class="ai-wire-link" href="${escapeHtml(h.url)}" target="_blank" rel="noopener">${escapeHtml(h.title)}</a>
           <span class="ai-wire-src">${escapeHtml(h.source)}${discussion}</span>
         </li>`;
-  }).join("");
+  };
+
+  const storiesHtml = hasStories
+    ? `<ul class="ai-wire-list">${headlines.slice(0, limit).map(renderItem).join("")}
+      </ul>`
+    : "";
+
+  const researchHtml = research.length > 0
+    ? `<h3 class="ai-wire-subhead">From the labs &amp; arXiv</h3>
+      <ul class="ai-wire-list ai-wire-research">${research.map(renderItem).join("")}
+      </ul>`
+    : "";
+
   return `
     <section class="ai-wire" aria-label="The AI Wire">
       <h2 class="ai-wire-header">The AI Wire <span class="ai-wire-sub">&mdash; beyond GitHub: what builders are reading today</span></h2>
-      <ul class="ai-wire-list">${items}
-      </ul>
+      ${storiesHtml}${researchHtml}
     </section>`;
 }
 
@@ -672,4 +698,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderSourceLine };

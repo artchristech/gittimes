@@ -7,7 +7,7 @@ const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, 
 const { snapshotHistory } = require("./src/history");
 const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
-const { fetchAIHeadlines } = require("./src/ai-headlines");
+const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
 const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
 const { enrichRepo } = require("./src/github");
@@ -86,8 +86,11 @@ async function main() {
 
   // Step 2c: Non-repo AI intake (the AI Wire) — the day's top AI stories from the
   // wider web, so the paper isn't blind to headlines that aren't trending repos.
-  const aiHeadlines = await fetchAIHeadlines({ limit: 5 });
-  const aiWireHtml = renderAIWire(aiHeadlines);
+  const [aiHeadlines, arxivPapers] = await Promise.all([
+    fetchAIHeadlines({ limit: 5 }),
+    fetchArxiv({ limit: 3 }),
+  ]);
+  const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
   // Step 3: Validate content
   const dryRun = process.argv.includes("--dry-run");

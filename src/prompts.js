@@ -10,7 +10,7 @@ function sanitizeRepoField(text) {
 
 // Forces every article to carry one honest limitation or open question, so the
 // piece reads as reporting rather than a rewritten README. Shared across prompts.
-const HONEST_LIMITATION_GUIDELINE = `- A press release lists only strengths; an article is honest. You MUST surface one genuine limitation, trade-off, maturity gap, or open question — e.g. early version, narrow scope, missing platform, heavy dependency, unproven at scale, or a design choice that won't suit everyone. Base it on the data; if the data is thin, raise the most important question a builder would ask before adopting. Do not invent flaws and do not let it become marketing ("the only catch is it's too powerful").
+const HONEST_LIMITATION_GUIDELINE = `- A press release lists only strengths; an article is honest. You MUST surface one genuine limitation, trade-off, maturity gap, or open question — e.g. early version, narrow scope, missing platform, heavy dependency, unproven at scale, or a design choice that won't suit everyone. Base it on the data — the Signals line (open issues, last-commit age), a thin/aging release, or a narrow scope are good grounds; if the data is thin, raise the most important question a builder would ask before adopting. Do not invent flaws and do not let it become marketing ("the only catch is it's too powerful").
 `;
 
 function timestampLine(repo) {
@@ -18,6 +18,21 @@ function timestampLine(repo) {
   if (repo.createdAt) parts.push(`Created: ${repo.createdAt}`);
   if (repo.pushedAt) parts.push(`Last pushed: ${repo.pushedAt}`);
   return parts.length > 0 ? `- ${parts.join(" | ")}` : "";
+}
+
+// Observable signals a writer can ground an honest limitation in, instead of
+// guessing. Open-issue load and a stale last-release both hint at real caveats.
+function signalsLine(repo) {
+  const parts = [];
+  if (repo.openIssues != null) parts.push(`Open issues: ${repo.openIssues}`);
+  if (repo.forks != null) parts.push(`Forks: ${repo.forks}`);
+  const rel = repo.releaseName || (repo.starTrajectory && repo.starTrajectory.createdAt);
+  if (repo.pushedAt) {
+    const days = Math.round((Date.now() - new Date(repo.pushedAt).getTime()) / 86400000);
+    if (!Number.isNaN(days)) parts.push(`Last commit: ${days}d ago`);
+  }
+  void rel;
+  return parts.length ? `- Signals: ${parts.join(" | ")}` : "";
 }
 
 function trajectoryContext(repo) {
@@ -92,6 +107,7 @@ PROJECT DATA:
 - Language: ${repo.language}
 - Topics: ${topics}
 ${timestampLine(repo)}
+${signalsLine(repo)}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}${trajectoryContext(repo)}
 
 README EXCERPT:
@@ -131,6 +147,7 @@ PROJECT DATA:
 - Language: ${repo.language}
 - Topics: ${topics}
 ${timestampLine(repo)}
+${signalsLine(repo)}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}${trajectoryContext(repo)}
 
 README EXCERPT:
@@ -185,6 +202,7 @@ PROJECT DATA:
 - Language: ${repo.language}
 - Topics: ${topics}
 ${timestampLine(repo)}
+${signalsLine(repo)}
 ${repo.releaseName ? `- Latest release: ${repo.releaseName}` : ""}${trajectoryContext(repo)}
 
 README EXCERPT:

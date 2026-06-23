@@ -101,4 +101,69 @@ async function fetchAIHeadlines(options = {}) {
   }
 }
 
-module.exports = { fetchAIHeadlines, selectTopHeadlines, _domain };
+// --- arXiv research intake -------------------------------------------------
+
+/**
+ * Parse arXiv Atom XML into clean entries. Pure (no I/O) so it's testable.
+ * Minimal regex parse — no XML dep. Returns research-flavored headline objects.
+ * @param {string} xml
+ * @param {number} limit
+ */
+function parseArxivAtom(xml, limit = 3) {
+  if (!xml || typeof xml !== "string") return [];
+  const entries = xml.split("<entry>").slice(1);
+  const out = [];
+  for (const e of entries) {
+    const title = (e.match(/<title>([\s\S]*?)<\/title>/)?.[1] || "").replace(/\s+/g, " ").trim();
+    const id = (e.match(/<id>([\s\S]*?)<\/id>/)?.[1] || "").trim();
+    if (!title || !/^https?:\/\//.test(id)) continue;
+    out.push({
+      title,
+      url: id,
+      source: "arXiv",
+      points: 0,
+      comments: 0,
+      discussionUrl: null,
+      kind: "research",
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/**
+ * Fetch the most recent AI papers from arXiv (cs.AI / cs.LG / cs.CL). Returns []
+ * on any failure — research is a bonus tier, never a reason to fail the edition.
+ * @param {object} [options] - { limit, fetchImpl, timeoutMs }
+ */
+async function fetchArxiv(options = {}) {
+  const { limit = 3, fetchImpl = globalThis.fetch, timeoutMs = 10_000 } = options;
+  if (typeof fetchImpl !== "function") return [];
+
+  const url =
+    "http://export.arxiv.org/api/query" +
+    "?search_query=" + encodeURIComponent("cat:cs.AI OR cat:cs.LG OR cat:cs.CL") +
+    "&sortBy=submittedDate&sortOrder=descending&max_results=" + Math.max(limit, 5);
+
+  const AbortCtor = globalThis.AbortController;
+  const controller = typeof AbortCtor === "function" ? new AbortCtor() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  try {
+    const res = await fetchImpl(url, controller ? { signal: controller.signal } : {});
+    if (!res || !res.ok) {
+      console.warn(`AI Wire (arXiv): fetch returned ${res ? res.status : "no response"}`);
+      return [];
+    }
+    const xml = await res.text();
+    const papers = parseArxivAtom(xml, limit);
+    console.log(`AI Wire: ${papers.length} arXiv paper(s)`);
+    return papers;
+  } catch (err) {
+    console.warn(`AI Wire (arXiv): fetch failed (non-fatal): ${err.message}`);
+    return [];
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+module.exports = { fetchAIHeadlines, selectTopHeadlines, fetchArxiv, parseArxivAtom, _domain };

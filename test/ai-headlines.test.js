@@ -1,8 +1,21 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { selectTopHeadlines, fetchAIHeadlines, _domain } = require("../src/ai-headlines");
-const { renderAIWire } = require("../src/render");
+const { selectTopHeadlines, fetchAIHeadlines, fetchArxiv, parseArxivAtom, _domain } = require("../src/ai-headlines");
+const { renderAIWire, renderSourceLine } = require("../src/render");
+
+const ARXIV_XML = `<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <title>Scaling Laws for
+    Mixture-of-Experts</title>
+    <id>http://arxiv.org/abs/2606.00001v1</id>
+  </entry>
+  <entry>
+    <title>A New RAG Benchmark</title>
+    <id>http://arxiv.org/abs/2606.00002v1</id>
+  </entry>
+</feed>`;
 
 const hits = [
   { title: "OpenAI releases GPT-5.5", url: "https://openai.com/blog/gpt55", points: 320, num_comments: 210, objectID: "1" },
@@ -79,5 +92,63 @@ describe("renderAIWire", () => {
     const html = renderAIWire([{ title: "<script>x</script>", url: "https://e.com", source: "e.com", points: 1, comments: 0, discussionUrl: null }]);
     assert.ok(!html.includes("<script>x"));
     assert.ok(html.includes("&lt;script&gt;"));
+  });
+
+  it("renders a research tier when research is supplied", () => {
+    const html = renderAIWire([], { research: parseArxivAtom(ARXIV_XML, 2) });
+    assert.ok(html.includes("From the labs"));
+    assert.ok(html.includes("Scaling Laws for Mixture-of-Experts"));
+    assert.ok(html.includes("arxiv.org/abs/2606.00001"));
+  });
+
+  it("returns content when only research is present (no stories)", () => {
+    assert.notEqual(renderAIWire([], { research: parseArxivAtom(ARXIV_XML, 1) }), "");
+    assert.equal(renderAIWire([], { research: [] }), "");
+  });
+});
+
+describe("parseArxivAtom", () => {
+  it("parses entries and normalizes whitespace in titles", () => {
+    const out = parseArxivAtom(ARXIV_XML, 5);
+    assert.equal(out.length, 2);
+    assert.equal(out[0].title, "Scaling Laws for Mixture-of-Experts");
+    assert.equal(out[0].source, "arXiv");
+    assert.equal(out[0].url, "http://arxiv.org/abs/2606.00001v1");
+  });
+  it("respects limit and tolerates junk", () => {
+    assert.equal(parseArxivAtom(ARXIV_XML, 1).length, 1);
+    assert.deepEqual(parseArxivAtom("", 3), []);
+    assert.deepEqual(parseArxivAtom(null, 3), []);
+  });
+});
+
+describe("fetchArxiv", () => {
+  it("returns [] on failure (never throws)", async () => {
+    assert.deepEqual(await fetchArxiv({ fetchImpl: async () => { throw new Error("net"); } }), []);
+    assert.deepEqual(await fetchArxiv({ fetchImpl: async () => ({ ok: false, status: 500 }) }), []);
+  });
+  it("parses a successful response", async () => {
+    const out = await fetchArxiv({ fetchImpl: async () => ({ ok: true, text: async () => ARXIV_XML }), limit: 2 });
+    assert.equal(out.length, 2);
+    assert.equal(out[1].title, "A New RAG Benchmark");
+  });
+});
+
+describe("renderSourceLine", () => {
+  const repo = { url: "https://github.com/a/b", name: "a/b", releaseName: "v1.2.0" };
+  it("renders a source credit with the repo link", () => {
+    const html = renderSourceLine({ repo });
+    assert.ok(html.includes("Source:"));
+    assert.ok(html.includes("a/b"));
+    assert.ok(html.includes("README and release notes"));
+  });
+  it("says project README when there is no release", () => {
+    const html = renderSourceLine({ repo: { ...repo, releaseName: null } });
+    assert.ok(html.includes("project README"));
+  });
+  it("returns empty for trend articles or missing url", () => {
+    assert.equal(renderSourceLine({ repo, _isTrend: true }), "");
+    assert.equal(renderSourceLine({ repo: { url: "#", name: "x" } }), "");
+    assert.equal(renderSourceLine({}), "");
   });
 });

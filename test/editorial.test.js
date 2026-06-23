@@ -1,7 +1,49 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan } = require("../src/editorial");
+const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, selectLeadCandidates } = require("../src/editorial");
+
+describe("selectLeadCandidates", () => {
+  it("backfills below the +100 bar so the editor has a real slate", () => {
+    const repos = [
+      { full_name: "org/breakout", stargazers_count: 2000, description: "x" },
+      { full_name: "org/mover", stargazers_count: 600, description: "x" },
+      { full_name: "org/big1", stargazers_count: 9000, description: "x" },
+      { full_name: "org/big2", stargazers_count: 8000, description: "x" },
+      { full_name: "org/big3", stargazers_count: 7000, description: "x" },
+    ];
+    const deltas = new Map([
+      ["org/breakout", { starDelta: 400, previousStars: 1600, daysSinceSnapshot: 1 }],
+      ["org/mover", { starDelta: 40, previousStars: 560, daysSinceSnapshot: 1 }],
+    ]);
+    const out = selectLeadCandidates(repos, deltas, { min: 4, max: 6 });
+    assert.ok(out.length >= 4, `expected >=4 candidates, got ${out.length}`);
+    assert.equal(out[0].repo.full_name, "org/breakout", "real breakout leads the slate");
+    const names = out.map((c) => c.repo.full_name);
+    assert.ok(names.includes("org/mover"), "sub-100 mover backfilled");
+  });
+
+  it("falls back to high-star repos when there are no deltas", () => {
+    const repos = [
+      { full_name: "org/a", stargazers_count: 100, description: "x" },
+      { full_name: "org/b", stargazers_count: 5000, description: "x" },
+    ];
+    const out = selectLeadCandidates(repos, new Map(), { min: 4, max: 6 });
+    assert.equal(out.length, 2);
+    assert.equal(out[0].repo.full_name, "org/b", "highest-star first when no momentum");
+  });
+});
+
+describe("clusterTrends modern themes", () => {
+  it("clusters MCP repos into an mcp trend", () => {
+    const repos = [
+      { full_name: "a/mcp1", description: "an mcp server", topics: ["mcp"], language: "TS" },
+      { full_name: "a/mcp2", description: "model-context-protocol toolkit", topics: [], language: "TS" },
+    ];
+    const result = clusterTrends(repos);
+    assert.ok(result.find((c) => c.theme === "mcp"), "should form an mcp cluster");
+  });
+});
 
 describe("identifyBreakout", () => {
   it("returns null with no deltas", () => {
