@@ -87,6 +87,31 @@ function renderNewModelsSection(tickerData, fullMarket) {
   </div>`;
 }
 
+function renderRadarSection(untracked) {
+  if (!untracked || untracked.length === 0) return "";
+  const entries = untracked.slice(0, 8);
+  const rows = entries.map((m) => {
+    const provider = (m.id || "").split("/")[0] || "—";
+    return `<tr>
+      <td class="model-name">${escapeHtml(m.name)}</td>
+      <td class="model-provider">${escapeHtml(provider)}</td>
+      <td class="model-price">${formatPrice(m.outputPrice)}</td>
+      <td class="model-added">${m.created ? timeAgo(m.created) : "—"}</td>
+    </tr>`;
+  }).join("\n");
+
+  return `<div class="markets-section">
+    <h2 class="markets-section-title">On Our Radar</h2>
+    <p class="markets-section-desc">Frontier models in the catalog the desk isn't tracking yet &middot; auto-detected daily</p>
+    <div class="markets-table-wrap">
+      <table class="markets-table">
+        <thead><tr><th>Model</th><th>Provider</th><th>Output</th><th>Listed</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
 function renderSunsetWatch(models) {
   const expiring = models.filter((m) => m.expiration_date);
   if (expiring.length === 0) return "";
@@ -253,6 +278,9 @@ function renderMarketsPage(tickerData, fullMarket, options = {}) {
   // --- New on the Market ---
   const newModelsHtml = renderNewModelsSection(tickerData, fullMarket);
 
+  // --- On Our Radar (auto-detected untracked frontier models) ---
+  const radarHtml = renderRadarSection(tickerData.untracked);
+
   // --- Speed Leaderboard ---
   const speedRows = tickerData.speed.map((s, i) => {
     const bar = Math.round((s.tokPerSec / 2500) * 100);
@@ -368,13 +396,26 @@ function renderMarketsPage(tickerData, fullMarket, options = {}) {
     sunsetHtml,
     pricingTableHtml,
     newModelsHtml,
+    radarHtml,
     speedHtml,
     imageHtml,
     catalogHtml,
   ].filter(Boolean).join("\n");
 
+  // Honest freshness stamp: when did the OpenRouter sync last run?
+  let freshness;
+  if (tickerData.syncedAt) {
+    const synced = new Date(tickerData.syncedAt);
+    const stamp = synced.toLocaleString("en-US", {
+      month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short",
+    });
+    freshness = `Live pricing synced from OpenRouter &middot; ${escapeHtml(stamp)}`;
+  } else {
+    freshness = escapeHtml(today);
+  }
+
   return applyTemplate("markets", basePath)
-    .replace("{{MARKETS_DATE}}", escapeHtml(today))
+    .replace("{{MARKETS_DATE}}", freshness)
     .replace("{{MARKETS_CONTENT}}", contentHtml);
 }
 
@@ -384,5 +425,6 @@ module.exports = {
   renderFeatureBadges,
   renderSunsetWatch,
   renderNewModelsSection,
+  renderRadarSection,
   timeAgo,
 };

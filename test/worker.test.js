@@ -59,6 +59,7 @@ function createMockEnv() {
     ALLOWED_ORIGIN: "https://gittimes.com",
     ADMIN_TOKEN: "admin_test_token",
     CHAT_MONTHLY_LIMIT: "100",
+    FREE_DAILY_CHAT_LIMIT: "3",
     STRIPE_PRICE_AMOUNT: "500",
   };
 }
@@ -588,7 +589,7 @@ describe("Worker endpoints", () => {
       assert.equal(JSON.parse(lastChatRequest.opts.body).model, "anthropic/claude-haiku");
     });
 
-    it("blocks free user without session_id", async () => {
+    it("allows free user a daily allowance (no session_id needed)", async () => {
       const token = await createSession(env, "free@test.com", "free");
       const res = await worker.fetch(
         req("POST", "/chat", {
@@ -597,7 +598,24 @@ describe("Worker endpoints", () => {
         }),
         env,
       );
-      assert.equal(res.status, 400);
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get("Content-Type"), "text/event-stream");
+    });
+
+    it("returns 429 with upgrade flag at free daily limit", async () => {
+      const token = await createSession(env, "freecap@test.com", "free", {
+        freeChatUsage: { day: new Date().toISOString().slice(0, 10), count: 3 },
+      });
+      const res = await worker.fetch(
+        req("POST", "/chat", {
+          body: { messages: [{ role: "user", content: "hello" }] },
+          headers: { Authorization: "Bearer " + token },
+        }),
+        env,
+      );
+      assert.equal(res.status, 429);
+      const data = await res.json();
+      assert.equal(data.upgrade, true);
     });
 
     it("returns 429 at monthly chat limit", async () => {

@@ -47,6 +47,10 @@ jobs:
           path: site
         continue-on-error: true # First run won't have gh-pages yet
 
+      - name: Sync AI model data from OpenRouter
+        run: node src/sync-models.js
+        continue-on-error: true # Keep last-synced data if OpenRouter is unreachable
+
       - name: Generate and publish edition
         run: node publish-edition.js
         env:

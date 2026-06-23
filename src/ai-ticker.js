@@ -256,14 +256,33 @@ async function getTickerData(outDir) {
     };
   });
 
-  return { models, speed: speedData, images: imageData, history, indexValue, indexHistory, bannerKeys };
+  return {
+    models,
+    speed: speedData,
+    images: imageData,
+    history,
+    indexValue,
+    indexHistory,
+    bannerKeys,
+    untracked: synced?.untracked || [],
+    syncedAt: synced?.syncedAt || null,
+  };
 }
 
 /**
  * Get the full OpenRouter catalog for the markets page.
- * Must be called after getTickerData() if live fetch was triggered.
+ * Prefers the catalog persisted by sync-models.js (data/ai-models.json) so the
+ * "All Models by Provider" section renders on every daily build. Falls back to
+ * the in-memory live-fetch cache only when no synced catalog exists.
  */
 function getFullMarketData() {
+  // Preferred path: synced catalog written by sync-models.js
+  const synced = loadSyncedData();
+  if (synced && Array.isArray(synced.catalog) && synced.catalog.length > 0) {
+    return synced.catalog;
+  }
+
+  // Fallback: in-memory cache from a live fetch this run
   if (!_cachedOpenRouterData) return null;
 
   return _cachedOpenRouterData

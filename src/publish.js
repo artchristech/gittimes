@@ -299,6 +299,28 @@ async function publish(content, outDir, options = {}) {
     if (!fs.existsSync(marketsDir)) fs.mkdirSync(marketsDir, { recursive: true });
     const marketsHtml = renderMarketsPage(options.tickerData, options.fullMarketData || null, { basePath, siteUrl });
     fs.writeFileSync(path.join(marketsDir, "index.html"), marketsHtml);
+
+    // 10c. Publish a compact model-pricing summary the chat worker can fetch,
+    // so the AI assistant can answer live pricing questions for builders.
+    const td = options.tickerData;
+    const summary = {
+      syncedAt: td.syncedAt || null,
+      indexValue: td.indexValue ?? null,
+      models: (td.models || [])
+        .filter((m) => m.output != null)
+        .map((m) => ({
+          label: m.label,
+          provider: m.provider,
+          input: m.input,
+          output: m.output,
+          context_length: m.context_length || null,
+          input_modalities: m.input_modalities || null,
+        })),
+      onRadar: (td.untracked || []).slice(0, 6).map((m) => ({ name: m.name, output: m.outputPrice })),
+    };
+    const dataDir = path.join(outDir, "data");
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(path.join(dataDir, "models.json"), JSON.stringify(summary));
   }
 
   // 11. Generate custom 404 page

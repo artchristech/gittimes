@@ -22,38 +22,42 @@
   // Reveal the per-article "Ask about this" buttons now that chat is available.
   document.body.classList.add('chat-on');
 
+  function showChat() {
+    paywall.style.display = 'none';
+    inputRow.style.display = 'flex';
+  }
+  function showPaywall() {
+    paywall.style.display = 'flex';
+    inputRow.style.display = 'none';
+  }
+
   function updatePaywall() {
     if (sessionId) {
-      paywall.style.display = 'none';
-      inputRow.style.display = 'flex';
+      // Legacy Stripe checkout session (24h)
+      showChat();
     } else if (accountSession) {
+      // Any logged-in account can chat — free accounts get a daily allowance,
+      // premium gets unlimited. Only anonymous visitors hit the paywall.
       fetch(WORKER + '/auth/me', {
         headers: { 'Authorization': 'Bearer ' + accountSession }
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.ok && data.user && data.user.plan === 'premium') {
-          paywall.style.display = 'none';
-          inputRow.style.display = 'flex';
-        } else {
-          paywall.style.display = 'flex';
-          inputRow.style.display = 'none';
-        }
+        if (data.ok && data.user) showChat();
+        else showPaywall();
       })
-      .catch(function() {
-        paywall.style.display = 'flex';
-        inputRow.style.display = 'none';
-      });
+      .catch(showPaywall);
     } else {
-      paywall.style.display = 'flex';
-      inputRow.style.display = 'none';
+      showPaywall();
     }
   }
   updatePaywall();
 
   if (accountSession) {
+    unlockBtn.textContent = 'Upgrade to Premium';
     unlockBtn.href = WORKER + '/checkout?session_token=' + encodeURIComponent(accountSession);
   } else {
+    unlockBtn.textContent = 'Sign in — it’s free';
     unlockBtn.href = '/account/?error=login_required';
   }
 
@@ -141,6 +145,54 @@
     openPanel();
   });
 
+  // --- Minimal, safe Markdown renderer (escape first, then format) ---
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function renderInline(s) {
+    return esc(s)
+      .replace(/`([^`]+)`/g, function(_, c) { return '<code>' + c + '</code>'; })
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  }
+  function renderMarkdown(text) {
+    var out = [], lines = text.split('\n'), i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+      // Fenced code block
+      if (/^```/.test(line)) {
+        var code = [];
+        i++;
+        while (i < lines.length && !/^```/.test(lines[i])) { code.push(lines[i]); i++; }
+        i++;
+        out.push('<pre><code>' + esc(code.join('\n')) + '</code></pre>');
+        continue;
+      }
+      // List block
+      if (/^\s*[-*]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
+        var ordered = /^\s*\d+\.\s+/.test(line);
+        var items = [];
+        while (i < lines.length && (/^\s*[-*]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))) {
+          items.push('<li>' + renderInline(lines[i].replace(/^\s*([-*]|\d+\.)\s+/, '')) + '</li>');
+          i++;
+        }
+        out.push((ordered ? '<ol>' : '<ul>') + items.join('') + (ordered ? '</ol>' : '</ul>'));
+        continue;
+      }
+      if (line.trim() === '') { i++; continue; }
+      // Paragraph (gather consecutive non-blank, non-block lines)
+      var para = [line];
+      i++;
+      while (i < lines.length && lines[i].trim() !== '' && !/^```/.test(lines[i]) &&
+             !/^\s*[-*]\s+/.test(lines[i]) && !/^\s*\d+\.\s+/.test(lines[i])) {
+        para.push(lines[i]); i++;
+      }
+      out.push('<p>' + renderInline(para.join(' ')) + '</p>');
+    }
+    return out.join('');
+  }
+
   function addMsg(role, text) {
     var div = document.createElement('div');
     div.className = role === 'user' ? 'chat-msg-user' : 'chat-msg-ai';
@@ -150,11 +202,21 @@
     return div;
   }
 
+  // Starter-question chips: click to ask.
+  document.addEventListener('click', function(e) {
+    var chip = e.target.closest && e.target.closest('.chat-starter');
+    if (!chip) return;
+    input.value = chip.textContent.trim();
+    sendMessage();
+  });
+
   async function sendMessage() {
     var text = input.value.trim();
     if (!text) return;
     input.value = '';
     sendBtn.disabled = true;
+    var starters = document.getElementById('chat-starters');
+    if (starters) starters.style.display = 'none';
     addMsg('user', text);
 
     var context = getContext();
@@ -185,6 +247,23 @@
         return;
       }
 
+      if (res.status === 429) {
+        var info = {};
+        try { info = await res.json(); } catch (e) {}
+        var note = info.message || 'You’ve reached your limit for now.';
+        aiDiv.classList.remove('streaming');
+        aiDiv.innerHTML = renderMarkdown(note);
+        if (info.upgrade) {
+          var up = document.createElement('a');
+          up.className = 'chat-upgrade-link';
+          up.href = accountSession ? (WORKER + '/checkout?session_token=' + encodeURIComponent(accountSession)) : '/account/';
+          up.textContent = 'Upgrade to Premium →';
+          aiDiv.appendChild(up);
+        }
+        sendBtn.disabled = false;
+        return;
+      }
+
       if (!res.ok) throw new Error('Request failed');
 
       var reader = res.body.getReader();
@@ -207,7 +286,7 @@
             var delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
             if (delta && delta.content) {
               full += delta.content;
-              aiDiv.textContent = full;
+              aiDiv.innerHTML = renderMarkdown(full);
               msgs.scrollTop = msgs.scrollHeight;
             }
           } catch(e) {}

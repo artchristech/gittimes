@@ -353,22 +353,28 @@ function renderChatUi() {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   </button>
   <div class="chat-panel" id="chat-panel">
-    <div class="chat-header">Git Times Chat</div>
+    <div class="chat-header"><span class="chat-live-dot" aria-hidden="true"></span>The Git Times <span class="chat-header-tag">AI Desk</span></div>
     <div class="chat-context" id="chat-context" style="display:none">
       <span class="chat-context-label" id="chat-context-label"></span>
       <button class="chat-context-clear" id="chat-context-clear" type="button" aria-label="Clear story focus">&times;</button>
     </div>
     <div class="chat-messages" id="chat-messages">
       <div class="chat-msg-ai">Ask about today's stories &mdash; or hit &ldquo;Ask about this&rdquo; on any article to focus on one.</div>
+      <div class="chat-starters" id="chat-starters">
+        <button class="chat-starter" type="button">Summarize today's top story</button>
+        <button class="chat-starter" type="button">What's the cheapest model with vision?</button>
+        <button class="chat-starter" type="button">Which tool from today should I try first?</button>
+      </div>
     </div>
     <div class="chat-paywall" id="chat-paywall">
-      <p>Unlock AI chat to ask questions about today's stories.</p>
+      <p>Unlock the Git Times AI desk to ask about today's stories and the AI model market.</p>
       <a class="chat-paywall-btn" id="chat-unlock-btn">Upgrade to Premium</a>
     </div>
     <div class="chat-input-row" id="chat-input-row" style="display:none">
       <input class="chat-input" id="chat-input" type="text" placeholder="Ask about an article..." autocomplete="off">
       <button class="chat-send" id="chat-send">Send</button>
     </div>
+    <div class="chat-byline">Answers by the Git Times AI desk &middot; verify before you ship</div>
   </div>`;
 }
 

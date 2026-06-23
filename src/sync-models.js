@@ -46,6 +46,39 @@ function findModel(catalog, openrouterId) {
 }
 
 /**
+ * Build a trimmed full-catalog snapshot of every priced model on OpenRouter.
+ * Persisted into data/ai-models.json so the markets page "All Models by
+ * Provider" section stays fresh daily WITHOUT a live fetch at publish time.
+ * (Previously the catalog only existed in an in-memory cache populated during
+ * a live fallback fetch, so a healthy sync left the live page's catalog empty.)
+ */
+function buildCatalog(catalog) {
+  return catalog
+    .filter((m) => m.pricing && parseFloat(m.pricing.prompt) > 0 && m.id)
+    .map((m) => {
+      const rawCache = m.pricing?.input_cache_read;
+      const cacheVal = rawCache ? parseFloat(rawCache) * 1_000_000 : null;
+      const desc = m.description ? String(m.description).slice(0, 160) : null;
+      return {
+        id: m.id,
+        name: m.name || m.id,
+        context_length: m.context_length || null,
+        input: parseFloat(m.pricing.prompt) * 1_000_000,
+        output: parseFloat(m.pricing.completion) * 1_000_000,
+        cache_read_price: cacheVal != null && !isNaN(cacheVal) ? cacheVal : null,
+        max_completion_tokens: m.top_provider?.max_completion_tokens || null,
+        modality: m.architecture?.modality || null,
+        input_modalities: m.architecture?.input_modalities || null,
+        supported_parameters: m.supported_parameters || null,
+        created: m.created || null,
+        description: desc,
+        hugging_face_id: m.hugging_face_id || null,
+      };
+    })
+    .sort((a, b) => b.output - a.output);
+}
+
+/**
  * Detect notable models in the catalog that aren't being tracked.
  * Filters for high-output-price models from major providers.
  */
@@ -167,21 +200,25 @@ async function main() {
   const trackedIds = curated.trackedModels.map((t) => t.openrouterId);
   const untracked = detectUntracked(catalog, trackedIds);
 
+  // Persist the full priced catalog so the markets page renders it every day
+  const fullCatalog = buildCatalog(catalog);
+
   // Build output
   const output = {
     syncedAt: new Date().toISOString(),
     source: "openrouter",
-    stats: { total: models.length, matched, missed },
+    stats: { total: models.length, matched, missed, catalog: fullCatalog.length },
     models,
     bannerKeys: curated.bannerKeys,
     speed: curated.speed,
     images: curated.images,
     untracked: untracked.length > 0 ? untracked : undefined,
+    catalog: fullCatalog,
   };
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2));
   console.log(`[sync-models] Wrote ${OUTPUT_PATH}`);
-  console.log(`[sync-models] ${matched} matched, ${missed} missed`);
+  console.log(`[sync-models] ${matched} matched, ${missed} missed, ${fullCatalog.length} in full catalog`);
 
   if (untracked.length > 0) {
     console.log(`[sync-models] ${untracked.length} untracked frontier models detected:`);
@@ -191,4 +228,8 @@ async function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = { buildCatalog, detectUntracked, findModel };

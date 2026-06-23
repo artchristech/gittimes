@@ -6,8 +6,40 @@ const {
   renderFeatureBadges,
   renderSunsetWatch,
   renderNewModelsSection,
+  renderRadarSection,
   timeAgo,
 } = require("../src/markets");
+const { buildCatalog } = require("../src/sync-models");
+
+describe("renderRadarSection", () => {
+  it("renders auto-detected untracked frontier models", () => {
+    const html = renderRadarSection([
+      { id: "openai/gpt-5.5-pro", name: "OpenAI: GPT-5.5 Pro", outputPrice: 180, created: Math.floor(Date.now() / 1000) },
+    ]);
+    assert.ok(html.includes("On Our Radar"));
+    assert.ok(html.includes("GPT-5.5 Pro"));
+    assert.ok(html.includes("openai"));
+  });
+  it("returns empty string when nothing untracked", () => {
+    assert.equal(renderRadarSection([]), "");
+    assert.equal(renderRadarSection(null), "");
+  });
+});
+
+describe("buildCatalog (sync persists full catalog)", () => {
+  it("includes every priced model, sorted by output desc", () => {
+    const raw = [
+      { id: "a/cheap", name: "Cheap", pricing: { prompt: "0.000001", completion: "0.000002" }, context_length: 8000 },
+      { id: "b/pricey", name: "Pricey", pricing: { prompt: "0.00001", completion: "0.00005" } },
+      { id: "c/free", name: "Free", pricing: { prompt: "0", completion: "0" } },
+    ];
+    const cat = buildCatalog(raw);
+    assert.equal(cat.length, 2, "free (prompt=0) model is excluded");
+    assert.equal(cat[0].name, "Pricey", "sorted by output price desc");
+    assert.equal(cat[0].output, 50);
+    assert.equal(cat[1].input, 1);
+  });
+});
 
 describe("renderModalityBadges", () => {
   it("renders badges for multimodal input", () => {

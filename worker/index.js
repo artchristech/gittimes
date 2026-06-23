@@ -3,6 +3,66 @@
 const CHAT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
 const CHAT_BASE_URL = "https://openrouter.ai/api/v1";
 
+// --- AI assistant system prompt + live market context ---
+
+// Cached compact model-pricing summary published by the daily edition
+// (site /data/models.json). Lets the assistant answer live pricing questions.
+let _marketCache = { at: 0, data: null };
+const MARKET_TTL_MS = 6 * 60 * 60 * 1000; // 6h
+
+async function getMarketContext(env, now) {
+  const ts = now || _nowMs();
+  if (_marketCache.data && ts - _marketCache.at < MARKET_TTL_MS) return _marketCache.data;
+  try {
+    const origin = env.SITE_BASE_URL || "https://gittimes.com";
+    const res = await fetch(`${origin}/data/models.json`, {
+      signal: AbortSignal.timeout(4000),
+      cf: { cacheTtl: 21600, cacheEverything: true },
+    });
+    if (!res.ok) return _marketCache.data;
+    const summary = await res.json();
+    _marketCache = { at: ts, data: summary };
+    return summary;
+  } catch {
+    return _marketCache.data;
+  }
+}
+
+function _nowMs() {
+  return Date.now();
+}
+
+function buildSystemPrompt(market) {
+  const today = new Date().toISOString().slice(0, 10);
+  let priceBlock = "";
+  if (market && Array.isArray(market.models) && market.models.length) {
+    const rows = market.models
+      .slice(0, 12)
+      .map((m) => {
+        const ctx = m.context_length
+          ? m.context_length >= 1e6
+            ? `${(m.context_length / 1e6).toFixed(1)}M ctx`
+            : `${Math.round(m.context_length / 1000)}k ctx`
+          : "";
+        const vision = (m.input_modalities || []).includes("image") ? " vision" : "";
+        return `- ${m.label} (${m.provider}): $${m.input}/M in, $${m.output}/M out${ctx ? ", " + ctx : ""}${vision}`;
+      })
+      .join("\n");
+    priceBlock = `\n\nLIVE AI MODEL PRICING (per 1M tokens, from OpenRouter, synced ${market.syncedAt ? market.syncedAt.slice(0, 10) : "recently"}). Use this when a builder asks what model to use or what something costs:\n${rows}\nFull table: https://gittimes.com/markets/`;
+  }
+  return `You are the Git Times AI desk — the resident assistant of The Git Times, a daily newspaper for software builders. Today is ${today}.
+
+Your readers are engineers, founders, and indie hackers. Your job is to turn today's developer news and the open-source landscape into signal they can act on.
+
+How you answer:
+- Be concrete and technical. Lead with the answer, then the reasoning. No hype, no filler, no hedging.
+- When discussing a project from the paper, ground your answer in the article context you were given.
+- Help builders DECIDE: which tool to reach for, how it compares to alternatives, what it would take to adopt, and the trade-offs.
+- Format with Markdown: **bold** for key terms, \`backticks\` for code, tools, and commands, and bullet lists for comparisons or steps. Use short code blocks when a snippet helps.
+- Keep it tight — a few sharp paragraphs, not an essay. End with a useful next step or a sharper follow-up question when it fits.
+- If you don't know or the context doesn't say, say so plainly rather than inventing details.${priceBlock}`;
+}
+
 // --- Stats counter helpers ---
 
 async function incrementStat(kv, key, delta) {
@@ -505,6 +565,8 @@ const handler = {
         success_url: `${allowed}/account/?upgraded=true`,
         customer_email: sessionData.email,
         "metadata[user_email]": sessionData.email,
+        allow_promotion_codes: "true",
+        payment_method_collection: "if_required",
       };
 
       const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
@@ -689,7 +751,9 @@ const handler = {
         });
       }
 
-      // Check account-based auth first (Bearer token)
+      // Check account-based auth first (Bearer token).
+      // Tiering: registered FREE accounts get a small daily allowance (a taste of
+      // the AI desk that drives conversion); PREMIUM gets a high monthly cap.
       let authorized = false;
       const accountUser = await getSessionUser(request, env);
       if (accountUser) {
@@ -700,7 +764,7 @@ const handler = {
           if (!accountUser.chatUsage || accountUser.chatUsage.month !== currentMonth) {
             accountUser.chatUsage = { month: currentMonth, count: 0 };
           }
-          const chatLimit = parseInt(env.CHAT_MONTHLY_LIMIT || "100");
+          const chatLimit = parseInt(env.CHAT_MONTHLY_LIMIT || "1000");
           if (accountUser.chatUsage.count >= chatLimit) {
             return new Response(JSON.stringify({ error: "Monthly chat limit reached" }), {
               status: 429,
@@ -708,6 +772,26 @@ const handler = {
             });
           }
           accountUser.chatUsage.count++;
+          await env.USERS.put(accountUser.email, JSON.stringify(accountUser));
+          authorized = true;
+        } else {
+          // Free registered account — daily allowance
+          const today = new Date().toISOString().slice(0, 10);
+          if (!accountUser.freeChatUsage || accountUser.freeChatUsage.day !== today) {
+            accountUser.freeChatUsage = { day: today, count: 0 };
+          }
+          const freeLimit = parseInt(env.FREE_DAILY_CHAT_LIMIT || "3");
+          if (accountUser.freeChatUsage.count >= freeLimit) {
+            return new Response(JSON.stringify({
+              error: "Free daily limit reached",
+              upgrade: true,
+              message: `You've used your ${freeLimit} free AI questions for today. Upgrade to Premium for unlimited access.`,
+            }), {
+              status: 429,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          accountUser.freeChatUsage.count++;
           await env.USERS.put(accountUser.email, JSON.stringify(accountUser));
           authorized = true;
         }
@@ -752,21 +836,21 @@ const handler = {
 
       // Proxy to the LLM provider (OpenRouter) with streaming
       const baseUrl = env.LLM_BASE_URL || CHAT_BASE_URL;
+      const market = await getMarketContext(env);
       const aiRes = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
+          "HTTP-Referer": "https://gittimes.com",
+          "X-Title": "The Git Times",
         },
         body: JSON.stringify({
           model: env.CHAT_MODEL || CHAT_MODEL,
           stream: true,
+          temperature: 0.6,
           messages: [
-            {
-              role: "system",
-              content:
-                "You are The Git Times assistant. You help readers understand trending GitHub repositories and developer news. Be concise, technical, and helpful. When given article context, answer questions about those specific projects.",
-            },
+            { role: "system", content: buildSystemPrompt(market) },
             ...messages,
           ],
         }),
