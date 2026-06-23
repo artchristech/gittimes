@@ -696,7 +696,7 @@ async function assembleArticlePage(article, options = {}) {
     .replace("{{ARTICLE_CONTENT}}", articleContent)
     .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
     .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
-    .replace("{{OG_URL}}", articleUrl)
+    .replace(/\{\{OG_URL\}\}/g, articleUrl)
     .replace(/\{\{SHARE_TEXT\}\}/g, shareText)
     .replace(/\{\{SHARE_URL\}\}/g, shareUrl)
     .replace("{{FEED_URL}}", siteUrl + "/feed.xml")
