@@ -1522,8 +1522,9 @@ body {
   bottom: 88px;
   right: 24px;
   z-index: 200;
-  width: 360px;
-  max-height: 480px;
+  width: 440px;
+  max-width: calc(100vw - 48px);
+  max-height: min(640px, calc(100vh - 120px));
   background: var(--paper);
   border: 1px solid var(--rule-light);
   border-radius: 12px;
@@ -2551,16 +2552,18 @@ body.account {
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div>
 </section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="gemma-gem" data-url="https://github.com/kessler/gemma-gem">
         <span class="quick-hit-name"><a href="https://github.com/kessler/gemma-gem" target="_blank">gemma-gem</a></span>
         <span class="quick-hit-summary">Gemma Gem runs Google&#39;s Gemma 4 model entirely on-device in-browser via WebGPU, delivering private local AI with no keys, cloud, or data leaks.</span>
         <span class="quick-hit-stars">452</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="tailslayer" data-url="https://github.com/LaurieWired/tailslayer">
         <span class="quick-hit-name"><a href="https://github.com/LaurieWired/tailslayer" target="_blank">tailslayer</a></span>
         <span class="quick-hit-summary">Tailslayer is a C++ library that cuts tail latency on RAM reads, giving consistent high-speed memory access for latency-sensitive code.</span>
         <span class="quick-hit-stars">805</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="ai">
       <article class="hybrid-article hybrid-lead" data-slug="data-engineering-zoomcamp-refreshes-2026-curriculum">
@@ -2636,40 +2639,46 @@ body.account {
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="DeepSpeed" data-url="https://github.com/deepspeedai/DeepSpeed">
         <span class="quick-hit-name"><a href="https://github.com/deepspeedai/DeepSpeed" target="_blank">DeepSpeed</a></span>
         <span class="quick-hit-summary">DeepSpeed optimizes distributed deep learning with tools that slash training and inference time while scaling effortlessly to massive models.</span>
         <span class="quick-hit-stars">42k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="transformers" data-url="https://github.com/huggingface/transformers">
         <span class="quick-hit-name"><a href="https://github.com/huggingface/transformers" target="_blank">transformers</a></span>
         <span class="quick-hit-summary">Transformers delivers a unified framework to build, train, and deploy cutting-edge models across text, vision, audio, and multimodal tasks.</span>
         <span class="quick-hit-stars">159k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="AutoGPT" data-url="https://github.com/Significant-Gravitas/AutoGPT">
         <span class="quick-hit-name"><a href="https://github.com/Significant-Gravitas/AutoGPT" target="_blank">AutoGPT</a></span>
         <span class="quick-hit-summary">AutoGPT equips builders with autonomous agents that independently execute complex goals, turning ideas into working AI systems fast.</span>
         <span class="quick-hit-stars">183.2k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="openclaw" data-url="https://github.com/openclaw/openclaw">
         <span class="quick-hit-name"><a href="https://github.com/openclaw/openclaw" target="_blank">openclaw</a></span>
         <span class="quick-hit-summary">OpenClaw builds your personal cross-platform AI assistant that runs natively on any OS, delivering flexible intelligence anywhere.</span>
         <span class="quick-hit-stars">351.6k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="gemini-cli" data-url="https://github.com/google-gemini/gemini-cli">
         <span class="quick-hit-name"><a href="https://github.com/google-gemini/gemini-cli" target="_blank">gemini-cli</a></span>
         <span class="quick-hit-summary">Gemini-CLI injects Google&#39;s powerful Gemini models straight into your terminal for instant AI assistance and automation at the command line.</span>
         <span class="quick-hit-stars">100.6k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="open-webui" data-url="https://github.com/open-webui/open-webui">
         <span class="quick-hit-name"><a href="https://github.com/open-webui/open-webui" target="_blank">open-webui</a></span>
         <span class="quick-hit-summary">User-friendly AI Interface (Supports Ollama, OpenAI API, ...)</span>
         <span class="quick-hit-stars">130.6k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="robotics">
       <article class="hybrid-article hybrid-lead" data-slug="botbrain-delivers-modular-control-for-legged-robots">
@@ -2739,40 +2748,46 @@ body.account {
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="navigation2" data-url="https://github.com/ros-navigation/navigation2">
         <span class="quick-hit-name"><a href="https://github.com/ros-navigation/navigation2" target="_blank">navigation2</a></span>
         <span class="quick-hit-summary">ROS 2 Navigation2 provides a complete C++ framework for robot localization, mapping, path planning, and control in dynamic environments.</span>
         <span class="quick-hit-stars">4.1k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="robot_descriptions.py" data-url="https://github.com/robot-descriptions/robot_descriptions.py">
         <span class="quick-hit-name"><a href="https://github.com/robot-descriptions/robot_descriptions.py" target="_blank">robot_descriptions.py</a></span>
         <span class="quick-hit-summary">Instantly access and integrate 175+ standardized robot models from major Python robotics frameworks for simulation and analysis.</span>
         <span class="quick-hit-stars">732</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="gz-sim" data-url="https://github.com/gazebosim/gz-sim">
         <span class="quick-hit-name"><a href="https://github.com/gazebosim/gz-sim" target="_blank">gz-sim</a></span>
         <span class="quick-hit-summary">Test robots safely in Gazebo&#39;s latest high-fidelity open-source simulator with realistic physics, sensors, and 3D environments.</span>
         <span class="quick-hit-stars">1.3k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="rerun" data-url="https://github.com/rerun-io/rerun">
         <span class="quick-hit-name"><a href="https://github.com/rerun-io/rerun" target="_blank">rerun</a></span>
         <span class="quick-hit-summary">Log, store, query, and interactively visualize multimodal multi-rate data streams with Rerun&#39;s high-performance Rust SDK.</span>
         <span class="quick-hit-stars">10.5k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="carla" data-url="https://github.com/carla-simulator/carla">
         <span class="quick-hit-name"><a href="https://github.com/carla-simulator/carla" target="_blank">carla</a></span>
         <span class="quick-hit-summary">Develop autonomous driving systems in CARLA&#39;s realistic open-source simulator featuring accurate sensors, traffic, and urban scenarios.</span>
         <span class="quick-hit-stars">13.8k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="openpilot" data-url="https://github.com/commaai/openpilot">
         <span class="quick-hit-name"><a href="https://github.com/commaai/openpilot" target="_blank">openpilot</a></span>
         <span class="quick-hit-summary">openpilot is an operating system for robotics. Currently, it upgrades the driver assistance system on 300+ supported cars.</span>
         <span class="quick-hit-stars">60.5k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="cyber">
       <article class="hybrid-article hybrid-lead" data-slug="fresh-update-sharpens-curated-list-of-hacker-search-engines">
@@ -2849,40 +2864,46 @@ body.account {
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="subfinder" data-url="https://github.com/projectdiscovery/subfinder">
         <span class="quick-hit-name"><a href="https://github.com/projectdiscovery/subfinder" target="_blank">subfinder</a></span>
         <span class="quick-hit-summary">Subfinder rapidly maps attack surfaces via passive subdomain enumeration, helping builders uncover hidden targets without triggering alerts.</span>
         <span class="quick-hit-stars">13.4k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="trivy" data-url="https://github.com/aquasecurity/trivy">
         <span class="quick-hit-name"><a href="https://github.com/aquasecurity/trivy" target="_blank">trivy</a></span>
         <span class="quick-hit-summary">Trivy scans containers, Kubernetes, clouds, and code for vulnerabilities, misconfigs, secrets, and SBOMs in one fast pipeline tool.</span>
         <span class="quick-hit-stars">34.4k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="sherlock" data-url="https://github.com/sherlock-project/sherlock">
         <span class="quick-hit-name"><a href="https://github.com/sherlock-project/sherlock" target="_blank">sherlock</a></span>
         <span class="quick-hit-summary">Sherlock instantly locates social accounts by username across hundreds of networks, powering efficient OSINT for investigations.</span>
         <span class="quick-hit-stars">80.4k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="yakit" data-url="https://github.com/yaklang/yakit">
         <span class="quick-hit-name"><a href="https://github.com/yaklang/yakit" target="_blank">yakit</a></span>
         <span class="quick-hit-summary">Yakit bundles an all-in-one cybersecurity toolkit for scanning, exploitation, and analysis, streamlining workflows in a single platform.</span>
         <span class="quick-hit-stars">7.1k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="opencti" data-url="https://github.com/OpenCTI-Platform/opencti">
         <span class="quick-hit-name"><a href="https://github.com/OpenCTI-Platform/opencti" target="_blank">opencti</a></span>
         <span class="quick-hit-summary">OpenCTI structures threat data into a collaborative knowledge base, letting teams track actors, malware, and campaigns with clarity.</span>
         <span class="quick-hit-stars">9.1k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="ProxmoxVE" data-url="https://github.com/community-scripts/ProxmoxVE">
         <span class="quick-hit-name"><a href="https://github.com/community-scripts/ProxmoxVE" target="_blank">ProxmoxVE</a></span>
         <span class="quick-hit-summary">Proxmox VE Helper-Scripts (Community Edition) </span>
         <span class="quick-hit-stars">27.5k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="systems">
       <article class="hybrid-article hybrid-lead" data-slug="meilisearch-adds-dynamic-rules-to-control-hybrid-search-results">
@@ -2980,34 +3001,39 @@ body.account {
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="rustdesk" data-url="https://github.com/rustdesk/rustdesk">
         <span class="quick-hit-name"><a href="https://github.com/rustdesk/rustdesk" target="_blank">rustdesk</a></span>
         <span class="quick-hit-summary">Self-host secure remote desktop access with RustDesk, an open-source TeamViewer alternative that puts full control in your infrastructure.</span>
         <span class="quick-hit-stars">110.8k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="openssl" data-url="https://github.com/openssl/openssl">
         <span class="quick-hit-name"><a href="https://github.com/openssl/openssl" target="_blank">openssl</a></span>
         <span class="quick-hit-summary">Add battle-tested TLS, SSL, and cryptography to your apps with OpenSSL, the foundational library behind secure internet protocols.</span>
         <span class="quick-hit-stars">29.9k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="react-native" data-url="https://github.com/facebook/react-native">
         <span class="quick-hit-name"><a href="https://github.com/facebook/react-native" target="_blank">react-native</a></span>
         <span class="quick-hit-summary">Ship native iOS and Android apps using React with React Native, blending declarative UI with true device performance.</span>
         <span class="quick-hit-stars">125.7k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="ollama" data-url="https://github.com/ollama/ollama">
         <span class="quick-hit-name"><a href="https://github.com/ollama/ollama" target="_blank">ollama</a></span>
         <span class="quick-hit-summary">Run cutting-edge models like DeepSeek, Qwen, and Gemma locally with Ollama, giving builders instant AI capabilities without cloud vendors.</span>
         <span class="quick-hit-stars">168.1k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="php-src" data-url="https://github.com/php/php-src">
         <span class="quick-hit-name"><a href="https://github.com/php/php-src" target="_blank">php-src</a></span>
         <span class="quick-hit-summary">Extend or hack the PHP runtime itself with php-src, the C engine powering dynamic web apps and server-side scripting.</span>
         <span class="quick-hit-stars">40k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="diy">
       <article class="hybrid-article hybrid-lead" data-slug="gdsfactory-9-39-3-refines-bend-accuracy-and-schematic-support">
@@ -3113,34 +3139,39 @@ c.show()
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="tulipcc" data-url="https://github.com/shorepine/tulipcc">
         <span class="quick-hit-name"><a href="https://github.com/shorepine/tulipcc" target="_blank">tulipcc</a></span>
         <span class="quick-hit-summary">Tulipcc is a portable Python synthesizer that lets builders code live music and graphics on a battery-powered creative computer.</span>
         <span class="quick-hit-stars">863</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="node-feature-discovery" data-url="https://github.com/kubernetes-sigs/node-feature-discovery">
         <span class="quick-hit-name"><a href="https://github.com/kubernetes-sigs/node-feature-discovery" target="_blank">node-feature-discovery</a></span>
         <span class="quick-hit-summary">Node Feature Discovery automatically detects and labels Kubernetes node hardware capabilities for smarter workload scheduling and optimization.</span>
         <span class="quick-hit-stars">1k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="micrOS" data-url="https://github.com/BxNxM/micrOS">
         <span class="quick-hit-name"><a href="https://github.com/BxNxM/micrOS" target="_blank">micrOS</a></span>
         <span class="quick-hit-summary">micrOS is a tiny async OS that brings Python-powered multitasking to DIY microcontroller automation projects.</span>
         <span class="quick-hit-stars">135</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="glasgow" data-url="https://github.com/GlasgowEmbedded/glasgow">
         <span class="quick-hit-name"><a href="https://github.com/GlasgowEmbedded/glasgow" target="_blank">glasgow</a></span>
         <span class="quick-hit-summary">Glasgow is a flexible FPGA-based tool for probing, debugging, and interfacing with virtually any digital electronics hardware.</span>
         <span class="quick-hit-stars">2.1k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="pikvm" data-url="https://github.com/pikvm/pikvm">
         <span class="quick-hit-name"><a href="https://github.com/pikvm/pikvm" target="_blank">pikvm</a></span>
         <span class="quick-hit-summary">PiKVM turns a Raspberry Pi into an open-source IP-KVM for cheap remote keyboard-video-mouse control of any machine.</span>
         <span class="quick-hit-stars">9.9k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 <div class="section-panel" data-section="gameDev">
       <article class="hybrid-article hybrid-lead" data-slug="bgfx-sustains-cross-platform-graphics-leadership-with-rust-and-webgpu">
@@ -3237,34 +3268,39 @@ c.show()
         
         <button class="hybrid-toggle" aria-expanded="false">Read more</button>
       </article></div></section><section class="quick-hits-section"><h2 class="section-header">Quick Hits</h2><div class="quick-hits-list">
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="bevy" data-url="https://github.com/bevyengine/bevy">
         <span class="quick-hit-name"><a href="https://github.com/bevyengine/bevy" target="_blank">bevy</a></span>
         <span class="quick-hit-summary">Build games with Bevy, a refreshingly simple data-driven Rust engine that delivers fast iteration and clean architecture for 2D and 3D projects.</span>
         <span class="quick-hit-stars">45.5k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="mpv-config" data-url="https://github.com/dyphire/mpv-config">
         <span class="quick-hit-name"><a href="https://github.com/dyphire/mpv-config" target="_blank">mpv-config</a></span>
         <span class="quick-hit-summary">Transform mpv into a powerhouse Windows media player with this tuned config packed with custom GLSL shaders and optimized playback settings.</span>
         <span class="quick-hit-stars">1.6k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="Godot-Game-Template" data-url="https://github.com/Maaack/Godot-Game-Template">
         <span class="quick-hit-name"><a href="https://github.com/Maaack/Godot-Game-Template" target="_blank">Godot-Game-Template</a></span>
         <span class="quick-hit-summary">Launch Godot projects instantly using this complete template with menus, pause system, scene loader, tools, and a ready example game scene.</span>
         <span class="quick-hit-stars">1.3k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="godot-ai-assistant-hub" data-url="https://github.com/FlamxGames/godot-ai-assistant-hub">
         <span class="quick-hit-name"><a href="https://github.com/FlamxGames/godot-ai-assistant-hub" target="_blank">godot-ai-assistant-hub</a></span>
         <span class="quick-hit-summary">Embed AI assistants directly in Godot that read and edit code inside the editor to accelerate development and debugging workflows.</span>
         <span class="quick-hit-stars">242</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>
 
-      <div class="quick-hit">
+      <div class="quick-hit" data-repo="entt" data-url="https://github.com/skypjack/entt">
         <span class="quick-hit-name"><a href="https://github.com/skypjack/entt" target="_blank">entt</a></span>
         <span class="quick-hit-summary">Build high-performance games in modern C++ with EnTT, a fast reliable ECS that makes complex entity management clean and efficient.</span>
         <span class="quick-hit-stars">12.5k</span>
+              <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div></div><button class="quick-hits-toggle">Show more</button></section></div>
 
   

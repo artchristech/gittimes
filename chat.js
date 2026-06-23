@@ -79,7 +79,12 @@
 
   function articleTitle(article) {
     var hh = article.querySelector('.hybrid-headline');
-    if (!hh) return 'this story';
+    if (!hh) {
+      // Quick hits have no headline; use the repo name link instead.
+      var qn = article.querySelector('.quick-hit-name');
+      if (qn) return qn.textContent.trim() || 'this story';
+      return 'this story';
+    }
     var clone = hh.cloneNode(true);
     var share = clone.querySelector('.hybrid-share');
     if (share) share.remove();
@@ -92,6 +97,8 @@
     parts.push(articleTitle(article));
     var sub = article.querySelector('.hybrid-subheadline');
     if (sub) parts.push(sub.textContent.trim());
+    var summary = article.querySelector('.quick-hit-summary');
+    if (summary) parts.push(summary.textContent.trim());
     var facts = [];
     if (article.dataset.repo) facts.push('Repo: ' + article.dataset.repo);
     if (article.dataset.stars) facts.push(article.dataset.stars + ' stars');
@@ -139,7 +146,8 @@
   document.addEventListener('click', function(e) {
     var btn = e.target.closest && e.target.closest('.hybrid-ask');
     if (!btn) return;
-    var article = btn.closest('.hybrid-article');
+    // Resolve the scope element: full hybrid articles or compact quick hits.
+    var article = btn.closest('.hybrid-article') || btn.closest('.quick-hit');
     if (!article) return;
     setScope(article);
     openPanel();
