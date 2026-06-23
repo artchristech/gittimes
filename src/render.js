@@ -233,11 +233,20 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
 }
 
 function renderQuickHit(hit) {
+  const name = hit.shortName || hit.name || "";
+  // Data attrs mirror .hybrid-article so chat.js can scope to this quick hit.
+  const dataAttrs = [
+    hit.name ? `data-repo="${escapeHtml(hit.name)}"` : "",
+    hit.stars != null ? `data-stars="${hit.stars}"` : "",
+    hit.url ? `data-url="${escapeHtml(hit.url)}"` : "",
+  ].filter(Boolean).join(" ");
+
   return `
-      <div class="quick-hit">
-        <span class="quick-hit-name"><a href="${escapeHtml(hit.url)}" target="_blank">${escapeHtml(hit.shortName || hit.name)}</a></span>
+      <div class="quick-hit" ${dataAttrs}>
+        <span class="quick-hit-name"><a href="${escapeHtml(hit.url)}" target="_blank">${escapeHtml(name)}</a></span>
         <span class="quick-hit-summary">${escapeHtml(hit.summary)}</span>
         <span class="quick-hit-stars">${formatStars(hit.stars)}</span>
+        <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>`;
 }
 
@@ -698,4 +707,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderSourceLine };
