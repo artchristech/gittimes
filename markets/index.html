@@ -53,21 +53,23 @@ body {
 
 /* === MASTHEAD === */
 
+/* Compact masthead — halved in height so the lead story clears the fold.
+   The point of a front page is to win the read, not to admire the nameplate. */
 .masthead {
   position: relative;
   text-align: center;
-  padding: 24px 0 16px;
-  border-top: 4px double var(--rule);
-  border-bottom: 4px double var(--rule);
-  margin-bottom: 32px;
+  padding: 16px 0 13px;
+  border-top: 3px double var(--rule);
+  border-bottom: 3px double var(--rule);
+  margin-bottom: 18px;
 }
 
 .masthead-date {
   position: absolute;
-  top: 12px;
-  right: 52px;
+  top: 15px;
+  right: 4px;
   font-family: var(--font-meta);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -75,20 +77,20 @@ body {
 
 .masthead-title {
   font-family: var(--font-headline);
-  font-size: 64px;
+  font-size: 38px;
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .masthead-tagline {
   font-family: var(--font-headline);
   font-style: italic;
-  font-size: 16px;
+  font-size: 13px;
   color: var(--ink-light);
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 /* === AI TICKER === */
@@ -226,31 +228,31 @@ body {
 /* === LEAD STORY === */
 
 .lead-story {
-  padding: 32px 24px;
+  padding: 48px 40px;
   border: 1px solid var(--rule-light);
   border-bottom: 2px solid var(--rule);
-  margin-bottom: 32px;
+  margin-bottom: 48px;
   contain: content;
   isolation: isolate;
 }
 
 .lead-headline {
   font-family: var(--font-headline);
-  font-size: 48px;
+  font-size: 54px;
   font-weight: 900;
-  line-height: 1.1;
-  margin-bottom: 8px;
+  line-height: 1.08;
+  margin-bottom: 14px;
   letter-spacing: -0.5px;
 }
 
 .lead-subheadline {
   font-family: var(--font-headline);
-  font-size: 22px;
+  font-size: 23px;
   font-weight: 400;
   font-style: italic;
   color: var(--ink-light);
-  margin-bottom: 16px;
-  line-height: 1.3;
+  margin-bottom: 24px;
+  line-height: 1.4;
 }
 
 .lead-meta {
@@ -259,9 +261,11 @@ body {
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule-light);
   display: flex;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
@@ -287,45 +291,77 @@ body {
   hyphens: auto;
 }
 
+/* "Use Cases" callout — a grounded, full-width newspaper sidebar derived from
+   the repo's own README/release. Was a half-width grey box (a 2-col grid with a
+   single column); now a full-measure card that fills its column. */
 .article-insights {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  background: var(--bt-bg, linear-gradient(135deg, #f5f0e8, #f0ebe3));
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 86%, var(--accent) 5%),
+      color-mix(in srgb, var(--paper) 95%, var(--ink) 3%)
+    );
+  border: 1px solid var(--rule-light);
   border-left: 3px solid var(--accent);
-  padding: 16px 20px;
-  margin-top: 20px;
+  border-radius: 2px;
+  padding: 20px 26px 22px;
+  margin: 26px 0 6px;
   font-family: var(--font-meta);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 13.5px;
+  line-height: 1.6;
   break-inside: avoid;
   column-span: all;
 }
 
 .insights-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-size: 10px;
   color: var(--accent);
-  display: block;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
+}
+
+.insights-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--rule-light), transparent);
 }
 
 .insights-col ul {
-  list-style: disc;
-  padding-left: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px 32px;
 }
 
 .insights-col li {
-  margin-bottom: 4px;
+  position: relative;
+  padding-left: 22px;
+  color: var(--ink-light);
+}
+
+.insights-col li::before {
+  content: "\2192"; /* → */
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* === SECONDARY GRID === */
 
 .secondary-section {
-  margin-bottom: 32px;
-  padding: 20px 24px 24px;
+  margin-bottom: 48px;
+  padding: 32px 32px 36px;
   background-color: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
   border-top: 2px solid var(--rule);
 }
@@ -338,8 +374,8 @@ body {
   letter-spacing: 2px;
   color: var(--ink-faint);
   border-bottom: 1px solid var(--rule-light);
-  padding-bottom: 8px;
-  margin-bottom: 0;
+  padding-bottom: 10px;
+  margin-bottom: 24px;
 }
 
 .secondary-grid {
@@ -616,29 +652,50 @@ body {
   text-decoration: underline;
 }
 
-/* The AI Wire — non-repo headlines from the wider web */
+/* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
+   the editions read with the same confident, airy typographic rhythm. */
+.section-head {
+  margin-bottom: 20px;
+}
+
+.section-kicker {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+/* The AI Wire — now a first-class section panel (non-repo headlines from the
+   wider web), no longer a banner pinned above the front page. */
 .ai-wire {
-  max-width: 1200px;
-  margin: 0 auto 24px;
-  padding: 14px 18px;
-  border: 1px solid var(--rule-light, #d8d2c4);
-  border-left: 3px solid var(--accent, #b91c1c);
-  background: var(--panel-bg, rgba(0, 0, 0, 0.02));
+  padding: 8px 0 0;
+}
+
+.ai-wire .section-head {
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 12px;
 }
 
 .ai-wire-header {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 0 0 10px;
+  font-family: var(--font-headline);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  margin: 0 0 6px;
 }
 
 .ai-wire-sub {
-  text-transform: none;
-  letter-spacing: 0;
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 13px;
   font-weight: 400;
-  font-size: 12px;
-  opacity: 0.7;
+  line-height: 1.45;
+  color: var(--ink-faint);
 }
 
 .ai-wire-list {
@@ -646,39 +703,214 @@ body {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 8px;
+  gap: 18px;
 }
 
 .ai-wire-item {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.ai-wire-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .ai-wire-link {
-  font-weight: 600;
+  font-family: var(--font-headline);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
   text-decoration: none;
 }
 
 .ai-wire-link:hover {
-  text-decoration: underline;
+  color: var(--accent);
 }
 
 .ai-wire-src {
+  font-family: var(--font-meta);
   font-size: 12px;
-  opacity: 0.65;
+  color: var(--ink-faint);
+}
+
+.ai-wire-discuss {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.ai-wire-discuss:hover {
+  text-decoration: underline;
+}
+
+/* ===== FRONT PAGE — THE SPLIT (lead + "Across the Desk" rail) ===== */
+.front-hero {
+  display: grid;
+  grid-template-columns: 1.9fr 1fr;
+  gap: 0;
+  margin-bottom: 48px;
+}
+
+.front-lead-col {
+  padding-right: 34px;
+  border-right: 1px solid var(--rule-light);
+}
+
+/* In the split, the lead drops its own box chrome — the column rule frames it. */
+.front-lead-col .hybrid-lead {
+  padding: 0;
+  border: none;
+}
+
+.front-lead-col .hybrid-headline-lead {
+  font-size: 46px;
+  line-height: 1.04;
+  letter-spacing: -0.5px;
+}
+
+/* The section-lead rail */
+.desk-rail {
+  padding-left: 26px;
+}
+
+.rail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 9px;
+  margin-bottom: 2px;
+}
+
+.rail-sub {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-faint);
+}
+
+.ritem {
+  display: block;
+  padding: 14px 14px 14px 16px;
+  margin-left: -16px;
+  border-bottom: 1px solid var(--rule-light);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+}
+
+.ritem:hover {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--paper) 92%, var(--ink) 5%);
+  transform: translateX(2px);
+}
+
+.ritem-sec {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ritem-head {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.22;
+  margin: 4px 0 5px;
+  color: var(--ink);
+}
+
+.ritem-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.ritem-stars {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+@media (max-width: 820px) {
+  .front-hero { grid-template-columns: 1fr; }
+  .front-lead-col {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--rule-light);
+    padding-bottom: 24px;
+  }
+  .desk-rail { padding-left: 0; margin-top: 28px; }
+  .front-lead-col .hybrid-headline-lead { font-size: 36px; }
+}
+
+/* ===== SCROLL MOTION ===== */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--paper)));
+  z-index: 200;
+  transition: width 0.08s linear;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[data-reveal].in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .scroll-progress { display: none; }
 }
 
 .article-source {
-  font-size: 12px;
-  opacity: 0.6;
-  margin-top: 10px;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.2px;
+  color: var(--ink-faint);
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-light);
   font-style: italic;
 }
 
 .article-source a {
-  color: inherit;
+  color: var(--ink-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.article-source a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 .ai-wire-subhead {
@@ -1523,6 +1755,7 @@ body.chat-on .hybrid-ask {
 
 .section-panel.active {
   display: block;
+  padding-top: 40px;
 }
 
 .section-empty {
@@ -2222,10 +2455,10 @@ body.landing {
 
 .masthead-account {
   position: absolute;
-  top: 12px;
-  left: 52px;
+  top: 15px;
+  left: 4px;
   font-family: var(--font-meta);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-faint);
   text-decoration: none;
   text-transform: uppercase;
@@ -3193,7 +3426,7 @@ body.account {
     <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
     <div class="markets-freshness"><span class="fresh-chip live" data-pulse>
       <span class="fresh-dot"></span>
-      <span class="fresh-text"><strong>Pricing live</strong> · synced 3 min ago · <span class="fresh-abs">Jun 23, 1:56 PM MDT</span></span>
+      <span class="fresh-text"><strong>Pricing live</strong> · synced 3 min ago · <span class="fresh-abs">Jun 23, 5:30 PM MDT</span></span>
     </span><span class="fresh-chip curated"><span class="fresh-dot"></span><span class="fresh-text"><strong>Evals curated</strong> · as of 2026-06-15</span></span></div>
   </div>
 
@@ -3807,7 +4040,7 @@ body.account {
 <tr>
     <td class="model-name">Z.ai: GLM 5.2</td>
     <td class="model-provider">z-ai</td>
-    <td class="model-price">$3.08</td>
+    <td class="model-price">$3</td>
     <td class="model-added">1w ago</td>
   </tr>
 <tr>
@@ -4062,7 +4295,7 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="catalog-name"><span title="GPT-5.2 Chat (AKA Instant) is the fast, lightweight member of the 5.2 family, optimized for low-latency chat while retaining strong general intelligence. It use">OpenAI: GPT-5.2 Chat</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="1.75" data-priceval="1.75"><span class="price-main">$1.75</span><span class="cache-price">cache: $0.17</span></td>
           <td class="model-price price-cell" data-priceval="14">$14</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
+          <td class="model-ctx" data-sort="128000" title="Max output: 32,000 tokens">128k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="14" data-input="1.75" data-cache="0.175" data-provider="openai" data-label="openai: gpt-5.2">
           <td class="catalog-name"><span title="GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reas">OpenAI: GPT-5.2</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -4088,11 +4321,11 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="1.25" data-cache="0.13" data-provider="openai" data-label="openai: gpt-5.1 chat">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="1.25" data-cache="0.125" data-provider="openai" data-label="openai: gpt-5.1 chat">
           <td class="catalog-name"><span title="GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retaining strong general intelligence. It uses">OpenAI: GPT-5.1 Chat</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="1.25" data-priceval="1.25"><span class="price-main">$1.25</span><span class="cache-price">cache: $0.13</span></td>
           <td class="model-price price-cell" data-priceval="10">$10</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 32,000 tokens">128k</td>
+          <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="10" data-input="1.25" data-cache="0.13" data-provider="openai" data-label="openai: gpt-5.1-codex">
           <td class="catalog-name"><span title="GPT-5.1-Codex is a specialized version of GPT-5.1 optimized for software engineering and coding workflows. It is designed for both interactive development sessi">OpenAI: GPT-5.1-Codex</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -4142,9 +4375,9 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="openai" data-label="openai: gpt-4o">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="1.25" data-provider="openai" data-label="openai: gpt-4o">
           <td class="catalog-name"><span title="GPT-4o (&quot;o&quot; for &quot;omni&quot;) is OpenAI&#39;s latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turb">OpenAI: GPT-4o</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
-          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span></td>
+          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span><span class="cache-price">cache: $1.25</span></td>
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
@@ -4222,11 +4455,11 @@ Note: This model always us">OpenAI: o4 Mini Deep Research</span><span class="mod
           <td class="model-price price-cell" data-priceval="2">$2</td>
           <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2" data-input="0.25" data-cache="0.024999999999999998" data-provider="openai" data-label="openai: gpt-5 mini">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2" data-input="0.25" data-cache="0.03" data-provider="openai" data-label="openai: gpt-5 mini">
           <td class="catalog-name"><span title="GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instruction-following and safety-tuning benefi">OpenAI: GPT-5 Mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.25" data-priceval="0.25"><span class="price-main">$0.25</span><span class="cache-price">cache: $0.02</span></td>
+          <td class="model-price price-cell" data-sort="0.25" data-priceval="0.25"><span class="price-main">$0.25</span><span class="cache-price">cache: $0.03</span></td>
           <td class="model-price price-cell" data-priceval="2">$2</td>
-          <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
+          <td class="model-ctx" data-sort="400000">400k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="2" data-input="1" data-cache="" data-provider="openai" data-label="openai: gpt-3.5 turbo (older v0613)">
           <td class="catalog-name"><span title="GPT-3.5 Turbo is OpenAI&#39;s fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.
@@ -4246,7 +4479,7 @@ T">OpenAI: GPT-3.5 Turbo (older v0613)</span><span class="feature-badges"><span 
           <td class="catalog-name"><span title="GPT-4.1 Mini is a mid-sized model delivering performance competitive with GPT-4o at substantially lower latency and cost. It retains a 1 million token context w">OpenAI: GPT-4.1 Mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.39999999999999997" data-priceval="0.39999999999999997"><span class="price-main">$0.40</span><span class="cache-price">cache: $0.10</span></td>
           <td class="model-price price-cell" data-priceval="1.5999999999999999">$1.60</td>
-          <td class="model-ctx" data-sort="1047576" title="Max output: 32,768 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="1047576">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="1.5" data-input="0.5" data-cache="" data-provider="openai" data-label="openai: gpt-3.5 turbo">
           <td class="catalog-name"><span title="GPT-3.5 Turbo is OpenAI&#39;s fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.
@@ -4268,14 +4501,14 @@ T">OpenAI: GPT-3.5 Turbo</span><span class="feature-badges"><span class="feature
           <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini (2024-07-18)">
-          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini (2024-07-18)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini">
+          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span><span class="cache-price">cache: $0.07</span></td>
           <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini">
-          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini (2024-07-18)">
+          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini (2024-07-18)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span><span class="cache-price">cache: $0.07</span></td>
           <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
@@ -4587,7 +4820,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="Nano Banana Pro is Google’s most advanced image-generation and editing model, built on Gemini 3 Pro. It extends the original Nano Banana with significantly impr">Google: Nano Banana Pro (Gemini 3 Pro Image)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="2" data-priceval="2"><span class="price-main">$2</span><span class="cache-price">cache: $0.20</span></td>
           <td class="model-price price-cell" data-priceval="12">$12</td>
-          <td class="model-ctx" data-sort="65536" title="Max output: 32,768 tokens">66k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="12" data-input="2" data-cache="0.19999999999999998" data-provider="google" data-label="google: gemini 3.1 pro preview custom tools">
           <td class="catalog-name"><span title="Gemini 3.1 Pro Preview Custom Tools is a variant of Gemini 3.1 Pro that improves tool selection behavior by preventing overuse of a general bash tool when more ">Google: Gemini 3.1 Pro Preview Custom Tools</span><span class="modality-badge">aud</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -4629,13 +4862,13 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at F">Google: Nano Banana 2 (Gemini 3.1 Flash Image)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span></td>
           <td class="model-price price-cell" data-priceval="3">$3</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 65,536 tokens">131k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="" data-provider="google" data-label="google: nano banana 2 (gemini 3.1 flash image preview)">
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image Preview, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual qual">Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span></td>
           <td class="model-price price-cell" data-priceval="3">$3</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 65,536 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="0.049999999999999996" data-provider="google" data-label="google: gemini 3 flash preview">
           <td class="catalog-name"><span title="Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and coding assistance. It delivers near Pro l">Google: Gemini 3 Flash Preview</span><span class="modality-badge">img</span><span class="modality-badge">aud</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -5118,11 +5351,11 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="1">$1</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1" data-input="0.14" data-cache="" data-provider="qwen" data-label="qwen: qwen3.5-35b-a3b">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1" data-input="0.14" data-cache="0.049999999999999996" data-provider="qwen" data-label="qwen: qwen3.5-35b-a3b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B" title="The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixtur">Qwen: Qwen3.5-35B-A3B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span></td>
+          <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span><span class="cache-price">cache: $0.05</span></td>
           <td class="model-price price-cell" data-priceval="1">$1</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 81,920 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="1" data-input="0.7999999999999999" data-cache="0.39999999999999997" data-provider="qwen" data-label="qwen: qwen2.5 vl 72b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct" title="Qwen2.5-VL is proficient in recognizing common objects such as flowers, birds, fish, and insects. It is also highly capable of analyzing texts, charts, icons, g">Qwen: Qwen2.5 VL 72B Instruct</a><span class="modality-badge">img</span></td>
@@ -5254,7 +5487,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-9B" title="Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and visual understanding in an efficient 9B-p">Qwen: Qwen3.5-9B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span></td>
           <td class="model-price price-cell" data-priceval="0.15">$0.15</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
+          <td class="model-ctx" data-sort="256000" title="Max output: 32,768 tokens">256k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.09999999999999999" data-input="0.09999999999999999" data-cache="0.09999999999999999" data-provider="qwen" data-label="qwen: qwen3 235b a22b thinking 2507">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-235B-A22B-Thinking-2507" title="Qwen3-235B-A22B-Thinking-2507 is a high-performance, open-weight Mixture-of-Experts (MoE) language model optimized for complex reasoning tasks. It activates 22B">Qwen: Qwen3 235B A22B Thinking 2507</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -5324,17 +5557,17 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="4">$4</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 131,072 tokens">262k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3.08" data-input="0.98" data-cache="0.182" data-provider="z-ai" data-label="z.ai: glm 5.2">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.2" title="GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf">Z.ai: GLM 5.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3.08" data-input="0.98" data-cache="0.182" data-provider="z-ai" data-label="z.ai: glm 5.1">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.1" title="GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu">Z.ai: GLM 5.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.98" data-priceval="0.98"><span class="price-main">$0.98</span><span class="cache-price">cache: $0.18</span></td>
           <td class="model-price price-cell" data-priceval="3.08">$3.08</td>
-          <td class="model-ctx" data-sort="1048576">1.0M</td>
+          <td class="model-ctx" data-sort="202752">203k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3.08" data-input="0.98" data-cache="0.49" data-provider="z-ai" data-label="z.ai: glm 5.1">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.1" title="GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu">Z.ai: GLM 5.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.98" data-priceval="0.98"><span class="price-main">$0.98</span><span class="cache-price">cache: $0.49</span></td>
-          <td class="model-price price-cell" data-priceval="3.08">$3.08</td>
-          <td class="model-ctx" data-sort="202752" title="Max output: 65,535 tokens">203k</td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3" data-input="0.95" data-cache="0.18" data-provider="z-ai" data-label="z.ai: glm 5.2">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.2" title="GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf">Z.ai: GLM 5.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.95" data-priceval="0.95"><span class="price-main">$0.95</span><span class="cache-price">cache: $0.18</span></td>
+          <td class="model-price price-cell" data-priceval="3">$3</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 32,768 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.2" data-input="0.6" data-cache="0.11" data-provider="z-ai" data-label="z.ai: glm 4.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.5" title="GLM-4.5 is our latest flagship foundation model, purpose-built for agent-based applications. It leverages a Mixture-of-Experts (MoE) architecture and supports a">Z.ai: GLM 4.5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -5408,9 +5641,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="3.41">$3.41</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="0.6" data-cache="" data-provider="moonshotai" data-label="moonshotai: kimi k2 thinking">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="0.6" data-cache="0.6" data-provider="moonshotai" data-label="moonshotai: kimi k2 thinking">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/moonshotai/Kimi-K2-Thinking" title="Kimi K2 Thinking is Moonshot AI’s most advanced open reasoning model to date, extending the K2 series into agentic, long-horizon reasoning. Built on the trillio">MoonshotAI: Kimi K2 Thinking</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.6" data-priceval="0.6"><span class="price-main">$0.60</span></td>
+          <td class="model-price price-cell" data-sort="0.6" data-priceval="0.6"><span class="price-main">$0.60</span><span class="cache-price">cache: $0.60</span></td>
           <td class="model-price price-cell" data-priceval="2.5">$2.50</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
@@ -5726,7 +5959,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/Minimax-M3" title="MiniMax-M3 is a multimodal foundation model from MiniMax. It supports text, image, and video inputs with text output, a 1M-token context window, and is suited f">MiniMax: MiniMax M3</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.3" data-priceval="0.3"><span class="price-main">$0.30</span><span class="cache-price">cache: $0.06</span></td>
           <td class="model-price price-cell" data-priceval="1.2">$1.20</td>
-          <td class="model-ctx" data-sort="1048576" title="Max output: 512,000 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="1048576">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="1.2" data-input="0.3" data-cache="0.03" data-provider="minimax" data-label="minimax: minimax m2-her">
           <td class="catalog-name"><span title="MiniMax M2-her is a dialogue-first large language model built for immersive roleplay, character-driven chat, and expressive multi-turn conversations. Designed t">MiniMax: MiniMax M2-her</span></td>
@@ -5874,7 +6107,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="KAT-Coder-Pro V2 is the latest high-performance model in KwaiKAT’s KAT-Coder series, designed for complex enterprise-grade software engineering and SaaS integra">Kwaipilot: KAT-Coder-Pro V2</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.3" data-priceval="0.3"><span class="price-main">$0.30</span><span class="cache-price">cache: $0.06</span></td>
           <td class="model-price price-cell" data-priceval="1.2">$1.20</td>
-          <td class="model-ctx" data-sort="256000" title="Max output: 80,000 tokens">256k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 144,000 tokens">262k</td>
         </tr></tbody>
       </table>
         
