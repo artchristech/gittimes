@@ -7,9 +7,119 @@ const {
   renderSunsetWatch,
   renderNewModelsSection,
   renderRadarSection,
+  renderEvalsSection,
+  renderValueScatter,
+  buildFreshness,
+  compositeQuality,
+  monthlyCost,
   timeAgo,
 } = require("../src/markets");
 const { buildCatalog } = require("../src/sync-models");
+
+describe("monthlyCost", () => {
+  it("computes a mixed cachedPct case to an exact dollar value", () => {
+    // 1M in/day, 0.5M out/day, input $5/M, output $15/M, cache $0.50/M, 40% cached.
+    // daily = 1*0.4*0.5 + 1*0.6*5 + 0.5*15 = 0.2 + 3 + 7.5 = 10.7 ; *30 = 321
+    const c = monthlyCost({ inM: 1, outM: 0.5, input: 5, output: 15, cache: 0.5, cachedPct: 40 });
+    assert.equal(c, 321);
+  });
+  it("cachedPct 0 bills all input at the input price", () => {
+    // daily = 2*10 + 1*30 = 50 ; *30 = 1500
+    const c = monthlyCost({ inM: 2, outM: 1, input: 10, output: 30, cache: 1, cachedPct: 0 });
+    assert.equal(c, 1500);
+  });
+  it("cachedPct 100 bills all input at the cache price", () => {
+    // daily = 2*0.5 + 1*30 = 31 ; *30 = 930
+    const c = monthlyCost({ inM: 2, outM: 1, input: 10, output: 30, cache: 0.5, cachedPct: 100 });
+    assert.equal(c, 930);
+  });
+  it("falls back to input price when cache is null", () => {
+    // null cache => cached fraction billed at input. 50% cached so identical to input-priced.
+    const withNull = monthlyCost({ inM: 2, outM: 1, input: 10, output: 30, cache: null, cachedPct: 50 });
+    const allInput = monthlyCost({ inM: 2, outM: 1, input: 10, output: 30, cache: 10, cachedPct: 50 });
+    assert.equal(withNull, allInput);
+    // daily = 2*10 + 1*30 = 50 ; *30 = 1500
+    assert.equal(withNull, 1500);
+  });
+});
+
+const EVAL_METRICS = [
+  { key: "mmlu_pro", label: "MMLU-Pro", unit: "%", max: 100 },
+  { key: "arena_elo", label: "Arena Elo", unit: "", max: 1500 },
+];
+const SAMPLE_EVALS = {
+  asOf: "2026-06-15",
+  note: "Editorially curated.",
+  sources: [{ label: "LMArena", url: "https://lmarena.ai" }],
+  metrics: EVAL_METRICS,
+  models: {
+    a: { mmlu_pro: 90, arena_elo: 1500 },
+    b: { mmlu_pro: 60, arena_elo: 1200 },
+  },
+};
+const SAMPLE_TICKER = {
+  models: [
+    { key: "a", label: "Model A", provider: "Acme", output: 10 },
+    { key: "b", label: "Model B", provider: "Beta", output: 2 },
+    { key: "c", label: "Model C", provider: "Gamma", output: 5 },
+  ],
+  evals: SAMPLE_EVALS,
+  syncedAt: new Date().toISOString(),
+};
+
+describe("compositeQuality", () => {
+  it("normalizes each metric against its own max and averages", () => {
+    // mmlu 90/100=90, elo 1500/1500=100 -> mean 95
+    assert.equal(compositeQuality({ mmlu_pro: 90, arena_elo: 1500 }, EVAL_METRICS), 95);
+  });
+  it("returns null when no eval data", () => {
+    assert.equal(compositeQuality(null, EVAL_METRICS), null);
+    assert.equal(compositeQuality({}, EVAL_METRICS), null);
+  });
+});
+
+describe("renderEvalsSection", () => {
+  it("renders curated evals labeled with as-of date and source", () => {
+    const html = renderEvalsSection(SAMPLE_TICKER);
+    assert.ok(html.includes("Model Evals"));
+    assert.ok(html.includes("Curated · as of 2026-06-15"));
+    assert.ok(html.includes("LMArena"));
+    assert.ok(html.includes("Model A"));
+    // highest composite ranks first
+    assert.ok(html.indexOf("Model A") < html.indexOf("Model B"));
+  });
+  it("returns empty string with no eval data", () => {
+    assert.equal(renderEvalsSection({ models: [], evals: null }), "");
+  });
+});
+
+describe("renderValueScatter", () => {
+  it("renders a scatter and marks a best-value model", () => {
+    const html = renderValueScatter(SAMPLE_TICKER);
+    assert.ok(html.includes("The Value Frontier"));
+    assert.ok(html.includes("value-scatter"));
+    // Model B: quality (60/100+1200/1500)/2=70, price 2 -> 35/$ beats A (95/10=9.5)
+    assert.ok(html.includes("Best value: <strong>Model B</strong>") || html.includes("best value: <strong>Model B"));
+  });
+});
+
+describe("buildFreshness", () => {
+  it("shows live pricing and curated evals chips", () => {
+    const html = buildFreshness(SAMPLE_TICKER);
+    assert.ok(html.includes("Pricing live"));
+    assert.ok(html.includes("Evals curated"));
+    assert.ok(html.includes("2026-06-15"));
+  });
+  it("flags stale pricing when syncedAt is old", () => {
+    const old = new Date(Date.now() - 3 * 86400 * 1000).toISOString();
+    const html = buildFreshness({ ...SAMPLE_TICKER, syncedAt: old });
+    assert.ok(html.includes("Pricing stale"));
+  });
+  it("handles missing syncedAt", () => {
+    const html = buildFreshness({ evals: null, syncedAt: null });
+    assert.ok(html.includes("Pricing unavailable"));
+  });
+});
 
 describe("renderRadarSection", () => {
   it("renders auto-detected untracked frontier models", () => {
