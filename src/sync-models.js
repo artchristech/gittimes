@@ -212,6 +212,7 @@ async function main() {
     bannerKeys: curated.bannerKeys,
     speed: curated.speed,
     images: curated.images,
+    evals: curated.evals,
     untracked: untracked.length > 0 ? untracked : undefined,
     catalog: fullCatalog,
   };

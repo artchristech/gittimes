@@ -264,6 +264,7 @@ async function getTickerData(outDir) {
     indexValue,
     indexHistory,
     bannerKeys,
+    evals: synced?.evals || curated?.evals || null,
     untracked: synced?.untracked || [],
     syncedAt: synced?.syncedAt || null,
   };

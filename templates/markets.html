@@ -16,92 +16,291 @@
 
 /* === MARKETS PAGE === */
 
+:root {
+  --pos: #16a34a;   /* price down / good */
+  --neg: #dc2626;   /* price up / bad */
+  --quality: var(--accent);
+}
+[data-theme="dark"], [data-theme="midnight"] {
+  --pos: #4ade80;
+  --neg: #f87171;
+}
+
 .markets-header {
   text-align: center;
-  padding: 16px 0 24px;
-  border-bottom: 2px solid var(--rule);
+  padding: 8px 0 24px;
+  border-bottom: 3px double var(--rule);
   margin-bottom: 32px;
+}
+
+.markets-kicker {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
 }
 
 .markets-header h1 {
   font-family: var(--font-headline);
-  font-size: 28px;
+  font-size: clamp(34px, 7vw, 52px);
   font-weight: 900;
-  margin-bottom: 4px;
+  line-height: 1;
+  margin-bottom: 8px;
 }
 
-.markets-date {
+.markets-standfirst {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-light);
+  max-width: 52ch;
+  margin: 0 auto 16px;
+  line-height: 1.45;
+}
+
+/* Freshness chips (honest provenance) */
+.markets-freshness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.fresh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-family: var(--font-meta);
-  font-size: 12px;
-  color: var(--ink-faint);
+  font-size: 11px;
+  color: var(--ink-light);
+  padding: 4px 10px;
+  border: 1px solid var(--rule-light);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--paper) 92%, var(--ink) 8%);
+}
+.fresh-chip strong { color: var(--ink); font-weight: 700; }
+.fresh-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ink-faint); flex: none;
+}
+.fresh-chip.live .fresh-dot { background: var(--pos); }
+.fresh-chip.stale .fresh-dot { background: var(--neg); }
+.fresh-chip.curated .fresh-dot { background: var(--accent); }
+.fresh-abs { color: var(--ink-faint); }
+
+/* Sections */
+.markets-section { margin-bottom: 44px; }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 8px;
+  margin-bottom: 6px;
+}
+.section-kicker {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--accent);
+  font-weight: 600;
+  flex: none;
+  width: 100%;
 }
-
-.markets-section {
-  margin-bottom: 40px;
-}
-
 .markets-section-title {
   font-family: var(--font-headline);
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--rule-light);
-  padding-bottom: 8px;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
 }
+.provenance-tag {
+  margin-left: auto;
+  font-family: var(--font-meta);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--rule-light);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.provenance-tag.curated { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 
 .markets-section-desc {
   font-family: var(--font-meta);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-faint);
   margin-bottom: 16px;
+  line-height: 1.4;
 }
 
-/* Index */
-
-.markets-index {
-  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+/* === HERO === */
+.markets-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 44px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--rule-light);
+}
+.hero-index {
   border: 1px solid var(--rule-light);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 20px 24px;
-  margin-bottom: 40px;
+  background: color-mix(in srgb, var(--paper) 95%, var(--ink) 5%);
+  display: flex;
+  flex-direction: column;
 }
-
-.markets-index-header {
+.hero-figure {
+  font-family: var(--font-headline);
+  font-weight: 900;
+  line-height: 1;
+  margin: 6px 0 4px;
+}
+.coi-value {
+  font-size: clamp(40px, 9vw, 64px);
+  font-variant-numeric: tabular-nums;
+}
+.hero-unit {
+  font-family: var(--font-meta);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink-faint);
+  margin-left: 8px;
+}
+.hero-delta {
+  font-family: var(--font-meta);
+  font-size: 12px;
   margin-bottom: 12px;
 }
-
-.markets-index-desc {
+.hero-note { color: var(--ink-faint); margin-left: 6px; }
+.hero-chart { margin-top: auto; }
+.area-chart { width: 100%; height: auto; display: block; }
+.hero-chart-empty {
   font-family: var(--font-meta);
   font-size: 11px;
+  font-style: italic;
+  color: var(--ink-faint);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--rule-light);
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.stat-card {
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.stat-kicker {
+  font-family: var(--font-meta);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.stat-sub {
+  font-family: var(--font-meta);
+  font-size: 10px;
   color: var(--ink-faint);
   margin-top: 4px;
 }
 
-.markets-index-value {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.markets-index-price {
-  font-family: var(--font-headline);
-  font-size: 36px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.markets-index-unit {
-  font-size: 14px;
+/* === EVALS DESK === */
+.evals-table th, .evals-table td { vertical-align: middle; }
+.eval-rank, .speed-rank { color: var(--ink-faint); font-weight: 700; width: 24px; }
+.eval-provider {
+  display: block;
+  font-size: 10px;
   font-weight: 400;
   color: var(--ink-faint);
 }
-
-.markets-index-chart {
-  margin-top: 8px;
+.quality-index {
+  font-family: var(--font-headline);
+  font-weight: 800;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
 }
+.eval-cell { min-width: 92px; }
+.eval-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 3px;
+}
+.eval-bar-track, .q-bar-track {
+  display: block;
+  width: 100%;
+  max-width: 90px;
+  height: 5px;
+  background: var(--rule-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.eval-bar, .q-bar {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transform-origin: left center;
+}
+.eval-bar.empty { background: transparent; }
+.q-bar-track { max-width: 70px; margin-top: 3px; }
+.model-quality { white-space: nowrap; }
+.evals-note { margin-top: 12px; font-style: italic; }
+.evals-sources {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+.evals-sources a { color: var(--accent); text-decoration: none; }
+.evals-sources a:hover { text-decoration: underline; }
+
+/* === VALUE SCATTER === */
+.scatter-wrap {
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
+}
+.value-scatter { width: 100%; height: auto; display: block; }
+.value-scatter .axis { stroke: var(--rule-light); stroke-width: 1; }
+.value-scatter .axis-label {
+  fill: var(--ink-faint);
+  font-family: var(--font-meta);
+  font-size: 10px;
+}
+.scatter-pt circle { fill: var(--ink-light); transition: r 0.2s; }
+.scatter-pt.best circle { fill: var(--accent); }
+.scatter-pt .scatter-label {
+  fill: var(--ink-light);
+  font-family: var(--font-meta);
+  font-size: 10px;
+}
+.scatter-pt.best .scatter-label { fill: var(--accent); font-weight: 700; }
 
 /* Deltas */
 
@@ -111,27 +310,9 @@
   font-weight: 600;
 }
 
-.markets-delta.down {
-  color: #16a34a;
-}
-
-.markets-delta.up {
-  color: #dc2626;
-}
-
-.markets-delta.flat {
-  color: var(--ink-faint);
-}
-
-[data-theme="dark"] .markets-delta.down,
-[data-theme="midnight"] .markets-delta.down {
-  color: #4ade80;
-}
-
-[data-theme="dark"] .markets-delta.up,
-[data-theme="midnight"] .markets-delta.up {
-  color: #f87171;
-}
+.markets-delta.down { color: var(--pos); }
+.markets-delta.up { color: var(--neg); }
+.markets-delta.flat { color: var(--ink-faint); }
 
 /* Tables */
 
@@ -185,6 +366,7 @@
 .model-price {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .model-ctx {
@@ -305,13 +487,290 @@
   color: var(--ink-faint);
 }
 
-/* Responsive */
+/* === Progressive disclosure ("More from the desk") === */
+.markets-more .desk-details {
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.markets-more summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 16px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.markets-more summary::-webkit-details-marker { display: none; }
+.markets-more summary::before {
+  content: "+";
+  font-family: var(--font-meta);
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 1;
+}
+.markets-more details[open] > summary::before { content: "–"; }
+.markets-more .desk-details-body { padding: 0 16px 12px; }
+.markets-more .desk-details-body .markets-section { margin-bottom: 16px; }
+.markets-more .desk-details-body .markets-section-title {
+  font-size: 15px; border: none; padding: 0; margin-bottom: 2px;
+}
+.markets-more .desk-details-body .section-head { display: none; }
 
+/* Provider groups inside the catalog disclosure */
+.provider-group { margin-bottom: 20px; }
+.provider-name {
+  font-family: var(--font-headline);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin-bottom: 6px;
+  color: var(--ink-light);
+}
+.provider-more summary {
+  cursor: pointer;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--accent);
+  padding: 4px 0;
+}
+
+/* === MOTION (progressive enhancement; final values server-rendered) === */
+[data-reveal] { opacity: 1; }
+.motion [data-reveal] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.motion [data-reveal].in { opacity: 1; transform: none; }
+
+.motion .area-line { stroke-dasharray: 1400; stroke-dashoffset: 1400; }
+.motion .markets-hero.in .area-line {
+  animation: draw-line 1.4s ease forwards;
+}
+.motion .area-fill { opacity: 0; }
+.motion .markets-hero.in .area-fill { animation: fade-in 1s ease 0.5s forwards; }
+.motion .area-dot { opacity: 0; }
+.motion .markets-hero.in .area-dot { animation: fade-in 0.4s ease 1.3s forwards; }
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+@keyframes fade-in { to { opacity: 1; } }
+
+.motion .eval-bar, .motion .q-bar { transform: scaleX(0); transition: transform 0.8s ease; }
+.motion [data-reveal].in .eval-bar, .motion tr[data-reveal].in .q-bar { transform: scaleX(1); }
+
+.motion .fresh-chip[data-pulse] .fresh-dot { animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pos) 60%, transparent); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--pos) 0%, transparent); }
+}
+
+/* === INTERACTIVE (progressive enhancement; gated behind .enhanced on <html>) === */
+/* Sort affordances only appear when JS has wired them up. */
+.enhanced .markets-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 18px;
+}
+.enhanced .markets-table th.sortable::after {
+  content: "\2195"; /* up-down arrow, idle */
+  position: absolute;
+  right: 6px;
+  opacity: 0.3;
+  font-size: 9px;
+}
+.enhanced .markets-table th.sortable[aria-sort="ascending"]::after { content: "\2191"; opacity: 0.9; }
+.enhanced .markets-table th.sortable[aria-sort="descending"]::after { content: "\2193"; opacity: 0.9; }
+.enhanced .markets-table th.sortable:hover { color: var(--ink); }
+
+/* Unit toggle (Step 4) — hidden until JS reveals it */
+.unit-toggle-wrap {
+  display: none;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ink-light);
+}
+.enhanced .unit-toggle-wrap { display: inline-flex; }
+
+/* Filter bar (Step 4) — hidden until JS reveals it */
+.markets-filterbar { display: none; }
+.enhanced .markets-filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: flex-end;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
+  font-family: var(--font-meta);
+  font-size: 12px;
+}
+.filter-field { display: flex; flex-direction: column; gap: 3px; }
+.filter-field label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+}
+.filter-field select,
+.filter-field input[type="text"],
+.filter-field input[type="range"] {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  padding: 3px 6px;
+  border: 1px solid var(--rule-light);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.filter-field input[type="range"] { padding: 0; min-width: 120px; }
+.filter-caps { flex-direction: row; align-items: center; gap: 10px; }
+.filter-caps .cap-check { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
+.filter-range-val { color: var(--ink); font-weight: 600; }
+.filter-reset {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  padding: 4px 10px;
+  border: 1px solid var(--rule-light);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--accent);
+  cursor: pointer;
+}
+.filter-empty {
+  display: none;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-faint);
+  padding: 12px 4px;
+}
+
+/* Cost calculator (Step 3) — hidden until JS reveals it */
+.cost-calc { display: none; }
+.enhanced .cost-calc { display: block; }
+.cost-calc-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: flex-end;
+  padding: 14px;
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
+  margin-bottom: 14px;
+}
+.cost-calc-form .filter-field input[type="number"] {
+  width: 90px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid var(--rule-light);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.cost-results { list-style: none; margin: 0; padding: 0; }
+.cost-results li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 13px;
+}
+.cost-results .cost-rank { color: var(--ink-faint); font-weight: 700; width: 22px; flex: none; }
+.cost-results .cost-model { flex: 1; font-weight: 600; }
+.cost-results .cost-month {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* Compare panel (Step 5) — hidden until JS reveals it */
+.compare-col { display: none; }
+.enhanced .compare-col { display: table-cell; }
+.compare-strip {
+  display: none;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: var(--paper);
+  border-top: 2px solid var(--accent);
+  box-shadow: 0 -4px 18px color-mix(in srgb, var(--ink) 12%, transparent);
+  padding: 10px 14px;
+  margin-top: 16px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  overflow-x: auto;
+}
+.compare-strip.active { display: block; }
+.compare-strip table { width: 100%; border-collapse: collapse; }
+.compare-strip th, .compare-strip td { text-align: left; padding: 4px 10px; white-space: nowrap; }
+.compare-strip th { font-size: 9px; text-transform: uppercase; color: var(--ink-faint); }
+.compare-strip .compare-clear {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--accent);
+  background: none;
+  border: none;
+}
+
+/* Honesty downweight (Step 2) — curated eval numbers never read as live */
+.eval-curated { color: var(--ink-light); }
+.eval-curated .eval-est {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-faint);
+  margin-left: 3px;
+  vertical-align: super;
+  font-style: italic;
+}
+.eval-curated .eval-score { font-weight: 500; }
+.quality-formula, .coi-methodology {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-style: italic;
+  color: var(--ink-faint);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .markets-hero { grid-template-columns: 1fr; gap: 16px; }
+}
 @media (max-width: 600px) {
-  .markets-index-price { font-size: 28px; }
+  .coi-value { font-size: 40px; }
   .markets-table { font-size: 12px; }
+  .hero-stats { grid-template-columns: 1fr 1fr; }
   .model-spark, .speed-bar { display: none; }
   .modality-badge, .feature-badges, .cache-price { display: none; }
+  .provenance-tag { margin-left: 0; }
+  .fresh-chip { max-width: 100%; }
+  .fresh-chip .fresh-text { white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .motion .area-line { stroke-dashoffset: 0 !important; animation: none !important; }
+  .motion .area-fill, .motion .area-dot { opacity: 1 !important; animation: none !important; }
+  .motion .eval-bar, .motion .q-bar { transform: scaleX(1) !important; transition: none !important; }
+  .motion .fresh-chip[data-pulse] .fresh-dot { animation: none !important; }
 }
   </style>
   <script>
@@ -328,8 +787,10 @@
   </header>
 
   <div class="markets-header">
+    <p class="markets-kicker">The Git Times · Market Desk</p>
     <h1>AI Markets</h1>
-    <p class="markets-date">{{MARKETS_DATE}}</p>
+    <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
+    {{MARKETS_FRESHNESS}}
   </div>
 
   {{MARKETS_CONTENT}}
@@ -339,9 +800,357 @@
       <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
       <a href="{{BASE_PATH}}/archive/">Archive</a>
     </nav>
-    <p>Pricing data from <a href="https://openrouter.ai" style="color:var(--accent)">OpenRouter</a>. Speed and image data editorially curated.</p>
+    <p>Pricing data from <a href="https://openrouter.ai" style="color:var(--accent)">OpenRouter</a>, synced daily. Speed, image grades, and model evals are editorially curated and dated.</p>
     <p>The Git Times aims to provide information that inspires people to build.</p>
   </footer>
+
+  <script>
+  // Markets interactivity — progressive enhancement only. The page is complete
+  // and correct with JS off; this layer adds sort / filter / calculator / compare
+  // by reading the data-* attributes the server stamped. All wiring via
+  // addEventListener (no inline handlers — strict CSP). Gated behind .enhanced.
+  (function () {
+    var docEl = document.documentElement;
+    docEl.classList.add("enhanced");
+
+    // --- Step 1: click-to-sort tables ---
+    function cellSortValue(row, colIdx) {
+      var cell = row.children[colIdx];
+      if (!cell) return { n: -Infinity, s: "" };
+      var raw = cell.getAttribute("data-sort");
+      if (raw == null) raw = cell.textContent.trim();
+      var num = parseFloat(raw);
+      if (!isNaN(num) && /^-?[\d.]+$/.test(String(raw).trim())) return { n: num, s: String(raw) };
+      return { n: NaN, s: String(raw).toLowerCase() };
+    }
+
+    function sortTable(table, th) {
+      var headRow = th.parentNode;
+      var ths = Array.prototype.slice.call(headRow.children);
+      var colIdx = ths.indexOf(th);
+      if (colIdx < 0) return;
+      var cur = th.getAttribute("aria-sort");
+      var dir = cur === "ascending" ? "descending" : "ascending";
+      ths.forEach(function (h) { if (h.classList.contains("sortable")) h.setAttribute("aria-sort", "none"); });
+      th.setAttribute("aria-sort", dir);
+      var tbody = table.tBodies[0];
+      if (!tbody) return;
+      var rows = Array.prototype.slice.call(tbody.rows);
+      var mult = dir === "ascending" ? 1 : -1;
+      rows.sort(function (a, b) {
+        var va = cellSortValue(a, colIdx), vb = cellSortValue(b, colIdx);
+        var na = isNaN(va.n), nb = isNaN(vb.n);
+        if (!na && !nb) return (va.n - vb.n) * mult;
+        if (!na || !nb) return 0; // mixed: keep stable
+        return va.s < vb.s ? -1 * mult : va.s > vb.s ? 1 * mult : 0;
+      });
+      rows.forEach(function (r) { tbody.appendChild(r); });
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll("table.markets-table thead"), function (thead) {
+      thead.addEventListener("click", function (ev) {
+        var th = ev.target.closest ? ev.target.closest("th.sortable") : null;
+        if (!th || !thead.contains(th)) return;
+        sortTable(thead.parentNode, th);
+      });
+    });
+
+    // --- Step 3: cache-aware cost calculator ---
+    // Mirrors monthlyCost() in src/markets.js exactly (fixed 30-day month).
+    function monthlyCost(inM, outM, input, output, cache, cachedPct) {
+      var DAYS = 30;
+      var inputTokM = Number(inM) || 0;
+      var outputTokM = Number(outM) || 0;
+      var inPrice = Number(input) || 0;
+      var outPrice = Number(output) || 0;
+      var cachePrice = (cache == null || isNaN(Number(cache))) ? inPrice : Number(cache);
+      var pct = Math.max(0, Math.min(100, Number(cachedPct) || 0)) / 100;
+      var daily = inputTokM * pct * cachePrice + inputTokM * (1 - pct) * inPrice + outputTokM * outPrice;
+      return daily * DAYS;
+    }
+
+    var calcForm = document.getElementById("cost-calc-form");
+    var calcResults = document.getElementById("cost-results");
+    if (calcForm && calcResults) {
+      var board = document.querySelector("table.markets-table.frontier-board tbody");
+      var calcRows = board ? Array.prototype.slice.call(board.rows) : [];
+      var cachedVal = document.getElementById("calc-cached-val");
+
+      function num(attr, row) {
+        var v = row.getAttribute(attr);
+        return v === "" || v == null ? null : parseFloat(v);
+      }
+
+      function recalcCosts() {
+        var inM = parseFloat(document.getElementById("calc-inM").value) || 0;
+        var outM = parseFloat(document.getElementById("calc-outM").value) || 0;
+        var cachedPct = parseFloat(document.getElementById("calc-cached").value) || 0;
+        if (cachedVal) cachedVal.textContent = cachedPct + "%";
+        var items = calcRows.map(function (row) {
+          var input = num("data-input", row);
+          var output = num("data-output", row);
+          var cache = num("data-cache", row);
+          if (output == null && input == null) return null;
+          var cost = monthlyCost(inM, outM, input || 0, output || 0, cache, cachedPct);
+          return { label: row.getAttribute("data-label") || "", cost: cost };
+        }).filter(Boolean);
+        items.sort(function (a, b) { return a.cost - b.cost; });
+        calcResults.innerHTML = items.map(function (it, i) {
+          var dollars = "$" + it.cost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          return '<li><span class="cost-rank">' + (i + 1) + '</span>' +
+                 '<span class="cost-model"></span>' +
+                 '<span class="cost-month">' + dollars + '/mo</span></li>';
+        }).join("");
+        // Set model labels as text (avoid HTML injection from data-label).
+        var lis = calcResults.querySelectorAll(".cost-model");
+        items.forEach(function (it, i) { if (lis[i]) lis[i].textContent = it.label; });
+      }
+
+      calcForm.addEventListener("input", recalcCosts);
+      recalcCosts();
+    }
+
+    // --- Step 4: filter bars (Frontier Board + catalog) + unit toggle + search ---
+    function rowsForScope(scope) {
+      if (scope === "frontier") {
+        var b = document.querySelector("table.markets-table.frontier-board tbody");
+        return b ? Array.prototype.slice.call(b.rows) : [];
+      }
+      return Array.prototype.slice.call(document.querySelectorAll(".provider-groups .catalog-row"));
+    }
+
+    function wireFilterBar(bar) {
+      var scope = bar.getAttribute("data-filter-scope");
+      var rows = rowsForScope(scope);
+      var provSel = bar.querySelector(".filter-provider");
+      var maxOut = bar.querySelector(".filter-maxout");
+      var minCtx = bar.querySelector(".filter-minctx");
+      var caps = Array.prototype.slice.call(bar.querySelectorAll(".filter-cap"));
+      var search = document.querySelector('.catalog-search[data-filter-scope="' + scope + '"]');
+      var maxOutVal = document.getElementById(scope + "-maxout-val");
+      var minCtxVal = document.getElementById(scope + "-minctx-val");
+      var emptyMsg = document.querySelector('[data-filter-empty="' + scope + '"]');
+
+      function ctxOf(row) {
+        var c = row.querySelector(".model-ctx");
+        var v = c ? c.getAttribute("data-sort") : null;
+        return v != null ? parseFloat(v) : 0;
+      }
+
+      function apply() {
+        var prov = provSel ? provSel.value : "";
+        var maxO = maxOut ? parseFloat(maxOut.value) : Infinity;
+        var minC = minCtx ? parseFloat(minCtx.value) : 0;
+        var q = search ? search.value.trim().toLowerCase() : "";
+        if (maxOutVal) maxOutVal.textContent = (maxOut && parseFloat(maxOut.value) >= parseFloat(maxOut.max)) ? "any" : ("$" + maxO);
+        if (minCtxVal) minCtxVal.textContent = minC <= 0 ? "any" : (minC >= 1000000 ? (minC / 1000000).toFixed(1) + "M" : Math.round(minC / 1000) + "k");
+        var activeCaps = caps.filter(function (c) { return c.checked; }).map(function (c) { return c.getAttribute("data-cap"); });
+        var visible = 0;
+        rows.forEach(function (row) {
+          var show = true;
+          if (prov && row.getAttribute("data-provider") !== prov) show = false;
+          var out = parseFloat(row.getAttribute("data-output"));
+          if (show && !isNaN(out) && maxOut && parseFloat(maxOut.value) < parseFloat(maxOut.max) && out > maxO) show = false;
+          if (show && minC > 0 && ctxOf(row) < minC) show = false;
+          if (show) {
+            for (var i = 0; i < activeCaps.length; i++) {
+              if (row.getAttribute("data-" + activeCaps[i]) !== "1") { show = false; break; }
+            }
+          }
+          if (show && q && (row.getAttribute("data-label") || "").indexOf(q) === -1) show = false;
+          row.hidden = !show;
+          if (show) visible++;
+        });
+        // Hide empty provider groups in the catalog.
+        if (scope === "catalog") {
+          Array.prototype.forEach.call(document.querySelectorAll(".provider-groups .provider-group"), function (g) {
+            var anyVisible = Array.prototype.some.call(g.querySelectorAll(".catalog-row"), function (r) { return !r.hidden; });
+            g.hidden = !anyVisible;
+          });
+        }
+        if (emptyMsg) emptyMsg.style.display = visible === 0 ? "block" : "none";
+      }
+
+      bar.addEventListener("change", apply);
+      bar.addEventListener("input", apply);
+      if (search) { search.addEventListener("input", apply); }
+      var reset = bar.querySelector(".filter-reset");
+      if (reset) {
+        reset.addEventListener("click", function () {
+          if (provSel) provSel.value = "";
+          if (maxOut) maxOut.value = maxOut.max;
+          if (minCtx) minCtx.value = 0;
+          caps.forEach(function (c) { c.checked = false; });
+          if (search) search.value = "";
+          apply();
+        });
+      }
+      apply();
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".markets-filterbar"), wireFilterBar);
+
+    // Unit toggle: $/M <-> $/1k. Reformats cells stamped with data-priceval.
+    var unitToggle = document.getElementById("unit-toggle");
+    if (unitToggle) {
+      function fmtPrice(val, perK) {
+        if (val == null || val === "" || isNaN(val)) return "—";
+        var v = perK ? val / 1000 : val;
+        if (v === 0) return "Free";
+        if (v < 0.01) return "$" + v.toFixed(4);
+        if (v < 1) return "$" + v.toFixed(3);
+        return "$" + v.toFixed(2);
+      }
+      var priceCells = Array.prototype.slice.call(document.querySelectorAll(".price-cell"));
+      function applyUnit() {
+        var perK = unitToggle.checked;
+        Array.prototype.forEach.call(document.querySelectorAll(".price-unit-label"), function (el) { el.textContent = perK ? "1k" : "1M"; });
+        priceCells.forEach(function (cell) {
+          var raw = cell.getAttribute("data-priceval");
+          var val = raw === "" || raw == null ? null : parseFloat(raw);
+          var main = cell.querySelector(".price-main");
+          var target = main || cell;
+          // Only rewrite the leading price text node, preserving cache sub-span.
+          if (main) { main.textContent = fmtPrice(val, perK); }
+          else {
+            var cache = cell.querySelector(".cache-price");
+            target.textContent = fmtPrice(val, perK);
+            if (cache) target.appendChild(cache);
+          }
+        });
+      }
+      unitToggle.addEventListener("change", applyUnit);
+    }
+
+    // --- Step 5: compare panel (2–3 models side by side, state in sessionStorage) ---
+    var strip = document.getElementById("compare-strip");
+    var checkboxes = Array.prototype.slice.call(document.querySelectorAll(".compare-checkbox"));
+    if (strip && checkboxes.length) {
+      var MAX_CMP = 3;
+      var STORE_KEY = "gittimes-markets-compare";
+      function loadSel() {
+        try { return JSON.parse(sessionStorage.getItem(STORE_KEY)) || []; }
+        catch (e) { return []; }
+      }
+      function saveSel(arr) {
+        try { sessionStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch (e) { /* ignore */ }
+      }
+      function rowFor(cb) { return cb.closest ? cb.closest("tr") : null; }
+      function fmt(v) {
+        if (v == null || v === "" || isNaN(v)) return "—";
+        var n = parseFloat(v);
+        return n === 0 ? "Free" : "$" + n.toFixed(2);
+      }
+      function ctxLabel(row) {
+        var c = row.querySelector(".model-ctx");
+        var v = c ? parseFloat(c.getAttribute("data-sort")) : 0;
+        if (!v) return "—";
+        return v >= 1000000 ? (v / 1000000).toFixed(1) + "M" : Math.round(v / 1000) + "k";
+      }
+      function qualLabel(row) {
+        var c = row.querySelector(".model-quality");
+        var v = c ? parseFloat(c.getAttribute("data-sort")) : NaN;
+        return isNaN(v) || v < 0 ? "—" : v.toFixed(0);
+      }
+      function capsLabel(row) {
+        var out = [];
+        if (row.getAttribute("data-tools") === "1") out.push("tools");
+        if (row.getAttribute("data-reasoning") === "1") out.push("reasoning");
+        if (row.getAttribute("data-structured") === "1") out.push("structured");
+        return out.length ? out.join(", ") : "—";
+      }
+      function render() {
+        var chosen = checkboxes.filter(function (cb) { return cb.checked; });
+        if (chosen.length < 2) { strip.classList.remove("active"); strip.innerHTML = ""; return; }
+        var rows = chosen.map(rowFor).filter(Boolean);
+        var labels = rows.map(function (r) { return r.getAttribute("data-label") || ""; });
+        function tr(label, vals) {
+          return "<tr><th>" + label + "</th>" + vals.map(function (v) { return "<td>" + v + "</td>"; }).join("") + "</tr>";
+        }
+        var head = "<tr><th>Compare</th>" + labels.map(function (l) {
+          var span = document.createElement("span"); span.textContent = l; return "<td><strong>" + span.innerHTML + "</strong></td>";
+        }).join("") + '<td><button type="button" class="compare-clear">clear</button></td></tr>';
+        strip.innerHTML = "<table>" +
+          head +
+          tr("Input $/M", rows.map(function (r) { return fmt(r.getAttribute("data-input")); })) +
+          tr("Output $/M", rows.map(function (r) { return fmt(r.getAttribute("data-output")); })) +
+          tr("Cache $/M", rows.map(function (r) { return fmt(r.getAttribute("data-cache")); })) +
+          tr("Quality", rows.map(qualLabel)) +
+          tr("Context", rows.map(ctxLabel)) +
+          tr("Capabilities", rows.map(capsLabel)) +
+          "</table>";
+        strip.classList.add("active");
+        var clr = strip.querySelector(".compare-clear");
+        if (clr) clr.addEventListener("click", function () {
+          checkboxes.forEach(function (cb) { cb.checked = false; });
+          saveSel([]); render();
+        });
+      }
+      checkboxes.forEach(function (cb) {
+        cb.addEventListener("change", function () {
+          var checked = checkboxes.filter(function (c) { return c.checked; });
+          if (checked.length > MAX_CMP) { cb.checked = false; return; }
+          saveSel(checkboxes.filter(function (c) { return c.checked; }).map(function (c) { return c.getAttribute("data-cmp"); }));
+          render();
+        });
+      });
+      // Restore from sessionStorage.
+      var saved = loadSel();
+      if (saved.length) {
+        checkboxes.forEach(function (cb) {
+          if (saved.indexOf(cb.getAttribute("data-cmp")) !== -1) cb.checked = true;
+        });
+        render();
+      }
+    }
+  })();
+  </script>
+
+  <script>
+  // Living-newspaper motion — progressive enhancement only.
+  // Server renders all final values; this layer just brings them to life.
+  (function () {
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) return; // leave the page static & complete
+
+    document.body.classList.add("motion");
+
+    // Count-up animation for figures tagged data-countup.
+    function countUp(el) {
+      var target = parseFloat(el.getAttribute("data-countup"));
+      if (isNaN(target)) return;
+      var prefix = el.getAttribute("data-prefix") || "";
+      var decimals = parseInt(el.getAttribute("data-decimals") || "0", 10);
+      var start = null, dur = 900;
+      function fmt(v) {
+        var n = decimals > 0 ? v.toFixed(decimals) : Math.round(v).toString();
+        if (decimals > 0) n = n.replace(/\.?0+$/, "") || "0";
+        return prefix + n;
+      }
+      function step(ts) {
+        if (start === null) start = ts;
+        var t = Math.min(1, (ts - start) / dur);
+        var eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = fmt(target * eased);
+        if (t < 1) requestAnimationFrame(step);
+        else el.textContent = fmt(target);
+      }
+      requestAnimationFrame(step);
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("in");
+        var c = e.target.querySelector ? e.target.querySelector("[data-countup]") : null;
+        if (c && !c.__counted) { c.__counted = true; countUp(c); }
+        if (e.target.hasAttribute("data-countup") && !e.target.__counted) { e.target.__counted = true; countUp(e.target); }
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.18, rootMargin: "0px 0px -8% 0px" });
+
+    document.querySelectorAll("[data-reveal]").forEach(function (el) { io.observe(el); });
+  })();
+  </script>
 
 </body>
 </html>
