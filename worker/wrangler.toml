@@ -6,9 +6,9 @@ compatibility_date = "2024-01-01"
 ALLOWED_ORIGIN = "https://gittimes.com"
 CHAT_MONTHLY_LIMIT = "100"
 STRIPE_PRICE_AMOUNT = "500"
-# OpenRouter model for premium chat. Free by default; before charging for premium,
-# switch to a paid model (free tier rate-limits make a poor paid experience).
-CHAT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+# OpenRouter model for premium chat. Paid model for go-live (free tier rate-limits
+# make a poor paid experience). Cheap + fast; change here + redeploy to swap.
+CHAT_MODEL = "openai/gpt-4o-mini"
 
 # Secrets (set via `wrangler secret put`):
 # - STRIPE_SECRET_KEY
