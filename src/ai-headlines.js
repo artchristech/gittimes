@@ -60,8 +60,8 @@ function selectTopHeadlines(hits, opts = {}) {
 async function fetchAIHeadlines(options = {}) {
   const {
     limit = 5,
-    minPoints = 40,
-    hoursBack = 36,
+    minPoints = 30,
+    hoursBack = 48,
     fetchImpl = globalThis.fetch,
     nowMs = Date.now(),
     timeoutMs = 10_000,
@@ -72,10 +72,13 @@ async function fetchAIHeadlines(options = {}) {
     return [];
   }
 
+  // search_by_date returns NEWEST first — those are all low-point fresh posts,
+  // so we MUST filter by points server-side or every result is a 1-point post.
+  // This returns recent stories that already cleared the points bar.
   const sinceTs = Math.floor((nowMs - hoursBack * 3600 * 1000) / 1000);
   const url =
     "https://hn.algolia.com/api/v1/search_by_date" +
-    `?tags=story&query=AI&hitsPerPage=60&numericFilters=created_at_i>${sinceTs}`;
+    `?tags=story&query=AI&hitsPerPage=60&numericFilters=created_at_i>${sinceTs},points>=${minPoints}`;
 
   const AbortCtor = globalThis.AbortController;
   const controller = typeof AbortCtor === "function" ? new AbortCtor() : null;

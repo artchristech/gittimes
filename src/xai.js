@@ -427,16 +427,28 @@ async function chooseEditorialLead(client, candidates, llmLimit) {
 
   try {
     const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates), 300));
-    const leadMatch = lastMatch(raw, /LEAD:\s*#?(\d+)/);
     const whyMatch = lastMatch(raw, /WHY:\s*(.+)/);
-    if (!leadMatch) return fallback;
-    const idx = parseInt(leadMatch[1], 10) - 1;
-    if (!(idx >= 0 && idx < candidates.length)) return fallback;
-    return {
-      chosen: candidates[idx],
-      why: whyMatch?.[1]?.trim() || null,
-      viaEditor: true,
-    };
+    const why = whyMatch?.[1]?.trim() || null;
+
+    // Prefer an explicit number, but a weak model often answers with the repo
+    // name instead — match that against the candidate list as a fallback.
+    let idx = -1;
+    const leadMatch = lastMatch(raw, /LEAD:\s*#?(\d+)/);
+    if (leadMatch) idx = parseInt(leadMatch[1], 10) - 1;
+    if (!(idx >= 0 && idx < candidates.length)) {
+      const leadLine = (lastMatch(raw, /LEAD:\s*(.+)/)?.[1] || raw).toLowerCase();
+      idx = candidates.findIndex((c) => {
+        const name = (c.repo.full_name || c.repo.name || "").toLowerCase();
+        const short = name.split("/").pop();
+        return name && (leadLine.includes(name) || (short && leadLine.includes(short)));
+      });
+    }
+
+    if (!(idx >= 0 && idx < candidates.length)) {
+      console.warn("Editor-in-chief returned an unparseable choice; using top momentum candidate");
+      return fallback;
+    }
+    return { chosen: candidates[idx], why, viaEditor: true };
   } catch (err) {
     console.warn(`Editor-in-chief lead selection failed, using top momentum candidate: ${err.message}`);
     return fallback;
