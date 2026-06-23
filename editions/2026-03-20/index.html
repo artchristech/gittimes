@@ -18,8 +18,7 @@
   <link rel="canonical" href="https://gittimes.com/editions/2026-03-20/">
   <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+  <style>@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
 
 *,
 *::before,
@@ -63,10 +62,10 @@ body {
 .masthead {
   position: relative;
   text-align: center;
-  padding: 24px 0 16px;
+  padding: 32px 0 22px;
   border-top: 4px double var(--rule);
   border-bottom: 4px double var(--rule);
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 }
 
 .masthead-date {
@@ -233,31 +232,31 @@ body {
 /* === LEAD STORY === */
 
 .lead-story {
-  padding: 32px 24px;
+  padding: 48px 40px;
   border: 1px solid var(--rule-light);
   border-bottom: 2px solid var(--rule);
-  margin-bottom: 32px;
+  margin-bottom: 48px;
   contain: content;
   isolation: isolate;
 }
 
 .lead-headline {
   font-family: var(--font-headline);
-  font-size: 48px;
+  font-size: 54px;
   font-weight: 900;
-  line-height: 1.1;
-  margin-bottom: 8px;
+  line-height: 1.08;
+  margin-bottom: 14px;
   letter-spacing: -0.5px;
 }
 
 .lead-subheadline {
   font-family: var(--font-headline);
-  font-size: 22px;
+  font-size: 23px;
   font-weight: 400;
   font-style: italic;
   color: var(--ink-light);
-  margin-bottom: 16px;
-  line-height: 1.3;
+  margin-bottom: 24px;
+  line-height: 1.4;
 }
 
 .lead-meta {
@@ -266,9 +265,11 @@ body {
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule-light);
   display: flex;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
@@ -294,45 +295,77 @@ body {
   hyphens: auto;
 }
 
+/* "Use Cases" callout — a grounded, full-width newspaper sidebar derived from
+   the repo's own README/release. Was a half-width grey box (a 2-col grid with a
+   single column); now a full-measure card that fills its column. */
 .article-insights {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  background: var(--bt-bg, linear-gradient(135deg, #f5f0e8, #f0ebe3));
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 86%, var(--accent) 5%),
+      color-mix(in srgb, var(--paper) 95%, var(--ink) 3%)
+    );
+  border: 1px solid var(--rule-light);
   border-left: 3px solid var(--accent);
-  padding: 16px 20px;
-  margin-top: 20px;
+  border-radius: 2px;
+  padding: 20px 26px 22px;
+  margin: 26px 0 6px;
   font-family: var(--font-meta);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 13.5px;
+  line-height: 1.6;
   break-inside: avoid;
   column-span: all;
 }
 
 .insights-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-size: 10px;
   color: var(--accent);
-  display: block;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
+}
+
+.insights-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--rule-light), transparent);
 }
 
 .insights-col ul {
-  list-style: disc;
-  padding-left: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px 32px;
 }
 
 .insights-col li {
-  margin-bottom: 4px;
+  position: relative;
+  padding-left: 22px;
+  color: var(--ink-light);
+}
+
+.insights-col li::before {
+  content: "\2192"; /* → */
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* === SECONDARY GRID === */
 
 .secondary-section {
-  margin-bottom: 32px;
-  padding: 20px 24px 24px;
+  margin-bottom: 48px;
+  padding: 32px 32px 36px;
   background-color: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
   border-top: 2px solid var(--rule);
 }
@@ -345,15 +378,19 @@ body {
   letter-spacing: 2px;
   color: var(--ink-faint);
   border-bottom: 1px solid var(--rule-light);
-  padding-bottom: 8px;
-  margin-bottom: 0;
+  padding-bottom: 10px;
+  margin-bottom: 24px;
 }
 
 .secondary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  background-color: var(--rule-light);
-  gap: 1px;
+  gap: 0;
+}
+
+.secondary-grid > * {
+  border-right: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
 }
 
 .secondary-article {
@@ -418,8 +455,12 @@ body {
 .featured-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  background-color: var(--rule-light);
-  gap: 1px;
+  gap: 0;
+}
+
+.featured-grid > * {
+  border-right: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
 }
 
 .featured-article {
@@ -484,9 +525,13 @@ body {
 .compact-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  background-color: var(--rule-light);
-  gap: 1px;
+  gap: 0;
   margin-top: -1px;
+}
+
+.compact-grid > * {
+  border-right: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
 }
 
 .compact-article {
@@ -528,6 +573,544 @@ body {
 
 .compact-meta a:hover {
   text-decoration: underline;
+}
+
+/* === HYBRID ARTICLES === */
+
+.hybrid-article {
+  background-color: var(--paper);
+  padding: 16px 20px;
+  contain: content;
+  isolation: isolate;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.hybrid-lead {
+  padding: 32px 24px;
+  border: 1px solid var(--rule-light);
+  border-bottom: 2px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.hybrid-headline {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.hybrid-headline-lead {
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.hybrid-share {
+  font-size: 0.5em;
+  vertical-align: middle;
+  color: var(--ink-faint);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.hybrid-article:hover .hybrid-share {
+  opacity: 1;
+}
+.hybrid-share:hover {
+  color: var(--accent);
+}
+
+.hybrid-subheadline {
+  font-family: var(--font-headline);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-light);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.hybrid-lead .hybrid-subheadline {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.hybrid-meta {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.hybrid-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.hybrid-meta a:hover {
+  text-decoration: underline;
+}
+
+/* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
+   the editions read with the same confident, airy typographic rhythm. */
+.section-head {
+  margin-bottom: 20px;
+}
+
+.section-kicker {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+/* The AI Wire — now a first-class section panel (non-repo headlines from the
+   wider web), no longer a banner pinned above the front page. */
+.ai-wire {
+  padding: 8px 0 0;
+}
+
+.ai-wire .section-head {
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 12px;
+}
+
+.ai-wire-header {
+  font-family: var(--font-headline);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  margin: 0 0 6px;
+}
+
+.ai-wire-sub {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--ink-faint);
+}
+
+.ai-wire-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.ai-wire-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.ai-wire-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ai-wire-link {
+  font-family: var(--font-headline);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.ai-wire-link:hover {
+  color: var(--accent);
+}
+
+.ai-wire-src {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.ai-wire-discuss {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.ai-wire-discuss:hover {
+  text-decoration: underline;
+}
+
+/* Front-page "From the Wire" teaser — the day's top non-repo headline, so real
+   news (announcements, papers) is visible on the front page, not buried. */
+.wire-teaser {
+  margin: 0 0 32px;
+  padding: 18px 22px 16px;
+  border: 1px solid var(--rule-light);
+  border-top: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--paper) 92%, var(--accent) 3%);
+}
+
+.wire-teaser-kicker {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.wire-teaser-lead {
+  display: block;
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.wire-teaser-lead:hover {
+  color: var(--accent);
+}
+
+.wire-teaser-meta {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+.wire-teaser-discuss {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.wire-teaser-discuss:hover {
+  text-decoration: underline;
+}
+
+.wire-teaser-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--rule-light);
+  display: grid;
+  gap: 8px;
+}
+
+.wire-teaser-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.wire-teaser-item a {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.wire-teaser-item a:hover {
+  color: var(--accent);
+}
+
+.wire-teaser-src {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.wire-teaser-more {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.wire-teaser-more:hover {
+  text-decoration: underline;
+}
+
+.article-source {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.2px;
+  color: var(--ink-faint);
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-light);
+  font-style: italic;
+}
+
+.article-source a {
+  color: var(--ink-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.article-source a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.ai-wire-subhead {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 12px 0 6px;
+}
+
+.ai-wire-research .ai-wire-link {
+  font-weight: 500;
+}
+
+.hybrid-preview {
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 500px;
+  opacity: 1;
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.15s ease;
+}
+
+.hybrid-preview p {
+  margin-bottom: 8px;
+}
+
+.hybrid-full {
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+}
+
+.hybrid-full p {
+  margin-bottom: 8px;
+}
+
+/* Expanded keeps the preview (the lede) visible and reveals the remainder
+   beneath it. The full block holds only the text past the preview, so the
+   body is never duplicated in the markup. */
+.hybrid-article.expanded .hybrid-preview {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.hybrid-article.expanded .hybrid-full {
+  max-height: 5000px;
+  opacity: 1;
+  margin-top: 8px;
+}
+
+.hybrid-lead .hybrid-preview {
+  font-size: 15px;
+}
+
+.hybrid-lead .hybrid-full {
+  font-size: 15px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.hybrid-lead.expanded .hybrid-full {
+  column-count: 2;
+  column-width: 300px;
+  column-gap: 40px;
+  column-rule: 1px solid var(--rule-light);
+}
+
+.hybrid-lead .article-insights {
+  column-span: all;
+}
+
+.hybrid-article .article-insights {
+  font-size: 12px;
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+
+.hybrid-toggle {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.hybrid-toggle:hover {
+  text-decoration: underline;
+}
+
+.hybrid-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.hybrid-actions .hybrid-toggle {
+  margin-top: 0;
+}
+
+/* "Ask about this story" — hidden until chat.js loads (CHAT_WORKER_URL set). */
+.hybrid-ask {
+  display: none;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+body.chat-on .hybrid-ask {
+  display: inline-block;
+}
+
+.hybrid-ask:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Chat story-focus bar */
+.chat-context {
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-light);
+}
+
+.chat-context-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-context-clear {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.chat-context-clear:hover {
+  color: var(--accent);
+}
+
+.hybrid-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 0;
+}
+
+.hybrid-grid > .hybrid-article {
+  border-right: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
+}
+
+/* === TREND ARTICLES === */
+
+.hybrid-trend {
+  border-left: 3px solid var(--accent);
+}
+
+.trend-meta {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+
+.trend-label {
+  display: inline-block;
+  background-color: var(--accent);
+  color: var(--paper);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.trend-theme {
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.trend-repos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.trend-repo-pill {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--ink-light);
+  border: 1px solid var(--rule-light);
+  padding: 2px 8px;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.trend-repo-pill:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.trend-repo-overflow {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--ink-faint);
+  padding: 2px 4px;
 }
 
 /* === QUICK HITS === */
@@ -980,7 +1563,8 @@ body {
 
 [data-theme="dark"] .secondary-article,
 [data-theme="dark"] .featured-article,
-[data-theme="dark"] .compact-article {
+[data-theme="dark"] .compact-article,
+[data-theme="dark"] .hybrid-grid .hybrid-article {
   background-color: var(--paper);
 }
 
@@ -1018,7 +1602,8 @@ body {
 
 [data-theme="midnight"] .secondary-article,
 [data-theme="midnight"] .featured-article,
-[data-theme="midnight"] .compact-article {
+[data-theme="midnight"] .compact-article,
+[data-theme="midnight"] .hybrid-grid .hybrid-article {
   background-color: var(--paper);
 }
 
@@ -1062,12 +1647,16 @@ body {
 [data-size="small"] .secondary-headline { font-size: 19px; }
 [data-size="small"] .featured-headline { font-size: 19px; }
 [data-size="small"] .compact-headline { font-size: 16px; }
+[data-size="small"] .hybrid-headline { font-size: 17px; }
+[data-size="small"] .hybrid-headline-lead { font-size: 36px; }
 
 [data-size="large"] body { font-size: 18px; }
 [data-size="large"] .lead-headline { font-size: 56px; }
 [data-size="large"] .secondary-headline { font-size: 26px; }
 [data-size="large"] .featured-headline { font-size: 26px; }
 [data-size="large"] .compact-headline { font-size: 20px; }
+[data-size="large"] .hybrid-headline { font-size: 24px; }
+[data-size="large"] .hybrid-headline-lead { font-size: 52px; }
 
 /* === WIDTH === */
 
@@ -1126,6 +1715,7 @@ body {
 
 .section-panel.active {
   display: block;
+  padding-top: 40px;
 }
 
 .section-empty {
@@ -1285,12 +1875,41 @@ body {
 }
 
 .chat-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--rule-light);
   font-family: var(--font-meta);
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
+}
+
+.chat-header-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.chat-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: chat-pulse 2s infinite;
+}
+
+@keyframes chat-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .chat-messages {
@@ -1339,6 +1958,86 @@ body {
 @keyframes chat-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* Markdown rendered inside AI replies */
+.chat-msg-ai p { margin: 0 0 8px; }
+.chat-msg-ai p:last-child { margin-bottom: 0; }
+.chat-msg-ai ul,
+.chat-msg-ai ol { margin: 4px 0 8px; padding-left: 18px; }
+.chat-msg-ai li { margin-bottom: 3px; }
+.chat-msg-ai strong { font-weight: 700; }
+.chat-msg-ai code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.chat-msg-ai pre {
+  background: color-mix(in srgb, var(--ink) 88%, #000 12%);
+  color: #f5f3ef;
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 6px 0 10px;
+}
+.chat-msg-ai pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 12px;
+}
+.chat-msg-ai a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Starter-question chips */
+.chat-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.chat-starter {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-light);
+  background: color-mix(in srgb, var(--paper) 86%, var(--accent) 14%);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 14px;
+  padding: 5px 11px;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chat-starter:hover {
+  background: color-mix(in srgb, var(--paper) 76%, var(--accent) 24%);
+  border-color: var(--accent);
+}
+
+.chat-upgrade-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.chat-upgrade-link:hover { text-decoration: underline; }
+
+.chat-byline {
+  padding: 7px 16px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  color: var(--ink-faint);
+  text-align: center;
 }
 
 .chat-paywall {
@@ -1466,6 +2165,25 @@ body {
 
   .ticker-more {
     display: none;
+  }
+
+  .hybrid-headline-lead {
+    font-size: 32px;
+  }
+
+  .hybrid-lead .hybrid-full,
+  .hybrid-lead.expanded .hybrid-full {
+    column-count: 1;
+  }
+
+  .hybrid-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hybrid-article .article-insights {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1888,8 +2606,7 @@ body.account {
   color: var(--ink-light);
   margin-bottom: 20px;
 }
-
-  </style>
+</style>
 </head>
 <body>
 
@@ -2824,6 +3541,15 @@ body.account {
           localStorage.setItem('gittimes-section', id);
         });
       });
+      // "More on the AI Wire" teaser link jumps to the AI Wire tab
+      document.querySelectorAll('.wire-teaser-more[data-section]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          var target = document.querySelector('.section-tab[data-section="' + link.getAttribute('data-section') + '"]');
+          if (target && !target.disabled) { target.click(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        });
+      });
+
       // Restore saved section
       var savedSection = localStorage.getItem('gittimes-section');
       if (savedSection) {
