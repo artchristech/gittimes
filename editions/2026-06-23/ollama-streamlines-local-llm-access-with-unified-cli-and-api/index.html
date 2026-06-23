@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'; connect-src 'self'">
-  <title>MAVROS bridges MAVLink and ROS for UAV control workflows — The Git Times</title>
+  <title>Ollama streamlines local LLM access with unified CLI and API — The Git Times</title>
   
   <meta property="og:type" content="article">
-  <meta property="og:title" content="MAVROS bridges MAVLink and ROS for UAV control workflows — The Git Times">
-  <meta property="og:description" content="Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway">
-  <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/mavros-bridges-mavlink-and-ros-for-uav-control-workflows/">
+  <meta property="og:title" content="Ollama streamlines local LLM access with unified CLI and API — The Git Times">
+  <meta property="og:description" content="Developers run models like Gemma4 or DeepSeek via simple commands without complex setup">
+  <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/ollama-streamlines-local-llm-access-with-unified-cli-and-api/">
   <meta property="og:site_name" content="The Git Times">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MAVROS bridges MAVLink and ROS for UAV control workflows — The Git Times">
-  <meta name="twitter:description" content="Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway">
-  <meta name="description" content="Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway">
-  <link rel="canonical" href="https://gittimes.com/editions/2026-06-23/mavros-bridges-mavlink-and-ros-for-uav-control-workflows/">
+  <meta name="twitter:title" content="Ollama streamlines local LLM access with unified CLI and API — The Git Times">
+  <meta name="twitter:description" content="Developers run models like Gemma4 or DeepSeek via simple commands without complex setup">
+  <meta name="description" content="Developers run models like Gemma4 or DeepSeek via simple commands without complex setup">
+  <link rel="canonical" href="https://gittimes.com/editions/2026-06-23/ollama-streamlines-local-llm-access-with-unified-cli-and-api/">
   <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
   <style>
@@ -2490,25 +2490,26 @@ body.account {
 
   <main style="max-width:720px;margin:0 auto">
     <a class="article-page-back" href="/editions/2026-06-23/">&larr; Full Edition</a>
-    <span class="article-page-section-badge">Robotics</span>
+    <span class="article-page-section-badge">Systems</span>
 
     
-      <article class="hybrid-article hybrid-lead" data-slug="mavros-bridges-mavlink-and-ros-for-uav-control-workflows" data-repo="mavlink/mavros" data-stars="1183" data-lang="C++" data-url="https://github.com/mavlink/mavros">
-        <h3 class="hybrid-headline hybrid-headline-lead">MAVROS bridges MAVLink and ROS for UAV control workflows <a class="hybrid-share" data-slug="mavros-bridges-mavlink-and-ros-for-uav-control-workflows" title="Permalink">&#128279;</a></h3>
-        <p class="hybrid-subheadline">Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway</p>
+      <article class="hybrid-article hybrid-lead" data-slug="ollama-streamlines-local-llm-access-with-unified-cli-and-api" data-repo="ollama/ollama" data-stars="174804" data-lang="Go" data-url="https://github.com/ollama/ollama">
+        <h3 class="hybrid-headline hybrid-headline-lead">Ollama streamlines local LLM access with unified CLI and API <a class="hybrid-share" data-slug="ollama-streamlines-local-llm-access-with-unified-cli-and-api" title="Permalink">&#128279;</a></h3>
+        <p class="hybrid-subheadline">Developers run models like Gemma4 or DeepSeek via simple commands without complex setup</p>
         <div class="hybrid-meta">
-          <a href="https://github.com/mavlink/mavros" target="_blank">mavlink/mavros</a> · C++ · 1.2k stars <span class="repo-age repo-age-veteran">Est. 2013</span> · Latest: 2.14.0
+          <a href="https://github.com/ollama/ollama" target="_blank">ollama/ollama</a> · Go · 174.8k stars <span class="repo-age repo-age-mature">Est. 2023</span> · Latest: v0.30.10
         </div>
         <div class="hybrid-preview">
-          <p>mavlink/mavros remains a critical middleware for UAV developers, translating MAVLink telemetry and commands between flight controllers like PX4 and ROS ecosystems. The 2.14.</p>
+          <p>Ollama simplifies running large language models locally by providing a single command-line interface and REST API for models including Gemma4, DeepSeek, and Phi-3. After installation via one-line scripts for macOS, Windows, or Linux, developers execute <code>ollama run gemma4</code> to download and start chatting with a model instantly. The tool handles model quantization and backend execution through llama.</p>
 
         </div>
         <div class="hybrid-full">
-          <p>0 release, pushed June 22, 2026, requires MAVLink 2025.12.12 or newer — a breaking change reflecting ongoing alignment with MAVLink 2.0 standards. Recent work includes adding a PX4 offboard control example script and updating GitHub Actions dependencies via Dependabot. The project supports ROS 2 Humble, Iron, and Rolling, having dropped EOL distros in 2023. Core functionality spans the main <code>mavros</code> node, <code>mavros_extras</code> for plugins, <code>libmavconn</code> for standalone MAVLink handling, and <code>mavros_msgs</code> for message definitions. GeographicLib integration enables accurate altitude conversion between AMSL and WGS84 frames. Despite 12.5 years of development, the project shows signs of maturity with 423 open issues and a commit just two days ago indicating sustained, if incremental, maintenance. <strong>The catch:</strong> ROS 1 support is effectively deprecated, leaving legacy industrial systems dependent on older ROS distributions without a clear upgrade path.</p>
+          <p>cpp, eliminating manual configuration of GPU acceleration or dependency chains. Its Python and JavaScript libraries enable seamless integration into existing codebases, while pre-built integrations support tools like Claude Code and Copilot CLI via <code>ollama launch claude</code>. Recent updates improved Apple Silicon support using the MLX engine and updated the llama.cpp core to build 9672, enhancing performance on Mac hardware. The REST API at <code>localhost:11434/api/chat</code> allows programmatic control with standard JSON payloads, making it suitable for embedding in custom applications or agents. Despite its ease of use, Ollama abstracts away low-level tuning options available in direct llama.cpp usage, limiting fine-grained control over inference parameters like context length or batch size for advanced users needing maximum performance customization.
+<strong>The catch:</strong> While convenient for standard use, it offers less flexibility than manual llama.cpp deployment for performance-critical or specialized inference workloads.</p>
 
         </div>
-        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>UAV developers integrating PX4 with ROS 2 navigation stacks</li><li>Ground station operators relaying MAVLink data to ROS visualization tools</li><li>Researchers testing offboard control using MAVROS-enabled SITL simulations</li></ul></div></div>
-        <p class="article-source">Source: <a href="https://github.com/mavlink/mavros" target="_blank" rel="noopener">mavlink/mavros</a> &mdash; based on the README and release notes.</p>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Developers testing multiple LLMs locally without environment conflicts</li><li>Teams integrating AI agents into internal tools via simple API calls</li><li>Individual builders running private chatbots on personal workstations</li></ul></div></div>
+        <p class="article-source">Source: <a href="https://github.com/ollama/ollama" target="_blank" rel="noopener">ollama/ollama</a> &mdash; based on the README and release notes.</p>
         
         <div class="hybrid-actions">
           <button class="hybrid-toggle" aria-expanded="false">Read more</button>
@@ -2518,9 +2519,9 @@ body.account {
 
     <div class="article-page-share">
       <span>Share:</span>
-      <a href="https://twitter.com/intent/tweet?text=MAVROS%20bridges%20MAVLink%20and%20ROS%20for%20UAV%20control%20workflows%20%E2%80%94%20The%20Git%20Times&url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fmavros-bridges-mavlink-and-ros-for-uav-control-workflows%2F" target="_blank" rel="noopener">X</a>
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fmavros-bridges-mavlink-and-ros-for-uav-control-workflows%2F" target="_blank" rel="noopener">LinkedIn</a>
-      <a href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fmavros-bridges-mavlink-and-ros-for-uav-control-workflows%2F&t=MAVROS%20bridges%20MAVLink%20and%20ROS%20for%20UAV%20control%20workflows%20%E2%80%94%20The%20Git%20Times" target="_blank" rel="noopener">HN</a>
+      <a href="https://twitter.com/intent/tweet?text=Ollama%20streamlines%20local%20LLM%20access%20with%20unified%20CLI%20and%20API%20%E2%80%94%20The%20Git%20Times&url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Follama-streamlines-local-llm-access-with-unified-cli-and-api%2F" target="_blank" rel="noopener">X</a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Follama-streamlines-local-llm-access-with-unified-cli-and-api%2F" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Follama-streamlines-local-llm-access-with-unified-cli-and-api%2F&t=Ollama%20streamlines%20local%20LLM%20access%20with%20unified%20CLI%20and%20API%20%E2%80%94%20The%20Git%20Times" target="_blank" rel="noopener">HN</a>
     </div>
 
     <a class="article-page-cta" href="/editions/2026-06-23/">Read Today's Full Edition</a>

@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'; connect-src 'self'">
-  <title>MAVROS bridges MAVLink and ROS for UAV control workflows — The Git Times</title>
+  <title>Terminal tool taps eBPF to monitor live HTTP traffic — The Git Times</title>
   
   <meta property="og:type" content="article">
-  <meta property="og:title" content="MAVROS bridges MAVLink and ROS for UAV control workflows — The Git Times">
-  <meta property="og:description" content="Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway">
-  <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/mavros-bridges-mavlink-and-ros-for-uav-control-workflows/">
+  <meta property="og:title" content="Terminal tool taps eBPF to monitor live HTTP traffic — The Git Times">
+  <meta property="og:description" content="httpinspect shows real-time endpoint stats without proxies or app changes">
+  <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/terminal-tool-taps-ebpf-to-monitor-live-http-traffic/">
   <meta property="og:site_name" content="The Git Times">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MAVROS bridges MAVLink and ROS for UAV control workflows — The Git Times">
-  <meta name="twitter:description" content="Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway">
-  <meta name="description" content="Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway">
-  <link rel="canonical" href="https://gittimes.com/editions/2026-06-23/mavros-bridges-mavlink-and-ros-for-uav-control-workflows/">
+  <meta name="twitter:title" content="Terminal tool taps eBPF to monitor live HTTP traffic — The Git Times">
+  <meta name="twitter:description" content="httpinspect shows real-time endpoint stats without proxies or app changes">
+  <meta name="description" content="httpinspect shows real-time endpoint stats without proxies or app changes">
+  <link rel="canonical" href="https://gittimes.com/editions/2026-06-23/terminal-tool-taps-ebpf-to-monitor-live-http-traffic/">
   <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
   <style>
@@ -2490,25 +2490,25 @@ body.account {
 
   <main style="max-width:720px;margin:0 auto">
     <a class="article-page-back" href="/editions/2026-06-23/">&larr; Full Edition</a>
-    <span class="article-page-section-badge">Robotics</span>
+    <span class="article-page-section-badge">Front Page</span>
 
     
-      <article class="hybrid-article hybrid-lead" data-slug="mavros-bridges-mavlink-and-ros-for-uav-control-workflows" data-repo="mavlink/mavros" data-stars="1183" data-lang="C++" data-url="https://github.com/mavlink/mavros">
-        <h3 class="hybrid-headline hybrid-headline-lead">MAVROS bridges MAVLink and ROS for UAV control workflows <a class="hybrid-share" data-slug="mavros-bridges-mavlink-and-ros-for-uav-control-workflows" title="Permalink">&#128279;</a></h3>
-        <p class="hybrid-subheadline">Enables ground station integration with ROS 2 Humble+ via MAVLink 2.0+ gateway</p>
+      <article class="hybrid-article hybrid-lead" data-slug="terminal-tool-taps-ebpf-to-monitor-live-http-traffic" data-repo="yeet-src/httpinspect" data-stars="193" data-lang="JavaScript" data-url="https://github.com/yeet-src/httpinspect">
+        <h3 class="hybrid-headline hybrid-headline-lead">Terminal tool taps eBPF to monitor live HTTP traffic <a class="hybrid-share" data-slug="terminal-tool-taps-ebpf-to-monitor-live-http-traffic" title="Permalink">&#128279;</a></h3>
+        <p class="hybrid-subheadline">httpinspect shows real-time endpoint stats without proxies or app changes</p>
         <div class="hybrid-meta">
-          <a href="https://github.com/mavlink/mavros" target="_blank">mavlink/mavros</a> · C++ · 1.2k stars <span class="repo-age repo-age-veteran">Est. 2013</span> · Latest: 2.14.0
+          <a href="https://github.com/yeet-src/httpinspect" target="_blank">yeet-src/httpinspect</a> · JavaScript · 193 stars <span class="repo-age repo-age-fresh">5d old</span>
         </div>
         <div class="hybrid-preview">
-          <p>mavlink/mavros remains a critical middleware for UAV developers, translating MAVLink telemetry and commands between flight controllers like PX4 and ROS ecosystems. The 2.14.</p>
+          <p>httpinspect brings a <code>top</code>-like dashboard to the terminal for monitoring plaintext HTTP requests on a host. Built in JavaScript and powered by eBPF, it attaches at the TC layer to read request lines directly off the wire — including loopback traffic — and ranks endpoints by traffic volume, request rate, and latency. No proxy, sidecar, or code changes are needed.</p>
 
         </div>
         <div class="hybrid-full">
-          <p>0 release, pushed June 22, 2026, requires MAVLink 2025.12.12 or newer — a breaking change reflecting ongoing alignment with MAVLink 2.0 standards. Recent work includes adding a PX4 offboard control example script and updating GitHub Actions dependencies via Dependabot. The project supports ROS 2 Humble, Iron, and Rolling, having dropped EOL distros in 2023. Core functionality spans the main <code>mavros</code> node, <code>mavros_extras</code> for plugins, <code>libmavconn</code> for standalone MAVLink handling, and <code>mavros_msgs</code> for message definitions. GeographicLib integration enables accurate altitude conversion between AMSL and WGS84 frames. Despite 12.5 years of development, the project shows signs of maturity with 423 open issues and a commit just two days ago indicating sustained, if incremental, maintenance. <strong>The catch:</strong> ROS 1 support is effectively deprecated, leaving legacy industrial systems dependent on older ROS distributions without a clear upgrade path.</p>
+          <p>Users see a live table of endpoints, with drill-down views showing p50/p95/max latency, status-code distribution, and sparklines for req/s and latency. Installation involves fetching a prebuilt toolchain, compiling the BPF object, and running <code>yeet run .</code> to start monitoring all active interfaces. Flags allow filtering by interface (<code>--iface=lo,eth0</code>) or preserving query strings (<code>--keep-query</code>) for granular tracking. The tool updates in real time and resizes with the terminal.<br>The catch: As a six-day-old project with only one open issue and limited documentation beyond the README, its long-term stability, performance under high throughput, and compatibility with encrypted HTTPS traffic remain untested in production environments.</p>
 
         </div>
-        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>UAV developers integrating PX4 with ROS 2 navigation stacks</li><li>Ground station operators relaying MAVLink data to ROS visualization tools</li><li>Researchers testing offboard control using MAVROS-enabled SITL simulations</li></ul></div></div>
-        <p class="article-source">Source: <a href="https://github.com/mavlink/mavros" target="_blank" rel="noopener">mavlink/mavros</a> &mdash; based on the README and release notes.</p>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Developers debugging local service-to-service HTTP calls</li><li>Operators identifying high-traffic internal endpoints without instrumentation</li><li>Teams observing plaintext API usage patterns in staging environments</li></ul></div></div>
+        <p class="article-source">Source: <a href="https://github.com/yeet-src/httpinspect" target="_blank" rel="noopener">yeet-src/httpinspect</a> &mdash; based on the project README.</p>
         
         <div class="hybrid-actions">
           <button class="hybrid-toggle" aria-expanded="false">Read more</button>
@@ -2518,9 +2518,9 @@ body.account {
 
     <div class="article-page-share">
       <span>Share:</span>
-      <a href="https://twitter.com/intent/tweet?text=MAVROS%20bridges%20MAVLink%20and%20ROS%20for%20UAV%20control%20workflows%20%E2%80%94%20The%20Git%20Times&url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fmavros-bridges-mavlink-and-ros-for-uav-control-workflows%2F" target="_blank" rel="noopener">X</a>
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fmavros-bridges-mavlink-and-ros-for-uav-control-workflows%2F" target="_blank" rel="noopener">LinkedIn</a>
-      <a href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fmavros-bridges-mavlink-and-ros-for-uav-control-workflows%2F&t=MAVROS%20bridges%20MAVLink%20and%20ROS%20for%20UAV%20control%20workflows%20%E2%80%94%20The%20Git%20Times" target="_blank" rel="noopener">HN</a>
+      <a href="https://twitter.com/intent/tweet?text=Terminal%20tool%20taps%20eBPF%20to%20monitor%20live%20HTTP%20traffic%20%E2%80%94%20The%20Git%20Times&url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fterminal-tool-taps-ebpf-to-monitor-live-http-traffic%2F" target="_blank" rel="noopener">X</a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fterminal-tool-taps-ebpf-to-monitor-live-http-traffic%2F" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgittimes.com%2Feditions%2F2026-06-23%2Fterminal-tool-taps-ebpf-to-monitor-live-http-traffic%2F&t=Terminal%20tool%20taps%20eBPF%20to%20monitor%20live%20HTTP%20traffic%20%E2%80%94%20The%20Git%20Times" target="_blank" rel="noopener">HN</a>
     </div>
 
     <a class="article-page-cta" href="/editions/2026-06-23/">Read Today's Full Edition</a>

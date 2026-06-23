@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'unsafe-inline'; connect-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'; connect-src 'self'">
   <title>AxxSolder 3.8.1 refines USB-PD power negotiation for JBC irons — The Git Times</title>
   
   <meta property="og:type" content="article">
   <meta property="og:title" content="AxxSolder 3.8.1 refines USB-PD power negotiation for JBC irons — The Git Times">
-  <meta property="og:description" content="Latest release improves 20V USB-C power delivery handling and voltage display accuracy">
+  <meta property="og:description" content="Stable release improves 24V DC and USB-C PD input with automatic power limiting via STM32G4 PID control">
   <meta property="og:url" content="https://gittimes.com/editions/2026-06-23/axxsolder-3-8-1-refines-usb-pd-power-negotiation-for-jbc-irons/">
   <meta property="og:site_name" content="The Git Times">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AxxSolder 3.8.1 refines USB-PD power negotiation for JBC irons — The Git Times">
-  <meta name="twitter:description" content="Latest release improves 20V USB-C power delivery handling and voltage display accuracy">
-  <meta name="description" content="Latest release improves 20V USB-C power delivery handling and voltage display accuracy">
+  <meta name="twitter:description" content="Stable release improves 24V DC and USB-C PD input with automatic power limiting via STM32G4 PID control">
+  <meta name="description" content="Stable release improves 24V DC and USB-C PD input with automatic power limiting via STM32G4 PID control">
   <link rel="canonical" href="https://gittimes.com/editions/2026-06-23/axxsolder-3-8-1-refines-usb-pd-power-negotiation-for-jbc-irons/">
   <link rel="alternate" type="application/rss+xml" title="The Git Times" href="https://gittimes.com/feed.xml">
 
@@ -675,6 +675,29 @@ body {
 .ai-wire-src {
   font-size: 12px;
   opacity: 0.65;
+}
+
+.article-source {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.article-source a {
+  color: inherit;
+}
+
+.ai-wire-subhead {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 12px 0 6px;
+}
+
+.ai-wire-research .ai-wire-link {
+  font-weight: 500;
 }
 
 .hybrid-preview {
@@ -2470,21 +2493,22 @@ body.account {
     <span class="article-page-section-badge">DIY</span>
 
     
-      <article class="hybrid-article hybrid-lead" data-slug="axxsolder-3-8-1-refines-usb-pd-power-negotiation-for-jbc-irons" data-repo="AxxAxx/AxxSolder" data-stars="1570" data-lang="C" data-url="https://github.com/AxxAxx/AxxSolder">
+      <article class="hybrid-article hybrid-lead" data-slug="axxsolder-3-8-1-refines-usb-pd-power-negotiation-for-jbc-irons" data-repo="AxxAxx/AxxSolder" data-stars="1571" data-lang="C" data-url="https://github.com/AxxAxx/AxxSolder">
         <h3 class="hybrid-headline hybrid-headline-lead">AxxSolder 3.8.1 refines USB-PD power negotiation for JBC irons <a class="hybrid-share" data-slug="axxsolder-3-8-1-refines-usb-pd-power-negotiation-for-jbc-irons" title="Permalink">&#128279;</a></h3>
-        <p class="hybrid-subheadline">Latest release improves 20V USB-C power delivery handling and voltage display accuracy</p>
+        <p class="hybrid-subheadline">Stable release improves 24V DC and USB-C PD input with automatic power limiting via STM32G4 PID control</p>
         <div class="hybrid-meta">
           <a href="https://github.com/AxxAxx/AxxSolder" target="_blank">AxxAxx/AxxSolder</a> · C · 1.6k stars <span class="repo-age repo-age-mature">Est. 2023</span> · Latest: v3.8.1
         </div>
         <div class="hybrid-preview">
-          <p>The AxxSolder project released version 3.8.1, focusing on stabilizing USB-PD power negotiation for STM32-based soldering stations.</p>
+          <p>The AxxSolder project released v3.8.1, a stability update focused on refining USB-C Power Delivery negotiation for JBC-compatible soldering irons.</p>
 
         </div>
         <div class="hybrid-full">
-          <p>This update ensures clean 20V negotiation when using compatible USB-PD supplies, preventing unstable voltage transitions during startup. The release also corrects the prime voltage display to reflect actual negotiated power levels, improving user feedback when operating under power-limited conditions. Built around the STM32G431CBT6, the firmware maintains PID temperature control for JBC C115, C210, and C245 cartridges, supports dual power inputs (9–24V DC or USB-PD), and includes sleep profiles and user-adjustable encoder steps. Hardware designs remain open, with 3D-printable enclosures and BOMs available under /CAD and /bom. The project continues to serve builders seeking a customizable, firmware-driven alternative to commercial soldering stations, particularly those integrating USB-C power sources into workshop setups.<br><strong>The catch:</strong> USB-PD power delivery is capped at 65W, limiting full-power use of higher-demand JBC T245 cartridges without a dedicated DC supply.</p>
+          <p>The release ensures clean 20V PD handshakes and accurate prime voltage display when using USB-PD sources, addressing prior instability in power level detection. Built around the STM32G431CBT6, the firmware maintains a PID loop for precise tip temperature control, supports both fixed-station and portable enclosures, and automatically scales output based on negotiated USB-PD capabilities—full power for NT115/T210 handles on 65W supplies, limited for T245. Hardware accepts 9–24VDC or USB-PD input, with recommended Meanwell LRS-150-24 supply for full iron compatibility. Enclosures and BOM are open, with assembly services offered via 5Dimensions. Despite 1,571 stars and 195 forks, development remains slow-burn: no open issues, last commit a day ago, but no major feature expansion since v3.8.0’s refactoring.<br>The catch: USB-PD power limiting prevents full T245 performance on sub-65W supplies, limiting appeal for high-demand bench use without robust PD sources.</p>
 
         </div>
-        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Hobbyists building temperature-controlled soldering stations with USB-C power</li><li>Makers adapting JBC cartridges for portable, battery-operated soldering irons</li><li>Engineers testing PID tuning and thermal response in custom iron firmware</li></ul></div></div>
+        <div class="article-insights"><div class="insights-col"><span class="insights-label">Use Cases</span><ul><li>Hobbyists building temperature-controlled JBC soldering stations</li><li>Makers creating portable USB-PD powered soldering irons</li><li>Educators demonstrating PID control in embedded thermal systems</li></ul></div></div>
+        <p class="article-source">Source: <a href="https://github.com/AxxAxx/AxxSolder" target="_blank" rel="noopener">AxxAxx/AxxSolder</a> &mdash; based on the README and release notes.</p>
         
         <div class="hybrid-actions">
           <button class="hybrid-toggle" aria-expanded="false">Read more</button>
