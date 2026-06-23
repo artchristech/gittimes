@@ -670,6 +670,29 @@ body {
   opacity: 0.65;
 }
 
+.article-source {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.article-source a {
+  color: inherit;
+}
+
+.ai-wire-subhead {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 12px 0 6px;
+}
+
+.ai-wire-research .ai-wire-link {
+  font-weight: 500;
+}
+
 .hybrid-preview {
   font-size: 14px;
   line-height: 1.6;
@@ -2706,7 +2729,7 @@ body.account {
 
   <div class="markets-header">
     <h1>AI Markets</h1>
-    <p class="markets-date">Live pricing synced from OpenRouter &middot; Jun 23, 8:13 AM MDT</p>
+    <p class="markets-date">Live pricing synced from OpenRouter &middot; Jun 23, 11:02 AM MDT</p>
   </div>
 
   <div class="markets-index">
@@ -3027,7 +3050,7 @@ body.account {
   </div>
 <div class="markets-section">
       <h2 class="markets-section-title">All Models by Provider</h2>
-      <p class="markets-section-desc">309 models across 54 providers on OpenRouter</p>
+      <p class="markets-section-desc">308 models across 53 providers on OpenRouter</p>
       <div class="provider-group">
         <h3 class="provider-name">openai</h3>
         <table class="markets-table">
@@ -3159,7 +3182,7 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="catalog-name"><span title="GPT-5.2 Chat (AKA Instant) is the fast, lightweight member of the 5.2 family, optimized for low-latency chat while retaining strong general intelligence. It use">OpenAI: GPT-5.2 Chat</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price">$1.75<span class="cache-price">cache: $0.17</span></td>
           <td class="model-price">$14</td>
-          <td class="model-ctx" title="Max output: 32,000 tokens">128k</td>
+          <td class="model-ctx" title="Max output: 16,384 tokens">128k</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reas">OpenAI: GPT-5.2</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -3189,7 +3212,7 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="catalog-name"><span title="GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retaining strong general intelligence. It uses">OpenAI: GPT-5.1 Chat</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price">$1.25<span class="cache-price">cache: $0.13</span></td>
           <td class="model-price">$10</td>
-          <td class="model-ctx" title="Max output: 16,384 tokens">128k</td>
+          <td class="model-ctx" title="Max output: 32,000 tokens">128k</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="GPT-5.1-Codex is a specialized version of GPT-5.1 optimized for software engineering and coding workflows. It is designed for both interactive development sessi">OpenAI: GPT-5.1-Codex</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -3241,7 +3264,7 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
         </tr>
 <tr>
           <td class="catalog-name"><span title="GPT-4o (&quot;o&quot; for &quot;omni&quot;) is OpenAI&#39;s latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turb">OpenAI: GPT-4o</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
-          <td class="model-price">$2.50<span class="cache-price">cache: $1.25</span></td>
+          <td class="model-price">$2.50</td>
           <td class="model-price">$10</td>
           <td class="model-ctx" title="Max output: 16,384 tokens">128k</td>
         </tr>
@@ -3321,9 +3344,9 @@ Note: This model always us">OpenAI: o4 Mini Deep Research</span><span class="mod
         </tr>
 <tr>
           <td class="catalog-name"><span title="GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instruction-following and safety-tuning benefi">OpenAI: GPT-5 Mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price">$0.25<span class="cache-price">cache: $0.03</span></td>
+          <td class="model-price">$0.25<span class="cache-price">cache: $0.02</span></td>
           <td class="model-price">$2</td>
-          <td class="model-ctx">400k</td>
+          <td class="model-ctx" title="Max output: 128,000 tokens">400k</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="GPT-3.5 Turbo is OpenAI&#39;s fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.
@@ -3343,7 +3366,7 @@ T">OpenAI: GPT-3.5 Turbo (older v0613)</span><span class="feature-badges"><span 
           <td class="catalog-name"><span title="GPT-4.1 Mini is a mid-sized model delivering performance competitive with GPT-4o at substantially lower latency and cost. It retains a 1 million token context w">OpenAI: GPT-4.1 Mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price">$0.40<span class="cache-price">cache: $0.10</span></td>
           <td class="model-price">$1.60</td>
-          <td class="model-ctx">1.0M</td>
+          <td class="model-ctx" title="Max output: 32,768 tokens">1.0M</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="GPT-3.5 Turbo is OpenAI&#39;s fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.
@@ -3366,13 +3389,13 @@ T">OpenAI: GPT-3.5 Turbo</span><span class="feature-badges"><span class="feature
           <td class="model-ctx" title="Max output: 16,384 tokens">128k</td>
         </tr>
 <tr>
-          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini (2024-07-18)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price">$0.15<span class="cache-price">cache: $0.07</span></td>
           <td class="model-price">$0.60</td>
           <td class="model-ctx" title="Max output: 16,384 tokens">128k</td>
         </tr>
 <tr>
-          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini (2024-07-18)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price">$0.15<span class="cache-price">cache: $0.07</span></td>
           <td class="model-price">$0.60</td>
           <td class="model-ctx" title="Max output: 16,384 tokens">128k</td>
@@ -3684,7 +3707,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="Nano Banana Pro is Google’s most advanced image-generation and editing model, built on Gemini 3 Pro. It extends the original Nano Banana with significantly impr">Google: Nano Banana Pro (Gemini 3 Pro Image)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price">$2<span class="cache-price">cache: $0.20</span></td>
           <td class="model-price">$12</td>
-          <td class="model-ctx" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" title="Max output: 32,768 tokens">66k</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="Gemini 3.1 Pro Preview Custom Tools is a variant of Gemini 3.1 Pro that improves tool selection behavior by preventing overuse of a general bash tool when more ">Google: Gemini 3.1 Pro Preview Custom Tools</span><span class="modality-badge">aud</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -3726,13 +3749,13 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at F">Google: Nano Banana 2 (Gemini 3.1 Flash Image)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price">$0.50</td>
           <td class="model-price">$3</td>
-          <td class="model-ctx" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" title="Max output: 65,536 tokens">131k</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image Preview, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual qual">Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price">$0.50</td>
           <td class="model-price">$3</td>
-          <td class="model-ctx" title="Max output: 65,536 tokens">131k</td>
+          <td class="model-ctx" title="Max output: 32,768 tokens">131k</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and coding assistance. It delivers near Pro l">Google: Gemini 3 Flash Preview</span><span class="modality-badge">img</span><span class="modality-badge">aud</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -4217,9 +4240,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B" title="The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixtur">Qwen: Qwen3.5-35B-A3B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price">$0.14<span class="cache-price">cache: $0.05</span></td>
+          <td class="model-price">$0.14</td>
           <td class="model-price">$1</td>
-          <td class="model-ctx" title="Max output: 81,920 tokens">262k</td>
+          <td class="model-ctx" title="Max output: 262,144 tokens">262k</td>
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct" title="Qwen2.5-VL is proficient in recognizing common objects such as flowers, birds, fish, and insects. It is also highly capable of analyzing texts, charts, icons, g">Qwen: Qwen2.5 VL 72B Instruct</a><span class="modality-badge">img</span></td>
@@ -4351,7 +4374,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-9B" title="Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and visual understanding in an efficient 9B-p">Qwen: Qwen3.5-9B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price">$0.10</td>
           <td class="model-price">$0.15</td>
-          <td class="model-ctx" title="Max output: 32,768 tokens">256k</td>
+          <td class="model-ctx" title="Max output: 262,144 tokens">262k</td>
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-235B-A22B-Thinking-2507" title="Qwen3-235B-A22B-Thinking-2507 is a high-performance, open-weight Mixture-of-Experts (MoE) language model optimized for complex reasoning tasks. It activates 22B">Qwen: Qwen3 235B A22B Thinking 2507</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -4429,9 +4452,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.1" title="GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu">Z.ai: GLM 5.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price">$0.98<span class="cache-price">cache: $0.18</span></td>
+          <td class="model-price">$0.98<span class="cache-price">cache: $0.49</span></td>
           <td class="model-price">$3.08</td>
-          <td class="model-ctx">203k</td>
+          <td class="model-ctx" title="Max output: 65,535 tokens">203k</td>
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.5" title="GLM-4.5 is our latest flagship foundation model, purpose-built for agent-based applications. It leverages a Mixture-of-Experts (MoE) architecture and supports a">Z.ai: GLM 4.5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -4507,7 +4530,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/moonshotai/Kimi-K2-Thinking" title="Kimi K2 Thinking is Moonshot AI’s most advanced open reasoning model to date, extending the K2 series into agentic, long-horizon reasoning. Built on the trillio">MoonshotAI: Kimi K2 Thinking</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price">$0.60<span class="cache-price">cache: $0.60</span></td>
+          <td class="model-price">$0.60</td>
           <td class="model-price">$2.50</td>
           <td class="model-ctx" title="Max output: 262,144 tokens">262k</td>
         </tr>
@@ -4823,7 +4846,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/Minimax-M3" title="MiniMax-M3 is a multimodal foundation model from MiniMax. It supports text, image, and video inputs with text output, a 1M-token context window, and is suited f">MiniMax: MiniMax M3</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price">$0.30<span class="cache-price">cache: $0.06</span></td>
           <td class="model-price">$1.20</td>
-          <td class="model-ctx">1.0M</td>
+          <td class="model-ctx" title="Max output: 512,000 tokens">1.0M</td>
         </tr>
 <tr>
           <td class="catalog-name"><span title="MiniMax M2-her is a dialogue-first large language model built for immersive roleplay, character-driven chat, and expressive multi-turn conversations. Designed t">MiniMax: MiniMax M2-her</span></td>
@@ -4838,15 +4861,15 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-ctx" title="Max output: 1,000,192 tokens">1.0M</td>
         </tr>
 <tr>
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.7" title="MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat">MiniMax: MiniMax M2.7</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price">$0.25<span class="cache-price">cache: $0.05</span></td>
-          <td class="model-price">$1</td>
-          <td class="model-ctx" title="Max output: 131,072 tokens">205k</td>
-        </tr>
-<tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2" title="MiniMax-M2 is a compact, high-efficiency large language model optimized for end-to-end coding and agentic workflows. With 10 billion activated parameters (230 b">MiniMax: MiniMax M2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price">$0.26<span class="cache-price">cache: $0.03</span></td>
           <td class="model-price">$1</td>
+          <td class="model-ctx" title="Max output: 196,608 tokens">205k</td>
+        </tr>
+<tr>
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.7" title="MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat">MiniMax: MiniMax M2.7</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price">$0.24</td>
+          <td class="model-price">$0.96</td>
           <td class="model-ctx" title="Max output: 196,608 tokens">205k</td>
         </tr>
 <tr>
@@ -4971,7 +4994,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="KAT-Coder-Pro V2 is the latest high-performance model in KwaiKAT’s KAT-Coder series, designed for complex enterprise-grade software engineering and SaaS integra">Kwaipilot: KAT-Coder-Pro V2</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price">$0.30<span class="cache-price">cache: $0.06</span></td>
           <td class="model-price">$1.20</td>
-          <td class="model-ctx" title="Max output: 144,000 tokens">262k</td>
+          <td class="model-ctx" title="Max output: 80,000 tokens">256k</td>
         </tr></tbody>
       </table>
         
@@ -5108,10 +5131,10 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-ctx" title="Max output: 131,072 tokens">131k</td>
         </tr>
 <tr>
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/TheDrummer/Rocinante-12B-v1.1" title="Rocinante 12B is designed for engaging storytelling and rich prose. Early testers have reported: - Expanded vocabulary with unique and expressive word choices -">TheDrummer: Rocinante 12B</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
-          <td class="model-price">$0.17</td>
-          <td class="model-price">$0.43</td>
-          <td class="model-ctx" title="Max output: 32,768 tokens">33k</td>
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/TheDrummer/Rocinante-12B-v1.1" title="Rocinante 12B is designed for engaging storytelling and rich prose. Early testers have reported: - Expanded vocabulary with unique and expressive word choices -">TheDrummer: Rocinante 12B</a></td>
+          <td class="model-price">$0.25</td>
+          <td class="model-price">$0.50</td>
+          <td class="model-ctx">33k</td>
         </tr>
 <tr>
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/TheDrummer/UnslopNemo-12B-v4.1" title="UnslopNemo v4.1 is the latest addition from the creator of Rocinante, designed for adventure writing and role-play scenarios.">TheDrummer: UnslopNemo 12B</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -5390,19 +5413,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr></tbody>
           </table>
         </details>
-      </div>
-<div class="provider-group">
-        <h3 class="provider-name">essentialai</h3>
-        <table class="markets-table">
-        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-        <tbody><tr class="provider-flagship">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/EssentialAI/rnj-1-instruct" title="Rnj-1 is an 8B-parameter, dense, open-weight model family developed by Essential AI and trained from scratch with a focus on programming, math, and scientific r">EssentialAI: Rnj 1 Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
-          <td class="model-price">$0.15</td>
-          <td class="model-price">$0.15</td>
-          <td class="model-ctx">33k</td>
-        </tr></tbody>
-      </table>
-        
       </div>
 <div class="provider-group">
         <h3 class="provider-name">liquid</h3>
