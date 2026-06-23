@@ -115,7 +115,15 @@ async function main() {
   }
 
   // Step 4: Publish edition
-  await publish(content, outDir, { siteUrl, basePath, tickerHtml, tickerData, fullMarketData, aiWireHtml });
+  await publish(content, outDir, {
+    siteUrl,
+    basePath,
+    tickerHtml,
+    tickerData,
+    fullMarketData,
+    aiWireHtml,
+    aiWire: { headlines: aiHeadlines, research: arxivPapers },
+  });
 
   // Step 5: Snapshot history for editorial intelligence
   const editorialEnabled = process.env.EDITORIAL !== "false";

@@ -411,9 +411,53 @@ function renderAIWire(headlines, options = {}) {
 
   return `
     <section class="ai-wire" aria-label="The AI Wire">
-      <h2 class="ai-wire-header">The AI Wire <span class="ai-wire-sub">&mdash; beyond GitHub: what builders are reading today</span></h2>
+      <div class="section-head">
+        <span class="section-kicker">Beyond GitHub</span>
+        <h2 class="ai-wire-header">The AI Wire</h2>
+        <span class="ai-wire-sub">What builders are reading today &mdash; the headlines, papers, and announcements that aren't trending repos.</span>
+      </div>
       ${storiesHtml}${researchHtml}
     </section>`;
+}
+
+/**
+ * Front-page teaser for the AI Wire. The front page is built entirely from
+ * trending GitHub repos, so genuine news with no repo (a lab announcement, a
+ * paper) was structurally invisible there — it only ever lived in the buried
+ * wire block. This surfaces the day's single most-discussed non-repo headline
+ * on the front page itself. Grounded by construction: a real headline + link,
+ * never an LLM-written body, so it adds news without inventing claims.
+ * Returns "" when there are no headlines.
+ * @param {Array<{title,url,source,points,comments,discussionUrl}>} headlines
+ * @param {object} [options] - { max }
+ */
+function renderWireTeaser(headlines, options = {}) {
+  if (!headlines || headlines.length === 0) return "";
+  const max = options.max || 3;
+  const items = headlines.slice(0, max);
+  const lead = items[0];
+  const leadDiscuss = lead.discussionUrl
+    ? ` &middot; <a class="wire-teaser-discuss" href="${escapeHtml(lead.discussionUrl)}" target="_blank" rel="noopener">${lead.comments} comments</a>`
+    : "";
+  const rest = items
+    .slice(1)
+    .map(
+      (h) => `
+          <li class="wire-teaser-item">
+            <a href="${escapeHtml(h.url)}" target="_blank" rel="noopener">${escapeHtml(h.title)}</a>
+            <span class="wire-teaser-src">${escapeHtml(h.source)}</span>
+          </li>`
+    )
+    .join("");
+  const restHtml = rest ? `<ul class="wire-teaser-list">${rest}</ul>` : "";
+  return `
+    <aside class="wire-teaser" aria-label="From the AI Wire">
+      <span class="wire-teaser-kicker">From the Wire</span>
+      <a class="wire-teaser-lead" href="${escapeHtml(lead.url)}" target="_blank" rel="noopener">${escapeHtml(lead.title)}</a>
+      <div class="wire-teaser-meta">${escapeHtml(lead.source)}${leadDiscuss}</div>
+      ${restHtml}
+      <a class="wire-teaser-more" data-section="aiWire" href="#">More on the AI Wire &rarr;</a>
+    </aside>`;
 }
 
 function renderChatUi() {
@@ -477,15 +521,46 @@ async function assembleMultiSectionHtml(content, options = {}) {
 
   const navHtml = buildNavHtml(options.nav);
 
-  // Build section nav
-  const sectionNavHtml = renderSectionNav(SECTION_ORDER, content.sections, SECTIONS);
+  // The AI Wire is now a first-class section (a tab + panel), not a banner pinned
+  // above the front page. Render it from data when available, else fall back to a
+  // pre-rendered string for legacy callers.
+  const wireData = options.aiWire || null;
+  const wireHeadlines = wireData ? wireData.headlines || [] : [];
+  const wireResearch = wireData ? wireData.research || [] : [];
+  const aiWirePanelHtml = wireData
+    ? renderAIWire(wireHeadlines, { research: wireResearch })
+    : options.aiWireHtml || "";
+  const hasWire = aiWirePanelHtml.trim().length > 0;
 
-  // Build section panels
-  const panelsHtml = SECTION_ORDER.map((id, i) => {
-    const sectionData = content.sections[id];
-    const config = SECTIONS[id];
+  // AI Wire sits second, right after the Front Page — it keeps the prominence it
+  // had as a top banner while behaving like every other section. SECTION_ORDER
+  // stays repo-only (the generation pipeline iterates it), so the wire is woven
+  // in here at the render layer.
+  const navOrder = ["frontPage", "aiWire", ...SECTION_ORDER.filter((id) => id !== "frontPage")];
+  const navSections = { ...content.sections, aiWire: { isEmpty: !hasWire } };
+  const navConfigs = { ...SECTIONS, aiWire: { id: "aiWire", label: "AI Wire" } };
+
+  // Build section nav
+  const sectionNavHtml = renderSectionNav(navOrder, navSections, navConfigs);
+
+  // Front-page wire teaser: surface the day's top non-repo headline so real news
+  // (announcements, papers) is visible on the front page, not buried in a tab.
+  const wireTeaserHtml = hasWire ? renderWireTeaser(wireHeadlines) : "";
+
+  // Build section panels (Front Page first/active, AI Wire second)
+  const panelsHtml = navOrder.map((id, i) => {
     const activeClass = i === 0 ? " active" : "";
-    const panelContent = renderSectionContent(sectionData, config);
+    let panelContent;
+    if (id === "aiWire") {
+      panelContent = hasWire
+        ? aiWirePanelHtml
+        : `<div class="section-empty">The AI Wire is quiet today. Check back tomorrow!</div>`;
+    } else {
+      panelContent = renderSectionContent(content.sections[id], SECTIONS[id]);
+      if (id === "frontPage" && wireTeaserHtml) {
+        panelContent = wireTeaserHtml + panelContent;
+      }
+    }
     return `<div class="section-panel${activeClass}" data-section="${escapeHtml(id)}">${panelContent}</div>`;
   }).join("\n");
 
@@ -510,7 +585,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
     .replace("{{EDITION_TAGLINE}}", escapeHtml(content.tagline))
     .replace("{{AI_TICKER}}", options.tickerHtml || "")
-    .replace("{{AI_WIRE}}", options.aiWireHtml || "")
+    .replace("{{AI_WIRE}}", "")
     .replace("{{SECTION_NAV}}", sectionNavHtml)
     .replace("{{SECTION_PANELS}}", panelsHtml)
     // Clear legacy placeholders that are unused in multi-section mode
@@ -707,4 +782,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderWireTeaser, renderSourceLine };

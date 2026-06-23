@@ -85,7 +85,8 @@ describe("renderAIWire", () => {
     assert.ok(html.includes("ai-wire"));
     assert.ok(html.includes("OpenAI releases GPT-5.5"));
     assert.ok(html.includes("openai.com"));
-    assert.ok(html.includes("beyond GitHub"));
+    assert.ok(html.includes("Beyond GitHub"));
+    assert.ok(html.includes("The AI Wire"));
   });
 
   it("escapes headline html", () => {

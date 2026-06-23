@@ -100,8 +100,6 @@
 
   {{AI_TICKER}}
 
-  {{AI_WIRE}}
-
   {{SECTION_NAV}}
 
   {{NAVIGATION}}
@@ -312,6 +310,18 @@
           localStorage.setItem('gittimes-section', id);
         });
       });
+      // "More on the AI Wire →" teaser link jumps to the AI Wire tab
+      document.querySelectorAll('.wire-teaser-more[data-section]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          var target = document.querySelector('.section-tab[data-section="' + link.getAttribute('data-section') + '"]');
+          if (target && !target.disabled) {
+            target.click();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+
       // Restore saved section
       var savedSection = localStorage.getItem('gittimes-section');
       if (savedSection) {
