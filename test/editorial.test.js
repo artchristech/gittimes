@@ -34,6 +34,40 @@ describe("selectLeadCandidates", () => {
   });
 });
 
+describe("selectLeadCandidates recency gate (lead must have a fresh hook)", () => {
+  const NOW = Date.parse("2026-06-23T00:00:00Z");
+  const DAY = 86400000;
+  const iso = (daysAgo) => new Date(NOW - daysAgo * DAY).toISOString();
+
+  it("excludes a stale-no-hook repo from the lead slate when a fresh-hook repo exists", () => {
+    const repos = [
+      // years-old, recently PUSHED, but no recent release -> NOT a valid lead
+      { full_name: "old/trending", stargazers_count: 50000, description: "x", pushed_at: iso(1), created_at: iso(1460), _latestRelease: { published_at: iso(800) } },
+      // brand-new repo (created 8d ago) -> a genuine hook
+      { full_name: "new/hotness", stargazers_count: 9000, description: "x", pushed_at: iso(2), created_at: iso(8), _latestRelease: null },
+    ];
+    const deltas = new Map([
+      ["old/trending", { starDelta: 6000, previousStars: 44000, daysSinceSnapshot: 1 }],
+      ["new/hotness", { starDelta: 9000, previousStars: 0, daysSinceSnapshot: 2 }],
+    ]);
+    const out = selectLeadCandidates(repos, deltas, { min: 1, max: 6, now: NOW });
+    const names = out.map((c) => c.repo.full_name);
+    assert.ok(names.includes("new/hotness"), "fresh-hook repo is lead-eligible");
+    assert.ok(!names.includes("old/trending"), "stale-no-hook repo is ABSENT from the lead slate");
+  });
+
+  it("accepts an established repo with a fresh release as lead-eligible", () => {
+    const repos = [
+      { full_name: "established/withrelease", stargazers_count: 30000, description: "x", pushed_at: iso(1), created_at: iso(1095), _latestRelease: { published_at: iso(5) } },
+    ];
+    const deltas = new Map([
+      ["established/withrelease", { starDelta: 1200, previousStars: 28800, daysSinceSnapshot: 1 }],
+    ]);
+    const out = selectLeadCandidates(repos, deltas, { min: 1, max: 6, now: NOW });
+    assert.ok(out.map((c) => c.repo.full_name).includes("established/withrelease"));
+  });
+});
+
 describe("clusterTrends modern themes", () => {
   it("clusters MCP repos into an mcp trend", () => {
     const repos = [

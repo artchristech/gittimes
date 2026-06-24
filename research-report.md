@@ -6,13 +6,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Language(s)** | JavaScript (Node.js 20, CommonJS) |
-| **Framework(s)** | None -- vanilla Node.js with OpenAI SDK for Cerebras LLM calls |
+| **Language(s)** | JavaScript (Node.js, CommonJS) |
+| **Framework(s)** | None -- vanilla Node.js with OpenAI SDK (pointed at xAI/Grok), Cloudflare Workers for backend |
 | **Domain** | AI-generated developer newspaper from GitHub trending data |
-| **Architecture** | CLI pipeline: fetch trending repos -> enrich with README/releases -> LLM article generation -> render static HTML -> publish to archive with RSS/Atom feeds |
-| **Current Dependencies** | 3 direct (`dotenv`, `feed`, `openai`) |
+| **Architecture** | Multi-stage pipeline: fetch repos (GitHub API + OSSInsight) -> score/rank -> editorial intelligence (breakout/trend/sleeper detection) -> LLM article generation (Grok 4.20) -> render multi-section static HTML -> publish with RSS/Atom/newsletter/promo video. Cloudflare Worker handles chat, auth, Stripe payments, and newsletter delivery. SQLite (better-sqlite3) for edition history. |
+| **Current Dependencies** | 7 direct (`better-sqlite3`, `dotenv`, `marked`, `openai`, `p-limit`, `p-retry`, `puppeteer`), 2 dev (`eslint`, `@eslint/js`) |
 
-The Git Times is a Node.js CLI tool that fetches trending GitHub repositories via the GitHub Search API, scores and ranks them using a star-velocity algorithm, enriches them with README and release data, generates newspaper-style articles using the Cerebras LLM API (via OpenAI-compatible client), and renders the output as a beautifully styled static HTML broadsheet. The project features a complete publishing pipeline with an edition archive, inter-edition navigation, RSS 2.0 and Atom 1.0 feeds, a customizable display toolbar (theme, font, size, width, color sliders), and a daily GitHub Actions workflow deploying to GitHub Pages. Tests use Node.js built-in test runner across 4 test files. The project is minimal by design with only 3 direct dependencies, a hand-rolled HTTP client, and custom string-based HTML templating.
+The Git Times is a production AI-generated newspaper for builders at [gittimes.com](https://gittimes.com). It fetches trending GitHub repositories across 7 sections (Front Page, AI, Robotics, Cyber, Systems, DIY, GameDev), scores them with a multi-signal algorithm (star velocity, recency, release freshness, engagement ratio, trajectory-based multipliers), applies editorial intelligence (breakout detection, trend clustering, sleeper identification), generates articles via Grok 4.20, renders styled static HTML with navigation and an AI model pricing ticker, and publishes daily via GitHub Actions to GitHub Pages. The system includes X/Twitter sentiment analysis, star trajectory tracking via GitHub GraphQL API, a Cloudflare Worker backend with Stripe-based premium accounts, newsletter distribution via Resend, Puppeteer-based promo video generation, RSS/Atom feeds, and a comprehensive test suite (18 test files) using Node.js built-in test runner. The codebase spans 31 source files across `src/`, `worker/`, `test/`, `templates/`, and `styles/`.
 
 ---
 
@@ -20,122 +20,105 @@ The Git Times is a Node.js CLI tool that fetches trending GitHub repositories vi
 
 Packages and modules that solve problems the project currently handles manually or could benefit from.
 
-### 1. [p-retry](https://github.com/sindresorhus/p-retry)
+### 1. [octokit/graphql.js](https://github.com/octokit/graphql.js)
 
-> Retry a promise-returning or async function with exponential backoff.
+> GitHub GraphQL API client for browsers and Node.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 989 |
-| **Last Updated** | December 2025 |
+| **Stars** | 494 |
+| **Last Updated** | March 2026 |
 | **License** | MIT |
-| **Integration Effort** | Drop-in |
-
-**Why it's relevant:** Both the GitHub API calls in `src/github.js` and the Cerebras LLM calls in `src/cerebras.js` (the `chat()` function, lines 38-60) have zero retry logic. A single transient failure -- network hiccup, API rate limit, LLM timeout -- kills the entire newspaper generation. The daily GitHub Actions workflow (`daily-edition.yml`) has no retry mechanism either, so a failed run means no edition for the day. `p-retry` provides exponential backoff with configurable retries and abort signals. Wrapping `chat()` and `request()` with `pRetry()` is a 3-line change per call site.
-
-**What it replaces/enhances:** Adds resilience to the `request()` function (`src/github.js:5`) and `chat()` function (`src/cerebras.js:38`) without changing their interfaces. Particularly valuable for the Cerebras API calls where the project generates 8+ articles per run in parallel via `Promise.all`.
-
----
-
-### 2. [p-limit](https://github.com/sindresorhus/p-limit)
-
-> Run multiple promise-returning & async functions with limited concurrency.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 2,798 |
-| **Last Updated** | February 2026 |
-| **License** | MIT |
-| **Integration Effort** | Drop-in |
-
-**Why it's relevant:** The project fires all API calls in parallel with uncontrolled concurrency. In `src/github.js:76-88`, 15 release-fetch requests run simultaneously via `Promise.all`. In `src/cerebras.js:122-127`, the lead article plus all 6 secondary articles are generated concurrently. This can overwhelm both the GitHub API (secondary rate limits) and the Cerebras API (concurrent request limits). `p-limit` allows capping concurrency to a safe number (e.g., 5 concurrent requests) while still running in parallel.
-
-**What it replaces/enhances:** Wraps the existing `Promise.all` patterns in `src/github.js:57-60` (trending fetch), `src/github.js:76-88` (release enrichment), and `src/cerebras.js:122-133` (LLM generation) with bounded concurrency. Zero refactoring needed -- just wrap each async call in a limiter.
-
----
-
-### 3. [marked](https://github.com/markedjs/marked)
-
-> A markdown parser and compiler. Built for speed.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 36,616 |
-| **Last Updated** | February 2026 |
-| **License** | MIT-like |
 | **Integration Effort** | Moderate |
 
-**Why it's relevant:** LLM-generated article bodies in `src/cerebras.js` are treated as plain text and split into `<p>` tags by `bodyToHtml()` in `src/render.js` (lines 17-23). This means no bold text, no inline code, no links, no lists -- just flat paragraphs. LLMs naturally produce markdown, so by adjusting prompts and converting with `marked`, the newspaper articles gain rich formatting. The `GRADE_IMPROVEMENTS.md` also flags inconsistent HTML escaping in `bodyToHtml()` (cfp-002), which `marked` would address since it handles escaping internally. With 36.6k stars and a Feb 2026 commit, it is the most mature and actively maintained option.
+**Why it's relevant:** The project already uses GitHub's GraphQL API for star trajectory data (`src/star-history.js`) via a hand-rolled `_graphqlRequest()` function in `src/github.js` (lines 11-52) that manually constructs HTTPS requests, handles headers, parses responses, and manages errors. This is ~40 lines of boilerplate that `@octokit/graphql` replaces with a one-liner. The library also provides automatic token handling, proper error types with rate limit info, and request throttling. Since the project already uses the REST API extensively through its own `request()` wrapper, adopting `@octokit/graphql` just for the GraphQL endpoint is a surgical improvement that doesn't require rewriting the REST calls.
 
-**What it replaces/enhances:** Replaces the simple `bodyToHtml()` function in `src/render.js:17-23` with proper markdown-to-HTML conversion. Would also resolve the HTML escaping inconsistency flagged in `GRADE_IMPROVEMENTS.md` (cfp-002, shr-001). Allows the LLM to use its natural output format.
+**What it replaces/enhances:** Replaces the custom `_graphqlRequest()` function in `src/github.js` and the retry-wrapped `graphqlRequest()`. The library handles auth headers, JSON parsing, error extraction from GraphQL responses, and retries -- all currently done manually. The star trajectory system (`src/star-history.js`) would benefit from cleaner error handling and automatic rate limit awareness.
 
 ---
 
-### 4. [octokit.js](https://github.com/octokit/octokit.js)
+### 2. [jpmonette/feed](https://github.com/jpmonette/feed)
 
-> The all-batteries-included GitHub SDK for Browsers, Node.js, and Deno.
+> A RSS, Atom and JSON Feed generator for Node.js, making content syndication simple and intuitive.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 7,695 |
-| **Last Updated** | December 2025 |
+| **Stars** | 1,367 |
+| **Last Updated** | January 2026 |
 | **License** | MIT |
-| **Integration Effort** | Significant |
+| **Integration Effort** | Moderate |
 
-**Why it's relevant:** The project hand-rolls an HTTP client in `src/github.js` (lines 1-36) using Node.js `https` module with manual promise construction, header management, and JSON parsing. There is no retry logic, no rate-limit awareness, no pagination support, and minimal error handling. The `GRADE_IMPROVEMENTS.md` flags missing defensive checks on GitHub API response shapes (cfp-001) and inadequate JSON.parse error handling (shr-002). Octokit provides all of this out of the box: automatic retry with exponential backoff, rate limit handling, pagination, and structured error responses.
+**Why it's relevant:** The project hand-rolls RSS 2.0 and Atom 1.0 XML generation in `src/feed.js` via string concatenation with manual XML escaping. This works but is fragile -- CDATA sections, special characters in headlines (quotes, ampersands, angle brackets), and namespace declarations must all be handled manually. The `feed` library generates RSS 2.0, Atom 1.0, and JSON Feed 1.0 from a single feed definition. It's TypeScript-native with full type safety, handles all XML escaping internally, and supports features like enclosures (useful for OG images) and categories (useful for section tags). Adding JSON Feed support would be essentially free.
 
-**What it replaces/enhances:** Replaces the entire custom `request()` function and adds automatic pagination for the search API, built-in rate limit handling (critical since the project makes 15+ API calls per run across `fetchTrending()` and `enrichRepo()`), and structured error responses. However, it is a larger dependency that adds significant weight to the node_modules tree. The project could alternatively keep its custom HTTP client and add `p-retry` + `p-limit` for a lighter-weight solution.
+**What it replaces/enhances:** Replaces the manual `generateRss()` and `generateAtom()` functions in `src/feed.js` (~100 lines of hand-crafted XML string building). Eliminates potential XML escaping bugs and adds JSON Feed 1.0 support as a bonus. The `publish.js` feed generation step would pass manifest entries to the `feed` library instead of building XML strings.
 
 ---
 
-### 5. [satori](https://github.com/vercel/satori)
+### 3. [mjmlio/mjml](https://github.com/mjmlio/mjml)
+
+> MJML: the only framework that makes responsive email easy.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 17,975 |
+| **Last Updated** | January 2026 |
+| **License** | MIT |
+| **Integration Effort** | Moderate |
+
+**Why it's relevant:** The project's newsletter email is rendered as raw HTML in `worker/index.js` (`renderNewsletterHtml()` function, lines 28-60) using inline CSS and nested tables. This is the industry-standard approach for email compatibility, but it's extremely brittle to modify and difficult to test across email clients. MJML provides a high-level component language that compiles to cross-client-compatible HTML. The newsletter currently shows headline, subheadline, tagline, trending repos, and a CTA button -- all standard MJML components (`mj-text`, `mj-button`, `mj-divider`). Moving to MJML would make the newsletter template maintainable and guarantee rendering across Gmail, Outlook, Apple Mail, etc.
+
+**What it replaces/enhances:** Replaces the `renderNewsletterHtml()` function in `worker/index.js` with an MJML template that compiles to the same inline-CSS HTML. The template becomes human-readable and modifiable without worrying about email client compatibility. Since the newsletter is rendered server-side in the Cloudflare Worker, MJML compilation can happen at build time or at runtime (MJML supports both).
+
+---
+
+### 4. [vercel/satori](https://github.com/vercel/satori)
 
 > Enlightened library to convert HTML and CSS to SVG.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 13,045 |
-| **Last Updated** | February 2026 |
+| **Stars** | 13,218 |
+| **Last Updated** | March 2026 |
 | **License** | MPL-2.0 |
 | **Integration Effort** | Moderate |
 
-**Why it's relevant:** The generated newspaper HTML currently has no Open Graph metadata or social sharing images. When a The Git Times edition URL is shared on Twitter, Slack, or Discord, there is no preview card. Satori can generate OG images programmatically from HTML/CSS -- the project already has CSS styling for the masthead and headlines, so generating a card-style preview image (headline + date + "The Git Times" branding) for each edition would be straightforward. The image could be written to the edition directory alongside `index.html`.
+**Why it's relevant:** The project generates OG meta tags (`og:title`, `og:description`, `og:url`) in `src/render.js` but has no `og:image`. When editions or article pages are shared on X/Twitter, Slack, LinkedIn, or Discord, there is no visual preview card. The project already has Puppeteer as a dependency (used for promo video recording), so Satori offers a lighter-weight alternative for OG image generation without launching a browser. Satori converts HTML/CSS to SVG, which can then be converted to PNG via `@resvg/resvg-js`. Each edition could get a branded social card with the lead headline, date, and Git Times masthead. Individual article pages (`assembleArticlePage()` in `src/render.js`) would also benefit from per-article OG images.
 
-**What it replaces/enhances:** Adds social sharing previews to each edition. The `publish()` function in `src/publish.js` would gain an additional step after assembling HTML: generate an OG image, write it to the edition directory, and inject an `<meta property="og:image">` tag into the HTML template.
-
----
-
-### 6. [DOMPurify](https://github.com/cure53/DOMPurify)
-
-> A DOM-only, super-fast, uber-tolerant XSS sanitizer for HTML, MathML and SVG.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 16,647 |
-| **Last Updated** | February 2026 |
-| **License** | Apache-2.0 / MPL-2.0 |
-| **Integration Effort** | Drop-in |
-
-**Why it's relevant:** The `GRADE_IMPROVEMENTS.md` documents multiple HTML injection risks: shr-001 (LLM-generated body text not fully escaped), cfp-002 (inconsistent HTML escaping across `bodyToHtml()`, `renderLeadStory()`, and `renderSecondaryArticle()`). The project currently relies on a manual `escapeHtml()` function that must be called on every interpolation point. DOMPurify takes the opposite approach -- sanitize the final HTML output rather than escaping every input. Particularly important because the article body content comes from an LLM whose output format cannot be fully controlled.
-
-**What it replaces/enhances:** Could be used as a safety net alongside the existing `escapeHtml()` calls, or as a replacement if `marked` is adopted (since markdown-to-HTML output should still be sanitized). Applied to the final assembled HTML in `assembleHtml()` in `src/render.js`.
+**What it replaces/enhances:** Adds `og:image` generation to the publish pipeline. The `publish()` function in `src/publish.js` would generate a PNG social card for each edition and each article page, writing it alongside the HTML and injecting the `og:image` meta tag. The project's existing newspaper CSS provides the visual foundation. Latest Satori (March 2026) added CSS variables and a built-in JSX runtime, making it easy to compose.
 
 ---
 
-### 7. [EJS](https://github.com/mde/ejs)
+### 5. [567-labs/instructor-js](https://github.com/567-labs/instructor-js)
 
-> Embedded JavaScript templates.
+> Structured extraction for LLMs.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 8,082 |
-| **Last Updated** | February 2026 |
-| **License** | Apache-2.0 |
+| **Stars** | 788 |
+| **Last Updated** | January 2025 |
+| **License** | MIT |
+| **Integration Effort** | Significant |
+
+**Why it's relevant:** The project's most fragile code path is the LLM output parser in `src/xai.js`. The `parseArticle()` function (lines 113-166) uses regex to extract `HEADLINE:`, `SUBHEADLINE:`, `BODY:`, `USE_CASES:`, and `SIMILAR_PROJECTS:` markers from raw LLM text. When the Grok reasoning model echoes format instructions in its thinking, the parser must find the "last occurrence" of each marker. The project has a `generateArticleWithRetry()` function that re-prompts when parsing fails, and a demotion system that moves fallback articles to quick hits. All of this complexity exists because the LLM output is unstructured text. Instructor-js provides structured extraction with Zod schema validation, turning LLM responses into typed objects with automatic retries. The project already uses the OpenAI SDK (`openai` package), which Instructor wraps.
+
+**What it replaces/enhances:** Would replace the entire `parseArticle()` regex parser, the `lastMatch()` helper, the `pickStructuredOutput()` reasoning-model workaround, and the `generateArticleWithRetry()` retry logic. Article output would be a validated object with `headline`, `subheadline`, `body`, `useCases[]`, and `similarProjects[]` fields. Caveats: Instructor-js last committed January 2025, which raises maintenance concerns. The project may be better served by using the OpenAI SDK's native `response_format: { type: "json_schema" }` if xAI supports it, or by adopting Zod for validation without Instructor.
+
+---
+
+### 6. [colinhacks/zod](https://github.com/colinhacks/zod)
+
+> TypeScript-first schema validation with static type inference.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 42,286 |
+| **Last Updated** | April 2026 |
+| **License** | MIT |
 | **Integration Effort** | Moderate |
 
-**Why it's relevant:** The rendering pipeline in `src/render.js` uses manual `.replace()` calls on the HTML template (`template.replace("{{LEAD_STORY}}", leadHtml)` etc.), with HTML content built via string concatenation in `renderLeadStory()`, `renderSecondaryArticle()`, and `renderQuickHit()`. EJS is a lightweight, zero-dependency templating engine that uses plain JavaScript in templates -- aligning with the project's CommonJS, no-build-step philosophy. Unlike Handlebars or Nunjucks, EJS uses familiar JS syntax (`<%= %>` for escaped output, `<% %>` for logic), requires no precompilation, and has built-in HTML escaping.
+**Why it's relevant:** Even without Instructor, Zod can dramatically improve the LLM output parsing pipeline. The project currently parses LLM responses via regex in `parseArticle()` and `parseXSentiment()` (in `src/x-sentiment.js`), with no validation that the extracted fields meet any schema. A headline could be empty, a body could be `null`, use cases could be malformed -- and the rendering pipeline has to handle every permutation defensively. Zod schemas for `Article`, `QuickHit`, `XSentiment`, and `AiTickerEntry` would provide runtime validation at the parse boundary. Additionally, database operations in `src/db.js` could validate inputs before SQLite writes, catching type errors early. Zod works in plain JavaScript (not just TypeScript) and has zero dependencies.
 
-**What it replaces/enhances:** Replaces the manual `.replace()` chain in `assembleHtml()` and the render functions with proper EJS templates. The `templates/newspaper.html` and `templates/archive.html` files would become EJS templates with loops, conditionals, and automatic escaping, eliminating the category of bugs documented in `GRADE_IMPROVEMENTS.md`.
+**What it replaces/enhances:** Adds runtime validation after `parseArticle()`, `parseXSentiment()`, and `parseXPulse()`. Schema violations would produce clear error messages instead of downstream rendering bugs. Could also validate API responses from GitHub and OpenRouter before processing. Does not require TypeScript adoption.
 
 ---
 
@@ -143,83 +126,67 @@ Packages and modules that solve problems the project currently handles manually 
 
 Open-source projects with comparable goals, architecture, or domain.
 
-### 1. [auto-news](https://github.com/finaldie/auto-news)
-
-> A personal news aggregator pulling from multi-sources + LLM to help reading efficiently with less noise.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 835 |
-| **Last Updated** | July 2025 |
-| **License** | MIT |
-
-**Why it's relevant:** Auto-news is the closest architectural parallel to The Git Times. It takes the same core concept -- LLM-powered news curation -- and extends it across multiple sources: Tweets, RSS, YouTube, Web Articles, Reddit, and Journal notes. It uses LangChain for LLM orchestration and supports ChatGPT, Gemini, and Ollama. This represents what The Git Times could evolve toward if it expanded beyond GitHub as a data source.
-
-**Key patterns to study:** Multi-source aggregation architecture, LangChain integration for multi-model support (The Git Times is currently locked to Cerebras via the OpenAI SDK), content deduplication strategies across heterogeneous sources, and their Notion integration for output delivery -- an interesting alternative distribution channel beyond static HTML and RSS.
-
----
-
-### 2. [daily.dev](https://github.com/dailydotdev/daily)
+### 1. [dailydotdev/daily](https://github.com/dailydotdev/daily)
 
 > daily.dev is a professional network for developers to learn, collaborate, and grow together.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 19,696 |
-| **Last Updated** | February 2026 |
-| **License** | GNU AGPLv3 |
+| **Stars** | 19,721 |
+| **Last Updated** | March 2026 |
+| **License** | AGPL-3.0 |
 
-**Why it's relevant:** daily.dev is the largest open-source developer content platform, serving as the aspirational end-state for a project like The Git Times. While vastly different in scale (full platform vs. static site generator), studying their content ranking algorithms and source curation strategies provides valuable architectural insights. Their approach to solving the "what's trending in developer world" problem at scale is directly applicable.
+**Why it's relevant:** daily.dev is the largest open-source developer content platform, representing the aspirational end-state for a project like The Git Times. While it is a full interactive platform rather than a generated static newspaper, the content curation challenges are identical: what is trending, what is signal vs. noise, how to categorize content by topic, and how to personalize for different developer interests. The Git Times's 7-section structure (AI, Robotics, Cyber, Systems, DIY, GameDev) mirrors daily.dev's tag-based categorization.
 
-**Key patterns to study:** Content scoring and ranking algorithms (comparable to The Git Times's `_score` calculation in `src/github.js:92-106`), content freshness vs. quality trade-offs, developer interest categorization, and their browser extension as a distribution mechanism beyond web pages.
-
----
-
-### 3. [nook](https://github.com/discus0434/nook)
-
-> A daily digest web app that scrapes and summarizes blogs, Reddit, GitHub trending, and Hacker News.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 266 |
-| **Last Updated** | April 2025 |
-| **License** | GNU AGPLv3 |
-
-**Why it's relevant:** Nook is the most directly comparable project in terms of scope and approach. It scrapes GitHub Trending (the actual trending page, not the Search API like The Git Times), plus Hacker News and Reddit, then uses an LLM to summarize everything into a daily digest. This is essentially The Git Times with multiple data sources and a web app frontend. The key architectural difference is that nook scrapes the trending page directly while The Git Times uses the Search API with a custom scoring algorithm.
-
-**Key patterns to study:** Their GitHub Trending scraping approach (comparing with The Git Times's Search API + scoring approach in `src/github.js`), multi-source aggregation, Gemini LLM integration with retry logic, and their web app frontend for serving digests (compared to The Git Times's static HTML approach).
+**Key patterns to study:** Content scoring and ranking algorithms, how they handle content freshness decay, their approach to community-driven curation vs. algorithmic curation, and their browser extension as a distribution channel. The Git Times could study how daily.dev balances algorithmic discovery with editorial judgment -- a tension the editorial intelligence system (`src/editorial.js`) already addresses.
 
 ---
 
-### 4. [hunter-ai-content-factory](https://github.com/Pangu-Immortal/hunter-ai-content-factory)
+### 2. [pingcap/ossinsight](https://github.com/pingcap/ossinsight)
 
-> Automated system that scrapes GitHub Trending, uses AI to generate articles and illustrations, and auto-publishes.
+> Analysis, Comparison, Trends, Rankings of Open Source Software, powered by LLM.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 261 |
-| **Last Updated** | February 2026 |
+| **Stars** | 2,365 |
+| **Last Updated** | April 2026 |
+| **License** | Apache-2.0 |
+
+**Why it's relevant:** The Git Times already consumes OSSInsight's trending API as a data source in `src/github.js` (`fetchOSSInsightTrending()`, lines 133-157). OSSInsight's full platform provides much richer analytics: repo comparison, contributor analysis, and trend detection across the entire GitHub ecosystem backed by TiDB. Studying their ranking algorithms and trend detection methodology could improve The Git Times's own scoring function (`scoreRepo()`) and editorial intelligence (`identifyBreakout()`, `clusterTrends()`). Their recent move to LLM-powered natural language queries is also architecturally interesting.
+
+**Key patterns to study:** Their trend detection methodology (how they identify breakout repos at scale), the data model for tracking repo metrics over time (comparable to `src/history.js` and `repo_snapshots` in the SQLite DB), and their API design for exposing trending data. The Git Times could potentially consume more OSSInsight endpoints beyond `past_week` trending to get richer signals.
+
+---
+
+### 3. [huchenme/github-trending-api](https://github.com/huchenme/github-trending-api)
+
+> The missing APIs for GitHub trending projects and developers.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 818 |
+| **Last Updated** | March 2026 |
 | **License** | MIT |
 
-**Why it's relevant:** Hunter is essentially a Chinese-language equivalent of The Git Times with additional features: it scrapes GitHub Trending, Twitter, HackerNews, and Reddit; uses AI to judge which topics are worth writing about (editorial intelligence); generates articles with illustrations; and auto-publishes. The "editorial judgment" step -- using AI to filter what is newsworthy -- is a pattern The Git Times does not currently have. The Git Times relies purely on star velocity scoring in `src/github.js:92-106`.
+**Why it's relevant:** This project scrapes the actual GitHub Trending page and exposes it as a REST API, providing data that GitHub's official APIs do not offer. The Git Times uses the GitHub Search API with custom scoring to approximate "trending," but GitHub's actual trending algorithm considers factors like unusual star velocity spikes, contributor activity, and social sharing that the Search API cannot surface. This API could serve as an additional signal source alongside the Search API and OSSInsight, enriching the input data for `scoreRepo()`.
 
-**Key patterns to study:** Their AI-based editorial judgment (deciding which repos are newsworthy beyond raw metrics), illustration generation for articles, multi-platform publishing pipeline, and their approach to combining multiple data sources for richer trending analysis.
+**Key patterns to study:** Their scraping methodology for the GitHub Trending page, how they structure trending data (language filtering, time range, developer trending), and their caching strategy. Note: the project's last meaningful commit was in 2020, so the scraping selectors may be outdated, but the architectural pattern of consuming GitHub Trending as structured data remains valuable.
 
 ---
 
-### 5. [GitHubTrendingRSS](https://github.com/mshibanami/GitHubTrendingRSS)
+### 4. [clintonwoo/hackernews-react-graphql](https://github.com/clintonwoo/hackernews-react-graphql)
 
-> Unofficial RSS feed generator for GitHub Trending.
+> Hacker News clone rewritten with universal JavaScript, using React and GraphQL.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 310 |
-| **Last Updated** | February 2026 |
+| **Stars** | 4,514 |
+| **Last Updated** | March 2026 |
 | **License** | MIT |
 
-**Why it's relevant:** GitHubTrendingRSS provides a complementary data source. It scrapes the actual GitHub Trending page and generates RSS feeds for trending repos, filterable by language and time range. The Git Times currently relies solely on the GitHub Search API with a custom scoring formula to approximate "trending." Consuming the RSS feeds from GitHubTrendingRSS (or adopting a similar scraping approach) would give The Git Times access to GitHub's actual trending algorithm, which considers factors the Search API cannot expose.
+**Why it's relevant:** While The Git Times is not a Hacker News clone, this project demonstrates a mature architecture for a news aggregation platform built with JavaScript. Its ranking algorithm (implementing Paul Graham's HN ranking formula), comment threading, user authentication, and real-time updates represent patterns that could inform The Git Times's evolution toward interactive features. The Git Times already has user accounts and a chat feature via its Cloudflare Worker -- this project shows how a JS-based news platform scales those features.
 
-**Key patterns to study:** Their GitHub Trending page scraping methodology, how they structure trending data as RSS items, their language-specific feed generation, and their GitHub Actions-based automated scraping workflow.
+**Key patterns to study:** Their implementation of the HN ranking algorithm (time-decay scoring comparable to `scoreRepo()`), how they handle content updates and freshness, the GraphQL schema design for news items, and their universal rendering approach for SEO. The Git Times's static HTML generation could benefit from their SSR patterns if it ever moves to a server-rendered model.
 
 ---
 
@@ -227,73 +194,83 @@ Open-source projects with comparable goals, architecture, or domain.
 
 Developer tools, testing frameworks, CI/CD helpers, or infrastructure that would improve the development workflow.
 
-### 1. [Biome](https://github.com/biomejs/biome)
+### 1. [honojs/hono](https://github.com/honojs/hono)
 
-> A toolchain for web projects: formatter and linter, usable via CLI and LSP.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | ~23,800 |
-| **Last Updated** | February 2026 |
-| **License** | Apache-2.0 |
-
-**Why it's relevant:** The project has zero linting or formatting configuration -- no ESLint, no Prettier, no `.editorconfig`. For a project with known code quality issues (documented in `GRADE_IMPROVEMENTS.md` with 7 open items across security, defensive coding, and consistency categories), adding Biome provides both linting and formatting in a single, fast (Rust-based) tool with zero configuration. Unlike the ESLint + Prettier combination (two tools, conflict resolution required), Biome is a single binary that handles both, aligning with the project's minimal-dependency philosophy.
-
----
-
-### 2. [OSSInsight](https://github.com/pingcap/ossinsight)
-
-> Analysis, Comparison, Trends, Rankings of Open Source Software, powered by OpenAI.
+> Web framework built on Web Standards.
 
 | Metric | Value |
 |--------|-------|
-| **Stars** | 2,317 |
-| **Last Updated** | February 2026 |
-| **License** | Apache-2.0 |
-
-**Why it's relevant:** OSSInsight provides a free Trending Repos API (`ossinsight.io/docs/api/list-trending-repos/`) that The Git Times could use as a complementary or alternative data source to the GitHub Search API. The API returns trending repos with richer metadata than the Search API, including engagement metrics over configurable time periods. This would improve the repo scoring in `src/github.js:92-106` by providing signals beyond star count and push date. The API is free, requires no authentication, and returns JSON.
-
----
-
-### 3. [github-trending-repos](https://github.com/vitalets/github-trending-repos)
-
-> Track GitHub trending repositories in your favorite programming language by native GitHub notifications.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 2,876 |
-| **Last Updated** | February 2026 |
-| **License** | ISC |
-
-**Why it's relevant:** This project maintains automatically-updated issues tracking GitHub Trending repos by language. While not directly a library to integrate, it provides a curated, machine-readable record of what repos were actually trending on GitHub on any given day. The Git Times could cross-reference its own Search API results against this data to validate its scoring algorithm and catch repos that are trending but might not appear in the Search API results. The project's approach to GitHub Trending -- using GitHub Issues as a structured data store -- is a creative pattern worth studying.
-
----
-
-### 4. Node.js Built-in Test Coverage
-
-> Code coverage using V8's built-in coverage instrumentation.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | N/A (Node.js built-in) |
-| **Last Updated** | Continuously |
-| **License** | N/A |
-
-**Why it's relevant:** The project has 4 test files (`test/unit.test.js`, `test/publish.test.js`, `test/feed.test.js`, `test/archive.test.js`) using Node.js built-in test runner, but no coverage reporting. The tests cover utility functions and the publishing pipeline but skip the main business logic (`fetchTrending`, `enrichRepo`, `generateContent`). Running `node --test --experimental-test-coverage test/` would make coverage gaps visible with zero additional dependencies, staying consistent with the project's minimal approach. The `daily-edition.yml` workflow already runs `npm ci` but does not run tests -- adding `npm test` as a step before generation would catch regressions.
-
----
-
-### 5. [star-history](https://github.com/star-history/star-history)
-
-> The missing star history graph of GitHub repos.
-
-| Metric | Value |
-|--------|-------|
-| **Stars** | 8,513 |
-| **Last Updated** | February 2026 |
+| **Stars** | 29,711 |
+| **Last Updated** | April 2026 |
 | **License** | MIT |
 
-**Why it's relevant:** Star-history provides an API and embeddable widget for GitHub repo star history over time. The Git Times's scoring algorithm in `src/github.js:92-106` currently uses a simple `stargazers_count / ageDays` formula for star velocity, which does not account for star growth trends. A repo that gained 90% of its stars in the last week is far more "trending" than one with steady linear growth. Star-history's approach to tracking star velocity over time could inspire improvements to The Git Times's scoring algorithm, even without directly integrating their API.
+**Why it's relevant:** The Cloudflare Worker in `worker/index.js` is a monolithic 600+ line file with a hand-rolled request router. It handles routing via `pathname` string comparisons, manually constructs CORS headers, and has no middleware abstraction for authentication, rate limiting, or error handling. Hono is specifically designed for Cloudflare Workers (and other edge runtimes), providing a minimal router with middleware, typed context, and built-in CORS/auth helpers -- all without adding meaningful cold start latency. The Worker currently handles 15+ routes (chat, newsletter, auth, Stripe webhooks, admin endpoints, account management) with interleaved auth checks. Hono's middleware pattern would separate concerns cleanly.
+
+**Why it's relevant:** Replaces the hand-rolled routing and middleware in `worker/index.js` with Hono's router and middleware stack. Auth checks, CORS headers, rate limiting, and error responses become composable middleware rather than inline code. Hono is the standard framework for Cloudflare Workers in 2026 with ~30k stars and weekly releases.
+
+---
+
+### 2. [drizzle-team/drizzle-orm](https://github.com/drizzle-team/drizzle-orm)
+
+> Headless TypeScript ORM with a head.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 33,610 |
+| **Last Updated** | March 2026 |
+| **License** | Apache-2.0 |
+
+**Why it's relevant:** The project uses `better-sqlite3` with raw SQL strings throughout `src/db.js`. While the current schema is simple (5 tables), the queries are getting complex -- particularly `getRecentRepoCoverage()` with its JOIN and subquery, and the migration logic in `_initSchema()` that manually checks `pragma table_info` for column existence. Drizzle ORM supports `better-sqlite3` as a driver, provides a query builder that eliminates SQL string interpolation risks, and includes a migration system. The project's current approach of manual `ALTER TABLE` commands for schema evolution will become increasingly fragile as the schema grows. Drizzle is the lightest ORM option that supports SQLite without pulling in Prisma's weight.
+
+**Why it's relevant:** Would replace raw SQL string construction in `src/db.js` with type-safe query building, add proper migration tooling (replacing the manual `pragma table_info` check), and provide compile-time schema validation. The project could continue using `better-sqlite3` under the hood. However, this is a significant refactor for a working system.
+
+---
+
+### 3. [mcollina/borp](https://github.com/mcollina/borp)
+
+> node:test runner wrapper with TypeScript support.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 183 |
+| **Last Updated** | March 2026 |
+| **License** | MIT |
+
+**Why it's relevant:** The project already uses Node.js built-in test runner (`node --test test/*.test.js`) across 18 test files. While the built-in runner works, `borp` adds TypeScript support, watch mode, and better test file discovery without changing the test API. Since the project's tests use the standard `node:test` module, switching to `borp` is a drop-in replacement that improves the development experience (watch mode for TDD, better error formatting) without migrating away from the built-in test runner.
+
+**Why it's relevant:** Drop-in enhancement to the existing test setup. The `package.json` test script would change from `node --test test/*.test.js` to `borp`, gaining watch mode and better output formatting. All existing tests remain unchanged.
+
+---
+
+### 4. [star-history/star-history](https://github.com/star-history/star-history)
+
+> The de facto GitHub star history graph.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 8,804 |
+| **Last Updated** | April 2026 |
+| **License** | MIT |
+
+**Why it's relevant:** The project already has its own star trajectory system (`src/star-history.js`) that fetches creation date, first/last stargazer, and classifies growth patterns. Star-history provides a complementary perspective: their API exposes detailed star history timelines that could replace the current approach of inferring growth patterns from just first and last star dates. The current `classifyGrowthPattern()` function makes inferences from limited data (creation date, total stars, first star date, last star date) -- access to the full star timeline would dramatically improve breakout detection accuracy in `src/editorial.js`.
+
+**Why it's relevant:** The star-history API could provide richer data for the `fetchStarTrajectory()` function, replacing the current single-GraphQL-query approach with actual multi-point star timelines. This would improve the accuracy of `classifyGrowthPattern()` and by extension, the editorial breakout detection in `identifyBreakout()`.
+
+---
+
+### 5. [vercel/og-image](https://github.com/vercel/og-image)
+
+> Open Graph Image as a Service -- generate cards for Twitter, Facebook, Slack, etc.
+
+| Metric | Value |
+|--------|-------|
+| **Stars** | 4,057 |
+| **Last Updated** | April 2026 |
+| **License** | MIT |
+
+**Why it's relevant:** While Satori (listed in Libraries above) is recommended for build-time OG image generation, Vercel's og-image project demonstrates the full end-to-end pattern as a service. The project's architecture -- a serverless function that receives parameters (title, description, theme) and returns a PNG -- could be adapted into the Cloudflare Worker. Instead of generating OG images at build time and deploying them as static assets, the Worker could generate them on-demand when social platforms request them, with KV caching. This would mean OG images for every article without any build pipeline changes.
+
+**Why it's relevant:** Provides the architecture pattern for on-demand OG image generation. The Git Times Cloudflare Worker already handles requests and has KV storage -- adding an `/og` endpoint that generates social cards from edition/article metadata would give the project social sharing previews without modifying the static site generation pipeline.
 
 ---
 
@@ -303,28 +280,27 @@ Areas where the project could benefit from external libraries or tools, ranked b
 
 | Priority | Gap | Recommended Solution | Category |
 |----------|-----|---------------------|----------|
-| P1 | No retry logic on API calls -- single failure kills entire generation (`src/github.js`, `src/cerebras.js`) | [p-retry](https://github.com/sindresorhus/p-retry) | Library |
-| P1 | Uncontrolled concurrency on API calls risks rate limiting (`src/github.js:76-88`, `src/cerebras.js:122-133`) | [p-limit](https://github.com/sindresorhus/p-limit) | Library |
-| P1 | Tests exist but are not run in CI (`daily-edition.yml` does not run `npm test`) | Add `npm test` step to GitHub Actions workflow | Tool |
-| P2 | No linting or formatting configuration; 7 known code quality issues in GRADE_IMPROVEMENTS.md | [Biome](https://github.com/biomejs/biome) | Tool |
-| P2 | Plain text article bodies; no rich formatting support (`src/render.js:17-23`) | [marked](https://github.com/markedjs/marked) | Library |
-| P2 | LLM output inserted into HTML with inconsistent escaping (cfp-002, shr-001) | [DOMPurify](https://github.com/cure53/DOMPurify) or [marked](https://github.com/markedjs/marked) | Library |
-| P2 | Single data source (GitHub Search API) may miss actual trending repos | [OSSInsight API](https://ossinsight.io/docs/api/list-trending-repos/) | Tool/API |
-| P3 | Hand-rolled HTML template string replacement with manual escaping | [EJS](https://github.com/mde/ejs) | Library |
-| P3 | No Open Graph meta tags or social sharing images in output HTML | [satori](https://github.com/vercel/satori) | Library |
-| P3 | No content deduplication across daily editions (same repo can be lead story multiple days) | Custom dedup against `manifest.json` | Pattern |
-| P3 | No test coverage reporting; business logic untested | `node --test --experimental-test-coverage` | Tool |
+| P1 | No `og:image` -- editions and articles have no social card preview when shared | [satori](https://github.com/vercel/satori) or [vercel/og-image](https://github.com/vercel/og-image) | Library |
+| P1 | Hand-rolled GraphQL client (~50 lines) for star trajectory when `@octokit/graphql` is purpose-built | [@octokit/graphql.js](https://github.com/octokit/graphql.js) | Library |
+| P1 | Monolithic 600+ line Cloudflare Worker with hand-rolled routing and no middleware | [Hono](https://github.com/honojs/hono) | Library |
+| P2 | Brittle LLM output parsing via regex with `lastMatch()` pattern and fallback chains | [instructor-js](https://github.com/567-labs/instructor-js) or [Zod](https://github.com/colinhacks/zod) validation | Library |
+| P2 | Hand-rolled RSS/Atom XML generation via string concatenation | [feed](https://github.com/jpmonette/feed) | Library |
+| P2 | Newsletter HTML is raw inline-CSS tables in Worker code | [MJML](https://github.com/mjmlio/mjml) | Library |
+| P2 | Raw SQL strings in `src/db.js` with manual schema migration | [Drizzle ORM](https://github.com/drizzle-team/drizzle-orm) | Library |
+| P3 | No runtime validation on LLM output, API responses, or DB inputs | [Zod](https://github.com/colinhacks/zod) | Library |
+| P3 | Star trajectory based on only 2 data points (first and last star) | [star-history](https://github.com/star-history/star-history) API | Tool |
+| P3 | No watch mode or enhanced output formatting for test runs | [borp](https://github.com/mcollina/borp) | Tool |
 
 ---
 
 ## Methodology
 
-- **Project analysis**: Examined project structure, all 7 source files (`src/github.js`, `src/cerebras.js`, `src/render.js`, `src/prompts.js`, `src/feed.js`, `src/archive.js`, `src/publish.js`), 2 HTML templates, CSS stylesheet, 4 test files (`test/unit.test.js`, `test/publish.test.js`, `test/feed.test.js`, `test/archive.test.js`), GitHub Actions workflow, and the `GRADE_IMPROVEMENTS.md` improvement notes
-- **Dependency audit**: Cataloged 3 existing direct dependencies across 3 categories (environment config, RSS/Atom generation, LLM client)
-- **Gap identification**: Found 11 opportunities across 6 categories (reliability, API robustness, code quality, content richness, data sources, developer experience)
-- **Search strategy**: GitHub search (`gh search repos`), web search, direct repo inspection via `gh repo view` and `gh api`, curated ecosystem analysis
+- **Project analysis**: Examined project structure, 31 source files across `src/` (19 files), `worker/` (1 file), `test/` (18 files), `templates/` (7 HTML templates), `styles/` (1 CSS file), 4 GitHub Actions workflows, Wrangler config, and `package.json`
+- **Dependency audit**: Cataloged 7 existing direct dependencies and 2 dev dependencies across 6 categories (database, environment, markdown, LLM client, concurrency, browser automation, linting)
+- **Gap identification**: Found 10 opportunities across 5 categories (social sharing, API clients, Worker architecture, content parsing, developer experience)
+- **Search strategy**: GitHub search (`gh search repos`), GitHub API (`gh api repos/`), web search, direct repo inspection, commit history analysis, curated ecosystem analysis
 - **Evaluation criteria**: Relevance (3x), Maintenance (2x), Quality (2x), Compatibility (2x), Adoption (1x)
 
 ---
 
-*Report generated on 2026-02-23*
+*Report generated on 2026-04-02*

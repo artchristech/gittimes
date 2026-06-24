@@ -452,6 +452,74 @@ describe("Worker endpoints", () => {
       assert.equal(user.stripeSubscriptionId, "sub_1");
     });
 
+    it("conversion alert fires to owner when ALERT_EMAIL set", async () => {
+      env.ALERT_EMAIL = "mandalazenwave@gmail.com";
+      await env.USERS.put(
+        "convert@test.com",
+        JSON.stringify({ email: "convert@test.com", plan: "free", createdAt: new Date().toISOString() }),
+      );
+      const resendCalls = [];
+      mockFetchFn = (url, opts) => {
+        if (url.includes("resend.com")) {
+          resendCalls.push({ url, body: JSON.parse(opts.body) });
+          return new Response(JSON.stringify({ id: "msg_1" }), { status: 200 });
+        }
+        return new Response("", { status: 200 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      const event = {
+        id: "evt_alert",
+        type: "checkout.session.completed",
+        data: { object: { customer_email: "convert@test.com", customer: "cus_a", subscription: "sub_a" } },
+      };
+      const res = await worker.fetch(await webhookReq(event), env);
+      assert.equal(res.status, 200);
+      const alert = resendCalls.find(
+        (c) => c.url.includes("api.resend.com/emails") && c.body.to.includes("mandalazenwave@gmail.com"),
+      );
+      assert.ok(alert, "expected a Resend POST targeting the owner alert address");
+      const html = alert.body.html;
+      assert.ok(html.includes("convert@test.com"), "alert includes converter email");
+      assert.ok(html.includes("cus_a"), "alert includes customer id");
+      assert.ok(html.includes("sub_a"), "alert includes subscription id");
+    });
+
+    it("webhook survives alert failure (still 200 + premium)", async () => {
+      env.ALERT_EMAIL = "mandalazenwave@gmail.com";
+      await env.USERS.put(
+        "robust@test.com",
+        JSON.stringify({ email: "robust@test.com", plan: "free", createdAt: new Date().toISOString() }),
+      );
+      // All Resend calls fail: the upgrade email returns !ok and the owner alert throws.
+      mockFetchFn = (url, opts) => {
+        if (url.includes("resend.com")) {
+          if (opts.body && opts.body.includes("mandalazenwave@gmail.com")) {
+            throw new Error("alert send blew up");
+          }
+          return new Response("err", { status: 500 });
+        }
+        return new Response("", { status: 200 });
+      };
+      globalThis.fetch = (u, o) => {
+        try {
+          return Promise.resolve(mockFetchFn(u, o));
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      };
+      const event = {
+        id: "evt_robust",
+        type: "checkout.session.completed",
+        data: { object: { customer_email: "robust@test.com", customer: "cus_r", subscription: "sub_r" } },
+      };
+      const res = await worker.fetch(await webhookReq(event), env);
+      assert.equal(res.status, 200);
+      const data = await res.json();
+      assert.equal(data.received, true);
+      const user = await env.USERS.get("robust@test.com", "json");
+      assert.equal(user.plan, "premium");
+    });
+
     it("handles customer.subscription.deleted — downgrades with churn tracking", async () => {
       await env.USERS.put(
         "churn@test.com",

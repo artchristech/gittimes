@@ -16,6 +16,9 @@ STRIPE_PRICE_AMOUNT = "500"
 # OpenRouter model for premium chat. Paid model for go-live (free tier rate-limits
 # make a poor paid experience). Cheap + fast; change here + redeploy to swap.
 CHAT_MODEL = "openai/gpt-4o-mini"
+# Owner-alert address for free->premium conversions (sent via Resend, out-of-band
+# to the owner — not a Stripe customer). Unset => conversion alert is OFF.
+ALERT_EMAIL = "mandalazenwave@gmail.com"
 
 # Secrets (set via `wrangler secret put`):
 # - STRIPE_SECRET_KEY

@@ -13,18 +13,58 @@
  * Deterministic capture: pauses the GSAP timeline, steps frame-by-frame,
  * screenshots each frame, then stitches with ffmpeg.
  */
-const { execSync } = require("child_process");
+const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const { checkRenderedPromo } = require("./src/promo-gate");
 
 const FPS = 30;
+const FFMPEG = process.env.FFMPEG_BIN || "ffmpeg";
 
 const FORMATS = {
   vertical:  { width: 1080, height: 1920 },
   square:    { width: 1080, height: 1080 },
   landscape: { width: 1920, height: 1080 },
 };
+
+/**
+ * Verify ffmpeg is callable. Fail loud and early rather than after a long capture.
+ */
+function assertFfmpeg() {
+  try {
+    execFileSync(FFMPEG, ["-version"], { stdio: "pipe" });
+  } catch (err) {
+    throw new Error(`ffmpeg not found / not runnable (FFMPEG_BIN=${FFMPEG}): ${err.message}`, { cause: err });
+  }
+}
+
+/**
+ * Build a tasteful, self-contained audio bed using ffmpeg native generators.
+ * No network, no new dependency, no external asset. A low sine drone + soft
+ * filtered noise "paper rustle" gives the promo a calm newsroom ambience, with
+ * a fade-in and fade-out matched to the clip length.
+ * Returns the ffmpeg filter_complex + input args appended to the encode command.
+ *
+ * @param {number} durationS
+ * @returns {{ inputs: string[], filter: string, map: string[] }}
+ */
+function audioBedArgs(durationS) {
+  const d = Math.max(1, durationS);
+  const fadeOutStart = Math.max(0, d - 1.2);
+  // Two synthesized sources mixed: a soft low drone (110Hz) and quiet brown-ish noise.
+  const inputs = [
+    "-f", "lavfi", "-t", String(d), "-i", "sine=frequency=110:sample_rate=44100",
+    "-f", "lavfi", "-t", String(d), "-i", "anoisesrc=color=brown:sample_rate=44100:amplitude=0.04",
+  ];
+  // Drone gets gentle tremolo + low gain; noise is kept very quiet; mix, then fade.
+  const filter =
+    `[1:a]volume=0.06,tremolo=f=0.2:d=0.6[drone];` +
+    `[2:a]volume=0.10,highpass=f=200,lowpass=f=2500[amb];` +
+    `[drone][amb]amix=inputs=2:duration=first:normalize=0,` +
+    `afade=t=in:st=0:d=1.0,afade=t=out:st=${fadeOutStart.toFixed(2)}:d=1.2[aout]`;
+  return { inputs, filter, map: ["-map", "0:v:0", "-map", "[aout]"] };
+}
 
 async function recordPromo(dateStr, format) {
   const { width, height } = FORMATS[format];
@@ -54,6 +94,9 @@ async function recordPromo(dateStr, format) {
     process.exit(1);
   }
 
+  // Fail loud and early if ffmpeg is missing — before a long frame capture.
+  assertFfmpeg();
+
   // Create temp frames directory
   if (fs.existsSync(framesDir)) fs.rmSync(framesDir, { recursive: true });
   fs.mkdirSync(framesDir, { recursive: true });
@@ -74,8 +117,20 @@ async function recordPromo(dateStr, format) {
   // Load the promo
   await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle0" });
 
-  // Wait for GSAP timeline to be ready
-  await page.waitForFunction("window.__promoReady === true", { timeout: 15000 });
+  // Wait for GSAP timeline to be ready. If the CDN (GSAP/fonts) fails offline,
+  // __promoReady never flips — fail LOUD with a clear cause instead of hanging
+  // or recording a blank/broken clip.
+  try {
+    await page.waitForFunction("window.__promoReady === true", { timeout: 15000 });
+  } catch {
+    const hasTl = await page.evaluate(() => typeof window.__tl !== "undefined").catch(() => false);
+    await browser.close().catch(() => {});
+    throw new Error(
+      `Promo never became ready (window.__promoReady stayed false after 15s). ` +
+        `__tl present: ${hasTl}. Likely cause: the GSAP or Google Fonts CDN could not be fetched ` +
+        `(offline?). The promo HTML requires network access for those CDN assets.`
+    );
+  }
 
   // Pause the timeline and get duration
   const duration = await page.evaluate(() => {
@@ -122,13 +177,50 @@ async function recordPromo(dateStr, format) {
     console.log(`  100% — ${totalFrames + 1} frames captured`);
     await browser.close();
 
-    // Stitch with ffmpeg
-    console.log("Encoding MP4...");
-    execSync(
-      `ffmpeg -y -framerate ${FPS} -i "${framesDir}/frame-%05d.png" ` +
-        `-c:v libx264 -pix_fmt yuv420p -crf 18 -preset slow ` +
-        `-vf "scale=${width}:${height}" "${mp4Path}"`,
+    // Stitch with ffmpeg + mux a synthesized audio bed (fade in/out).
+    console.log("Encoding MP4 (with audio bed)...");
+    const audio = audioBedArgs(duration);
+    execFileSync(
+      FFMPEG,
+      [
+        "-y",
+        "-framerate", String(FPS),
+        "-i", `${framesDir}/frame-%05d.png`,
+        ...audio.inputs,
+        "-filter_complex", audio.filter,
+        ...audio.map,
+        "-c:v", "libx264",
+        "-pix_fmt", "yuv420p",
+        "-crf", "18",
+        "-preset", "slow",
+        "-vf", `scale=${width}:${height}`,
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-shortest",
+        mp4Path,
+      ],
       { stdio: "pipe" }
+    );
+
+    // Extract a poster/thumbnail frame (~30% into the clip) for social cards.
+    const posterPath = path.resolve(promoDir, `${dateStr}${suffix}.jpg`);
+    try {
+      execFileSync(
+        FFMPEG,
+        ["-y", "-ss", (duration * 0.3).toFixed(2), "-i", mp4Path, "-frames:v", "1", "-q:v", "3", posterPath],
+        { stdio: "pipe" }
+      );
+      console.log(`Poster: ${posterPath}`);
+    } catch (e) {
+      console.warn(`Poster extraction skipped: ${e.message}`);
+    }
+
+    // Quality gate: assert the render is real (non-empty, h264, exact dims,
+    // duration > 10s, has aac audio). Throws / exits non-zero on any failure.
+    const report = checkRenderedPromo(mp4Path, { format, requireAudio: true });
+    console.log(
+      `Gate OK: ${report.width}x${report.height} ${report.duration.toFixed(1)}s ` +
+        `${report.codec}+${report.audio} ${(report.bytes / 1024).toFixed(0)}KB`
     );
   } finally {
     // Always clean up frame dir, even if capture or ffmpeg threw
