@@ -453,6 +453,56 @@ const handler = {
       });
     }
 
+    // GET /auth/settings — the logged-in user's saved reader settings (Theme/
+    // Font/Size/Width + custom colors), so preferences follow them across
+    // browsers and devices instead of living in per-browser localStorage.
+    if (url.pathname === "/auth/settings" && request.method === "GET") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ ok: true, settings: user.readerSettings || null }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // POST /auth/settings — persist reader settings to the account. Whitelisted
+    // keys only, each coerced to a short string, so the record can't be bloated
+    // or polluted with arbitrary client data.
+    if (url.pathname === "/auth/settings" && request.method === "POST") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      let body;
+      try { body = await request.json(); } catch { body = null; }
+      const incoming = body && typeof body === "object" ? (body.settings || body) : null;
+      if (!incoming || typeof incoming !== "object") {
+        return new Response(JSON.stringify({ ok: false, error: "Invalid settings" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const ALLOWED = ["theme", "font", "size", "width", "bgH", "bgS", "bgL", "txH", "txS", "txL"];
+      const clean = {};
+      for (const key of ALLOWED) {
+        if (incoming[key] != null) clean[key] = String(incoming[key]).slice(0, 16);
+      }
+      user.readerSettings = clean;
+      await env.USERS.put(user.email, JSON.stringify(user));
+      return new Response(JSON.stringify({ ok: true, settings: clean }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // POST /auth/logout
     if (url.pathname === "/auth/logout" && request.method === "POST") {
       const auth = request.headers.get("Authorization") || "";

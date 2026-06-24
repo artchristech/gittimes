@@ -229,7 +229,63 @@
         applyColors();
       }
 
+      // --- Account sync: persist reader settings to the logged-in account so
+      // they follow the reader across browsers/devices. localStorage stays the
+      // anonymous + offline cache; the account is source of truth when signed in.
+      // The worker URL is set by the chat script later in the body, so resolve
+      // it lazily rather than at parse time. ---
+      var SYNC_KEYS = ['theme', 'font', 'size', 'width', 'bgH', 'bgS', 'bgL', 'txH', 'txS', 'txL'];
+      var pushTimer = null;
+
+      function syncCtx() {
+        var w = window.__WORKER_URL;
+        var t = localStorage.getItem('gittimes-session');
+        return (w && t) ? { url: w, token: t } : null; // null when anonymous
+      }
+
+      // Debounced write-through of the current settings to the account.
+      function pushSettings() {
+        var c = syncCtx();
+        if (!c) return; // anonymous → localStorage only
+        if (pushTimer) clearTimeout(pushTimer);
+        pushTimer = setTimeout(function () {
+          var out = {};
+          SYNC_KEYS.forEach(function (k) { out[k] = state[k]; });
+          fetch(c.url + '/auth/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + c.token },
+            body: JSON.stringify({ settings: out })
+          }).catch(function () {}); // best-effort; the value is already in localStorage
+        }, 600);
+      }
+
+      // On load, let the account's saved settings win over this browser's cache.
+      // Never pushes — so a fresh browser can't clobber synced settings before
+      // hydrating. Only subsequent user changes push.
+      function pullSettings() {
+        var c = syncCtx();
+        if (!c) return;
+        fetch(c.url + '/auth/settings', { headers: { 'Authorization': 'Bearer ' + c.token } })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data || !data.ok || !data.settings) return; // nothing saved yet
+            var s = data.settings, changed = false;
+            SYNC_KEYS.forEach(function (k) {
+              if (s[k] != null && s[k] !== state[k]) { state[k] = s[k]; changed = true; }
+            });
+            if (changed) apply(); // writes data-attrs + localStorage cache; never re-pushes
+          })
+          .catch(function () {});
+      }
+
       apply();
+      // __WORKER_URL is defined by the chat script lower in the body; wait for
+      // the document to finish parsing before the first pull.
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', pullSettings);
+      } else {
+        pullSettings();
+      }
 
       // Toggle panel
       trigger.addEventListener('click', function (e) {
@@ -253,6 +309,7 @@
           state.txH = p.txH; state.txS = p.txS; state.txL = p.txL;
         }
         apply();
+        pushSettings();
       });
 
       // Slider input handlers
@@ -261,6 +318,7 @@
           state[key] = slider.value;
           localStorage.setItem('gittimes-' + key, slider.value);
           applyColors();
+          pushSettings();
         });
       }
       onSlider(sliderBg, 'bgH');
@@ -279,6 +337,7 @@
         });
         root.removeAttribute('style');
         apply();
+        pushSettings(); // sync the reset across devices too
       });
 
       // Close on outside click

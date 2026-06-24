@@ -343,6 +343,64 @@ describe("Worker endpoints", () => {
     });
   });
 
+  // --- /auth/settings (account-synced reader preferences) ---
+  describe("/auth/settings", () => {
+    it("GET returns null when nothing saved yet", async () => {
+      const token = await createSession(env, "s1@test.com", "free");
+      const res = await worker.fetch(req("GET", "/auth/settings", { headers: { Authorization: "Bearer " + token } }), env);
+      const data = await res.json();
+      assert.equal(data.ok, true);
+      assert.equal(data.settings, null);
+    });
+
+    it("POST persists whitelisted settings, GET returns them", async () => {
+      const token = await createSession(env, "s2@test.com", "free");
+      const post = await worker.fetch(
+        req("POST", "/auth/settings", {
+          headers: { Authorization: "Bearer " + token },
+          body: { settings: { theme: "dark", font: "mono", size: "large", width: "wide" } },
+        }),
+        env,
+      );
+      assert.equal((await post.json()).ok, true);
+      const get = await worker.fetch(req("GET", "/auth/settings", { headers: { Authorization: "Bearer " + token } }), env);
+      const data = await get.json();
+      assert.deepEqual(data.settings, { theme: "dark", font: "mono", size: "large", width: "wide" });
+      // Persisted onto the user record
+      const user = await env.USERS.get("s2@test.com", "json");
+      assert.equal(user.readerSettings.width, "wide");
+    });
+
+    it("POST drops unknown keys and caps value length", async () => {
+      const token = await createSession(env, "s3@test.com", "free");
+      const res = await worker.fetch(
+        req("POST", "/auth/settings", {
+          headers: { Authorization: "Bearer " + token },
+          body: { settings: { width: "narrow", evil: "x", bgH: "1234567890123456789" } },
+        }),
+        env,
+      );
+      const data = await res.json();
+      assert.equal(data.settings.width, "narrow");
+      assert.equal("evil" in data.settings, false);
+      assert.equal(data.settings.bgH.length, 16);
+    });
+
+    it("accepts a bare settings object (no wrapper)", async () => {
+      const token = await createSession(env, "s4@test.com", "free");
+      const res = await worker.fetch(
+        req("POST", "/auth/settings", { headers: { Authorization: "Bearer " + token }, body: { width: "wide" } }),
+        env,
+      );
+      assert.deepEqual((await res.json()).settings, { width: "wide" });
+    });
+
+    it("returns 401 without auth (GET and POST)", async () => {
+      assert.equal((await worker.fetch(req("GET", "/auth/settings"), env)).status, 401);
+      assert.equal((await worker.fetch(req("POST", "/auth/settings", { body: { width: "wide" } }), env)).status, 401);
+    });
+  });
+
   // --- POST /auth/logout ---
   describe("POST /auth/logout", () => {
     it("deletes session and returns ok", async () => {
