@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-06-23T12:59:11.436Z",
+  "syncedAt": "2026-06-24T08:20:49.468Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
     "matched": 11,
     "missed": 0,
-    "catalog": 310
+    "catalog": 309
   },
   "models": [
     {
@@ -472,6 +472,122 @@
       "grade": "A-"
     }
   ],
+  "evals": {
+    "asOf": "2026-06-15",
+    "note": "Editorially curated from public benchmark leaderboards and model cards. Quality scores, unlike pricing, are not live — they are hand-maintained by the desk and dated.",
+    "sources": [
+      {
+        "label": "LMArena",
+        "url": "https://lmarena.ai"
+      },
+      {
+        "label": "Artificial Analysis",
+        "url": "https://artificialanalysis.ai"
+      },
+      {
+        "label": "Vendor model cards",
+        "url": "https://openrouter.ai/models"
+      }
+    ],
+    "metrics": [
+      {
+        "key": "mmlu_pro",
+        "label": "MMLU-Pro",
+        "unit": "%",
+        "hint": "Reasoning & broad knowledge",
+        "max": 100
+      },
+      {
+        "key": "gpqa",
+        "label": "GPQA Diamond",
+        "unit": "%",
+        "hint": "Graduate-level science",
+        "max": 100
+      },
+      {
+        "key": "swe_bench",
+        "label": "SWE-bench Verified",
+        "unit": "%",
+        "hint": "Real-world coding",
+        "max": 100
+      },
+      {
+        "key": "arena_elo",
+        "label": "LMArena Elo",
+        "unit": "",
+        "hint": "Human preference",
+        "max": 1500
+      }
+    ],
+    "models": {
+      "claude-opus-4.8": {
+        "mmlu_pro": 89.1,
+        "gpqa": 81.4,
+        "swe_bench": 78.2,
+        "arena_elo": 1451
+      },
+      "claude-sonnet-4.6": {
+        "mmlu_pro": 86,
+        "gpqa": 76.5,
+        "swe_bench": 72.8,
+        "arena_elo": 1402
+      },
+      "gpt-5.5": {
+        "mmlu_pro": 88.6,
+        "gpqa": 82.1,
+        "swe_bench": 76,
+        "arena_elo": 1455
+      },
+      "gpt-5.4": {
+        "mmlu_pro": 86.8,
+        "gpqa": 78.9,
+        "swe_bench": 73.1,
+        "arena_elo": 1421
+      },
+      "gemini-3.1-pro": {
+        "mmlu_pro": 88,
+        "gpqa": 80.3,
+        "swe_bench": 71.5,
+        "arena_elo": 1448
+      },
+      "gemini-3.5-flash": {
+        "mmlu_pro": 81.2,
+        "gpqa": 70.1,
+        "swe_bench": 60.4,
+        "arena_elo": 1379
+      },
+      "grok-4.20": {
+        "mmlu_pro": 87.1,
+        "gpqa": 79,
+        "swe_bench": 70.2,
+        "arena_elo": 1430
+      },
+      "deepseek-v3.2": {
+        "mmlu_pro": 84.5,
+        "gpqa": 73.8,
+        "swe_bench": 66,
+        "arena_elo": 1394
+      },
+      "deepseek-r1": {
+        "mmlu_pro": 85.9,
+        "gpqa": 77.2,
+        "swe_bench": 68.5,
+        "arena_elo": 1408
+      },
+      "llama-4-maverick": {
+        "mmlu_pro": 80.5,
+        "gpqa": 69.8,
+        "swe_bench": 55.1,
+        "arena_elo": 1366
+      },
+      "mistral-large": {
+        "mmlu_pro": 79,
+        "gpqa": 67,
+        "swe_bench": 52.3,
+        "arena_elo": 1351
+      }
+    }
+  },
   "untracked": [
     {
       "id": "openai/o1-pro",
@@ -1005,6 +1121,31 @@
       ],
       "created": 1760129661,
       "description": "o3-deep-research is OpenAI's advanced model for deep research, designed to tackle complex, multi-step research tasks.\n\nNote: This model always uses the 'web_sea",
+      "hugging_face_id": null
+    },
+    {
+      "id": "sakana/fugu-ultra",
+      "name": "Sakana: Fugu Ultra",
+      "context_length": 1000000,
+      "input": 5,
+      "output": 30,
+      "cache_read_price": 0.5,
+      "max_completion_tokens": 128000,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "reasoning",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "web_search_options"
+      ],
+      "created": 1782276303,
+      "description": "Fugu Ultra is the higher-performance model in Sakana AI's Fugu family. Rather than a single monolithic model, Fugu is a learned multi-agent orchestration system",
       "hugging_face_id": null
     },
     {
@@ -3394,10 +3535,10 @@
       "id": "moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "context_length": 262144,
-      "input": 0.6799999999999999,
-      "output": 3.41,
-      "cache_read_price": 0.144,
-      "max_completion_tokens": 262144,
+      "input": 0.74,
+      "output": 3.5,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 16384,
       "modality": "text+image->text",
       "input_modalities": [
         "text",
@@ -3629,43 +3770,6 @@
       "hugging_face_id": "Qwen/Qwen3.6-27B"
     },
     {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.98,
-      "output": 3.08,
-      "cache_read_price": 0.182,
-      "max_completion_tokens": null,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "z-ai/glm-5.1",
       "name": "Z.ai: GLM 5.1",
       "context_length": 202752,
@@ -3730,6 +3834,43 @@
       "created": 1781754065,
       "description": "Gemini 3.1 Flash Image, a.k.a. \"Nano Banana 2,\" is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at F",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.95,
+      "output": 3,
+      "cache_read_price": 0.18,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "google/gemini-3.1-flash-image-preview",
@@ -5928,40 +6069,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "prime-intellect/intellect-3",
-      "name": "Prime Intellect: INTELLECT-3",
-      "context_length": 131072,
-      "input": 0.19999999999999998,
-      "output": 1.1,
-      "cache_read_price": null,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1764212534,
-      "description": "INTELLECT-3 is a 106B-parameter Mixture-of-Experts model (12B active) post-trained from GLM-4.5-Air-Base using supervised fine-tuning (SFT) followed by large-sc",
-      "hugging_face_id": "PrimeIntellect/INTELLECT-3-FP8"
-    },
-    {
       "id": "qwen/qwen3-next-80b-a3b-instruct",
       "name": "Qwen: Qwen3 Next 80B A3B Instruct",
       "context_length": 262144,
@@ -6084,43 +6191,6 @@
       "created": 1777260255,
       "description": "Qwen3.6-35B-A3B is an open-weight multimodal model from Alibaba Cloud with 35 billion total parameters and 3 billion active parameters per token. It uses a hybr",
       "hugging_face_id": "Qwen/Qwen3.6-35B-A3B"
-    },
-    {
-      "id": "minimax/minimax-m2.7",
-      "name": "MiniMax: MiniMax M2.7",
-      "context_length": 204800,
-      "input": 0.25,
-      "output": 1,
-      "cache_read_price": 0.049999999999999996,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1773836697,
-      "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
     },
     {
       "id": "qwen/qwen3.5-35b-a3b",
@@ -6378,6 +6448,43 @@
       "created": 1758115536,
       "description": "Qwen3 Coder Flash is Alibaba's fast and cost efficient version of their proprietary Qwen3 Coder Plus. It is a powerful coding agent model specializing in autono",
       "hugging_face_id": null
+    },
+    {
+      "id": "minimax/minimax-m2.7",
+      "name": "MiniMax: MiniMax M2.7",
+      "context_length": 204800,
+      "input": 0.24,
+      "output": 0.96,
+      "cache_read_price": null,
+      "max_completion_tokens": 196608,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1773836697,
+      "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
     },
     {
       "id": "minimax/minimax-m2.1",
@@ -7085,7 +7192,6 @@
       "supported_parameters": [
         "frequency_penalty",
         "logit_bias",
-        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -7098,7 +7204,6 @@
         "tool_choice",
         "tools",
         "top_k",
-        "top_logprobs",
         "top_p"
       ],
       "created": 1742824755,
@@ -7829,6 +7934,35 @@
       "hugging_face_id": "Qwen/Qwen3-30B-A3B"
     },
     {
+      "id": "thedrummer/rocinante-12b",
+      "name": "TheDrummer: Rocinante 12B",
+      "context_length": 32768,
+      "input": 0.25,
+      "output": 0.5,
+      "cache_read_price": null,
+      "max_completion_tokens": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1727654400,
+      "description": "Rocinante 12B is designed for engaging storytelling and rich prose. Early testers have reported: - Expanded vocabulary with unique and expressive word choices -",
+      "hugging_face_id": "TheDrummer/Rocinante-12B-v1.1"
+    },
+    {
       "id": "nvidia/nemotron-3-super-120b-a12b",
       "name": "NVIDIA: Nemotron 3 Super",
       "context_length": 1000000,
@@ -7864,41 +7998,6 @@
       "created": 1773245239,
       "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-a",
       "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8"
-    },
-    {
-      "id": "thedrummer/rocinante-12b",
-      "name": "TheDrummer: Rocinante 12B",
-      "context_length": 32768,
-      "input": 0.16999999999999998,
-      "output": 0.43,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1727654400,
-      "description": "Rocinante 12B is designed for engaging storytelling and rich prose. Early testers have reported: - Expanded vocabulary with unique and expressive word choices -",
-      "hugging_face_id": "TheDrummer/Rocinante-12B-v1.1"
     },
     {
       "id": "qwen/qwen3-vl-32b-instruct",
@@ -8823,10 +8922,10 @@
       "id": "xiaomi/mimo-v2.5",
       "name": "Xiaomi: MiMo-V2.5",
       "context_length": 1048576,
-      "input": 0.14,
+      "input": 0.105,
       "output": 0.28,
-      "cache_read_price": 0.0028,
-      "max_completion_tokens": 131072,
+      "cache_read_price": null,
+      "max_completion_tokens": null,
       "modality": "text+image+audio+video->text",
       "input_modalities": [
         "text",
@@ -9483,38 +9582,6 @@
       "hugging_face_id": "Qwen/Qwen3.5-9B"
     },
     {
-      "id": "essentialai/rnj-1-instruct",
-      "name": "EssentialAI: Rnj 1 Instruct",
-      "context_length": 32768,
-      "input": 0.15,
-      "output": 0.15,
-      "cache_read_price": null,
-      "max_completion_tokens": null,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1765094847,
-      "description": "Rnj-1 is an 8B-parameter, dense, open-weight model family developed by Essential AI and trained from scratch with a focus on programming, math, and scientific r",
-      "hugging_face_id": "EssentialAI/rnj-1-instruct"
-    },
-    {
       "id": "mistralai/ministral-8b-2512",
       "name": "Mistral: Ministral 3 8B 2512",
       "context_length": 262144,
@@ -9682,7 +9749,7 @@
       "id": "microsoft/phi-4",
       "name": "Microsoft: Phi 4",
       "context_length": 16384,
-      "input": 0.065,
+      "input": 0.07,
       "output": 0.14,
       "cache_read_price": null,
       "max_completion_tokens": 16384,
@@ -9693,7 +9760,6 @@
       "supported_parameters": [
         "frequency_penalty",
         "logit_bias",
-        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -9704,7 +9770,6 @@
         "structured_outputs",
         "temperature",
         "top_k",
-        "top_logprobs",
         "top_p"
       ],
       "created": 1736489872,
@@ -10293,121 +10358,5 @@
       "description": "A 12B parameter model with a 128k token context length built by Mistral in collaboration with NVIDIA. The model is multilingual, supporting English, French, Ger",
       "hugging_face_id": "mistralai/Mistral-Nemo-Instruct-2407"
     }
-  ],
-  "evals": {
-    "asOf": "2026-06-15",
-    "note": "Editorially curated from public benchmark leaderboards and model cards. Quality scores, unlike pricing, are not live — they are hand-maintained by the desk and dated.",
-    "sources": [
-      {
-        "label": "LMArena",
-        "url": "https://lmarena.ai"
-      },
-      {
-        "label": "Artificial Analysis",
-        "url": "https://artificialanalysis.ai"
-      },
-      {
-        "label": "Vendor model cards",
-        "url": "https://openrouter.ai/models"
-      }
-    ],
-    "metrics": [
-      {
-        "key": "mmlu_pro",
-        "label": "MMLU-Pro",
-        "unit": "%",
-        "hint": "Reasoning & broad knowledge",
-        "max": 100
-      },
-      {
-        "key": "gpqa",
-        "label": "GPQA Diamond",
-        "unit": "%",
-        "hint": "Graduate-level science",
-        "max": 100
-      },
-      {
-        "key": "swe_bench",
-        "label": "SWE-bench Verified",
-        "unit": "%",
-        "hint": "Real-world coding",
-        "max": 100
-      },
-      {
-        "key": "arena_elo",
-        "label": "LMArena Elo",
-        "unit": "",
-        "hint": "Human preference",
-        "max": 1500
-      }
-    ],
-    "models": {
-      "claude-opus-4.8": {
-        "mmlu_pro": 89.1,
-        "gpqa": 81.4,
-        "swe_bench": 78.2,
-        "arena_elo": 1451
-      },
-      "claude-sonnet-4.6": {
-        "mmlu_pro": 86,
-        "gpqa": 76.5,
-        "swe_bench": 72.8,
-        "arena_elo": 1402
-      },
-      "gpt-5.5": {
-        "mmlu_pro": 88.6,
-        "gpqa": 82.1,
-        "swe_bench": 76,
-        "arena_elo": 1455
-      },
-      "gpt-5.4": {
-        "mmlu_pro": 86.8,
-        "gpqa": 78.9,
-        "swe_bench": 73.1,
-        "arena_elo": 1421
-      },
-      "gemini-3.1-pro": {
-        "mmlu_pro": 88,
-        "gpqa": 80.3,
-        "swe_bench": 71.5,
-        "arena_elo": 1448
-      },
-      "gemini-3.5-flash": {
-        "mmlu_pro": 81.2,
-        "gpqa": 70.1,
-        "swe_bench": 60.4,
-        "arena_elo": 1379
-      },
-      "grok-4.20": {
-        "mmlu_pro": 87.1,
-        "gpqa": 79,
-        "swe_bench": 70.2,
-        "arena_elo": 1430
-      },
-      "deepseek-v3.2": {
-        "mmlu_pro": 84.5,
-        "gpqa": 73.8,
-        "swe_bench": 66,
-        "arena_elo": 1394
-      },
-      "deepseek-r1": {
-        "mmlu_pro": 85.9,
-        "gpqa": 77.2,
-        "swe_bench": 68.5,
-        "arena_elo": 1408
-      },
-      "llama-4-maverick": {
-        "mmlu_pro": 80.5,
-        "gpqa": 69.8,
-        "swe_bench": 55.1,
-        "arena_elo": 1366
-      },
-      "mistral-large": {
-        "mmlu_pro": 79,
-        "gpqa": 67,
-        "swe_bench": 52.3,
-        "arena_elo": 1351
-      }
-    }
-  }
+  ]
 }
