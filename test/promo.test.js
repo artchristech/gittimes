@@ -4,7 +4,14 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const { extractEditionData, generatePromoHtml, generateEditionPromo } = require("../src/promo");
+const {
+  extractEditionData,
+  generatePromoHtml,
+  generateEditionPromo,
+  buildCaptionCues,
+  cuesToSrt,
+} = require("../src/promo");
+const { checkRenderedPromo } = require("../src/promo-gate");
 
 // Minimal edition HTML that matches the structure of a real published edition
 const MOCK_EDITION = `<!DOCTYPE html>
@@ -131,6 +138,102 @@ describe("generateEditionPromo", () => {
     // Uses a far-future date that won't exist on gittimes.com either
     const result = await generateEditionPromo(tmpDir, "2099-01-01");
     assert.equal(result, null);
+    fs.rmSync(tmpDir, { recursive: true });
+  });
+});
+
+// Current renderer markup uses hybrid-headline / hybrid-headline-lead, not the
+// legacy lead-headline. The hardened extractor must support BOTH.
+const MOCK_EDITION_HYBRID = `<!DOCTYPE html>
+<html lang="en"><head><title>The Git Times — Monday, June 22, 2026</title></head><body>
+<header class="masthead"><p class="masthead-tagline">“Build a new model” — Buckminster Fuller</p></header>
+<div class="section-panel active" data-section="frontPage">
+  <article class="hybrid-article hybrid-lead" data-repo="org/lead">
+    <h3 class="hybrid-headline hybrid-headline-lead">Hermes Agent Expands Reach with iMessage <a class="hybrid-share" data-slug="x">&#128279;</a></h3>
+    <p class="hybrid-subheadline">New release enables cross-platform AI agent persistence.</p>
+    <div class="hybrid-meta"><a href="https://github.com/NousResearch/hermes-agent" target="_blank">NousResearch/hermes-agent</a> · Python</div>
+  </article>
+</div>
+<div class="section-panel" data-section="ai"><article class="hybrid-article"><h3 class="hybrid-headline">AI Story Here <a class="hybrid-share">&#128279;</a></h3></article></div>
+<div class="section-panel" data-section="robotics"><article class="hybrid-article"><h3 class="hybrid-headline">Robotics Story</h3></article></div>
+<footer class="footer"></footer></body></html>`;
+
+describe("extractEditionData — current hybrid markup", () => {
+  it("extracts lead headline from hybrid-headline-lead (trailing share link stripped)", () => {
+    const d = extractEditionData(MOCK_EDITION_HYBRID);
+    assert.equal(d.lead.headline, "Hermes Agent Expands Reach with iMessage");
+  });
+
+  it("extracts lead subheadline and repo from hybrid markup", () => {
+    const d = extractEditionData(MOCK_EDITION_HYBRID);
+    assert.ok(d.lead.sub.includes("cross-platform"));
+    assert.equal(d.lead.repo, "NousResearch/hermes-agent");
+  });
+
+  it("extracts section headlines from hybrid markup excluding frontPage", () => {
+    const d = extractEditionData(MOCK_EDITION_HYBRID);
+    const labels = d.sections.map((s) => s.label);
+    assert.ok(labels.includes("AI"));
+    assert.ok(labels.includes("Robotics"));
+    assert.ok(!labels.includes("Front Page"));
+    assert.equal(d.sections.find((s) => s.label === "AI").headline, "AI Story Here");
+  });
+
+  it("handles empty/garbage input without throwing", () => {
+    const d = extractEditionData("");
+    assert.equal(d.lead.headline, "");
+    assert.deepEqual(d.sections, []);
+  });
+});
+
+describe("generateEditionPromo — fail-loud on missing lead headline", () => {
+  it("throws (not silent null) when markup has no recognizable lead headline", async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "promo-test-"));
+    const editionDir = path.join(tmpDir, "editions", "2026-06-22");
+    fs.mkdirSync(editionDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(editionDir, "index.html"),
+      "<html><head><title>The Git Times — X</title></head><body>no headline here</body></html>"
+    );
+    await assert.rejects(() => generateEditionPromo(tmpDir, "2026-06-22"), /no lead headline/);
+    fs.rmSync(tmpDir, { recursive: true });
+  });
+});
+
+describe("captions", () => {
+  it("builds cues covering masthead, lead, sections and CTA", () => {
+    const d = extractEditionData(MOCK_EDITION_HYBRID);
+    const cues = buildCaptionCues(d);
+    assert.ok(cues.length >= 5);
+    assert.ok(cues.some((c) => c.text.includes("Hermes Agent")));
+    assert.ok(cues.some((c) => c.text.includes("gittimes.com")));
+  });
+
+  it("renders valid SRT with timestamps and indices", () => {
+    const d = extractEditionData(MOCK_EDITION_HYBRID);
+    const srt = cuesToSrt(buildCaptionCues(d));
+    assert.match(srt, /^1\n00:00:00,\d{3} --> 00:00:0\d,\d{3}/);
+  });
+});
+
+describe("promo-gate (quality gate) fails closed", () => {
+  it("throws on a missing file", () => {
+    assert.throws(() => checkRenderedPromo("/no/such/file.mp4", { format: "vertical" }), /does not exist/);
+  });
+
+  it("throws on a 0-byte / truncated file", () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "promo-gate-"));
+    const empty = path.join(tmpDir, "empty.mp4");
+    fs.writeFileSync(empty, "");
+    assert.throws(() => checkRenderedPromo(empty, { format: "vertical" }), /too small|0-byte|truncated/);
+    fs.rmSync(tmpDir, { recursive: true });
+  });
+
+  it("throws on a non-video junk file padded over the size floor", () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "promo-gate-"));
+    const junk = path.join(tmpDir, "junk.mp4");
+    fs.writeFileSync(junk, Buffer.alloc(200 * 1024, 0x41)); // 200KB of 'A'
+    assert.throws(() => checkRenderedPromo(junk, { format: "vertical" }));
     fs.rmSync(tmpDir, { recursive: true });
   });
 });

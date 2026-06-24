@@ -2,11 +2,11 @@ name: Daily Edition
 
 on:
   schedule:
-    - cron: '0 7 * * *' # Midnight MST (7 AM UTC) / 1 AM MDT
+    - cron: '0 7 * * *' # 3 AM America/New_York (EDT). GH cron is UTC, no DST — runs 2 AM ET in winter (EST).
   workflow_dispatch: # Manual trigger
 
 env:
-  TZ: America/Denver
+  TZ: America/New_York
 
 concurrency:
   group: daily-edition

@@ -35,33 +35,87 @@ function fetchEditionHtml(dateStr) {
 }
 
 /**
+ * Strip a trailing inline element (e.g. the permalink share <a>) and surrounding
+ * whitespace from a captured headline fragment, then decode entities.
+ * The live renderer emits `<h3 class="...">Headline <a class="hybrid-share" ...>` so
+ * the regex capture can include a trailing space before the anchor.
+ * @param {string} raw
+ * @returns {string}
+ */
+function cleanHeadline(raw) {
+  return decodeEntities(raw.replace(/\s+$/, "").trim());
+}
+
+/**
+ * Find the first headline inside a chunk of edition HTML, supporting BOTH the
+ * current renderer markup (`hybrid-headline` / `hybrid-headline-lead`) and the
+ * legacy markup (`lead-headline`). Returns "" if none found.
+ * @param {string} chunk
+ * @param {boolean} preferLead - when true, prefer a *lead* headline class first
+ * @returns {string}
+ */
+function findHeadline(chunk, preferLead = false) {
+  // Match the inner text up to the first `<` (so a trailing share <a> is excluded)
+  // or the closing tag. Headlines never contain raw `<` other than child tags.
+  const patterns = preferLead
+    ? [
+        /hybrid-headline\s+hybrid-headline-lead">([^<]+)/,
+        /lead-headline">([^<]+)/,
+        /hybrid-headline">([^<]+)/,
+      ]
+    : [
+        /hybrid-headline(?:\s+hybrid-headline-lead)?">([^<]+)/,
+        /lead-headline">([^<]+)/,
+      ];
+  for (const re of patterns) {
+    const m = chunk.match(re);
+    if (m && m[1].trim()) return cleanHeadline(m[1]);
+  }
+  return "";
+}
+
+/**
  * Extract promo data from a published edition HTML file.
+ *
+ * Hardened regex-based extractor. Supports both the current renderer markup
+ * (`hybrid-headline-lead`, `hybrid-subheadline`, `hybrid-meta`) and the legacy
+ * markup (`lead-headline`, `lead-subheadline`, `lead-meta`). Returns sane
+ * defaults for missing optional fields; required-field validation is done by the
+ * caller (`generateEditionPromo`) so the only hard failure is a missing lead
+ * headline — never a silent empty promo.
+ *
  * @param {string} html - Raw HTML string of a published edition
- * @returns {object} { date, tagline, lead: { headline, sub, repo }, sections: [{ label, headline }] }
+ * @returns {object} { date, tagline, lead: { headline, sub, repo, repoUrl }, sections: [...] }
  */
 function extractEditionData(html) {
-  // Edition date from <title>
-  const titleMatch = html.match(/<title>The Git Times — ([^<]+)<\/title>/);
-  const date = titleMatch ? titleMatch[1].trim() : "";
+  if (typeof html !== "string" || !html.trim()) {
+    return { date: "", tagline: "", lead: { headline: "", sub: "", repo: "", repoUrl: "" }, sections: [] };
+  }
 
-  // Tagline from masthead
+  // Edition date from <title> (em-dash). Fall back to anything after "The Git Times".
+  const titleMatch =
+    html.match(/<title>The Git Times\s*[—-]\s*([^<]+)<\/title>/) ||
+    html.match(/<title>([^<]+)<\/title>/);
+  const date = titleMatch ? titleMatch[1].replace(/^The Git Times\s*[—-]\s*/, "").trim() : "";
+
+  // Tagline from masthead.
   const taglineMatch = html.match(/masthead-tagline">([^<]+)</);
   const tagline = taglineMatch ? decodeEntities(taglineMatch[1].trim()) : "";
 
-  // Front page lead headline (first lead-headline in the document)
-  const leadHeadlineMatch = html.match(/lead-headline">([^<]+)/);
-  const leadHeadline = leadHeadlineMatch ? decodeEntities(leadHeadlineMatch[1].trim()) : "";
+  // Front page lead headline — prefer the explicit *lead* headline class.
+  const leadHeadline = findHeadline(html, true);
 
-  // Front page lead subheadline
-  const leadSubMatch = html.match(/lead-subheadline">([^<]+)/);
+  // Front page lead subheadline (current: hybrid-subheadline; legacy: lead-subheadline).
+  const leadSubMatch = html.match(/(?:hybrid-subheadline|lead-subheadline)">([^<]+)/);
   const leadSub = leadSubMatch ? decodeEntities(leadSubMatch[1].trim()) : "";
 
-  // Front page lead repo name + URL (must be a github.com link with owner/repo pattern)
-  const leadMetaMatch = html.match(/lead-meta[\s\S]*?<a href="(https:\/\/github\.com\/[^"]+)"[^>]*>([^<]+)<\/a>/);
+  // Front page lead repo name + URL — first github.com owner/repo link in the doc.
+  // (current: hybrid-meta; legacy: lead-meta — both contain the same anchor shape.)
+  const leadMetaMatch = html.match(/<a href="(https:\/\/github\.com\/[^"]+)"[^>]*>([^<]+)<\/a>/);
   const leadRepo = leadMetaMatch ? leadMetaMatch[2].trim() : "";
   const leadRepoUrl = leadMetaMatch ? leadMetaMatch[1].trim() : "";
 
-  // Extract section leads: find each section-panel, then its lead-headline
+  // Extract section leads: find each section-panel, then its first headline.
   const sections = [];
   const panelRegex = /section-panel[^"]*"\s*data-section="([^"]+)">([\s\S]*?)(?=<div class="section-panel|<footer)/g;
   let panelMatch;
@@ -75,12 +129,12 @@ function extractEditionData(html) {
     const config = SECTIONS[sectionId];
     if (!config) continue;
 
-    const headlineMatch = panelContent.match(/lead-headline">([^<]+)/);
-    if (headlineMatch) {
+    const headline = findHeadline(panelContent, false);
+    if (headline) {
       sections.push({
         id: sectionId,
         label: config.label,
-        headline: decodeEntities(headlineMatch[1].trim()),
+        headline,
       });
     }
   }
@@ -139,6 +193,14 @@ function generatePromoHtml(data) {
   const repoDisplay = data.lead.repo
     ? `github.com/${data.lead.repo}`
     : "";
+
+  // Legibility guard: very long lead headlines overflow the lead scene at the
+  // base clamp size. Pick a headline size class by character length so long
+  // headlines shrink to fit rather than clipping. Preserves the aesthetic
+  // (same font/weight), only the size step changes.
+  const hl = data.lead.headline || "";
+  const leadSizeClass =
+    hl.length > 90 ? "len-xl" : hl.length > 60 ? "len-lg" : hl.length > 40 ? "len-md" : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -286,6 +348,11 @@ body {
   color: transparent;
   max-width: 90%;
 }
+
+/* Length-aware sizing so long headlines stay legible and never clip. */
+.lead-headline-slot.len-md { font-size: clamp(36px, 6vw, 80px); }
+.lead-headline-slot.len-lg { font-size: clamp(32px, 5vw, 68px); line-height: 1.12; }
+.lead-headline-slot.len-xl { font-size: clamp(28px, 4.4vw, 56px); line-height: 1.14; }
 
 .lead-sub {
   font-family: var(--font-headline);
@@ -460,7 +527,7 @@ body {
 
   <div class="scene lead-scene" id="s2">
     <div class="lead-label">Front Page</div>
-    <div class="lead-headline-slot">${escHtml(data.lead.headline)}</div>
+    <div class="lead-headline-slot${leadSizeClass ? ' ' + leadSizeClass : ''}">${escHtml(data.lead.headline)}</div>
     <div class="lead-sub">${escHtml(data.lead.sub)}</div>
     <div class="lead-rule"></div>
     <div class="lead-repo">${escHtml(repoDisplay)}</div>
@@ -586,7 +653,8 @@ document.fonts.ready.then(function() {
   // Scene 3: Section headlines (~14s)
   // Phase 1: all labels + dividers appear as skeleton (~0.5s)
   // Phase 2: headlines fill in one by one top-down (0.5s stagger)
-  tl.add(scene('#s3', function(t) {
+  var sectionHeadlineCount = document.querySelectorAll('.section-headline').length;
+  if (sectionHeadlineCount > 0) tl.add(scene('#s3', function(t) {
     var labels = document.querySelectorAll('.section-label');
     var headlines = document.querySelectorAll('.section-headline');
     var dividers = document.querySelectorAll('.section-divider');
@@ -633,6 +701,61 @@ document.fonts.ready.then(function() {
 }
 
 /**
+ * Build caption cues (text + rough scene timings) from extracted edition data.
+ * Timings mirror the GSAP scene layout in generatePromoHtml so a viewer reading
+ * captions on a muted feed gets the headline beats. Returns [{start, end, text}].
+ * @param {object} data
+ * @returns {Array<{start:number,end:number,text:string}>}
+ */
+function buildCaptionCues(data) {
+  const cues = [];
+  // Scene 1 masthead ~0.3–6.5s
+  cues.push({ start: 0.5, end: 6.0, text: `The Git Times — ${data.date}` });
+  // Scene 2 lead ~8–18s
+  cues.push({ start: 8.5, end: 14.0, text: data.lead.headline });
+  if (data.lead.sub) cues.push({ start: 14.2, end: 18.0, text: data.lead.sub });
+  // Scene 3 sections: stagger after ~19s
+  let t = 19.5;
+  for (const s of data.sections) {
+    cues.push({ start: t, end: t + 1.6, text: `${s.label}: ${s.headline}` });
+    t += 1.8;
+  }
+  // Quote + CTA tail
+  const quoteMatch = data.tagline.match(/“(.+)”\s*—\s*(.+)/);
+  const quoteText = quoteMatch ? quoteMatch[1] : data.tagline.replace(/["“”]/g, "");
+  cues.push({ start: t + 1.0, end: t + 6.0, text: `"${quoteText}"` });
+  cues.push({ start: t + 7.0, end: t + 12.0, text: "Read today's edition — gittimes.com" });
+  return cues;
+}
+
+function fmtTimestamp(sec, comma) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  const ms = Math.round((sec - Math.floor(sec)) * 1000);
+  const pad = (n, w = 2) => String(n).padStart(w, "0");
+  const sep = comma ? "," : ".";
+  return `${pad(h)}:${pad(m)}:${pad(s)}${sep}${pad(ms, 3)}`;
+}
+
+/** Render cues as SubRip (.srt). */
+function cuesToSrt(cues) {
+  return cues
+    .map((c, i) => `${i + 1}\n${fmtTimestamp(c.start, true)} --> ${fmtTimestamp(c.end, true)}\n${c.text}\n`)
+    .join("\n");
+}
+
+/** Render cues as WebVTT (.vtt). */
+function cuesToVtt(cues) {
+  return (
+    "WEBVTT\n\n" +
+    cues
+      .map((c) => `${fmtTimestamp(c.start, false)} --> ${fmtTimestamp(c.end, false)}\n${c.text}\n`)
+      .join("\n")
+  );
+}
+
+/**
  * Generate a promo for a specific edition date.
  * Tries local files first, then fetches from gittimes.com if not found locally.
  * @param {string} outDir - Site output directory (e.g. ./site)
@@ -670,9 +793,32 @@ async function generateEditionPromo(outDir, dateStr) {
 
   const data = extractEditionData(html);
 
+  // Fail LOUD on the one truly required field. A promo with no lead headline is
+  // not usable — surface exactly what was checked and the likely cause (stale
+  // markup / wrong file) instead of silently returning null and rendering nothing.
   if (!data.lead.headline) {
-    console.error(`Could not extract lead headline for ${dateStr}`);
-    return null;
+    const where = fs.existsSync(editionPath)
+      ? editionPath
+      : fs.existsSync(latestPath)
+        ? latestPath
+        : `${SITE_BASE} (remote)`;
+    throw new Error(
+      `extractEditionData: no lead headline found for ${dateStr} in ${where}. ` +
+        `The edition markup may have changed (expected a "hybrid-headline-lead" or "lead-headline" element). ` +
+        `Extracted so far: date=${JSON.stringify(data.date)}, sections=${data.sections.length}.`
+    );
+  }
+
+  // Defensive defaults so optional missing fields never produce a broken/empty
+  // promo. Each fallback keeps the newspaper voice.
+  if (!data.tagline) {
+    data.tagline = "“The daily paper for people who build.” — The Git Times";
+  }
+  if (!data.lead.sub) {
+    data.lead.sub = "Today's most notable project on GitHub.";
+  }
+  if (!data.sections.length) {
+    console.warn(`Warning: no section headlines extracted for ${dateStr}; promo will skip the sections scene.`);
   }
 
   const promoHtml = generatePromoHtml(data);
@@ -683,8 +829,24 @@ async function generateEditionPromo(outDir, dateStr) {
   const promoPath = path.join(promoDir, `${dateStr}.html`);
   fs.writeFileSync(promoPath, promoHtml);
 
+  // Caption tracks from edition copy (accessibility + muted-feed legibility).
+  const cues = buildCaptionCues(data);
+  const srtPath = path.join(promoDir, `${dateStr}.srt`);
+  const vttPath = path.join(promoDir, `${dateStr}.vtt`);
+  fs.writeFileSync(srtPath, cuesToSrt(cues));
+  fs.writeFileSync(vttPath, cuesToVtt(cues));
+
   console.log(`Promo generated: ${promoPath}`);
-  return { promoPath, dateStr };
+  console.log(`Captions: ${srtPath}, ${vttPath}`);
+  return { promoPath, dateStr, srtPath, vttPath };
 }
 
-module.exports = { extractEditionData, generatePromoHtml, generateEditionPromo, fetchEditionHtml };
+module.exports = {
+  extractEditionData,
+  generatePromoHtml,
+  generateEditionPromo,
+  fetchEditionHtml,
+  buildCaptionCues,
+  cuesToSrt,
+  cuesToVtt,
+};

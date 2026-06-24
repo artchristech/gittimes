@@ -187,6 +187,31 @@ async function sendUpgradeEmail(email, env) {
   return res.ok;
 }
 
+// Owner-facing alert on each free->premium conversion. Strictly additive and
+// env-gated: no-ops (returns false) when env.ALERT_EMAIL is unset so the feature
+// is OFF by default. Mirrors the Resend pattern of the customer emails above.
+async function sendConversionAlertEmail(session, env) {
+  if (!env.ALERT_EMAIL) return false;
+  const email = (session.customer_email || (session.metadata && session.metadata.user_email) || "").toLowerCase();
+  const customerId = session.customer || "";
+  const subscriptionId = session.subscription || "";
+  const at = new Date().toISOString();
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: env.EMAIL_FROM || "The Git Times <noreply@gittimes.com>",
+      to: [env.ALERT_EMAIL],
+      subject: "New Premium conversion — The Git Times",
+      html: `<p>A reader just converted free &rarr; premium.</p><ul><li>Email: ${email || "(unknown)"}</li><li>Stripe customer: ${customerId || "(none)"}</li><li>Stripe subscription: ${subscriptionId || "(none)"}</li><li>At: ${at}</li></ul>`,
+    }),
+  });
+  return res.ok;
+}
+
 async function resolveGracePeriod(user, env) {
   if (user.gracePeriodEndsAt && new Date(user.gracePeriodEndsAt).getTime() < Date.now()) {
     user.plan = "free";
@@ -644,6 +669,9 @@ const handler = {
           if (wasNew) await incrementStat(env.USERS, "stats:totalUsers", 1);
           if (wasNew || wasFree) await incrementStat(env.USERS, "stats:premiumUsers", 1);
           try { await sendUpgradeEmail(email, env); } catch { /* non-fatal */ }
+          // Owner alert — additive, non-fatal, env-gated. Must never affect the
+          // premium-flip or 200 response above, so it has its own try/catch.
+          try { await sendConversionAlertEmail(session, env); } catch { /* non-fatal */ }
         }
       }
 

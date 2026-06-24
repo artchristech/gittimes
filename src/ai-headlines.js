@@ -6,6 +6,8 @@
  * paper can point at what builders are actually reading today.
  */
 
+const { withinWireWindow } = require("./recency");
+
 // Title must look AI-relevant. HN's "AI" full-text query is noisy, so we filter
 // titles too. Word-boundary, not substring (avoid "rail" matching "ai").
 const AI_TITLE_RE = /\b(ai|a\.i\.|llms?|gpt(?:-?\d(?:\.\d)?)?|chatgpt|claude|gemini|anthropic|openai|deepmind|mistral|llama|grok|agent(?:s|ic)?|transformer|diffusion|neural|inference|fine-?tun\w*|rag|embeddings?|machine learning|deep learning|ml|model weights?|open-?weight)\b/i;
@@ -27,11 +29,15 @@ function _domain(url) {
  * @returns {Array<{title,url,source,points,comments,discussionUrl}>}
  */
 function selectTopHeadlines(hits, opts = {}) {
-  const { limit = 5, minPoints = 40 } = opts;
+  const { limit = 5, minPoints = 40, nowMs = null } = opts;
   if (!Array.isArray(hits)) return [];
   const seen = new Set();
   return hits
     .filter((h) => h && h.title && h.url) // external link only (skips Ask/Show HN self-posts)
+    // RECENCY GATE (aiWire window): hard-drop stories older than the aiWire
+    // window. Only enforced when a clock is supplied (nowMs) so unit tests that
+    // omit it are unaffected; the live fetch always passes nowMs.
+    .filter((h) => nowMs == null || withinWireWindow(h.created_at_i, nowMs))
     .filter((h) => (h.points || 0) >= minPoints)
     .filter((h) => AI_TITLE_RE.test(h.title))
     .filter((h) => {
@@ -90,7 +96,7 @@ async function fetchAIHeadlines(options = {}) {
       return [];
     }
     const data = await res.json();
-    const headlines = selectTopHeadlines(data.hits || [], { limit, minPoints });
+    const headlines = selectTopHeadlines(data.hits || [], { limit, minPoints, nowMs });
     console.log(`AI Wire: ${headlines.length} non-repo headline(s) from Hacker News`);
     return headlines;
   } catch (err) {

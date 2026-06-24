@@ -2,6 +2,8 @@
  * Editorial brain: breakout detection, trend clustering, sleeper identification.
  */
 
+const { leadEligible } = require("./recency");
+
 const TRAJECTORY_MULTIPLIERS = {
   "stagnant":     1.5,  // dormant project spiking = something big happened
   "slow-burn":    1.3,  // normally 1-2 stars/day, now surging
@@ -123,7 +125,7 @@ function identifyBreakout(repos, deltas) {
  * @returns {Array<{repo, delta, reason, score}>}
  */
 function selectLeadCandidates(repos, deltas, opts = {}) {
-  const { min = 4, max = 6 } = opts;
+  const { min = 4, max = 6, now = Date.now() } = opts;
   const out = rankBreakoutCandidates(repos, deltas, max);
   const have = new Set(out.map((c) => c.repo.full_name || c.repo.name));
 
@@ -161,7 +163,14 @@ function selectLeadCandidates(repos, deltas, opts = {}) {
     }
   }
 
-  return out.slice(0, max);
+  // RECENCY GATE (lead bar): the front-page lead must have a genuine recent hook
+  // — a release within the lead window, or a brand-new repo — not push activity
+  // alone. Filter the slate to lead-eligible candidates so a years-old-but-
+  // recently-pushed repo can never headline. Fall back to the full slate only if
+  // NONE qualify, so an edition always has a lead.
+  const eligible = out.filter((c) => leadEligible(c.repo, now));
+  const slate = eligible.length > 0 ? eligible : out;
+  return slate.slice(0, max);
 }
 
 /**

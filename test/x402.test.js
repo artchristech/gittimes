@@ -30,7 +30,7 @@ describe("x402 middleware", () => {
     delete process.env.X402_ALLOW_SIM;
     delete process.env.X402_PRICE_USDC;
     delete process.env.X402_NETWORK;
-    try { fs.rmSync(TMP, { recursive: true, force: true }); } catch {}
+    try { fs.rmSync(TMP, { recursive: true, force: true }); } catch { /* best-effort cleanup */ }
   });
 
   it("paymentInfo reflects config", () => {

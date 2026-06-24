@@ -17,13 +17,17 @@ const ARXIV_XML = `<?xml version="1.0"?>
   </entry>
 </feed>`;
 
+// Fresh timestamp so these fixtures clear the aiWire recency window when a live
+// clock is used (fetchAIHeadlines passes nowMs); selectTopHeadlines without nowMs
+// ignores it.
+const NOW_I = Math.floor(Date.now() / 1000);
 const hits = [
-  { title: "OpenAI releases GPT-5.5", url: "https://openai.com/blog/gpt55", points: 320, num_comments: 210, objectID: "1" },
-  { title: "A new diffusion model for video", url: "https://example.com/vid", points: 95, num_comments: 40, objectID: "2" },
-  { title: "Show HN: my todo app", url: "https://example.com/todo", points: 500, num_comments: 12, objectID: "3" }, // not AI
-  { title: "Ask HN: how to learn AI?", points: 600, num_comments: 300, objectID: "4" }, // no url
-  { title: "Tiny LLM runs on a Raspberry Pi", url: "https://example.com/llm", points: 30, num_comments: 5, objectID: "5" }, // below floor
-  { title: "Anthropic ships Claude update", url: "https://openai.com/blog/gpt55", points: 80, num_comments: 9, objectID: "6" }, // dup url
+  { title: "OpenAI releases GPT-5.5", url: "https://openai.com/blog/gpt55", points: 320, num_comments: 210, objectID: "1", created_at_i: NOW_I },
+  { title: "A new diffusion model for video", url: "https://example.com/vid", points: 95, num_comments: 40, objectID: "2", created_at_i: NOW_I },
+  { title: "Show HN: my todo app", url: "https://example.com/todo", points: 500, num_comments: 12, objectID: "3", created_at_i: NOW_I }, // not AI
+  { title: "Ask HN: how to learn AI?", points: 600, num_comments: 300, objectID: "4", created_at_i: NOW_I }, // no url
+  { title: "Tiny LLM runs on a Raspberry Pi", url: "https://example.com/llm", points: 30, num_comments: 5, objectID: "5", created_at_i: NOW_I }, // below floor
+  { title: "Anthropic ships Claude update", url: "https://openai.com/blog/gpt55", points: 80, num_comments: 9, objectID: "6", created_at_i: NOW_I }, // dup url
 ];
 
 describe("selectTopHeadlines", () => {
@@ -46,6 +50,26 @@ describe("selectTopHeadlines", () => {
 
   it("returns [] for non-array input", () => {
     assert.deepEqual(selectTopHeadlines(null), []);
+  });
+});
+
+describe("selectTopHeadlines recency window (aiWire)", () => {
+  const NOW = Date.parse("2026-06-23T00:00:00Z");
+  const unix = (hoursAgo) => Math.floor((NOW - hoursAgo * 3600000) / 1000);
+
+  it("drops stories older than the aiWire window when nowMs is supplied", () => {
+    const hits = [
+      { title: "Fresh AI model launches today", url: "https://ex.com/fresh", points: 120, created_at_i: unix(6) },
+      { title: "Old AI news from last week", url: "https://ex.com/old", points: 300, created_at_i: unix(24 * 8) },
+    ];
+    const urls = selectTopHeadlines(hits, { minPoints: 40, nowMs: NOW }).map((h) => h.url);
+    assert.ok(urls.includes("https://ex.com/fresh"), "fresh story kept");
+    assert.ok(!urls.includes("https://ex.com/old"), "stale story absent despite high points");
+  });
+
+  it("does not apply the window when nowMs is omitted (back-compat)", () => {
+    const hits = [{ title: "Old AI news", url: "https://ex.com/old", points: 300, created_at_i: 1 }];
+    assert.equal(selectTopHeadlines(hits, { minPoints: 40 }).length, 1);
   });
 });
 
