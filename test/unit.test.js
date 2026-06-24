@@ -1405,3 +1405,57 @@ describe("template-utils", () => {
     if (orig !== undefined) process.env.PLAUSIBLE_DOMAIN = orig;
   });
 });
+
+// --------------- categorizeDiverseForSection: front-page freshness gate ---------------
+
+describe("categorizeDiverseForSection — section-lead hook gate", () => {
+  const NOW = Date.parse("2026-06-24T00:00:00Z");
+  const iso = (d) => new Date(NOW - d * 86400000).toISOString();
+  const budget = { secondary: 6, quickHits: 10 };
+
+  it("promotes a recent-release repo over a higher-scored hook-less one", () => {
+    const repos = [
+      { full_name: "old/bundler", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
+      { full_name: "fresh/tool", language: "Go", _score: 6, created_at: iso(400), pushed_at: iso(1), _latestRelease: { published_at: iso(3) } },
+    ];
+    const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW });
+    assert.equal(lead.full_name, "fresh/tool", "recent release should headline over evergreen high-score repo");
+  });
+
+  it("treats a brand-new repo (created in window) as a hook even with no release", () => {
+    const repos = [
+      { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
+      { full_name: "brand/new", language: "Go", _score: 6, created_at: iso(10), pushed_at: iso(1) },
+    ];
+    const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW });
+    assert.equal(lead.full_name, "brand/new");
+  });
+
+  it("falls back to top-by-score when nothing has a recent hook", () => {
+    const repos = [
+      { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
+      { full_name: "old/b", language: "Go", _score: 6, created_at: iso(4000), pushed_at: iso(2) },
+    ];
+    const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW });
+    assert.equal(lead.full_name, "old/a", "no hook anywhere → preserve score order");
+  });
+
+  it("preferHookLead:false preserves pure score order", () => {
+    const repos = [
+      { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
+      { full_name: "fresh/tool", language: "Go", _score: 6, created_at: iso(400), _latestRelease: { published_at: iso(3) } },
+    ];
+    const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW, preferHookLead: false });
+    assert.equal(lead.full_name, "old/a");
+  });
+
+  it("never promotes a recent-lead repo into the lead slot, even if hook-eligible", () => {
+    const repos = [
+      { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
+      { full_name: "fresh/seen", language: "Go", _score: 6, created_at: iso(400), _latestRelease: { published_at: iso(3) } },
+    ];
+    const recentLeadRepos = new Set(["fresh/seen"]);
+    const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW, recentLeadRepos });
+    assert.equal(lead.full_name, "old/a", "recently-led repo must not headline again");
+  });
+});

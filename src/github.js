@@ -7,6 +7,7 @@ const pLimitP = import("p-limit");
 
 const { fetchTrajectories } = require("./star-history");
 const { SECTIONS, SECTION_ORDER } = require("./sections");
+const { leadEligible } = require("./recency");
 
 function _graphqlRequest(query, variables, token) {
   return new Promise((resolve, reject) => {
@@ -257,12 +258,31 @@ function hasNonEnglishContent(repo) {
  */
 function categorizeDiverseForSection(scoredRepos, budget, options = {}) {
   const recentLeadRepos = options.recentLeadRepos || new Set();
+  const now = options.now || Date.now();
 
   // Filter non-English repos — audience is English-speaking Western users
   scoredRepos = (scoredRepos || []).filter((r) => !hasNonEnglishContent(r));
 
   if (scoredRepos.length === 0) {
     return { lead: null, secondary: [], quickHits: [] };
+  }
+
+  // FRONT-PAGE FRESHNESS GATE (section lead): the headline that fronts each
+  // section — and so appears on the front-page "Across the Desk" rail — must
+  // have a genuine recent hook (a release in the lead window OR a brand-new
+  // repo), not star velocity alone. scoreRepo only weights recency softly, so a
+  // years-old high-velocity repo (e.g. a 14-year-old bundler with a fresh push)
+  // can otherwise headline with evergreen "still matters" framing. Promote the
+  // highest-scored hook-eligible, non-recent-lead repo into slot 0. Graceful:
+  // if NONE qualify, leave the order untouched and fall back to top-by-score.
+  if (options.preferHookLead !== false) {
+    const idx = scoredRepos.findIndex(
+      (r) => !recentLeadRepos.has(r.full_name) && leadEligible(r, now)
+    );
+    if (idx > 0) {
+      const [hookRepo] = scoredRepos.splice(idx, 1);
+      scoredRepos.unshift(hookRepo);
+    }
   }
 
   const totalPromoted = 1 + budget.secondary; // lead + secondary
