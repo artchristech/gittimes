@@ -216,6 +216,7 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
         <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
         <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
         ${metaHtml}
+        ${isLead && article.leadRationale ? `<p class="lead-rationale"><span class="lead-rationale-label">Why this leads today</span> ${escapeHtml(article.leadRationale)}</p>` : ""}
         <div class="hybrid-preview">
           ${bodyToHtml(preview)}
         </div>

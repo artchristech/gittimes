@@ -11,6 +11,9 @@ const {
   trendArticlePrompt,
   sleeperArticlePrompt,
   chooseLeadPrompt,
+  EDITOR_LENSES,
+  lensLeadPrompt,
+  leadRationalePrompt,
 } = require("./prompts");
 const { enrichCandidatesWithSignals } = require("./signals");
 
@@ -458,6 +461,91 @@ async function chooseEditorialLead(client, candidates, llmLimit, opts = {}) {
 }
 
 /**
+ * Tolerant-parse a single editor/panelist response into {idx, why}. Accepts a
+ * `LEAD: #n` number OR a repo name in the LEAD line (the free model often answers
+ * with the name). Returns idx -1 when nothing usable is found.
+ */
+function parseLeadVote(raw, candidates) {
+  const whyMatch = lastMatch(raw, /WHY:\s*(.+)/);
+  const why = whyMatch?.[1]?.trim() || null;
+  let idx = -1;
+  const leadMatch = lastMatch(raw, /LEAD:\s*#?(\d+)/);
+  if (leadMatch) idx = parseInt(leadMatch[1], 10) - 1;
+  if (!(idx >= 0 && idx < candidates.length)) {
+    const leadLine = (lastMatch(raw, /LEAD:\s*(.+)/)?.[1] || raw).toLowerCase();
+    idx = candidates.findIndex((c) => {
+      const name = (c.repo.full_name || c.repo.name || "").toLowerCase();
+      const short = name.split("/").pop();
+      return name && (leadLine.includes(name) || (short && leadLine.includes(short)));
+    });
+  }
+  if (!(idx >= 0 && idx < candidates.length)) return { idx: -1, why };
+  return { idx, why };
+}
+
+/**
+ * Editorial panel: N lens-differentiated editors vote on the lead, votes are
+ * tallied, and a synthesis call writes the "Why this leads today" rationale.
+ * Returns {chosen, why, viaEditor, viaPanel, lensVotes} or NULL to signal the
+ * caller to fall back to the single-call chooseEditorialLead. Fully fail-soft:
+ * any thrown error, or no usable votes, yields null. Disabled by
+ * GT_DISABLE_PANEL=1 or when there is <2 candidates. EDITOR_MODEL (env) overrides
+ * the model for this decision only.
+ */
+async function runEditorPanel(client, candidates, llmLimit, opts = {}) {
+  if (process.env.GT_DISABLE_PANEL === "1") return null;
+  if (!candidates || candidates.length <= 1) return null;
+  const threadBlock = opts.threadBlock || null;
+  const model = process.env.EDITOR_MODEL || MODEL;
+
+  try {
+    // Run the lenses concurrently; each panelist is independently fail-soft.
+    const votes = await Promise.all(
+      EDITOR_LENSES.map((lens) =>
+        llmLimit(() => chat(client, model, lensLeadPrompt(candidates, lens.directive, threadBlock), 200))
+          .then((raw) => ({ lens: lens.key, ...parseLeadVote(raw, candidates) }))
+          .catch(() => ({ lens: lens.key, idx: -1, why: null }))
+      )
+    );
+
+    const valid = votes.filter((v) => v.idx >= 0);
+    if (valid.length === 0) return null; // nothing usable → caller falls back
+
+    // Tally; ties broken by candidate order (momentum rank).
+    const tally = new Map();
+    for (const v of valid) tally.set(v.idx, (tally.get(v.idx) || 0) + 1);
+    let winnerIdx = valid[0].idx;
+    let best = -1;
+    for (let i = 0; i < candidates.length; i++) {
+      const n = tally.get(i) || 0;
+      if (n > best) { best = n; winnerIdx = i; }
+    }
+
+    const winner = candidates[winnerIdx];
+    const winnerName = winner.repo.full_name || winner.repo.name;
+    const lensNotes = valid.filter((v) => v.idx === winnerIdx).map((v) => v.why);
+    // If no winning-lens notes, fall back to any notes so the synthesis has grounding.
+    const notes = lensNotes.length ? lensNotes : valid.map((v) => v.why);
+
+    // Synthesis: one call for the rationale. Fail-soft to a winning-lens note.
+    let why = notes.find(Boolean) || null;
+    try {
+      const winnerLine = `${winnerName} — ${winner.repo.description || "no description"}`;
+      const raw = await llmLimit(() => chat(client, model, leadRationalePrompt(winnerLine, notes), 120));
+      const text = (raw || "").trim().replace(/^["“]|["”]$/g, "").trim();
+      if (text) why = text;
+    } catch {
+      /* keep the lens-note fallback */
+    }
+
+    return { chosen: winner, why, viaEditor: true, viaPanel: true, lensVotes: votes };
+  } catch (err) {
+    console.warn(`Editor panel failed, falling back to single-call editor: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * Generate content with editorial intelligence.
  * Runs existing section generation, then overlays breakout/trend/sleeper articles.
  * @param {object} sections - { frontPage: {...}, ai: {...}, ... }
@@ -494,16 +582,22 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     } catch (e) {
       console.warn(`Candidate signal enrichment failed (non-fatal): ${e.message}`);
     }
-    const decision = await chooseEditorialLead(client, candidates, llmLimit, { threadBlock: options.threadContext || null });
+    const leadOpts = { threadBlock: options.threadContext || null };
+    // Panel of lens-differentiated editors first; fail-soft to the single call.
+    let decision = await runEditorPanel(client, candidates, llmLimit, leadOpts);
+    if (!decision) {
+      decision = await chooseEditorialLead(client, candidates, llmLimit, leadOpts);
+    }
     editorialPlan.breakout = { repo: decision.chosen.repo, delta: decision.chosen.delta, reason: decision.chosen.reason };
     editorialMeta.leadEditor = {
       chosen: decision.chosen.repo.full_name || decision.chosen.repo.name,
       why: decision.why,
       viaEditor: decision.viaEditor,
+      viaPanel: !!decision.viaPanel,
       consideredCount: candidates.length,
     };
     if (decision.viaEditor) {
-      console.log(`  Editor-in-chief lead: ${editorialMeta.leadEditor.chosen}${decision.why ? ` — ${decision.why}` : ""}`);
+      console.log(`  Editor-in-chief lead${decision.viaPanel ? " (panel)" : ""}: ${editorialMeta.leadEditor.chosen}${decision.why ? ` — ${decision.why}` : ""}`);
     }
   }
 
@@ -581,6 +675,11 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
         // Demote current lead to secondary (unless it's the same repo)
         if (!isSameAsLead) {
           result.frontPage.secondary.unshift(result.frontPage.lead);
+        }
+        // Surface the editor/panel rationale as the front-page "Why this leads
+        // today" byline. Only when the chosen lead is the editor's pick.
+        if (editorialMeta.leadEditor && editorialMeta.leadEditor.why) {
+          breakoutArticle.leadRationale = editorialMeta.leadEditor.why;
         }
         result.frontPage.lead = breakoutArticle;
         editorialMeta.breakout = {
@@ -762,4 +861,4 @@ function deduplicateContent(content) {
   return removed;
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment, deduplicateContent, chooseEditorialLead };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote };

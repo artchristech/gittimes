@@ -343,6 +343,52 @@ LEAD: [the single number of the story that should lead]
 WHY: [one sentence on why it is the most significant — not the most popular]`;
 }
 
+/**
+ * The editorial panel — three editors, each judging by a distinct lens. The
+ * panel's votes are tallied for the pick; a synthesis step writes the rationale.
+ * Each lens is {key, directive} where the directive is the judging criterion.
+ */
+const EDITOR_LENSES = [
+  { key: "impact", directive: "judge purely by IMPACT: how many builders this materially helps, and how much it changes their day-to-day work." },
+  { key: "novelty", directive: "judge purely by NOVELTY: whether this does something genuinely new or newly possible, versus a well-trodden idea executed again." },
+  { key: "consequence", directive: "judge purely by CONSEQUENCE TO BUILDERS: whether ignoring this would leave a serious builder behind, or whether it's safely skippable." },
+];
+
+/**
+ * A single panelist's lead prompt: same candidate slate, but judged by ONE lens.
+ * @param {Array} candidates
+ * @param {string} lensDirective - the lens's judging criterion
+ * @param {string} [threadBlock] - optional continuity context
+ */
+function lensLeadPrompt(candidates, lensDirective, threadBlock) {
+  const continuity = threadBlock ? `\n${threadBlock}\n` : "";
+  return `You are an editor on the front-page panel of The Git Times, a daily newspaper for builders. These candidates all gained GitHub stars recently — momentum is only why they crossed your desk, never the basis for your vote. For this vote you ${lensDirective} Popularity is not your criterion.
+${continuity}
+CANDIDATES:
+${candidateSummaryLines(candidates)}
+
+Respond EXACTLY in this format, nothing else:
+LEAD: [the single number of the story that should lead by your lens]
+WHY: [one sentence, by your lens only]`;
+}
+
+/**
+ * Synthesis: write the one-paragraph "Why this leads today" byline for the
+ * winning story, grounded in the panel's notes. No hype, newspaper voice.
+ * @param {string} winnerLine - "name — description" of the winning candidate
+ * @param {string[]} lensNotes - the panelists' one-line rationales
+ */
+function leadRationalePrompt(winnerLine, lensNotes) {
+  const notes = (lensNotes || []).filter(Boolean).map((n) => `- ${n}`).join("\n");
+  return `You are the Editor-in-Chief of The Git Times. Your panel chose today's front-page lead:
+${winnerLine}
+
+Panel notes:
+${notes}
+
+Write ONE sentence (max 35 words) for the byline "Why this leads today" — why this story leads, grounded in the notes, in plain newspaper voice. No hype, no adjectives-for-their-own-sake, no restating the headline. Output ONLY that sentence, nothing else.`;
+}
+
 module.exports = {
   sanitizeRepoField,
   editorialFramingDirective,
@@ -356,4 +402,7 @@ module.exports = {
   editorInChiefPrompt,
   candidateSummaryLines,
   chooseLeadPrompt,
+  EDITOR_LENSES,
+  lensLeadPrompt,
+  leadRationalePrompt,
 };
