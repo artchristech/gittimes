@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-24T08:20:49.468Z",
+  "syncedAt": "2026-06-25T08:22:32.257Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
@@ -3775,8 +3775,8 @@
       "context_length": 202752,
       "input": 0.98,
       "output": 3.08,
-      "cache_read_price": 0.49,
-      "max_completion_tokens": 65535,
+      "cache_read_price": 0.182,
+      "max_completion_tokens": null,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -3815,7 +3815,7 @@
       "input": 0.5,
       "output": 3,
       "cache_read_price": null,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 32768,
       "modality": "text+image->text+image",
       "input_modalities": [
         "image",
@@ -4184,7 +4184,7 @@
       "context_length": 262144,
       "input": 0.6,
       "output": 2.5,
-      "cache_read_price": null,
+      "cache_read_price": 0.6,
       "max_completion_tokens": 262144,
       "modality": "text->text",
       "input_modalities": [
@@ -4222,7 +4222,7 @@
       "input": 0.3,
       "output": 2.5,
       "cache_read_price": 0.03,
-      "max_completion_tokens": 8192,
+      "max_completion_tokens": 32768,
       "modality": "text+image->text+image",
       "input_modalities": [
         "image",
@@ -6198,8 +6198,8 @@
       "context_length": 262144,
       "input": 0.14,
       "output": 1,
-      "cache_read_price": null,
-      "max_completion_tokens": 262144,
+      "cache_read_price": 0.049999999999999996,
+      "max_completion_tokens": 81920,
       "modality": "text+image+video->text",
       "input_modalities": [
         "text",
@@ -7631,41 +7631,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "openai/gpt-4o-mini-2024-07-18",
-      "name": "OpenAI: GPT-4o-mini (2024-07-18)",
-      "context_length": 128000,
-      "input": 0.15,
-      "output": 0.6,
-      "cache_read_price": 0.075,
-      "max_completion_tokens": 16384,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_logprobs",
-        "top_p",
-        "web_search_options"
-      ],
-      "created": 1721260800,
-      "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ",
-      "hugging_face_id": null
-    },
-    {
       "id": "openai/gpt-4o-mini",
       "name": "OpenAI: GPT-4o-mini",
       "context_length": 128000,
@@ -7684,6 +7649,41 @@
         "logit_bias",
         "logprobs",
         "max_completion_tokens",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p",
+        "web_search_options"
+      ],
+      "created": 1721260800,
+      "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "openai/gpt-4o-mini-2024-07-18",
+      "name": "OpenAI: GPT-4o-mini (2024-07-18)",
+      "context_length": 128000,
+      "input": 0.15,
+      "output": 0.6,
+      "cache_read_price": 0.075,
+      "max_completion_tokens": 16384,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
         "max_tokens",
         "presence_penalty",
         "response_format",
@@ -8946,6 +8946,7 @@
         "temperature",
         "tool_choice",
         "tools",
+        "top_k",
         "top_logprobs",
         "top_p"
       ],
@@ -9115,6 +9116,43 @@
       "created": 1733437363,
       "description": "Amazon Nova Lite 1.0 is a very low-cost multimodal model from Amazon that focused on fast processing of image, video, and text inputs to generate text output. A",
       "hugging_face_id": null
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek: DeepSeek V4 Flash",
+      "context_length": 1048576,
+      "input": 0.08900000000000001,
+      "output": 0.224,
+      "cache_read_price": 0.0266,
+      "max_completion_tokens": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000666,
+      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "tencent/hy3-preview",
@@ -9400,43 +9438,6 @@
       "created": 1753806965,
       "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
       "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
-    },
-    {
-      "id": "deepseek/deepseek-v4-flash",
-      "name": "DeepSeek: DeepSeek V4 Flash",
-      "context_length": 1048576,
-      "input": 0.09,
-      "output": 0.18,
-      "cache_read_price": 0.02,
-      "max_completion_tokens": 65536,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777000666,
-      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "openai/gpt-oss-120b",
