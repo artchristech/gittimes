@@ -320,7 +320,8 @@ function candidateSummaryLines(candidates) {
       const desc = sanitizeRepoField(r.description) || "no description";
       const lang = r.language || "Unknown";
       const topics = (r.topics || []).slice(0, 4).join(", ");
-      return `${i + 1}. ${name} — ${desc} | ${lang}${topics ? ` | topics: ${topics}` : ""} | momentum: ${c.reason}`;
+      const signals = c.signalSummary ? ` | ${c.signalSummary}` : "";
+      return `${i + 1}. ${name} — ${desc} | ${lang}${topics ? ` | topics: ${topics}` : ""} | momentum: ${c.reason}${signals}`;
     })
     .join("\n");
 }

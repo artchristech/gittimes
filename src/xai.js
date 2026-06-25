@@ -12,6 +12,7 @@ const {
   sleeperArticlePrompt,
   chooseLeadPrompt,
 } = require("./prompts");
+const { enrichCandidatesWithSignals } = require("./signals");
 
 const { SECTIONS, SECTION_ORDER } = require("./sections");
 const { mastheadQuote } = require("./quotes");
@@ -485,6 +486,14 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     ? editorialPlan.breakoutCandidates
     : (editorialPlan.breakout ? [editorialPlan.breakout] : []);
   if (candidates.length > 0) {
+    // Cross-source significance: enrich candidates with real-world-attention
+    // signals (HN discussion, package downloads) before the editor decides.
+    // Fail-soft — any source error leaves the candidate un-enriched, never throws.
+    try {
+      await enrichCandidatesWithSignals(candidates, {});
+    } catch (e) {
+      console.warn(`Candidate signal enrichment failed (non-fatal): ${e.message}`);
+    }
     const decision = await chooseEditorialLead(client, candidates, llmLimit, { threadBlock: options.threadContext || null });
     editorialPlan.breakout = { repo: decision.chosen.repo, delta: decision.chosen.delta, reason: decision.chosen.reason };
     editorialMeta.leadEditor = {
