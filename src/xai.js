@@ -421,12 +421,13 @@ async function generateAllContent(sections, apiKey, options = {}) {
  * if the editor is unavailable or returns an unusable choice.
  * @returns {Promise<{ chosen, why, viaEditor }>}
  */
-async function chooseEditorialLead(client, candidates, llmLimit) {
+async function chooseEditorialLead(client, candidates, llmLimit, opts = {}) {
   const fallback = { chosen: candidates[0], why: null, viaEditor: false };
   if (!candidates || candidates.length <= 1) return fallback;
 
+  const threadBlock = opts.threadBlock || null;
   try {
-    const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates), 300));
+    const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates, threadBlock), 300));
     const whyMatch = lastMatch(raw, /WHY:\s*(.+)/);
     const why = whyMatch?.[1]?.trim() || null;
 
@@ -484,7 +485,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     ? editorialPlan.breakoutCandidates
     : (editorialPlan.breakout ? [editorialPlan.breakout] : []);
   if (candidates.length > 0) {
-    const decision = await chooseEditorialLead(client, candidates, llmLimit);
+    const decision = await chooseEditorialLead(client, candidates, llmLimit, { threadBlock: options.threadContext || null });
     editorialPlan.breakout = { repo: decision.chosen.repo, delta: decision.chosen.delta, reason: decision.chosen.reason };
     editorialMeta.leadEditor = {
       chosen: decision.chosen.repo.full_name || decision.chosen.repo.name,

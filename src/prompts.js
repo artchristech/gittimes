@@ -330,9 +330,10 @@ function candidateSummaryLines(candidates) {
  * surfaced (the filter); it is explicitly NOT the basis for the choice. The
  * editor picks the single most SIGNIFICANT story and returns a parseable choice.
  */
-function chooseLeadPrompt(candidates) {
+function chooseLeadPrompt(candidates, threadBlock) {
+  const continuity = threadBlock ? `\n${threadBlock}\n` : "";
   return `You are the Editor-in-Chief of The Git Times, a daily newspaper for builders. These candidates all gained GitHub stars recently — that momentum is only why they crossed your desk. Your job is to choose which ONE leads the front page based on SIGNIFICANCE to builders: genuine impact, novelty, a real shift in what's possible, or consequence for how people build. Do NOT choose the one with the most stars for being popular; popularity is not significance. A quietly important release should beat a viral list or a meme repo.
-
+${continuity}
 CANDIDATES:
 ${candidateSummaryLines(candidates)}
 
