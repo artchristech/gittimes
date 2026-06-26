@@ -1914,6 +1914,47 @@ body.chat-on .hybrid-ask {
   display: flex;
 }
 
+/* Docked left rail: full-height side panel that reflows the page. */
+.chat-panel.docked {
+  left: 0;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  width: max(25vw, 420px);
+  max-width: none;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  border-right: 1px solid var(--rule-light);
+  box-shadow: 2px 0 16px rgba(0,0,0,0.12);
+}
+
+.chat-panel.fullscreen {
+  width: 100vw;
+}
+
+.chat-panel.docked .chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+@media (min-width: 900px) {
+  body.chat-docked {
+    margin-left: max(25vw, 420px);
+    transition: margin-left 0.15s;
+  }
+  body.chat-docked.chat-fullscreen {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .chat-panel.docked {
+    width: 100vw;
+  }
+}
+
 .chat-header {
   display: flex;
   align-items: center;
@@ -1935,6 +1976,30 @@ body.chat-on .hybrid-ask {
   border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   border-radius: 4px;
   padding: 1px 5px;
+}
+
+.chat-header-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  color: var(--ink-soft, var(--ink));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  opacity: 0.7;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.chat-header-btn:first-of-type {
+  margin-left: auto;
+}
+
+.chat-header-btn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
 }
 
 .chat-live-dot {
@@ -3426,7 +3491,7 @@ body.account {
     <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
     <div class="markets-freshness"><span class="fresh-chip live" data-pulse>
       <span class="fresh-dot"></span>
-      <span class="fresh-text"><strong>Pricing live</strong> · synced 4 min ago · <span class="fresh-abs">Jun 25, 6:17 AM EDT</span></span>
+      <span class="fresh-text"><strong>Pricing live</strong> · synced 3 min ago · <span class="fresh-abs">Jun 26, 6:25 AM EDT</span></span>
     </span><span class="fresh-chip curated"><span class="fresh-dot"></span><span class="fresh-text"><strong>Evals curated</strong> · as of 2026-06-15</span></span></div>
   </div>
 
@@ -3441,8 +3506,8 @@ body.account {
       <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
     </linearGradient></defs>
-    <path class="area-fill" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 143.6 L551.7 143.6 L573.8 143.6 L595.9 144.0 L617.9 6.0 L640.0 6.0 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
-    <path class="area-line" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 143.6 L551.7 143.6 L573.8 143.6 L595.9 144.0 L617.9 6.0 L640.0 6.0" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="area-fill" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 143.6 L551.7 143.6 L573.8 144.0 L595.9 6.0 L617.9 6.0 L640.0 6.0 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
+    <path class="area-line" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 143.6 L551.7 143.6 L573.8 144.0 L595.9 6.0 L617.9 6.0 L640.0 6.0" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle class="area-dot" cx="640.0" cy="6.0" r="3.5" fill="var(--accent)"/>
   </svg></div>
     </div>
@@ -3784,7 +3849,7 @@ body.account {
       <td class="model-price price-cell" data-sort="25" data-priceval="25">$25</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="3" data-cache="0.3" data-provider="Anthropic" data-label="Claude Sonnet 4.6">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="claude-sonnet-4.6" aria-label="Compare Claude Sonnet 4.6"></td>
@@ -3806,7 +3871,7 @@ body.account {
       <td class="model-price price-cell" data-sort="30" data-priceval="30">$30</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="2.5" data-cache="0.25" data-provider="OpenAI" data-label="GPT-5.4">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="gpt-5.4" aria-label="Compare GPT-5.4"></td>
@@ -3839,7 +3904,7 @@ body.account {
       <td class="model-price price-cell" data-sort="9" data-priceval="9">$9</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 50.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="1.25" data-cache="0.19999999999999998" data-provider="xAI" data-label="Grok 4.20">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="grok-4.20" aria-label="Compare Grok 4.20"></td>
@@ -3850,7 +3915,7 @@ body.account {
       <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5">$2.50</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="2000000">2.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,2.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="0" data-output="0.8000999999999999" data-input="0.20020000000000002" data-cache="" data-provider="DeepSeek" data-label="DeepSeek V3.2">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-v3.2" aria-label="Compare DeepSeek V3.2"></td>
@@ -3861,7 +3926,7 @@ body.account {
       <td class="model-price price-cell" data-sort="0.8000999999999999" data-priceval="0.8000999999999999">$0.80</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="131072" title="Max output: 16,000 tokens">131k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,2.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="0.7" data-cache="" data-provider="DeepSeek" data-label="DeepSeek R1">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-r1" aria-label="Compare DeepSeek R1"></td>
@@ -4029,7 +4094,7 @@ body.account {
     <td class="model-name">Sakana: Fugu Ultra</td>
     <td class="model-provider">sakana</td>
     <td class="model-price">$30</td>
-    <td class="model-added">1d ago</td>
+    <td class="model-added">2d ago</td>
   </tr>
 <tr>
     <td class="model-name">Google: Nano Banana 2 (Gemini 3.1 Flash Image)</td>
@@ -4531,11 +4596,11 @@ T">OpenAI: GPT-3.5 Turbo</span><span class="feature-badges"><span class="feature
           <td class="model-price price-cell" data-priceval="0.3">$0.30</td>
           <td class="model-ctx" data-sort="131072" title="Max output: 65,536 tokens">131k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.18" data-input="0.039" data-cache="" data-provider="openai" data-label="openai: gpt-oss-120b">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.15" data-input="0.03" data-cache="" data-provider="openai" data-label="openai: gpt-oss-120b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/openai/gpt-oss-120b" title="gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose pro">OpenAI: gpt-oss-120b</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.039" data-priceval="0.039"><span class="price-main">$0.04</span></td>
-          <td class="model-price price-cell" data-priceval="0.18">$0.18</td>
-          <td class="model-ctx" data-sort="131072">131k</td>
+          <td class="model-price price-cell" data-sort="0.03" data-priceval="0.03"><span class="price-main">$0.03</span></td>
+          <td class="model-price price-cell" data-priceval="0.15">$0.15</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 131,072 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.14" data-input="0.029" data-cache="" data-provider="openai" data-label="openai: gpt-oss-20b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/openai/gpt-oss-20b" title="gpt-oss-20b is an open-weight 21B parameter model released by OpenAI under the Apache 2.0 license. It uses a Mixture-of-Experts (MoE) architecture with 3.6B act">OpenAI: gpt-oss-20b</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -5902,9 +5967,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="0.41">$0.41</td>
           <td class="model-ctx" data-sort="163840" title="Max output: 65,536 tokens">164k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.3432" data-input="0.2288" data-cache="" data-provider="deepseek" data-label="deepseek: deepseek v3.2">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.3432" data-input="0.2288" data-cache="0.02288" data-provider="deepseek" data-label="deepseek: deepseek v3.2">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V3.2" title="DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce">DeepSeek: DeepSeek V3.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.2288" data-priceval="0.2288"><span class="price-main">$0.23</span></td>
+          <td class="model-price price-cell" data-sort="0.2288" data-priceval="0.2288"><span class="price-main">$0.23</span><span class="cache-price">cache: $0.02</span></td>
           <td class="model-price price-cell" data-priceval="0.3432">$0.34</td>
           <td class="model-ctx" data-sort="131072" title="Max output: 64,000 tokens">131k</td>
         </tr>
@@ -5932,11 +5997,11 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <summary>3 more models</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.44999999999999996" data-input="0.09" data-cache="" data-provider="nvidia" data-label="nvidia: nemotron 3 super">
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.39999999999999997" data-input="0.08499999999999999" data-cache="" data-provider="nvidia" data-label="nvidia: nemotron 3 super">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8" title="NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-a">NVIDIA: Nemotron 3 Super</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.09" data-priceval="0.09"><span class="price-main">$0.09</span></td>
-          <td class="model-price price-cell" data-priceval="0.44999999999999996">$0.45</td>
-          <td class="model-ctx" data-sort="1000000">1.0M</td>
+          <td class="model-price price-cell" data-sort="0.08499999999999999" data-priceval="0.08499999999999999"><span class="price-main">$0.08</span></td>
+          <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
+          <td class="model-ctx" data-sort="1000000" title="Max output: 16,384 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.39999999999999997" data-input="0.39999999999999997" data-cache="" data-provider="nvidia" data-label="nvidia: llama 3.3 nemotron super 49b v1.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1_5" title="Llama-3.3-Nemotron-Super-49B-v1.5 is a 49B-parameter, English-centric reasoning/chat model derived from Meta’s Llama-3.3-70B-Instruct with a 128K context. It’s ">NVIDIA: Llama 3.3 Nemotron Super 49B V1.5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -5992,22 +6057,22 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="1">$1</td>
           <td class="model-ctx" data-sort="204800" title="Max output: 196,608 tokens">205k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.96" data-input="0.24" data-cache="" data-provider="minimax" data-label="minimax: minimax m2.7">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.7" title="MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat">MiniMax: MiniMax M2.7</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.24" data-priceval="0.24"><span class="price-main">$0.24</span></td>
-          <td class="model-price price-cell" data-priceval="0.96">$0.96</td>
-          <td class="model-ctx" data-sort="204800" title="Max output: 196,608 tokens">205k</td>
-        </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.95" data-input="0.29" data-cache="0.03" data-provider="minimax" data-label="minimax: minimax m2.1">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.1" title="MiniMax-M2.1 is a lightweight, state-of-the-art large language model optimized for coding, agentic workflows, and modern application development. With only 10 b">MiniMax: MiniMax M2.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.29" data-priceval="0.29"><span class="price-main">$0.29</span><span class="cache-price">cache: $0.03</span></td>
           <td class="model-price price-cell" data-priceval="0.95">$0.95</td>
           <td class="model-ctx" data-sort="204800" title="Max output: 196,608 tokens">205k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.8999999999999999" data-input="0.15" data-cache="0.049999999999999996" data-provider="minimax" data-label="minimax: minimax m2.5">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.72" data-input="0.18" data-cache="" data-provider="minimax" data-label="minimax: minimax m2.7">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.7" title="MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat">MiniMax: MiniMax M2.7</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.18" data-priceval="0.18"><span class="price-main">$0.18</span></td>
+          <td class="model-price price-cell" data-priceval="0.72">$0.72</td>
+          <td class="model-ctx" data-sort="204800" title="Max output: 196,608 tokens">205k</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.48" data-input="0.12" data-cache="" data-provider="minimax" data-label="minimax: minimax m2.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/MiniMaxAI/MiniMax-M2.5" title="MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,">MiniMax: MiniMax M2.5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span><span class="cache-price">cache: $0.05</span></td>
-          <td class="model-price price-cell" data-priceval="0.8999999999999999">$0.90</td>
+          <td class="model-price price-cell" data-sort="0.12" data-priceval="0.12"><span class="price-main">$0.12</span></td>
+          <td class="model-price price-cell" data-priceval="0.48">$0.48</td>
           <td class="model-ctx" data-sort="204800" title="Max output: 196,608 tokens">205k</td>
         </tr></tbody>
           </table>
