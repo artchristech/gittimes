@@ -61,18 +61,43 @@
     unlockBtn.href = '/account/?error=login_required';
   }
 
+  var expandBtn = document.getElementById('chat-expand');
+  var closeBtn = document.getElementById('chat-close');
+
   function openPanel() {
     if (!panel.classList.contains('open')) {
       panel.classList.add('open');
+      panel.classList.add('docked');
+      document.body.classList.add('chat-docked');
       fab.classList.add('open');
     }
     input.focus();
   }
 
+  function closePanel() {
+    panel.classList.remove('open', 'docked', 'fullscreen');
+    document.body.classList.remove('chat-docked', 'chat-fullscreen');
+    fab.classList.remove('open');
+  }
+
   fab.addEventListener('click', function() {
-    var open = panel.classList.toggle('open');
-    fab.classList.toggle('open', open);
-    if (open) input.focus();
+    if (panel.classList.contains('open')) closePanel();
+    else openPanel();
+  });
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      var fs = panel.classList.toggle('fullscreen');
+      document.body.classList.toggle('chat-fullscreen', fs);
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closePanel);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && panel.classList.contains('open')) closePanel();
   });
 
   // --- Context assembly ---

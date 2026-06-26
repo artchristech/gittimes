@@ -502,7 +502,14 @@ function renderChatUi() {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   </button>
   <div class="chat-panel" id="chat-panel">
-    <div class="chat-header"><span class="chat-live-dot" aria-hidden="true"></span>The Git Times <span class="chat-header-tag">AI Desk</span></div>
+    <div class="chat-header"><span class="chat-live-dot" aria-hidden="true"></span>The Git Times <span class="chat-header-tag">AI Desk</span>
+      <button class="chat-header-btn" id="chat-expand" type="button" aria-label="Toggle fullscreen">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+      </button>
+      <button class="chat-header-btn" id="chat-close" type="button" aria-label="Close chat">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
     <div class="chat-context" id="chat-context" style="display:none">
       <span class="chat-context-label" id="chat-context-label"></span>
       <button class="chat-context-clear" id="chat-context-clear" type="button" aria-label="Clear story focus">&times;</button>
