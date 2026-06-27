@@ -282,7 +282,7 @@
 
       if (res.status === 429) {
         var info = {};
-        try { info = await res.json(); } catch (e) {}
+        try { info = await res.json(); } catch { /* keep default {} on parse failure */ }
         var note = info.message || 'You’ve reached your limit for now.';
         aiDiv.classList.remove('streaming');
         aiDiv.innerHTML = renderMarkdown(note);
@@ -322,12 +322,12 @@
               aiDiv.innerHTML = renderMarkdown(full);
               msgs.scrollTop = msgs.scrollHeight;
             }
-          } catch(e) {}
+          } catch { /* skip malformed SSE chunk */ }
         }
       }
 
       history_msgs.push({ role: 'assistant', content: full });
-    } catch(e) {
+    } catch {
       aiDiv.textContent = full || 'Something went wrong. Please try again.';
     }
 
