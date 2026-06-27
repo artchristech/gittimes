@@ -22,6 +22,27 @@ const { isVersionChurn } = require("./editorial");
 const MODEL = process.env.LLM_MODEL || "nvidia/nemotron-3-super-120b-a12b:free";
 const BASE_URL = process.env.LLM_BASE_URL || "https://openrouter.ai/api/v1";
 
+// --- Generation telemetry -------------------------------------------------
+// A fail-silent observer that accumulates token usage across LLM calls for a
+// single generation run. It never affects request params or return values; the
+// publish step reads it once at the end and writes it to the edition_meta table.
+const _metrics = { calls: 0, promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+function resetMetrics() {
+  _metrics.calls = 0;
+  _metrics.promptTokens = 0;
+  _metrics.completionTokens = 0;
+  _metrics.totalTokens = 0;
+}
+function getMetrics() {
+  return {
+    model: MODEL,
+    llmCalls: _metrics.calls,
+    promptTokens: _metrics.promptTokens,
+    completionTokens: _metrics.completionTokens,
+    totalTokens: _metrics.totalTokens,
+  };
+}
+
 function createClient(apiKey) {
   return new OpenAI({
     baseURL: BASE_URL,
@@ -78,6 +99,17 @@ async function _chat(client, model, prompt, maxTokens = 1024, options = {}) {
     }
     if (options.tools) params.tools = options.tools;
     const response = await client.chat.completions.create(params);
+    // Telemetry: accumulate usage from the response we already have. Wrapped so
+    // a malformed usage object can never interrupt generation.
+    try {
+      _metrics.calls++;
+      const u = response && response.usage;
+      if (u) {
+        _metrics.promptTokens += u.prompt_tokens || 0;
+        _metrics.completionTokens += u.completion_tokens || 0;
+        _metrics.totalTokens += u.total_tokens || 0;
+      }
+    } catch { /* telemetry must never break generation */ }
     if (!response.choices?.length) {
       throw new Error(`No choices returned from ${model}`);
     }
@@ -752,4 +784,4 @@ function deduplicateContent(content) {
   return removed;
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, _attachSentiment, deduplicateContent, chooseEditorialLead };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead };

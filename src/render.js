@@ -307,6 +307,9 @@ function buildNavHtml(nav) {
   if (nav.archive) {
     links.push(`<a href="${escapeHtml(nav.archive)}">Archive</a>`);
   }
+  if (nav.promos) {
+    links.push(`<a href="${escapeHtml(nav.promos)}">Promos</a>`);
+  }
   if (nav.next) {
     links.push(`<a href="${escapeHtml(nav.next.url)}">${escapeHtml(nav.next.label)} &rarr;</a>`);
   }

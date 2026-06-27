@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; media-src 'self'; script-src 'self' 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <title>The Git Times — Promos</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta property="og:title" content="The Git Times — Promos">
+  <meta property="og:description" content="Watch the daily promo reel for every edition of The Git Times">
+  <meta property="og:site_name" content="The Git Times">
+
+  <style>
+{{STYLES}}
+  </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="{{BASE_PATH}}/account/" class="masthead-account">Account</a>
+    <a href="{{BASE_PATH}}/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
+    <h1 class="masthead-title"><a href="{{BASE_PATH}}/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
+    <div class="masthead-meta">
+      <span>Promos</span>
+    </div>
+  </header>
+
+  <section class="promos-list">
+    <h2 class="section-header">Edition Reel</h2>
+    {{PROMO_LIST}}
+  </section>
+
+  <footer class="footer">
+    <nav class="edition-nav">
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a> · <a href="{{BASE_PATH}}/archive/">Archive</a>
+    </nav>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+  </footer>
+
+</body>
+</html>
