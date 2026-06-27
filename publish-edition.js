@@ -10,6 +10,7 @@ const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = r
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
 const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
+const { writePromosPage } = require("./src/promos-page");
 const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
 const { closeDb } = require("./src/db");
@@ -179,6 +180,15 @@ async function main() {
     } catch (err) {
       console.warn(`Promo video recording failed (non-fatal): ${err.message}`);
     }
+  }
+
+  // Step 8: Rebuild the Promos gallery page (site/promos/index.html) so today's
+  // freshly-rendered video is surfaced. Runs AFTER Step 7 by design; non-fatal.
+  try {
+    const { count } = writePromosPage(outDir, basePath);
+    console.log(`Promos gallery rebuilt: ${count} video${count === 1 ? "" : "s"}`);
+  } catch (err) {
+    console.warn(`Promos gallery rebuild failed (non-fatal): ${err.message}`);
   }
 
   console.log("\nDone! Edition published.");

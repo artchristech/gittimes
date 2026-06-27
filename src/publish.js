@@ -109,6 +109,7 @@ async function publish(content, outDir, options = {}) {
   const prevEntry = manifest.length > 0 ? manifest[0] : null;
   const nav = {
     archive: basePath + "/archive/",
+    promos: basePath + "/promos/",
   };
   if (prevEntry) {
     nav.prev = {
@@ -175,6 +176,7 @@ async function publish(content, outDir, options = {}) {
       const prevPrevEntry = manifest.length > 1 ? manifest[1] : null;
       const prevNav = {
         archive: basePath + "/archive/",
+        promos: basePath + "/promos/",
             next: { url: editionUrl, label: "Next Edition" },
       };
       if (prevPrevEntry) {
