@@ -13,7 +13,8 @@ const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
 const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
-const { closeDb } = require("./src/db");
+const { closeDb, recordEditionMeta, resolveDataDir } = require("./src/db");
+const { resetMetrics, getMetrics } = require("./src/xai");
 
 /**
  * Sync site/ from gh-pages branch so local runs have full edition history.
@@ -64,6 +65,10 @@ async function main() {
   const recentRepoCoverage = getRecentRepoCoverage(outDir, 7);
   const manifest = readManifest(outDir);
   const recentEditionDates = manifest.slice(0, 7).map((e) => e.date);
+
+  // Telemetry: reset the per-run token accumulator and start the wall clock.
+  resetMetrics();
+  const _genStartMs = Date.now();
 
   const { content, rawCandidates } = await runPipeline(githubToken, llmKey, {
     outDir,
@@ -125,6 +130,31 @@ async function main() {
     aiWireHtml,
     aiWire: { headlines: aiHeadlines, research: arxivPapers },
   });
+
+  // Step 4b: Record generation telemetry. Observational only and fully wrapped —
+  // a failure here can never affect the edition, which is already on disk.
+  try {
+    const publishedDate = (readManifest(outDir)[0] || {}).date;
+    if (publishedDate) {
+      const m = getMetrics();
+      const elapsedMs = Date.now() - _genStartMs;
+      recordEditionMeta(resolveDataDir(outDir), {
+        date: publishedDate,
+        model: m.model,
+        llmCalls: m.llmCalls,
+        promptTokens: m.promptTokens,
+        completionTokens: m.completionTokens,
+        totalTokens: m.totalTokens,
+        elapsedMs,
+        generatedAt: new Date().toISOString(),
+      });
+      console.log(
+        `Telemetry: ${m.llmCalls} LLM calls, ${m.totalTokens} tokens, ${(elapsedMs / 1000).toFixed(1)}s (model=${m.model})`
+      );
+    }
+  } catch (e) {
+    console.warn(`Telemetry record skipped (non-fatal): ${e.message}`);
+  }
 
   // Step 5: Snapshot history for editorial intelligence
   const editorialEnabled = process.env.EDITORIAL !== "false";
