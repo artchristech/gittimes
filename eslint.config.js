@@ -25,6 +25,7 @@ module.exports = [
         TextEncoder: "readonly",
         TextDecoder: "readonly",
         AbortSignal: "readonly",
+        AbortController: "readonly",
         // Worker/browser globals
         globalThis: "readonly",
         fetch: "readonly",

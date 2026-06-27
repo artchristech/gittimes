@@ -94,6 +94,19 @@ function _initSchema(db) {
       created_at TEXT NOT NULL DEFAULT ''
     );
 
+    -- Generation telemetry, captured once per edition. Purely observational:
+    -- nothing in the generation/publish path reads this back.
+    CREATE TABLE IF NOT EXISTS edition_meta (
+      date              TEXT PRIMARY KEY,
+      model             TEXT    NOT NULL DEFAULT '',
+      llm_calls         INTEGER NOT NULL DEFAULT 0,
+      prompt_tokens     INTEGER NOT NULL DEFAULT 0,
+      completion_tokens INTEGER NOT NULL DEFAULT 0,
+      total_tokens      INTEGER NOT NULL DEFAULT 0,
+      elapsed_ms        INTEGER NOT NULL DEFAULT 0,
+      generated_at      TEXT    NOT NULL DEFAULT ''
+    );
+
     CREATE INDEX IF NOT EXISTS idx_edition_repos_repo ON edition_repos(repo_name);
     CREATE INDEX IF NOT EXISTS idx_repo_snapshots_repo ON repo_snapshots(repo_name);
     CREATE INDEX IF NOT EXISTS idx_used_quotes_text ON used_quotes(quote_text, author);
@@ -200,6 +213,48 @@ function upsertEdition(dataDir, entry) {
     }
   });
   upsert();
+}
+
+/**
+ * Record generation telemetry for one edition. Idempotent (upsert by date).
+ * Observational only — never read back by the generation/publish path.
+ * @param {string} dataDir
+ * @param {{ date, model, llmCalls, promptTokens, completionTokens, totalTokens, elapsedMs, generatedAt }} meta
+ */
+function recordEditionMeta(dataDir, meta) {
+  const db = getDb(dataDir);
+  db.prepare(
+    `INSERT INTO edition_meta
+       (date, model, llm_calls, prompt_tokens, completion_tokens, total_tokens, elapsed_ms, generated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(date) DO UPDATE SET
+       model = excluded.model,
+       llm_calls = excluded.llm_calls,
+       prompt_tokens = excluded.prompt_tokens,
+       completion_tokens = excluded.completion_tokens,
+       total_tokens = excluded.total_tokens,
+       elapsed_ms = excluded.elapsed_ms,
+       generated_at = excluded.generated_at`
+  ).run(
+    meta.date,
+    meta.model || "",
+    meta.llmCalls || 0,
+    meta.promptTokens || 0,
+    meta.completionTokens || 0,
+    meta.totalTokens || 0,
+    meta.elapsedMs || 0,
+    meta.generatedAt || ""
+  );
+}
+
+/**
+ * Read telemetry for one edition (or null if not recorded).
+ * @param {string} dataDir
+ * @param {string} date
+ */
+function getEditionMeta(dataDir, date) {
+  const db = getDb(dataDir);
+  return db.prepare("SELECT * FROM edition_meta WHERE date = ?").get(date) || null;
 }
 
 // --- Recent repos (for dedup) ---
@@ -428,6 +483,8 @@ module.exports = {
   readManifest,
   writeManifest,
   upsertEdition,
+  recordEditionMeta,
+  getEditionMeta,
   getRecentRepoNames,
   getRecentRepoCoverage,
   recordQuoteUsage,
