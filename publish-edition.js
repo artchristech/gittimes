@@ -5,6 +5,7 @@ const fs = require("fs");
 const { runPipeline } = require("./src/pipeline");
 const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, validateContent, readManifest } = require("./src/publish");
 const { snapshotHistory } = require("./src/history");
+const { buildLeadThreadContext } = require("./src/threads");
 const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
@@ -66,6 +67,11 @@ async function main() {
   const manifest = readManifest(outDir);
   const recentEditionDates = manifest.slice(0, 7).map((e) => e.date);
 
+  // Editorial memory: feed the last few front pages to the editor-in-chief so it
+  // can pick genuine follow-ups and sustain narrative arcs. Fail-soft — an empty
+  // or missing manifest yields no context and the lead prompt is unchanged.
+  const { block: threadContext } = buildLeadThreadContext(manifest, { lookback: 3 });
+
   // Telemetry: reset the per-run token accumulator and start the wall clock.
   resetMetrics();
   const _genStartMs = Date.now();
@@ -76,6 +82,7 @@ async function main() {
     recentLeadRepos,
     recentRepoCoverage,
     recentEditionDates,
+    threadContext,
     coverage: recentRepoCoverage,
     enrichRepo,
     fetchStarTrajectory,

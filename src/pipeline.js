@@ -62,6 +62,7 @@ async function runPipeline(githubToken, xaiKey, options = {}) {
     const editorialOpts = { githubToken, coverage, fetchXSentimentForRepo };
     if (options.enrichRepo) editorialOpts.enrichRepo = options.enrichRepo;
     if (options.fetchStarTrajectory) editorialOpts.fetchStarTrajectory = options.fetchStarTrajectory;
+    if (options.threadContext) editorialOpts.threadContext = options.threadContext;
 
     content = await generateEditorialContent(sections, xaiKey, editorialPlan, editorialOpts);
   } else {
