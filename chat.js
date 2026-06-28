@@ -17,7 +17,9 @@
   var sessionId = localStorage.getItem('gittimes-chat-session');
   var accountSession = localStorage.getItem('gittimes-session');
   var history_msgs = [];
+  var display_msgs = []; // visible bubbles { role:'user'|'ai', text } for rehydration
   var scoped = null; // { el, title } when focused on a single story
+  var TRANSCRIPT_KEY = 'gittimes-chat-transcript';
 
   // Reveal the per-article "Ask about this" buttons now that chat is available.
   document.body.classList.add('chat-on');
@@ -97,6 +99,13 @@
   }
 
   document.addEventListener('keydown', function(e) {
+    // ⌘/Ctrl-K toggles the desk open/closed from anywhere.
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      if (panel.classList.contains('open')) closePanel();
+      else openPanel();
+      return;
+    }
     if (e.key === 'Escape' && panel.classList.contains('open')) closePanel();
   });
 
@@ -235,6 +244,38 @@
     return div;
   }
 
+  // --- Transcript persistence (survives navigation within the tab) ---
+  // We persist the model-facing history (with its stuffed context) plus the
+  // visible bubbles. We do NOT persist `scoped`: it's bound to a DOM element
+  // that won't exist on the next page, so scope correctly resets on navigation.
+  function persistTranscript() {
+    try {
+      sessionStorage.setItem(TRANSCRIPT_KEY, JSON.stringify({ history: history_msgs, display: display_msgs }));
+    } catch { /* private mode / quota — persistence is best-effort */ }
+  }
+
+  function rehydrateTranscript() {
+    var raw;
+    try { raw = sessionStorage.getItem(TRANSCRIPT_KEY); } catch { return; }
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch { return; }
+    if (!data || !data.display || !data.display.length) return;
+    history_msgs = data.history || [];
+    display_msgs = data.display;
+    var starters = document.getElementById('chat-starters');
+    if (starters) starters.style.display = 'none';
+    display_msgs.forEach(function(m) {
+      if (m.role === 'user') {
+        addMsg('user', m.text);
+      } else {
+        var div = addMsg('ai', '');
+        div.innerHTML = renderMarkdown(m.text || '');
+      }
+    });
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
   // Starter-question chips: click to ask.
   document.addEventListener('click', function(e) {
     var chip = e.target.closest && e.target.closest('.chat-starter');
@@ -256,6 +297,8 @@
     var label = scoped ? 'Story in focus' : "Today's stories";
     var userMsg = context ? label + ':\n' + context + '\n\nQuestion: ' + text : text;
     history_msgs.push({ role: 'user', content: userMsg });
+    display_msgs.push({ role: 'user', text: text });
+    persistTranscript();
 
     var aiDiv = addMsg('ai', '');
     aiDiv.classList.add('streaming');
@@ -282,7 +325,7 @@
 
       if (res.status === 429) {
         var info = {};
-        try { info = await res.json(); } catch (e) {}
+        try { info = await res.json(); } catch { /* keep default {} on parse failure */ }
         var note = info.message || 'You’ve reached your limit for now.';
         aiDiv.classList.remove('streaming');
         aiDiv.innerHTML = renderMarkdown(note);
@@ -322,12 +365,14 @@
               aiDiv.innerHTML = renderMarkdown(full);
               msgs.scrollTop = msgs.scrollHeight;
             }
-          } catch(e) {}
+          } catch { /* skip malformed SSE chunk */ }
         }
       }
 
       history_msgs.push({ role: 'assistant', content: full });
-    } catch(e) {
+      display_msgs.push({ role: 'ai', text: full });
+      persistTranscript();
+    } catch {
       aiDiv.textContent = full || 'Something went wrong. Please try again.';
     }
 
@@ -343,4 +388,7 @@
       sendMessage();
     }
   });
+
+  // Restore any prior conversation from this tab session.
+  rehydrateTranscript();
 })();
