@@ -652,6 +652,26 @@ body {
   text-decoration: underline;
 }
 
+/* Editor's panel rationale — the "Why this leads today" byline on the lead. */
+.lead-rationale {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-light);
+  border-left: 3px solid var(--accent);
+  padding: 6px 0 6px 12px;
+  margin: 0 0 16px;
+}
+
+.lead-rationale-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11px;
+  color: var(--accent);
+  margin-right: 6px;
+}
+
 /* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
    the editions read with the same confident, airy typographic rhythm. */
 .section-head {
@@ -2712,6 +2732,63 @@ body.account {
   margin-bottom: 20px;
 }
 
+/* Promos gallery — the edition reel */
+.promos-list {
+  margin-bottom: 40px;
+}
+.promos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px 24px;
+}
+.promo-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.promo-video {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: var(--rule);
+  border: 1px solid var(--rule-light);
+  border-radius: 2px;
+  object-fit: cover;
+  display: block;
+}
+.promo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 10px;
+  font-family: var(--font-meta);
+}
+.promo-date {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+.promo-headline {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.promo-headline:hover {
+  color: var(--accent);
+}
+.promos-empty {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  color: var(--ink-light);
+  font-style: italic;
+}
+@media (max-width: 768px) {
+  .promos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px 14px;
+  }
+}
+
 
 /* === MARKETS PAGE === */
 
@@ -3491,7 +3568,7 @@ body.account {
     <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
     <div class="markets-freshness"><span class="fresh-chip live" data-pulse>
       <span class="fresh-dot"></span>
-      <span class="fresh-text"><strong>Pricing live</strong> · synced 3 min ago · <span class="fresh-abs">Jun 27, 5:31 AM EDT</span></span>
+      <span class="fresh-text"><strong>Pricing live</strong> · synced 3 min ago · <span class="fresh-abs">Jun 28, 6:07 AM EDT</span></span>
     </span><span class="fresh-chip curated"><span class="fresh-dot"></span><span class="fresh-text"><strong>Evals curated</strong> · as of 2026-06-15</span></span></div>
   </div>
 
@@ -3506,8 +3583,8 @@ body.account {
       <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
     </linearGradient></defs>
-    <path class="area-fill" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 143.6 L551.7 144.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
-    <path class="area-line" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 143.6 L551.7 144.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="area-fill" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 144.0 L551.7 6.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
+    <path class="area-line" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 143.6 L375.2 143.6 L397.2 143.6 L419.3 143.6 L441.4 143.6 L463.4 143.6 L485.5 143.6 L507.6 143.6 L529.7 144.0 L551.7 6.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle class="area-dot" cx="640.0" cy="6.0" r="3.5" fill="var(--accent)"/>
   </svg></div>
     </div>
@@ -3849,7 +3926,7 @@ body.account {
       <td class="model-price price-cell" data-sort="25" data-priceval="25">$25</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 33.3,2.0 66.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 25.0,2.0 50.0,2.0 75.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="3" data-cache="0.3" data-provider="Anthropic" data-label="Claude Sonnet 4.6">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="claude-sonnet-4.6" aria-label="Compare Claude Sonnet 4.6"></td>
@@ -3871,7 +3948,7 @@ body.account {
       <td class="model-price price-cell" data-sort="30" data-priceval="30">$30</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 33.3,2.0 66.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 25.0,2.0 50.0,2.0 75.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="2.5" data-cache="0.25" data-provider="OpenAI" data-label="GPT-5.4">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="gpt-5.4" aria-label="Compare GPT-5.4"></td>
@@ -3904,7 +3981,7 @@ body.account {
       <td class="model-price price-cell" data-sort="9" data-priceval="9">$9</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 33.3,2.0 66.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 25.0,2.0 50.0,2.0 75.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="1.25" data-cache="0.19999999999999998" data-provider="xAI" data-label="Grok 4.20">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="grok-4.20" aria-label="Compare Grok 4.20"></td>
@@ -3915,7 +3992,7 @@ body.account {
       <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5">$2.50</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="2000000">2.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,2.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="0" data-output="0.8000999999999999" data-input="0.20020000000000002" data-cache="" data-provider="DeepSeek" data-label="DeepSeek V3.2">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-v3.2" aria-label="Compare DeepSeek V3.2"></td>
@@ -3926,7 +4003,7 @@ body.account {
       <td class="model-price price-cell" data-sort="0.8000999999999999" data-priceval="0.8000999999999999">$0.80</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="131072" title="Max output: 16,000 tokens">131k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,2.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,2.0 62.1,2.0 65.5,2.0 69.0,2.0 72.4,2.0 75.9,2.0 79.3,2.0 82.8,22.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="0.7" data-cache="" data-provider="DeepSeek" data-label="DeepSeek R1">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-r1" aria-label="Compare DeepSeek R1"></td>
@@ -4094,7 +4171,7 @@ body.account {
     <td class="model-name">Sakana: Fugu Ultra</td>
     <td class="model-provider">sakana</td>
     <td class="model-price">$30</td>
-    <td class="model-added">3d ago</td>
+    <td class="model-added">4d ago</td>
   </tr>
 <tr>
     <td class="model-name">Google: Nano Banana 2 (Gemini 3.1 Flash Image)</td>
@@ -5333,12 +5410,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="3.25">$3.25</td>
           <td class="model-ctx" data-sort="1000000" title="Max output: 65,536 tokens">1.0M</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.65" data-input="0.28850000000000003" data-cache="" data-provider="qwen" data-label="qwen: qwen3.6 27b">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.6-27B" title="Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a">Qwen: Qwen3.6 27B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.28850000000000003" data-priceval="0.28850000000000003"><span class="price-main">$0.29</span></td>
-          <td class="model-price price-cell" data-priceval="2.65">$2.65</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 262,140 tokens">262k</td>
-        </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.6" data-input="0.26" data-cache="" data-provider="qwen" data-label="qwen: qwen3 vl 235b a22b thinking">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-VL-235B-A22B-Thinking" title="Qwen3-VL-235B-A22B Thinking is a multimodal model that unifies strong text generation with visual understanding across images and video. The Thinking model is o">Qwen: Qwen3 VL 235B A22B Thinking</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.26" data-priceval="0.26"><span class="price-main">$0.26</span></td>
@@ -5350,6 +5421,12 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.385" data-priceval="0.385"><span class="price-main">$0.39</span></td>
           <td class="model-price price-cell" data-priceval="2.4499999999999997">$2.45</td>
           <td class="model-ctx" data-sort="256000">256k</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.3850000000000002" data-input="0.2596" data-cache="" data-provider="qwen" data-label="qwen: qwen3.6 27b">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.6-27B" title="Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a">Qwen: Qwen3.6 27B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.2596" data-priceval="0.2596"><span class="price-main">$0.26</span></td>
+          <td class="model-price price-cell" data-priceval="2.3850000000000002">$2.39</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 262,140 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.08" data-input="0.26" data-cache="" data-provider="qwen" data-label="qwen: qwen3.5-122b-a10b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-122B-A10B" title="The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-exper">Qwen: Qwen3.5-122B-A10B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6662,6 +6739,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
     <nav class="edition-nav">
       <a href="/latest/">Latest Edition</a>
       <a href="/archive/">Archive</a>
+      <a href="/promos/">Promos</a>
     </nav>
     <p>Pricing data from <a href="https://openrouter.ai" style="color:var(--accent)">OpenRouter</a>, synced daily. Speed, image grades, and model evals are editorially curated and dated.</p>
     <p>The Git Times aims to provide information that inspires people to build.</p>

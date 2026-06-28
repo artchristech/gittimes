@@ -651,6 +651,26 @@ body {
   text-decoration: underline;
 }
 
+/* Editor's panel rationale — the "Why this leads today" byline on the lead. */
+.lead-rationale {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-light);
+  border-left: 3px solid var(--accent);
+  padding: 6px 0 6px 12px;
+  margin: 0 0 16px;
+}
+
+.lead-rationale-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11px;
+  color: var(--accent);
+  margin-right: 6px;
+}
+
 /* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
    the editions read with the same confident, airy typographic rhythm. */
 .section-head {
@@ -2711,6 +2731,63 @@ body.account {
   margin-bottom: 20px;
 }
 
+/* Promos gallery — the edition reel */
+.promos-list {
+  margin-bottom: 40px;
+}
+.promos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px 24px;
+}
+.promo-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.promo-video {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: var(--rule);
+  border: 1px solid var(--rule-light);
+  border-radius: 2px;
+  object-fit: cover;
+  display: block;
+}
+.promo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 10px;
+  font-family: var(--font-meta);
+}
+.promo-date {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+.promo-headline {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.promo-headline:hover {
+  color: var(--accent);
+}
+.promos-empty {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  color: var(--ink-light);
+  font-style: italic;
+}
+@media (max-width: 768px) {
+  .promos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px 14px;
+  }
+}
+
   </style>
   <script>
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
@@ -2730,6 +2807,12 @@ body.account {
   <section class="archive-list">
     <h2 class="section-header">All Editions</h2>
     
+    <div class="archive-entry">
+      <span class="archive-date">Sunday, June 28, 2026</span>
+      <a href="/editions/2026-06-28/" class="archive-headline">Chinese Fiction Pipeline Automates Novel Writing with LLMs</a>
+      <span class="archive-tagline">“The question concerning technology is never merely technical.” — Martin Heidegger</span>
+    </div>
+
     <div class="archive-entry">
       <span class="archive-date">Saturday, June 27, 2026</span>
       <a href="/editions/2026-06-27/" class="archive-headline">New Texture Ripper Lets Developers Extract Game Assets from Screenshots</a>
