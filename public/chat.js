@@ -20,6 +20,9 @@
   var display_msgs = []; // visible bubbles { role:'user'|'ai', text } for rehydration
   var scoped = null; // { el, title } when focused on a single story
   var TRANSCRIPT_KEY = 'gittimes-chat-transcript';
+  var THINK_KEY = 'gittimes-chat-think';
+  var thinkPref = false;
+  try { thinkPref = localStorage.getItem(THINK_KEY) === '1'; } catch { /* storage off */ }
 
   // Reveal the per-article "Ask about this" buttons now that chat is available.
   document.body.classList.add('chat-on');
@@ -65,6 +68,29 @@
 
   var expandBtn = document.getElementById('chat-expand');
   var closeBtn = document.getElementById('chat-close');
+
+  // Inject a "reasoning" toggle into the header. Done from JS so shipping it is a
+  // single-file (chat.js) deploy — no server-rendered markup change.
+  (function setupThinkToggle() {
+    var header = panel.querySelector('.chat-header');
+    if (!header) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chat-header-btn chat-think-toggle';
+    btn.setAttribute('aria-label', 'Toggle reasoning');
+    btn.title = 'Show the AI’s reasoning before each answer';
+    btn.textContent = '🧠';
+    btn.classList.toggle('on', thinkPref);
+    btn.setAttribute('aria-pressed', thinkPref ? 'true' : 'false');
+    var firstBtn = header.querySelector('.chat-header-btn');
+    header.insertBefore(btn, firstBtn);
+    btn.addEventListener('click', function() {
+      thinkPref = !thinkPref;
+      try { localStorage.setItem(THINK_KEY, thinkPref ? '1' : '0'); } catch { /* storage off */ }
+      btn.classList.toggle('on', thinkPref);
+      btn.setAttribute('aria-pressed', thinkPref ? 'true' : 'false');
+    });
+  })();
 
   function openPanel() {
     if (!panel.classList.contains('open')) {
@@ -235,6 +261,84 @@
     return out.join('');
   }
 
+  function escAttr(s) {
+    return esc(s).replace(/"/g, '&quot;');
+  }
+
+  // Split a streamed answer into its <thinking> reasoning and the answer body.
+  // The model emits "<thinking>...</thinking>" first (only when reasoning mode
+  // is on); everything after the close tag is the answer.
+  function splitThinking(s) {
+    var open = s.indexOf('<thinking>');
+    if (open === -1) return { thinking: '', answer: s, open: false };
+    var rest = s.slice(open + 10);
+    var close = rest.indexOf('</thinking>');
+    if (close === -1) return { thinking: rest, answer: '', open: true };
+    return { thinking: rest.slice(0, close), answer: rest.slice(close + 11), open: false };
+  }
+
+  // Turn [n] markers in rendered answer HTML into citation links.
+  function linkifyCitations(html, sources) {
+    if (!sources || !sources.length) return html;
+    var byN = {};
+    sources.forEach(function(s) { byN[s.n] = s; });
+    return html.replace(/\[(\d+)\]/g, function(m, n) {
+      var s = byN[n];
+      if (!s) return m;
+      return '<sup class="chat-cite"><a href="' + escAttr(s.url) + '" target="_blank" rel="noopener" title="' +
+        escAttr(s.title || '') + '">[' + n + ']</a></sup>';
+    });
+  }
+
+  // Render the "Thinking" disclosure above an AI bubble (created lazily).
+  function renderThinking(aiDiv, text, open) {
+    if (!text) return;
+    if (!aiDiv._thinkEl) {
+      var d = document.createElement('details');
+      d.className = 'chat-think';
+      d.open = true;
+      var sum = document.createElement('summary');
+      sum.textContent = 'Thinking';
+      d.appendChild(sum);
+      var body = document.createElement('div');
+      body.className = 'chat-think-body';
+      d.appendChild(body);
+      aiDiv.parentNode.insertBefore(d, aiDiv);
+      aiDiv._thinkEl = d;
+      aiDiv._thinkBody = body;
+    }
+    aiDiv._thinkBody.innerHTML = renderMarkdown(text);
+    if (typeof open === 'boolean') aiDiv._thinkEl.open = open;
+  }
+
+  // Append the citation source list under an AI bubble (once).
+  function appendSources(aiDiv, sources) {
+    if (!sources || !sources.length || aiDiv._srcEl) return;
+    var f = document.createElement('div');
+    f.className = 'chat-sources';
+    var label = document.createElement('span');
+    label.className = 'chat-sources-label';
+    label.textContent = 'Sources';
+    f.appendChild(label);
+    sources.forEach(function(s) {
+      var a = document.createElement('a');
+      a.href = s.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'chat-source';
+      a.textContent = '[' + s.n + '] ' + s.title;
+      f.appendChild(a);
+    });
+    aiDiv.appendChild(f);
+    aiDiv._srcEl = f;
+  }
+
+  // Final render of an AI answer: markdown + inline citations + source list.
+  function renderAnswer(aiDiv, answerText, sources) {
+    aiDiv.innerHTML = linkifyCitations(renderMarkdown(answerText || ''), sources);
+    appendSources(aiDiv, sources);
+  }
+
   function addMsg(role, text) {
     var div = document.createElement('div');
     div.className = role === 'user' ? 'chat-msg-user' : 'chat-msg-ai';
@@ -270,7 +374,7 @@
         addMsg('user', m.text);
       } else {
         var div = addMsg('ai', '');
-        div.innerHTML = renderMarkdown(m.text || '');
+        renderAnswer(div, m.text || '', m.sources);
       }
     });
     msgs.scrollTop = msgs.scrollHeight;
@@ -303,6 +407,8 @@
     var aiDiv = addMsg('ai', '');
     aiDiv.classList.add('streaming');
     var full = '';
+    var sources = null;
+    var reasoning = '';
 
     try {
       var chatHeaders = { 'Content-Type': 'application/json' };
@@ -310,7 +416,7 @@
       var res = await fetch(WORKER + '/chat', {
         method: 'POST',
         headers: chatHeaders,
-        body: JSON.stringify({ session_id: sessionId, messages: history_msgs })
+        body: JSON.stringify({ session_id: sessionId, messages: history_msgs, think: thinkPref })
       });
 
       if (res.status === 403) {
@@ -359,18 +465,36 @@
           if (data === '[DONE]') continue;
           try {
             var parsed = JSON.parse(data);
+            // Custom event: citation sources, sent before the model stream.
+            if (parsed.sources) { sources = parsed.sources; continue; }
             var delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
-            if (delta && delta.content) {
+            if (!delta) continue;
+            // Native reasoning tokens (reasoning models) feed the Thinking pane.
+            if (delta.reasoning) {
+              reasoning += delta.reasoning;
+              renderThinking(aiDiv, reasoning, true);
+            }
+            if (delta.content) {
               full += delta.content;
-              aiDiv.innerHTML = renderMarkdown(full);
+              var sp = splitThinking(full);
+              var think = reasoning + (sp.thinking ? (reasoning ? '\n' : '') + sp.thinking : '');
+              if (think) renderThinking(aiDiv, think, sp.open);
+              aiDiv.innerHTML = renderMarkdown(sp.answer);
               msgs.scrollTop = msgs.scrollHeight;
             }
           } catch { /* skip malformed SSE chunk */ }
         }
       }
 
-      history_msgs.push({ role: 'assistant', content: full });
-      display_msgs.push({ role: 'ai', text: full });
+      // Final render: separate answer from thinking, add inline citations.
+      var done = splitThinking(full);
+      var answer = done.answer || full;
+      if (aiDiv._thinkEl) aiDiv._thinkEl.open = false; // collapse once answered
+      renderAnswer(aiDiv, answer, sources);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      history_msgs.push({ role: 'assistant', content: answer });
+      display_msgs.push({ role: 'ai', text: answer, sources: sources });
       persistTranscript();
     } catch {
       aiDiv.textContent = full || 'Something went wrong. Please try again.';
