@@ -371,6 +371,19 @@ async function publish(content, outDir, options = {}) {
     fs.copyFileSync(chatJsSrc, path.join(outDir, "chat.js"));
   }
 
+  // 15b. Build + publish the AI Desk retrieval corpus so the chat worker can
+  // ground answers in past coverage with inline citations. Fail-soft: a corpus
+  // hiccup must never break a publish.
+  try {
+    const { buildCorpus } = require("./build-corpus");
+    const corpus = buildCorpus();
+    const corpusDataDir = path.join(outDir, "data");
+    if (!fs.existsSync(corpusDataDir)) fs.mkdirSync(corpusDataDir, { recursive: true });
+    fs.writeFileSync(path.join(corpusDataDir, "corpus.json"), JSON.stringify(corpus));
+  } catch (e) {
+    console.warn("[publish] AI Desk corpus build skipped:", e.message);
+  }
+
   // 15. Write .nojekyll and CNAME (GitHub Pages custom domain — must persist across deploys)
   fs.writeFileSync(path.join(outDir, ".nojekyll"), "");
   fs.writeFileSync(path.join(outDir, "CNAME"), "gittimes.com");
