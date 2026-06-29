@@ -48,7 +48,7 @@
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.ok && data.user) showChat();
+        if (data.ok && data.user) { planUser = data.user; renderPlanStrip(); showChat(); }
         else showPaywall();
       })
       .catch(showPaywall);
@@ -56,6 +56,55 @@
       showPaywall();
     }
   }
+
+  // --- Plan transparency strip: what your plan is for + quota remaining ---
+  var planUser = null;
+  var planStrip = null;
+
+  function planInfo(u) {
+    if (!u) return null;
+    if (u.plan === 'premium') {
+      return { tier: 'Premium', detail: 'Deep research, repo lookups & side-by-side compares' };
+    }
+    var today = new Date().toISOString().slice(0, 10);
+    var used = (u.freeChatUsage && u.freeChatUsage.day === today) ? u.freeChatUsage.count : 0;
+    var limit = u.freeDailyLimit || 3;
+    return { tier: 'Free', detail: 'Best for quick, one-off questions', remaining: Math.max(0, limit - used), limit: limit, upgrade: true };
+  }
+
+  function renderPlanStrip() {
+    var info = planInfo(planUser);
+    if (!info) return;
+    if (!planStrip) {
+      planStrip = document.createElement('div');
+      planStrip.className = 'chat-plan';
+      if (inputRow && inputRow.parentNode) inputRow.parentNode.insertBefore(planStrip, inputRow);
+      else return;
+    }
+    var parts = [];
+    parts.push('<span class="chat-plan-tier ' + (info.tier === 'Premium' ? 'premium' : '') + '">' + info.tier + '</span>');
+    if (info.tier === 'Free') {
+      parts.push('<span class="chat-plan-quota">' + info.remaining + ' of ' + info.limit + ' left today</span>');
+    }
+    parts.push('<span class="chat-plan-detail">' + info.detail + '</span>');
+    if (info.upgrade) {
+      var href = accountSession ? (WORKER + '/checkout?session_token=' + encodeURIComponent(accountSession)) : '/account/';
+      parts.push('<a class="chat-plan-upgrade" href="' + href + '">Go Premium →</a>');
+    }
+    planStrip.innerHTML = parts.join('');
+  }
+
+  // Optimistically reflect a used question so the quota updates without a refetch.
+  function decrementQuota() {
+    if (!planUser || planUser.plan === 'premium') return;
+    var today = new Date().toISOString().slice(0, 10);
+    if (!planUser.freeChatUsage || planUser.freeChatUsage.day !== today) {
+      planUser.freeChatUsage = { day: today, count: 0 };
+    }
+    planUser.freeChatUsage.count++;
+    renderPlanStrip();
+  }
+
   updatePaywall();
 
   if (accountSession) {
@@ -511,6 +560,7 @@
       history_msgs.push({ role: 'assistant', content: answer });
       display_msgs.push({ role: 'ai', text: answer, sources: sources });
       persistTranscript();
+      decrementQuota();
     } catch {
       aiDiv.textContent = full || 'Something went wrong. Please try again.';
     }

@@ -845,6 +845,8 @@ const handler = {
           createdAt: user.createdAt,
           chatUsage: user.chatUsage || null,
           chatLimit: parseInt(env.CHAT_MONTHLY_LIMIT || "1000"),
+          freeChatUsage: user.freeChatUsage || null,
+          freeDailyLimit: parseInt(env.FREE_DAILY_CHAT_LIMIT || "3"),
         },
       }), {
         status: 200,

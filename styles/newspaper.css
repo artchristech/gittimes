@@ -2083,6 +2083,44 @@ body.chat-on .hybrid-ask {
 }
 .chat-source:hover { text-decoration: underline; }
 
+/* Plan transparency strip above the input: tier, quota, what it's for. */
+.chat-plan {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 14px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-soft, var(--ink));
+}
+.chat-plan-tier {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft, var(--ink));
+  opacity: 0.7;
+}
+.chat-plan-tier.premium {
+  color: var(--accent);
+  opacity: 1;
+}
+.chat-plan-quota {
+  font-weight: 600;
+}
+.chat-plan-detail {
+  opacity: 0.6;
+}
+.chat-plan-upgrade {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chat-plan-upgrade:hover { text-decoration: underline; }
+
 .chat-live-dot {
   width: 7px;
   height: 7px;
