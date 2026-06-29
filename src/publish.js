@@ -6,6 +6,7 @@ const { assembleHtml, assembleArticlePage, buildNavHtml } = require("./render");
 const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
 const { renderAccountPage } = require("./account");
+const { renderPricingPage } = require("./pricing");
 const { renderMarketsPage } = require("./markets");
 const { renderApiDocsPage, generateOpenApiSpec } = require("./api-docs");
 const { generateRss, generateAtom } = require("./feed");
@@ -358,6 +359,11 @@ async function publish(content, outDir, options = {}) {
   const accountDir = path.join(outDir, "account");
   if (!fs.existsSync(accountDir)) fs.mkdirSync(accountDir, { recursive: true });
   fs.writeFileSync(path.join(accountDir, "index.html"), renderAccountPage({ basePath, siteUrl }));
+
+  // 13b. Generate pricing page (plans + AI Desk features + honest economics)
+  const pricingDir = path.join(outDir, "pricing");
+  if (!fs.existsSync(pricingDir)) fs.mkdirSync(pricingDir, { recursive: true });
+  fs.writeFileSync(path.join(pricingDir, "index.html"), renderPricingPage({ basePath, siteUrl }));
 
   // 14. Generate API docs page + OpenAPI spec
   const docsDir = path.join(outDir, "docs");
