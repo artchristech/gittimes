@@ -340,6 +340,8 @@ describe("Worker endpoints", () => {
       const res = await worker.fetch(req("GET", "/auth/me", { headers: { Authorization: "Bearer " + token } }), env);
       const data = await res.json();
       assert.deepEqual(data.user.chatUsage, { month: "2026-03", count: 42 });
+      // Account page reads chatLimit from here instead of a hardcoded "/ 100".
+      assert.equal(data.user.chatLimit, parseInt(env.CHAT_MONTHLY_LIMIT));
     });
   });
 
@@ -477,6 +479,39 @@ describe("Worker endpoints", () => {
       const res = await worker.fetch(req("GET", "/checkout?session_token=bogus"), env);
       assert.equal(res.status, 302);
       assert.ok(res.headers.get("Location").includes("login_required"));
+    });
+
+    it("uses the annual price when interval=annual and the annual SKU is configured", async () => {
+      env.STRIPE_PRICE_ID_ANNUAL = "price_annual_456";
+      const token = await createSession(env, "annual@test.com", "free");
+      let captured = "";
+      mockFetchFn = (url, opts) => {
+        if (url.includes("checkout/sessions") && opts?.method === "POST") {
+          captured = opts.body.toString();
+          return new Response(JSON.stringify({ url: "https://checkout.stripe.com/annual" }), { status: 200 });
+        }
+        return new Response("", { status: 200 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      const res = await worker.fetch(req("GET", "/checkout?session_token=" + token + "&interval=annual"), env);
+      assert.equal(res.status, 303);
+      assert.ok(captured.includes("price_annual_456"), "annual price used in checkout line item");
+      assert.ok(captured.includes("annual"), "interval metadata recorded");
+    });
+
+    it("falls back to the monthly price when the annual SKU is not configured", async () => {
+      const token = await createSession(env, "fallback@test.com", "free");
+      let captured = "";
+      mockFetchFn = (url, opts) => {
+        if (url.includes("checkout/sessions") && opts?.method === "POST") {
+          captured = opts.body.toString();
+          return new Response(JSON.stringify({ url: "https://checkout.stripe.com/m" }), { status: 200 });
+        }
+        return new Response("", { status: 200 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      await worker.fetch(req("GET", "/checkout?session_token=" + token + "&interval=annual"), env);
+      assert.ok(captured.includes("price_test_123"), "fell back to the monthly price");
     });
   });
 
@@ -655,6 +690,111 @@ describe("Worker endpoints", () => {
       assert.ok(graceEnd > Date.now() + 2 * 24 * 60 * 60 * 1000); // ~3 days out
     });
 
+    it("handles invoice.payment_succeeded — clears grace within window, stays premium", async () => {
+      await env.USERS.put(
+        "recover@test.com",
+        JSON.stringify({
+          email: "recover@test.com",
+          plan: "premium",
+          createdAt: new Date().toISOString(),
+          gracePeriodEndsAt: new Date(Date.now() + 86400000).toISOString(),
+        }),
+      );
+      mockFetchFn = (url) => {
+        if (url.includes("customers/cus_rec"))
+          return new Response(JSON.stringify({ email: "recover@test.com" }), { status: 200 });
+        return new Response("", { status: 404 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      const event = {
+        id: "evt_rec",
+        type: "invoice.payment_succeeded",
+        data: { object: { customer: "cus_rec" } },
+      };
+      const res = await worker.fetch(await webhookReq(event), env);
+      assert.equal(res.status, 200);
+      const user = await env.USERS.get("recover@test.com", "json");
+      assert.equal(user.plan, "premium");
+      assert.equal(user.gracePeriodEndsAt, undefined); // grace flag cleared
+    });
+
+    it("invoice.paid after grace lapsed — restores premium and the stat", async () => {
+      // Simulate a user already downgraded to free after grace expired (premiumUsers was decremented).
+      await env.USERS.put(
+        "lapsed@test.com",
+        JSON.stringify({ email: "lapsed@test.com", plan: "free", createdAt: new Date().toISOString() }),
+      );
+      await env.USERS.put("stats:premiumUsers", "0");
+      mockFetchFn = (url) => {
+        if (url.includes("customers/cus_lap"))
+          return new Response(JSON.stringify({ email: "lapsed@test.com" }), { status: 200 });
+        return new Response("", { status: 404 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      const event = {
+        id: "evt_lap",
+        type: "invoice.paid",
+        data: { object: { customer: "cus_lap" } },
+      };
+      const res = await worker.fetch(await webhookReq(event), env);
+      assert.equal(res.status, 200);
+      const user = await env.USERS.get("lapsed@test.com", "json");
+      assert.equal(user.plan, "premium"); // re-promoted
+      assert.equal(user.gracePeriodEndsAt, undefined);
+      assert.equal(await env.USERS.get("stats:premiumUsers"), "1"); // count restored
+    });
+
+    it("invoice.payment_succeeded on a clean premium renewal is a no-op (no stat inflation)", async () => {
+      await env.USERS.put(
+        "renew@test.com",
+        JSON.stringify({ email: "renew@test.com", plan: "premium", createdAt: new Date().toISOString() }),
+      );
+      await env.USERS.put("stats:premiumUsers", "5");
+      mockFetchFn = (url) => {
+        if (url.includes("customers/cus_ren"))
+          return new Response(JSON.stringify({ email: "renew@test.com" }), { status: 200 });
+        return new Response("", { status: 404 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      const event = {
+        id: "evt_ren",
+        type: "invoice.payment_succeeded",
+        data: { object: { customer: "cus_ren" } },
+      };
+      await worker.fetch(await webhookReq(event), env);
+      const user = await env.USERS.get("renew@test.com", "json");
+      assert.equal(user.plan, "premium");
+      assert.equal(await env.USERS.get("stats:premiumUsers"), "5"); // unchanged
+    });
+
+    it("sends a win-back email on paid churn", async () => {
+      await env.USERS.put(
+        "winback@test.com",
+        JSON.stringify({ email: "winback@test.com", plan: "premium", createdAt: new Date().toISOString() }),
+      );
+      const resendCalls = [];
+      mockFetchFn = (url, opts) => {
+        if (url.includes("customers/cus_wb"))
+          return new Response(JSON.stringify({ email: "winback@test.com" }), { status: 200 });
+        if (url.includes("resend.com")) {
+          resendCalls.push(JSON.parse(opts.body));
+          return new Response(JSON.stringify({ id: "m" }), { status: 200 });
+        }
+        return new Response("", { status: 404 });
+      };
+      globalThis.fetch = (u, o) => Promise.resolve(mockFetchFn(u, o));
+      const event = {
+        id: "evt_wb",
+        type: "customer.subscription.deleted",
+        data: { object: { customer: "cus_wb" } },
+      };
+      await worker.fetch(await webhookReq(event), env);
+      const winback = resendCalls.find(
+        (c) => c.to.includes("winback@test.com") && /ended|reactivate|come back/i.test(c.subject + c.html),
+      );
+      assert.ok(winback, "expected a win-back email to the churned user");
+    });
+
     it("deduplicates webhook events (idempotency)", async () => {
       const event = {
         id: "evt_dup",
@@ -698,7 +838,9 @@ describe("Worker endpoints", () => {
       assert.ok(lastChatRequest.url.startsWith("https://openrouter.ai/api/v1"));
       assert.equal(lastChatRequest.opts.headers.Authorization, "Bearer or_test_123");
       const sent = JSON.parse(lastChatRequest.opts.body);
-      assert.equal(sent.model, "nvidia/nemotron-3-super-120b-a12b:free");
+      // In-file default is the PAID model so a dropped CHAT_MODEL env var can't
+      // silently degrade paid chat to a rate-limited free model.
+      assert.equal(sent.model, "openai/gpt-4o-mini");
       assert.equal(sent.stream, true);
     });
 
@@ -742,6 +884,19 @@ describe("Worker endpoints", () => {
       assert.equal(res.status, 429);
       const data = await res.json();
       assert.equal(data.upgrade, true);
+      // Funnel telemetry: hitting the wall increments the wall-hit counter.
+      assert.equal(await env.USERS.get("stats:wallHits"), "1");
+    });
+
+    it("increments anonAsks when an anonymous visitor asks with no account/session", async () => {
+      const res = await worker.fetch(
+        req("POST", "/chat", {
+          body: { messages: [{ role: "user", content: "hello" }] },
+        }),
+        env,
+      );
+      assert.equal(res.status, 400);
+      assert.equal(await env.USERS.get("stats:anonAsks"), "1");
     });
 
     it("returns 429 at monthly chat limit", async () => {
@@ -905,6 +1060,32 @@ describe("Worker endpoints", () => {
       assert.equal(data.estimatedMRR, 5);
     });
 
+    it("excludes comped premium from estimatedMRR (truthful MRR)", async () => {
+      await env.USERS.put("paid@test.com", JSON.stringify({ email: "paid@test.com", plan: "premium" }));
+      await env.USERS.put("comp@test.com", JSON.stringify({ email: "comp@test.com", plan: "premium", comped: true }));
+      const res = await worker.fetch(
+        req("GET", "/admin/stats", { headers: { Authorization: "Bearer admin_test_token" } }),
+        env,
+      );
+      const data = await res.json();
+      assert.equal(data.premiumUsers, 2);
+      assert.equal(data.compedUsers, 1);
+      assert.equal(data.paidPremiumUsers, 1);
+      assert.equal(data.estimatedMRR, 5); // only the 1 paying user, not 10
+    });
+
+    it("reports funnel counters (anonAsks, wallHits)", async () => {
+      await env.USERS.put("stats:anonAsks", "7");
+      await env.USERS.put("stats:wallHits", "3");
+      const res = await worker.fetch(
+        req("GET", "/admin/stats", { headers: { Authorization: "Bearer admin_test_token" } }),
+        env,
+      );
+      const data = await res.json();
+      assert.equal(data.funnel.anonAsks, 7);
+      assert.equal(data.funnel.wallHits, 3);
+    });
+
     it("returns 401 for invalid token", async () => {
       const res = await worker.fetch(
         req("GET", "/admin/stats", { headers: { Authorization: "Bearer wrong_token" } }),
@@ -916,6 +1097,139 @@ describe("Worker endpoints", () => {
     it("returns 401 without auth", async () => {
       const res = await worker.fetch(req("GET", "/admin/stats"), env);
       assert.equal(res.status, 401);
+    });
+  });
+
+  // --- Abuse gates (disposable email + per-IP rate limits) ---
+  describe("abuse gates", () => {
+    it("rejects a disposable email on /auth/send-magic-link", async () => {
+      const res = await worker.fetch(
+        req("POST", "/auth/send-magic-link", { body: { email: "x@mailinator.com" } }),
+        env,
+      );
+      assert.equal(res.status, 400);
+      const data = await res.json();
+      assert.ok(/permanent email/i.test(data.error));
+    });
+
+    it("rejects a disposable email on /subscribe", async () => {
+      const res = await worker.fetch(
+        req("POST", "/subscribe", { body: { email: "y@guerrillamail.com" } }),
+        env,
+      );
+      assert.equal(res.status, 400);
+    });
+
+    it("rate-limits /chat per IP (caps OpenRouter burn)", async () => {
+      const stamps = Array.from({ length: 30 }, () => Date.now());
+      await env.MAGIC_LINKS.put("ratelimit:chat:unknown", JSON.stringify(stamps));
+      const res = await worker.fetch(
+        req("POST", "/chat", { body: { messages: [{ role: "user", content: "hi" }] } }),
+        env,
+      );
+      assert.equal(res.status, 429);
+    });
+
+    it("rate-limits /subscribe per IP", async () => {
+      const stamps = Array.from({ length: 5 }, () => Date.now());
+      await env.MAGIC_LINKS.put("ratelimit:subscribe:unknown", JSON.stringify(stamps));
+      const res = await worker.fetch(
+        req("POST", "/subscribe", { body: { email: "fresh@test.com" } }),
+        env,
+      );
+      assert.equal(res.status, 429);
+    });
+  });
+
+  // --- Transcript memory (server-side AI Desk continuity) ---
+  describe("transcript memory", () => {
+    it("persists an account user's conversation and serves it via /chat/history", async () => {
+      const token = await createSession(env, "mem@test.com", "premium");
+      const res = await worker.fetch(
+        req("POST", "/chat", {
+          body: {
+            messages: [
+              { role: "user", content: "what's trending" },
+              { role: "assistant", content: "React is" },
+            ],
+          },
+          headers: { Authorization: "Bearer " + token },
+        }),
+        env,
+      );
+      assert.equal(res.status, 200);
+      const hist = await worker.fetch(
+        req("GET", "/chat/history", { headers: { Authorization: "Bearer " + token } }),
+        env,
+      );
+      const data = await hist.json();
+      assert.equal(data.ok, true);
+      assert.equal(data.messages.length, 2);
+      assert.equal(data.messages[0].content, "what's trending");
+    });
+
+    it("/chat/history returns 401 without auth", async () => {
+      const res = await worker.fetch(req("GET", "/chat/history"), env);
+      assert.equal(res.status, 401);
+    });
+
+    it("delete-account removes the persisted transcript", async () => {
+      const token = await createSession(env, "del2@test.com", "premium");
+      await env.USERS.put(
+        "transcript:del2@test.com",
+        JSON.stringify({ messages: [{ role: "user", content: "x" }] }),
+      );
+      await worker.fetch(
+        req("POST", "/auth/delete-account", { headers: { Authorization: "Bearer " + token } }),
+        env,
+      );
+      assert.equal(await env.USERS.get("transcript:del2@test.com"), null);
+    });
+
+    it("admin stats ignores transcript: keys in the user-count scan", async () => {
+      await env.USERS.put("u1@test.com", JSON.stringify({ email: "u1@test.com", plan: "free" }));
+      await env.USERS.put("transcript:u1@test.com", JSON.stringify({ messages: [] }));
+      const res = await worker.fetch(
+        req("GET", "/admin/stats", { headers: { Authorization: "Bearer admin_test_token" } }),
+        env,
+      );
+      const data = await res.json();
+      assert.equal(data.totalUsers, 1);
+    });
+  });
+
+  // --- scheduled() reconciliation sweep ---
+  describe("scheduled() reconciliation", () => {
+    it("downgrades a lapsed-grace premium user and decrements the stat", async () => {
+      await env.USERS.put(
+        "sweep@test.com",
+        JSON.stringify({
+          email: "sweep@test.com",
+          plan: "premium",
+          gracePeriodEndsAt: new Date(Date.now() - 1000).toISOString(),
+        }),
+      );
+      await env.USERS.put("stats:premiumUsers", "1");
+      const reconciled = await worker.scheduled({}, env);
+      const user = await env.USERS.get("sweep@test.com", "json");
+      assert.equal(user.plan, "free");
+      assert.equal(user.gracePeriodEndsAt, undefined);
+      assert.equal(await env.USERS.get("stats:premiumUsers"), "0");
+      assert.equal(reconciled, 1);
+    });
+
+    it("leaves a premium user with active grace untouched", async () => {
+      await env.USERS.put(
+        "active@test.com",
+        JSON.stringify({
+          email: "active@test.com",
+          plan: "premium",
+          gracePeriodEndsAt: new Date(Date.now() + 86400000).toISOString(),
+        }),
+      );
+      await worker.scheduled({}, env);
+      const user = await env.USERS.get("active@test.com", "json");
+      assert.equal(user.plan, "premium");
     });
   });
 
@@ -980,5 +1294,113 @@ describe("Worker endpoints", () => {
       const res = await worker.fetch(req("GET", "/nonexistent"), env);
       assert.equal(res.status, 404);
     });
+  });
+});
+
+// --- Full-corpus RAG grounding + thinking. Isolated and placed last so the
+// worker's module-level corpus cache (populated here) can't leak into the
+// earlier chat tests, which deliberately run without a corpus. ---
+describe("POST /chat — RAG grounding + thinking", () => {
+  let env, origFetch, lastChat;
+
+  const CORPUS = {
+    builtAt: "2026-06-27T00:00:00Z",
+    count: 2,
+    chunks: [
+      { i: 0, type: "repo", repo: "acme/rag-eval", title: "RAG eval harness", text: "acme rag eval retrieval benchmark harness grounding", url: "/editions/2026-06-20/", stars: 1200, date: "2026-06-20" },
+      { i: 1, type: "edition", repo: null, title: "WebGL toy roundup", text: "webgl shader graphics demo", url: "/editions/2026-06-21/", date: "2026-06-21" },
+    ],
+  };
+
+  function mockFetch() {
+    return (url, opts) => {
+      if (url.includes("/data/corpus.json"))
+        return Promise.resolve(new Response(JSON.stringify(CORPUS), { status: 200 }));
+      if (url.includes("openrouter.ai")) {
+        lastChat = { url, opts, body: JSON.parse(opts.body) };
+        const stream = new ReadableStream({
+          start(c) {
+            c.enqueue(new TextEncoder().encode('data: {"choices":[{"delta":{"content":"Answer [1]"}}]}\n\n'));
+            c.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+            c.close();
+          },
+        });
+        return Promise.resolve(new Response(stream, { status: 200, headers: { "Content-Type": "text/event-stream" } }));
+      }
+      return Promise.resolve(new Response("unmocked", { status: 500 }));
+    };
+  }
+
+  async function readBody(res) {
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let out = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      out += dec.decode(value);
+    }
+    return out;
+  }
+
+  beforeEach(() => {
+    env = createMockEnv();
+    lastChat = null;
+    origFetch = globalThis.fetch;
+    globalThis.fetch = mockFetch();
+  });
+  afterEach(() => {
+    globalThis.fetch = origFetch;
+  });
+
+  it("injects a GROUNDING block + prepends a sources SSE event for a matching question", async () => {
+    const token = await createSession(env, "p@p.co", "premium");
+    const res = await worker.fetch(
+      req("POST", "/chat", {
+        headers: { Authorization: "Bearer " + token },
+        body: { messages: [{ role: "user", content: "Story in focus:\n...\n\nQuestion: what rag eval retrieval harness has the paper covered?" }] },
+      }),
+      env,
+    );
+    assert.equal(res.status, 200);
+    const sys = lastChat.body.messages[0];
+    assert.equal(sys.role, "system");
+    assert.match(sys.content, /GROUNDING/);
+    assert.match(sys.content, /\[1\]/);
+    assert.match(sys.content, /acme\/rag-eval/);
+
+    const body = await readBody(res);
+    const evt = body.split("\n\n").find((l) => l.includes('"sources"'));
+    assert.ok(evt, "sources event present");
+    const parsed = JSON.parse(evt.replace("data: ", ""));
+    assert.equal(parsed.sources[0].n, 1);
+    assert.equal(parsed.sources[0].url, "/editions/2026-06-20/");
+  });
+
+  it("adds the thinking instruction only when think:true", async () => {
+    const token = await createSession(env, "p2@p.co", "premium");
+    const res = await worker.fetch(
+      req("POST", "/chat", {
+        headers: { Authorization: "Bearer " + token },
+        body: { think: true, messages: [{ role: "user", content: "Question: explain webgl shaders" }] },
+      }),
+      env,
+    );
+    await readBody(res);
+    assert.match(lastChat.body.messages[0].content, /<thinking>/);
+  });
+
+  it("skips grounding + sources when nothing relevant matches", async () => {
+    const token = await createSession(env, "p3@p.co", "premium");
+    const res = await worker.fetch(
+      req("POST", "/chat", {
+        headers: { Authorization: "Bearer " + token },
+        body: { messages: [{ role: "user", content: "Question: zzzznonexistenttopic qqqwxyz" }] },
+      }),
+      env,
+    );
+    const body = await readBody(res);
+    assert.doesNotMatch(lastChat.body.messages[0].content, /GROUNDING/);
+    assert.doesNotMatch(body, /"sources":/);
   });
 });

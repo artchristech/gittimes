@@ -1,6 +1,8 @@
-// Chat provider — OpenRouter (OpenAI-compatible), matching src/xai.js. Free by default;
-// override via env.CHAT_MODEL / env.LLM_BASE_URL.
-const CHAT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+// Chat provider — OpenRouter (OpenAI-compatible), matching src/xai.js.
+// In-file default is the PAID model: if env.CHAT_MODEL is ever dropped from the
+// worker config, paid chat must NOT silently degrade to a rate-limited free
+// model. Override via env.CHAT_MODEL / env.LLM_BASE_URL.
+const CHAT_MODEL = "openai/gpt-4o-mini";
 const CHAT_BASE_URL = "https://openrouter.ai/api/v1";
 
 // --- AI assistant system prompt + live market context ---
@@ -63,11 +65,188 @@ How you answer:
 - If you don't know or the context doesn't say, say so plainly rather than inventing details.${priceBlock}`;
 }
 
+// Appended to the system prompt when the client asks for visible reasoning.
+const THINKING_INSTRUCTION =
+  "\n\nReasoning mode: begin with a single <thinking>...</thinking> block — a few concise sentences of your reasoning, what the grounding supports, and any caveats. Then give the final answer AFTER the closing </thinking> tag. Keep the thinking short.";
+
+// --- AI Desk corpus retrieval (full-corpus RAG with citations) ---
+//
+// INLINED, KEPT IN SYNC with src/retrieve.js — the worker must stay import-free
+// because its test harness compiles it from a standalone string. The canonical
+// (unit-tested) copy lives in src/retrieve.js; change both together.
+
+const RAG_STOPWORDS = new Set(
+  ("a an and are as at be by for from has have how i in is it its of on or that the to was what when where which who " +
+    "with you your about into over than then this these those tell me show find get does do can could would should " +
+    "whats what's vs versus best good any all more most use using used")
+    .split(" ")
+);
+
+function ragTokenize(s) {
+  return String(s || "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 2 && !RAG_STOPWORDS.has(t));
+}
+
+function scoreChunks(query, chunks, opts) {
+  const o = opts || {};
+  const k = o.k || 6;
+  const now = o.now || _nowMs();
+  const recencyWeight = o.recencyWeight != null ? o.recencyWeight : 0.3;
+  const halfLifeDays = o.halfLifeDays || 45;
+  const minScore = o.minScore || 0;
+  const K1 = 1.2;
+  const B = 0.75;
+  const DAY_MS = 86400000;
+
+  const qTerms = Array.from(new Set(ragTokenize(query)));
+  if (!qTerms.length || !chunks.length) return [];
+
+  const docTokens = new Array(chunks.length);
+  const df = new Map();
+  let totalLen = 0;
+  for (let d = 0; d < chunks.length; d++) {
+    const toks = ragTokenize(chunks[d].text);
+    docTokens[d] = toks;
+    totalLen += toks.length;
+    const seen = new Set();
+    for (const t of toks) {
+      if (seen.has(t)) continue;
+      seen.add(t);
+      df.set(t, (df.get(t) || 0) + 1);
+    }
+  }
+  const N = chunks.length;
+  const avgdl = totalLen / N || 1;
+  const idf = new Map();
+  for (const t of qTerms) {
+    const n = df.get(t) || 0;
+    idf.set(t, Math.max(0, Math.log(1 + (N - n + 0.5) / (n + 0.5))));
+  }
+
+  const results = [];
+  for (let d = 0; d < N; d++) {
+    const toks = docTokens[d];
+    if (!toks.length) continue;
+    const tf = new Map();
+    for (const t of toks) tf.set(t, (tf.get(t) || 0) + 1);
+    let bm25 = 0;
+    const matched = [];
+    for (const t of qTerms) {
+      const f = tf.get(t);
+      if (!f) continue;
+      matched.push(t);
+      const denom = f + K1 * (1 - B + (B * toks.length) / avgdl);
+      bm25 += idf.get(t) * ((f * (K1 + 1)) / denom);
+    }
+    if (bm25 <= 0) continue;
+    const c = chunks[d];
+    let recency = 1;
+    if (c.date) {
+      const ageDays = Math.max(0, (now - Date.parse(c.date + "T00:00:00Z")) / DAY_MS);
+      recency = 1 + recencyWeight * Math.pow(0.5, ageDays / halfLifeDays);
+    }
+    const score = bm25 * recency;
+    if (score > minScore) results.push({ chunk: c, score, bm25, matched });
+  }
+  results.sort((a, b) => b.score - a.score);
+  return results.slice(0, k);
+}
+
+function formatGrounding(results) {
+  if (!results || !results.length) return { block: "", sources: [] };
+  const lines = [];
+  const sources = [];
+  results.forEach((r, idx) => {
+    const n = idx + 1;
+    const c = r.chunk;
+    const tag = c.repo ? c.repo : "edition";
+    const stars = c.stars != null ? `, ${c.stars.toLocaleString()}★` : "";
+    lines.push(`[${n}] ${c.title} (${tag}, ${c.date}${stars})\n    ${c.text}`);
+    sources.push({ n, title: c.title, url: c.url, repo: c.repo || null, date: c.date });
+  });
+  const block =
+    "\n\nGROUNDING — relevant Git Times coverage retrieved for this question. " +
+    "Cite the sources you use inline as [n], and if these don't answer the question, say so plainly rather than guessing:\n" +
+    lines.join("\n");
+  return { block, sources };
+}
+
+// Corpus cache (per-isolate), refreshed from the published static asset.
+let _corpusCache = { at: 0, data: null };
+const CORPUS_TTL_MS = 6 * 60 * 60 * 1000; // 6h
+const RAG_MIN_SCORE = 2.5; // require a reasonably strong match before grounding
+
+async function getCorpus(env, now) {
+  const ts = now || _nowMs();
+  if (_corpusCache.data && ts - _corpusCache.at < CORPUS_TTL_MS) return _corpusCache.data;
+  try {
+    const origin = env.SITE_BASE_URL || "https://gittimes.com";
+    const res = await fetch(`${origin}/data/corpus.json`, {
+      signal: AbortSignal.timeout(4000),
+      cf: { cacheTtl: 21600, cacheEverything: true },
+    });
+    if (!res.ok) return _corpusCache.data;
+    const data = await res.json();
+    _corpusCache = { at: ts, data };
+    return data;
+  } catch {
+    return _corpusCache.data;
+  }
+}
+
+// The client stuffs context as "<label>:\n<context>\n\nQuestion: <text>". Pull
+// just the question for retrieval so we match on intent, not the dumped context.
+function extractQuery(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m && m.role === "user" && typeof m.content === "string") {
+      const idx = m.content.lastIndexOf("\nQuestion: ");
+      return (idx >= 0 ? m.content.slice(idx + "\nQuestion: ".length) : m.content).slice(0, 400);
+    }
+  }
+  return "";
+}
+
+async function buildGrounding(env, messages, now) {
+  try {
+    const q = extractQuery(messages);
+    if (!q) return { block: "", sources: [] };
+    const corpus = await getCorpus(env, now);
+    if (!corpus || !Array.isArray(corpus.chunks)) return { block: "", sources: [] };
+    const results = scoreChunks(q, corpus.chunks, { k: 6, now: now || _nowMs(), minScore: RAG_MIN_SCORE });
+    return formatGrounding(results);
+  } catch {
+    return { block: "", sources: [] };
+  }
+}
+
 // --- Stats counter helpers ---
 
 async function incrementStat(kv, key, delta) {
   const current = parseInt(await kv.get(key) || "0", 10);
   await kv.put(key, String(current + delta));
+}
+
+// Server-side transcript memory. Stored in USERS under a `transcript:` prefix
+// (excluded from the user-count scans) keyed by email, so a reader's AI Desk
+// conversation follows them across browsers/devices. Best-effort: never throws
+// into the chat hot path. Capped to the last 40 turns and ~60KB.
+async function persistTranscript(env, email, messages) {
+  try {
+    const convo = (messages || [])
+      .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-40);
+    if (convo.length === 0) return;
+    let trimmed = convo;
+    let payload = JSON.stringify({ updatedAt: new Date().toISOString(), messages: trimmed });
+    while (payload.length > 60000 && trimmed.length > 2) {
+      trimmed = trimmed.slice(2);
+      payload = JSON.stringify({ updatedAt: new Date().toISOString(), messages: trimmed });
+    }
+    await env.USERS.put(`transcript:${email}`, payload, { expirationTtl: 60 * 60 * 24 * 30 });
+  } catch { /* memory is best-effort */ }
 }
 
 // --- Utility functions ---
@@ -187,6 +366,25 @@ async function sendUpgradeEmail(email, env) {
   return res.ok;
 }
 
+// Win-back email on cancellation — the leakiest hop in the funnel. Additive and
+// non-fatal; mirrors sendUpgradeEmail's Resend shape.
+async function sendWinbackEmail(email, env) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: env.EMAIL_FROM || "The Git Times <noreply@gittimes.com>",
+      to: [email],
+      subject: "Your Premium has ended — come back any time",
+      html: `<p>Your Premium subscription to The Git Times has ended, and your account is back on the Free plan.</p><p>You can still read every edition and ask a few AI questions a day. If you'd like unlimited AI access to trending repos and developer news again, you can re-subscribe any time.</p><p><a href="https://gittimes.com/account/">Reactivate Premium</a></p><p>We'd genuinely value knowing what made you cancel — just reply to this email.</p>`,
+    }),
+  });
+  return res.ok;
+}
+
 // Owner-facing alert on each free->premium conversion. Strictly additive and
 // env-gated: no-ops (returns false) when env.ALERT_EMAIL is unset so the feature
 // is OFF by default. Mirrors the Resend pattern of the customer emails above.
@@ -214,11 +412,39 @@ async function sendConversionAlertEmail(session, env) {
 
 async function resolveGracePeriod(user, env) {
   if (user.gracePeriodEndsAt && new Date(user.gracePeriodEndsAt).getTime() < Date.now()) {
+    const wasPremium = user.plan === "premium";
+    const wasComped = !!user.comped;
     user.plan = "free";
+    user.comped = false;
     delete user.gracePeriodEndsAt;
     await env.USERS.put(user.email, JSON.stringify(user));
+    // Keep the stat counters honest on the lapse transition. Previously this
+    // downgraded silently, so premiumUsers over-counted (and estimatedMRR with
+    // it) after every dunning lapse. Guarded by wasPremium so the explicit
+    // subscription.deleted path can't double-decrement an already-free user.
+    if (wasPremium) {
+      await incrementStat(env.USERS, "stats:premiumUsers", -1);
+      if (wasComped) await incrementStat(env.USERS, "stats:compedUsers", -1);
+    }
   }
   return user;
+}
+
+// Disposable / throwaway email domains. Fake accounts created from these poison
+// the very funnel metric P0-A reads (anon→signup, totalUsers) and enable comp
+// abuse, so they are refused at account creation. Conservative, extensible list.
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  "mailinator.com", "guerrillamail.com", "guerrillamail.info", "10minutemail.com",
+  "tempmail.com", "temp-mail.org", "throwawaymail.com", "yopmail.com", "trashmail.com",
+  "getnada.com", "sharklasers.com", "maildrop.cc", "fakeinbox.com", "mailnesia.com",
+  "dispostable.com", "mintemail.com", "mohmal.com", "tempinbox.com", "spam4.me",
+  "discard.email", "emailondeck.com", "mailcatch.com", "mvrht.net",
+]);
+
+function isDisposableEmail(email) {
+  const at = email.lastIndexOf("@");
+  if (at === -1) return false;
+  return DISPOSABLE_EMAIL_DOMAINS.has(email.slice(at + 1));
 }
 
 async function getSessionUser(request, env) {
@@ -323,6 +549,13 @@ const handler = {
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return new Response(JSON.stringify({ ok: false, error: "Please enter a valid email address." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (isDisposableEmail(email)) {
+        return new Response(JSON.stringify({ ok: false, error: "Please use a permanent email address." }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -446,7 +679,29 @@ const handler = {
           subscribedToNewsletter: user.subscribedToNewsletter,
           createdAt: user.createdAt,
           chatUsage: user.chatUsage || null,
+          chatLimit: parseInt(env.CHAT_MONTHLY_LIMIT || "1000"),
         },
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // GET /chat/history — the logged-in user's persisted AI Desk transcript, so
+    // the conversation follows them across browsers/devices.
+    if (url.pathname === "/chat/history" && request.method === "GET") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const saved = await env.USERS.get(`transcript:${user.email}`, "json");
+      return new Response(JSON.stringify({
+        ok: true,
+        messages: (saved && saved.messages) || [],
+        updatedAt: (saved && saved.updatedAt) || null,
       }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -553,11 +808,15 @@ const handler = {
 
       await Promise.all([
         env.USERS.delete(user.email),
+        env.USERS.delete(`transcript:${user.email}`),
         env.SUBSCRIBERS.delete(user.email),
         env.SESSIONS.delete(token),
       ]);
       await incrementStat(env.USERS, "stats:totalUsers", -1);
-      if (user.plan === "premium") await incrementStat(env.USERS, "stats:premiumUsers", -1);
+      if (user.plan === "premium") {
+        await incrementStat(env.USERS, "stats:premiumUsers", -1);
+        if (user.comped) await incrementStat(env.USERS, "stats:compedUsers", -1);
+      }
 
       return new Response(JSON.stringify({ ok: true, message: "Account deleted." }), {
         status: 200,
@@ -583,6 +842,24 @@ const handler = {
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return new Response(JSON.stringify({ ok: false, error: "Please enter a valid email address." }), {
           status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (isDisposableEmail(email)) {
+        return new Response(JSON.stringify({ ok: false, error: "Please use a permanent email address." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Rate limit by IP (5 per 15 min) — caps fake-account farming that would
+      // inflate totalUsers and poison the GT-FLAT funnel metric.
+      const subscribeIp = request.headers.get("CF-Connecting-IP") || "unknown";
+      const subscribeAllowed = await checkRateLimit(env.MAGIC_LINKS, `ratelimit:subscribe:${subscribeIp}`, 5, 900);
+      if (!subscribeAllowed) {
+        return new Response(JSON.stringify({ ok: false, error: "Too many requests. Please try again later." }), {
+          status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -633,13 +910,21 @@ const handler = {
         return Response.redirect(`${allowed}/account/?error=login_required`, 302);
       }
 
+      // Annual is the lower-churn / upfront-cash lane (same "premium" plan flag,
+      // so the webhook is unchanged). Falls back to the monthly price if the
+      // annual price object hasn't been created in Stripe yet — never breaks.
+      const interval = (url.searchParams.get("interval") || "monthly").toLowerCase();
+      const useAnnual = interval === "annual" && !!env.STRIPE_PRICE_ID_ANNUAL;
+      const priceId = useAnnual ? env.STRIPE_PRICE_ID_ANNUAL : env.STRIPE_PRICE_ID;
+
       const checkoutParams = {
-        "line_items[0][price]": env.STRIPE_PRICE_ID,
+        "line_items[0][price]": priceId,
         "line_items[0][quantity]": "1",
         mode: "subscription",
         success_url: `${allowed}/account/?upgraded=true`,
         customer_email: sessionData.email,
         "metadata[user_email]": sessionData.email,
+        "metadata[interval]": useAnnual ? "annual" : "monthly",
         allow_promotion_codes: "true",
         payment_method_collection: "if_required",
       };
@@ -715,9 +1000,17 @@ const handler = {
           user.plan = "premium";
           user.stripeCustomerId = session.customer || "";
           user.stripeSubscriptionId = session.subscription || "";
+          // Truthful-MRR tagging: a fully-discounted checkout (e.g. a 100%-off
+          // comp like CPHnews) has amount_total 0. Stamp it so estimatedMRR can
+          // exclude comps instead of counting them as $5 of revenue.
+          const isComped = session.amount_total === 0;
+          user.comped = isComped;
           await env.USERS.put(email, JSON.stringify(user));
           if (wasNew) await incrementStat(env.USERS, "stats:totalUsers", 1);
-          if (wasNew || wasFree) await incrementStat(env.USERS, "stats:premiumUsers", 1);
+          if (wasNew || wasFree) {
+            await incrementStat(env.USERS, "stats:premiumUsers", 1);
+            if (isComped) await incrementStat(env.USERS, "stats:compedUsers", 1);
+          }
           try { await sendUpgradeEmail(email, env); } catch { /* non-fatal */ }
           // Owner alert — additive, non-fatal, env-gated. Must never affect the
           // premium-flip or 200 response above, so it has its own try/catch.
@@ -740,12 +1033,21 @@ const handler = {
               const user = await env.USERS.get(email, "json");
               if (user) {
                 const wasPremium = user.plan === "premium";
+                const wasComped = !!user.comped;
                 user.plan = "free";
+                user.comped = false;
                 user.cancelledAt = new Date().toISOString();
                 user.churnReason = "customer.subscription.deleted";
                 delete user.gracePeriodEndsAt;
                 await env.USERS.put(email, JSON.stringify(user));
-                if (wasPremium) await incrementStat(env.USERS, "stats:premiumUsers", -1);
+                if (wasPremium) {
+                  await incrementStat(env.USERS, "stats:premiumUsers", -1);
+                  if (wasComped) await incrementStat(env.USERS, "stats:compedUsers", -1);
+                  // Win-back only for genuine paid churn, never comp expiry.
+                  if (!wasComped) {
+                    try { await sendWinbackEmail(email, env); } catch { /* non-fatal */ }
+                  }
+                }
               }
             }
           }
@@ -775,6 +1077,43 @@ const handler = {
         }
       }
 
+      // A recovered payment (Stripe Smart Retries succeeds, or a normal renewal)
+      // must CLEAR any dunning grace flag — otherwise resolveGracePeriod() later
+      // downgrades a customer who is still being billed. If the grace window had
+      // already expired and the user was flipped to "free", a successful payment
+      // restores premium and the stat. No-op (and no KV write) on a clean renewal
+      // of an already-premium account, so this is safe to fire on every invoice.
+      if (event.type === "invoice.payment_succeeded" || event.type === "invoice.paid") {
+        const obj = event.data.object;
+        const customerId = obj.customer;
+        if (customerId) {
+          const customerRes = await fetch(
+            `https://api.stripe.com/v1/customers/${encodeURIComponent(customerId)}`,
+            { headers: { Authorization: `Basic ${btoa(env.STRIPE_SECRET_KEY + ":")}` } },
+          );
+          if (customerRes.ok) {
+            const customer = await customerRes.json();
+            const email = (customer.email || "").toLowerCase();
+            if (email) {
+              const user = await env.USERS.get(email, "json");
+              if (user) {
+                const hadGrace = !!user.gracePeriodEndsAt;
+                const wasNotPremium = user.plan !== "premium";
+                if (hadGrace || wasNotPremium) {
+                  delete user.gracePeriodEndsAt;
+                  user.plan = "premium";
+                  user.comped = false; // a real paid invoice recovered the account
+                  await env.USERS.put(email, JSON.stringify(user));
+                  // Restore the count only if the grace window had already lapsed
+                  // and the user was downgraded (premiumUsers was decremented then).
+                  if (wasNotPremium) await incrementStat(env.USERS, "stats:premiumUsers", 1);
+                }
+              }
+            }
+          }
+        }
+      }
+
       return new Response(JSON.stringify({ received: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -783,6 +1122,18 @@ const handler = {
 
     // POST /chat — validate session, proxy to xAI
     if (url.pathname === "/chat" && request.method === "POST") {
+      // Per-IP burst cap BEFORE any LLM work — bounds OpenRouter spend and blocks
+      // multi-account farming of the free daily allowance. Generous enough not to
+      // affect a real conversation (30 requests / minute).
+      const chatIp = request.headers.get("CF-Connecting-IP") || "unknown";
+      const chatAllowed = await checkRateLimit(env.MAGIC_LINKS, `ratelimit:chat:${chatIp}`, 30, 60);
+      if (!chatAllowed) {
+        return new Response(JSON.stringify({ error: "Too many requests. Please slow down." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       let body;
       try {
         body = await request.json();
@@ -860,6 +1211,9 @@ const handler = {
           }
           const freeLimit = parseInt(env.FREE_DAILY_CHAT_LIMIT || "3");
           if (accountUser.freeChatUsage.count >= freeLimit) {
+            // Funnel telemetry: a free user hit the upgrade wall (hop 5). This is
+            // the central datum that grades the GT-FLAT root-cause claim.
+            await incrementStat(env.USERS, "stats:wallHits", 1);
             return new Response(JSON.stringify({
               error: "Free daily limit reached",
               upgrade: true,
@@ -875,9 +1229,18 @@ const handler = {
         }
       }
 
+      // Server-side transcript memory — persist this account's conversation so the
+      // AI Desk has continuity (client history is in-memory only). Best-effort.
+      if (accountUser && authorized) {
+        await persistTranscript(env, accountUser.email, messages);
+      }
+
       // Fall back to Stripe session validation
       if (!authorized) {
         if (!session_id) {
+          // Funnel telemetry: an anonymous visitor tried to ask (hop 2) with no
+          // account and no paid session — a bounced lead.
+          await incrementStat(env.USERS, "stats:anonAsks", 1);
           return new Response(JSON.stringify({ error: "Missing session_id or account" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -912,9 +1275,19 @@ const handler = {
 
       }
 
-      // Proxy to the LLM provider (OpenRouter) with streaming
+      // Proxy to the LLM provider (OpenRouter) with streaming.
       const baseUrl = env.LLM_BASE_URL || CHAT_BASE_URL;
       const market = await getMarketContext(env);
+
+      // Full-corpus RAG: retrieve relevant past coverage and ground the answer,
+      // with [n] citations. Fail-soft — no grounding => an ordinary answer.
+      const grounding = await buildGrounding(env, messages);
+      const wantThinking = body.think === true;
+
+      let systemContent = buildSystemPrompt(market);
+      if (grounding.block) systemContent += grounding.block;
+      if (wantThinking) systemContent += THINKING_INSTRUCTION;
+
       const aiRes = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
@@ -928,7 +1301,7 @@ const handler = {
           stream: true,
           temperature: 0.6,
           messages: [
-            { role: "system", content: buildSystemPrompt(market) },
+            { role: "system", content: systemContent },
             ...messages,
           ],
         }),
@@ -941,7 +1314,34 @@ const handler = {
         });
       }
 
-      return new Response(aiRes.body, {
+      // Prepend a custom SSE event carrying the citation sources, then pipe the
+      // model stream through unchanged. The client ignores events without a
+      // `choices` delta, so this is backward-compatible.
+      const sourcesEvent =
+        grounding.sources && grounding.sources.length
+          ? `data: ${JSON.stringify({ sources: grounding.sources })}\n\n`
+          : "";
+      const upstream = aiRes.body;
+      const streamOut = new ReadableStream({
+        async start(controller) {
+          const enc = new TextEncoder();
+          if (sourcesEvent) controller.enqueue(enc.encode(sourcesEvent));
+          const reader = upstream.getReader();
+          try {
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              controller.enqueue(value);
+            }
+          } catch {
+            /* upstream aborted mid-stream — close what we have */
+          } finally {
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(streamOut, {
         status: 200,
         headers: {
           ...corsHeaders,
@@ -1195,22 +1595,27 @@ const handler = {
       }
       let totalUsers = parseInt(await env.USERS.get("stats:totalUsers") || "0", 10);
       let premiumUsers = parseInt(await env.USERS.get("stats:premiumUsers") || "0", 10);
+      let compedUsers = parseInt(await env.USERS.get("stats:compedUsers") || "0", 10);
 
       // Migration fallback: if counters haven't been seeded, run the scan once
       if (totalUsers === 0) {
         let cursor = null;
         let scannedTotal = 0;
         let scannedPremium = 0;
+        let scannedComped = 0;
         do {
           const listOpts = { limit: 1000 };
           if (cursor) listOpts.cursor = cursor;
           const result = await env.USERS.list(listOpts);
           for (const key of result.keys) {
-            if (key.name.startsWith("stats:")) continue;
+            if (key.name.startsWith("stats:") || key.name.startsWith("transcript:")) continue;
             const u = await env.USERS.get(key.name, "json");
             if (u) {
               scannedTotal++;
-              if (u.plan === "premium") scannedPremium++;
+              if (u.plan === "premium") {
+                scannedPremium++;
+                if (u.comped) scannedComped++;
+              }
             }
           }
           cursor = result.list_complete ? null : result.cursor;
@@ -1218,21 +1623,61 @@ const handler = {
         if (scannedTotal > 0) {
           totalUsers = scannedTotal;
           premiumUsers = scannedPremium;
+          compedUsers = scannedComped;
           await env.USERS.put("stats:totalUsers", String(totalUsers));
           await env.USERS.put("stats:premiumUsers", String(premiumUsers));
+          await env.USERS.put("stats:compedUsers", String(compedUsers));
         }
       }
 
       const freeUsers = totalUsers - premiumUsers;
+      // Paying premium only — comps (100%-off) are real users but $0 of revenue.
+      const paidPremiumUsers = Math.max(0, premiumUsers - compedUsers);
       const priceAmount = parseInt(env.STRIPE_PRICE_AMOUNT || "500");
-      const estimatedMRR = premiumUsers * priceAmount / 100;
-      return new Response(JSON.stringify({ ok: true, totalUsers, premiumUsers, freeUsers, estimatedMRR }), {
+      const estimatedMRR = paidPremiumUsers * priceAmount / 100;
+      const wallHits = parseInt(await env.USERS.get("stats:wallHits") || "0", 10);
+      const anonAsks = parseInt(await env.USERS.get("stats:anonAsks") || "0", 10);
+      return new Response(JSON.stringify({
+        ok: true,
+        totalUsers,
+        premiumUsers,
+        compedUsers,
+        paidPremiumUsers,
+        freeUsers,
+        estimatedMRR,
+        funnel: { anonAsks, wallHits },
+      }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     return new Response("Not found", { status: 404, headers: corsHeaders });
+  },
+
+  // Scheduled reconciliation (Cloudflare Cron — see wrangler.toml [triggers]).
+  // resolveGracePeriod() otherwise only runs lazily on /auth/me and /chat, so a
+  // lapsed-grace user who never returns is never downgraded and keeps inflating
+  // premiumUsers / estimatedMRR. This sweep reconciles every grace-flagged user.
+  async scheduled(_event, env) {
+    let cursor = null;
+    let reconciled = 0;
+    do {
+      const listOpts = { limit: 1000 };
+      if (cursor) listOpts.cursor = cursor;
+      const result = await env.USERS.list(listOpts);
+      for (const key of result.keys) {
+        if (key.name.startsWith("stats:") || key.name.startsWith("transcript:")) continue;
+        const u = await env.USERS.get(key.name, "json");
+        if (u && u.gracePeriodEndsAt) {
+          const before = u.plan;
+          await resolveGracePeriod(u, env);
+          if (before === "premium" && u.plan === "free") reconciled++;
+        }
+      }
+      cursor = result.list_complete ? null : result.cursor;
+    } while (cursor);
+    return reconciled;
   },
 };
 
