@@ -846,7 +846,7 @@ const handler = {
           chatUsage: user.chatUsage || null,
           chatLimit: parseInt(env.CHAT_MONTHLY_LIMIT || "1000"),
           freeChatUsage: user.freeChatUsage || null,
-          freeDailyLimit: parseInt(env.FREE_DAILY_CHAT_LIMIT || "3"),
+          freeDailyLimit: parseInt(env.FREE_DAILY_CHAT_LIMIT || "0"),
         },
       }), {
         status: 200,
@@ -1371,20 +1371,25 @@ const handler = {
           await env.USERS.put(accountUser.email, JSON.stringify(accountUser));
           authorized = true;
         } else {
-          // Free registered account — daily allowance
+          // Free registered account. The AI Desk is a PREMIUM-ONLY feature: when
+          // FREE_DAILY_CHAT_LIMIT <= 0 (the default, and current product setting)
+          // free plans get NO model usage at all — we refuse before any LLM call.
+          // A positive limit re-enables a daily "taste" of the desk.
           const today = new Date().toISOString().slice(0, 10);
+          const freeLimit = parseInt(env.FREE_DAILY_CHAT_LIMIT || "0");
           if (!accountUser.freeChatUsage || accountUser.freeChatUsage.day !== today) {
             accountUser.freeChatUsage = { day: today, count: 0 };
           }
-          const freeLimit = parseInt(env.FREE_DAILY_CHAT_LIMIT || "3");
-          if (accountUser.freeChatUsage.count >= freeLimit) {
-            // Funnel telemetry: a free user hit the upgrade wall (hop 5). This is
-            // the central datum that grades the GT-FLAT root-cause claim.
+          if (freeLimit <= 0 || accountUser.freeChatUsage.count >= freeLimit) {
+            // Funnel telemetry: a free user hit the upgrade wall.
             await incrementStat(env.USERS, "stats:wallHits", 1);
             return new Response(JSON.stringify({
-              error: "Free daily limit reached",
+              error: freeLimit <= 0 ? "AI Desk is a Premium feature" : "Free daily limit reached",
               upgrade: true,
-              message: `You've used your ${freeLimit} free AI questions for today. Upgrade to Premium for unlimited access.`,
+              message:
+                freeLimit <= 0
+                  ? "The AI Desk is part of Premium. Upgrade for cited answers, reasoning, and repo tools."
+                  : `You've used your ${freeLimit} free AI questions for today. Upgrade to Premium for unlimited access.`,
             }), {
               status: 429,
               headers: { ...corsHeaders, "Content-Type": "application/json" },

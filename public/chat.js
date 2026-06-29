@@ -41,20 +41,29 @@
       // Legacy Stripe checkout session (24h)
       showChat();
     } else if (accountSession) {
-      // Any logged-in account can chat — free accounts get a daily allowance,
-      // premium gets unlimited. Only anonymous visitors hit the paywall.
+      // The AI Desk is Premium. Free accounts only chat when a daily allowance is
+      // configured (freeDailyLimit > 0); otherwise they see the upgrade paywall.
       fetch(WORKER + '/auth/me', {
         headers: { 'Authorization': 'Bearer ' + accountSession }
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.ok && data.user) { planUser = data.user; renderPlanStrip(); showChat(); }
-        else showPaywall();
+        if (data.ok && data.user) {
+          planUser = data.user;
+          renderPlanStrip();
+          if (canChat(data.user)) showChat();
+          else showPaywall();
+        } else showPaywall();
       })
       .catch(showPaywall);
     } else {
       showPaywall();
     }
+  }
+
+  // Premium chats freely; free chats only if a daily taste is configured.
+  function canChat(u) {
+    return !!u && (u.plan === 'premium' || (u.freeDailyLimit || 0) > 0);
   }
 
   // --- Plan transparency strip: what your plan is for + quota remaining ---
@@ -66,9 +75,13 @@
     if (u.plan === 'premium') {
       return { tier: 'Premium', detail: 'Deep research, repo lookups & side-by-side compares' };
     }
+    var limit = u.freeDailyLimit || 0;
+    if (limit <= 0) {
+      // Premium-only: free plans get no AI Desk usage.
+      return { tier: 'Free', detail: 'The AI Desk is a Premium feature', premiumOnly: true, upgrade: true };
+    }
     var today = new Date().toISOString().slice(0, 10);
     var used = (u.freeChatUsage && u.freeChatUsage.day === today) ? u.freeChatUsage.count : 0;
-    var limit = u.freeDailyLimit || 3;
     return { tier: 'Free', detail: 'Best for quick, one-off questions', remaining: Math.max(0, limit - used), limit: limit, upgrade: true };
   }
 
@@ -83,7 +96,7 @@
     }
     var parts = [];
     parts.push('<span class="chat-plan-tier ' + (info.tier === 'Premium' ? 'premium' : '') + '">' + info.tier + '</span>');
-    if (info.tier === 'Free') {
+    if (info.tier === 'Free' && !info.premiumOnly) {
       parts.push('<span class="chat-plan-quota">' + info.remaining + ' of ' + info.limit + ' left today</span>');
     }
     parts.push('<span class="chat-plan-detail">' + info.detail + '</span>');
@@ -97,6 +110,7 @@
   // Optimistically reflect a used question so the quota updates without a refetch.
   function decrementQuota() {
     if (!planUser || planUser.plan === 'premium') return;
+    if ((planUser.freeDailyLimit || 0) <= 0) return; // premium-only: no free quota to track
     var today = new Date().toISOString().slice(0, 10);
     if (!planUser.freeChatUsage || planUser.freeChatUsage.day !== today) {
       planUser.freeChatUsage = { day: today, count: 0 };

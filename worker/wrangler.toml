@@ -2,6 +2,11 @@ name = "gittimes-chat"
 main = "index.js"
 compatibility_date = "2024-01-01"
 
+# Hourly reconciliation sweep — downgrades users whose dunning grace has lapsed
+# but who never returned to trigger the lazy resolveGracePeriod() path.
+[triggers]
+crons = ["0 * * * *"]
+
 [vars]
 ALLOWED_ORIGIN = "https://gittimes.com"
 SITE_BASE_URL = "https://gittimes.com"
@@ -9,9 +14,10 @@ SITE_BASE_URL = "https://gittimes.com"
 # premium user costs cents/mo against $5 revenue, so this is "effectively
 # unlimited" with an abuse ceiling rather than a real product limit.
 CHAT_MONTHLY_LIMIT = "1000"
-# Free registered accounts get this many AI questions per day — the conversion
-# funnel (a real taste of the AI desk). ~3/day worst case ≈ <$0.30/mo per free user.
-FREE_DAILY_CHAT_LIMIT = "3"
+# AI Desk daily allowance for FREE registered accounts. 0 = Premium-only: free
+# plans get NO model usage at all (no spend, no abuse surface). Set to a positive
+# number to re-enable a daily "taste" as a conversion funnel.
+FREE_DAILY_CHAT_LIMIT = "0"
 STRIPE_PRICE_AMOUNT = "500"
 # OpenRouter model for premium chat. Paid model for go-live (free tier rate-limits
 # make a poor paid experience). Cheap + fast; change here + redeploy to swap.
@@ -25,6 +31,7 @@ ALERT_EMAIL = "mandalazenwave@gmail.com"
 # - STRIPE_WEBHOOK_SECRET
 # - OPENROUTER_API_KEY
 # - STRIPE_PRICE_ID
+# - STRIPE_PRICE_ID_ANNUAL  (optional — annual SKU; /checkout?interval=annual falls back to monthly if unset)
 # - RESEND_API_KEY
 # - NEWSLETTER_SECRET
 # - ADMIN_TOKEN

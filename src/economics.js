@@ -29,8 +29,10 @@ const DEFAULT_ASSUMPTIONS = {
   toolCallRounds: 0,
   toolRoundOutputTokens: 150,
 
-  // Plan shape (mirrors worker/wrangler.toml).
-  freeTurnsPerDay: 3,
+  // Plan shape (mirrors worker/wrangler.toml). freeTurnsPerDay: 0 = the AI Desk
+  // is Premium-only, so free plans incur no model cost. Raise it to model the
+  // burn of a free "taste" funnel.
+  freeTurnsPerDay: 0,
   daysPerMonth: 30,
   premiumTypicalTurnsPerMonth: 40, // what an engaged premium reader actually does
   premiumCapTurnsPerMonth: 1000, // CHAT_MONTHLY_LIMIT — the abuse ceiling
@@ -147,8 +149,11 @@ function userFacingPlan(model, opts) {
     free: {
       price: "$0",
       questionsPerDay: a.freeTurnsPerDay,
+      aiDesk: a.freeTurnsPerDay > 0,
       bestFor:
-        "A daily taste — ask about today's lead story or a single repo. Best when you have one or two quick questions.",
+        a.freeTurnsPerDay > 0
+          ? "A daily taste of the AI Desk plus the full paper. Best for one or two quick questions a day."
+          : "Read the paper — daily editions, the AI model market, the archive, and a reader you can tune. The AI Desk is on Premium.",
     },
     premium: {
       price: `$${a.priceMonthlyUsd}/mo`,

@@ -17,17 +17,29 @@ function esc(s) {
 
 function renderPlans(basePath, plan) {
   const acct = `${basePath}/account/`;
-  const freeItems = [
-    `${plan.free.questionsPerDay} AI questions per day`,
-    "Cited, grounded answers",
-    "Readable reasoning mode",
-    "Repo lookups & comparisons",
-  ];
+  // The AI Desk is Premium. Free accounts read the paper; only when a daily
+  // "taste" is configured (plan.free.aiDesk) does Free include AI questions.
+  const freeItems = plan.free.aiDesk
+    ? [
+        `${plan.free.questionsPerDay} AI questions per day`,
+        "Cited, grounded answers",
+        "Every daily edition + archive",
+        "Customizable reader",
+      ]
+    : [
+        "Every daily edition",
+        "AI model market & live pricing",
+        "Full archive & search",
+        "Customizable reader — fonts, themes, width",
+        "AI Desk — Premium only", // muted (see mutedFrom)
+      ];
+  const freeMutedFrom = plan.free.aiDesk ? null : 4;
   const premiumItems = [
+    "The AI Desk — cited answers, reasoning & repo tools",
+    "Side-by-side repo & model comparisons",
     `${plan.premium.questionsPerMonth.toLocaleString()} questions/mo — effectively unlimited`,
-    "Everything in Free",
-    "Deep, multi-step research across editions",
     "Conversation that follows you across devices",
+    "Everything in Free",
   ];
   const li = (items, mutedFrom) =>
     items.map((t, i) => `<li${mutedFrom != null && i >= mutedFrom ? ' class="muted"' : ""}>${esc(t)}</li>`).join("");
@@ -37,7 +49,7 @@ function renderPlans(basePath, plan) {
     <p class="plan-name">Free</p>
     <div class="plan-price">$0</div>
     <p class="plan-for">${esc(plan.free.bestFor)}</p>
-    <ul class="plan-list">${li(freeItems)}</ul>
+    <ul class="plan-list">${li(freeItems, freeMutedFrom)}</ul>
     <a class="plan-cta ghost" href="${acct}">Start free — sign in</a>
     <p class="plan-note">No card. Magic-link sign-in.</p>
   </div>

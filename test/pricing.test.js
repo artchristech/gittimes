@@ -16,8 +16,14 @@ test("renderPricingPage — shows both plans with real numbers from assumptions"
   assert.match(html, /class="plan-name">Free/);
   assert.match(html, /class="plan-name">Premium/);
   assert.ok(html.includes(`$${DEFAULT_ASSUMPTIONS.priceMonthlyUsd}`), "premium price present");
-  assert.ok(html.includes(`${DEFAULT_ASSUMPTIONS.freeTurnsPerDay} AI questions per day`), "free daily limit present");
   assert.ok(html.includes(DEFAULT_ASSUMPTIONS.premiumCapTurnsPerMonth.toLocaleString()), "monthly cap shown");
+});
+
+test("renderPricingPage — AI Desk is presented as Premium-only (no free AI claims)", () => {
+  const html = renderPricingPage({ basePath: "" });
+  assert.doesNotMatch(html, /AI questions per day/, "free plan makes no AI-question claim");
+  assert.match(html, /AI Desk — Premium only/, "free card defers the desk to Premium");
+  assert.match(html, /The AI Desk — cited answers/, "premium card leads with the AI Desk");
 });
 
 test("renderPricingPage — lists the four AI Desk features and links account + markets", () => {

@@ -59,7 +59,7 @@ function createMockEnv() {
     ALLOWED_ORIGIN: "https://gittimes.com",
     ADMIN_TOKEN: "admin_test_token",
     CHAT_MONTHLY_LIMIT: "100",
-    FREE_DAILY_CHAT_LIMIT: "3",
+    FREE_DAILY_CHAT_LIMIT: "0", // AI Desk is Premium-only (production setting)
     STRIPE_PRICE_AMOUNT: "500",
   };
 }
@@ -857,8 +857,27 @@ describe("Worker endpoints", () => {
       assert.equal(JSON.parse(lastChatRequest.opts.body).model, "anthropic/claude-haiku");
     });
 
-    it("allows free user a daily allowance (no session_id needed)", async () => {
+    it("denies free accounts — AI Desk is Premium-only, with NO model call", async () => {
       const token = await createSession(env, "free@test.com", "free");
+      const res = await worker.fetch(
+        req("POST", "/chat", {
+          body: { messages: [{ role: "user", content: "hello" }] },
+          headers: { Authorization: "Bearer " + token },
+        }),
+        env,
+      );
+      assert.equal(res.status, 429);
+      const data = await res.json();
+      assert.equal(data.upgrade, true);
+      assert.match(data.error, /Premium/);
+      // The critical guarantee: the model was never called for a free user.
+      assert.equal(lastChatRequest, null, "no LLM request for a free account");
+      assert.equal(await env.USERS.get("stats:wallHits"), "1");
+    });
+
+    it("re-enables a free daily taste when FREE_DAILY_CHAT_LIMIT > 0", async () => {
+      env.FREE_DAILY_CHAT_LIMIT = "2";
+      const token = await createSession(env, "taste@test.com", "free");
       const res = await worker.fetch(
         req("POST", "/chat", {
           body: { messages: [{ role: "user", content: "hello" }] },
@@ -870,7 +889,8 @@ describe("Worker endpoints", () => {
       assert.equal(res.headers.get("Content-Type"), "text/event-stream");
     });
 
-    it("returns 429 with upgrade flag at free daily limit", async () => {
+    it("returns 429 with upgrade flag at free daily limit (taste enabled)", async () => {
+      env.FREE_DAILY_CHAT_LIMIT = "3";
       const token = await createSession(env, "freecap@test.com", "free", {
         freeChatUsage: { day: new Date().toISOString().slice(0, 10), count: 3 },
       });
