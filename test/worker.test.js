@@ -1404,3 +1404,138 @@ describe("POST /chat — RAG grounding + thinking", () => {
     assert.doesNotMatch(body, /"sources":/);
   });
 });
+
+// --- Repo tool-use + compare (the research-agent path). ---
+describe("POST /chat — repo tool-use", () => {
+  let env, origFetch, orCalls, ghCalls;
+
+  function toolMock() {
+    orCalls = 0;
+    ghCalls = [];
+    return (url) => {
+      if (url.includes("/data/corpus.json"))
+        return Promise.resolve(new Response(JSON.stringify({ chunks: [] }), { status: 200 }));
+      if (url.includes("api.github.com")) {
+        ghCalls.push(url);
+        if (url.includes("/readme"))
+          return Promise.resolve(new Response(JSON.stringify({ content: btoa("# React\nA JS library for UIs") }), { status: 200 }));
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({ full_name: "facebook/react", stargazers_count: 225000, forks_count: 46000, open_issues_count: 700, language: "JavaScript" }),
+            { status: 200 },
+          ),
+        );
+      }
+      if (url.includes("openrouter.ai")) {
+        orCalls++;
+        if (orCalls === 1) {
+          // First hop: the model asks for a tool.
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                choices: [{ message: { role: "assistant", content: "", tool_calls: [{ id: "call_1", type: "function", function: { name: "get_repo_meta", arguments: '{"repo":"facebook/react"}' } }] } }],
+              }),
+              { status: 200 },
+            ),
+          );
+        }
+        // Second hop: the model answers using the tool result.
+        return Promise.resolve(
+          new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "facebook/react has 225,000 stars." } }] }), { status: 200 }),
+        );
+      }
+      return Promise.resolve(new Response("unmocked", { status: 500 }));
+    };
+  }
+
+  async function readBody(res) {
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let out = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      out += dec.decode(value);
+    }
+    return out;
+  }
+
+  beforeEach(() => {
+    env = createMockEnv();
+    origFetch = globalThis.fetch;
+    globalThis.fetch = toolMock();
+  });
+  afterEach(() => {
+    globalThis.fetch = origFetch;
+  });
+
+  it("resolves a repo tool call and streams the answer (intent: 'compare')", async () => {
+    const token = await createSession(env, "tool@p.co", "premium");
+    const res = await worker.fetch(
+      req("POST", "/chat", {
+        headers: { Authorization: "Bearer " + token },
+        body: { messages: [{ role: "user", content: "Question: compare the stars of facebook/react vs others" }] },
+      }),
+      env,
+    );
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get("Content-Type"), "text/event-stream");
+    const body = await readBody(res);
+    assert.match(body, /225,000 stars/);
+    assert.ok(orCalls >= 2, "tool round then final answer");
+    assert.ok(ghCalls.some((u) => u.includes("/repos/facebook/react")), "GitHub repo meta was fetched");
+  });
+
+  it("a non-intent question does NOT enter the tool loop", async () => {
+    const token = await createSession(env, "plain@p.co", "premium");
+    // No tool keyword -> streaming proxy path. The mock returns a non-stream JSON
+    // for openrouter, which the proxy pipes as the (single) body; we only assert
+    // that the tool loop wasn't used (no second model call, no GitHub hit).
+    await worker.fetch(
+      req("POST", "/chat", {
+        headers: { Authorization: "Bearer " + token },
+        body: { messages: [{ role: "user", content: "Question: what is this project about" }] },
+      }),
+      env,
+    );
+    assert.equal(ghCalls.length, 0, "no GitHub calls for a plain question");
+    assert.equal(orCalls, 1, "single model call, not a tool loop");
+  });
+
+  it("rejects a malformed repo argument without calling GitHub (SSRF guard)", async () => {
+    // A model that requests a path-traversal repo; the guard must refuse it.
+    let calls = 0;
+    const gh = [];
+    globalThis.fetch = (url) => {
+      if (url.includes("/data/corpus.json")) return Promise.resolve(new Response(JSON.stringify({ chunks: [] }), { status: 200 }));
+      if (url.includes("api.github.com")) {
+        gh.push(url);
+        return Promise.resolve(new Response("{}", { status: 200 }));
+      }
+      if (url.includes("openrouter.ai")) {
+        calls++;
+        if (calls === 1) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({ choices: [{ message: { role: "assistant", content: "", tool_calls: [{ id: "c", type: "function", function: { name: "get_repo_meta", arguments: '{"repo":"../../etc/passwd"}' } }] } }] }),
+              { status: 200 },
+            ),
+          );
+        }
+        return Promise.resolve(new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "I couldn't look that up." } }] }), { status: 200 }));
+      }
+      return Promise.resolve(new Response("unmocked", { status: 500 }));
+    };
+    const token = await createSession(env, "ssrf@p.co", "premium");
+    const res = await worker.fetch(
+      req("POST", "/chat", {
+        headers: { Authorization: "Bearer " + token },
+        body: { messages: [{ role: "user", content: "Question: compare the readme of ../../etc/passwd" }] },
+      }),
+      env,
+    );
+    await readBody(res);
+    assert.equal(gh.length, 0, "malformed repo must never reach a GitHub fetch");
+    assert.ok(calls >= 2, "model still gets the rejection and answers");
+  });
+});

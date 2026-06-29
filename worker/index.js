@@ -222,6 +222,171 @@ async function buildGrounding(env, messages, now) {
   }
 }
 
+// --- Repo tool-use + compare (the research-agent path) ---
+//
+// When a question reads like a lookup/comparison, we let the model call tools
+// (GitHub API + the market data) in a bounded loop, then stream the grounded
+// answer. Intent-gated so ordinary chat stays a single cheap streaming call.
+
+const MAX_TOOL_ROUNDS = 4;
+const REPO_RE = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const TOOL_INTENT_RE =
+  /\b(compare|compared|comparison|versus|vs\.?|diff|difference between|readme|read me|changelog|release notes?|releases?|which is better|stack(?:s)? up against)\b/i;
+
+function detectToolIntent(q) {
+  return TOOL_INTENT_RE.test(q || "");
+}
+
+const TOOL_DEFS = [
+  { type: "function", function: { name: "get_repo_meta", description: "Get a GitHub repo's stars, forks, open issues, primary language, license, topics, description, homepage and last-push date.", parameters: { type: "object", properties: { repo: { type: "string", description: "owner/name, e.g. facebook/react" } }, required: ["repo"] } } },
+  { type: "function", function: { name: "get_repo_readme", description: "Get the README text of a GitHub repo (default branch).", parameters: { type: "object", properties: { repo: { type: "string", description: "owner/name" } }, required: ["repo"] } } },
+  { type: "function", function: { name: "get_repo_file", description: "Read a specific file from a GitHub repo's default branch.", parameters: { type: "object", properties: { repo: { type: "string", description: "owner/name" }, path: { type: "string", description: "file path within the repo, e.g. package.json" } }, required: ["repo", "path"] } } },
+  { type: "function", function: { name: "get_repo_releases", description: "List a GitHub repo's recent releases — tag, name, date, and notes.", parameters: { type: "object", properties: { repo: { type: "string", description: "owner/name" } }, required: ["repo"] } } },
+  { type: "function", function: { name: "compare_models", description: "Look up pricing, context window and modalities for AI models from the Git Times market data, to compare them.", parameters: { type: "object", properties: { models: { type: "array", items: { type: "string" }, description: "model names or ids to compare, e.g. ['gpt-4o-mini','claude haiku']" } }, required: ["models"] } } },
+];
+
+function _b64decode(s) {
+  const clean = String(s || "").replace(/\s+/g, "");
+  try {
+    return decodeURIComponent(escape(atob(clean)));
+  } catch {
+    try {
+      return atob(clean);
+    } catch {
+      return "";
+    }
+  }
+}
+
+async function ghFetch(apiPath, env) {
+  const headers = { "User-Agent": "git-times-ai-desk", Accept: "application/vnd.github+json" };
+  if (env.GITHUB_TOKEN) headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
+  return fetch(`https://api.github.com${apiPath}`, { headers, signal: AbortSignal.timeout(6000) });
+}
+
+async function executeTool(name, args, env) {
+  try {
+    if (name === "compare_models") {
+      const market = await getMarketContext(env);
+      const list = (market && market.models) || [];
+      const want = Array.isArray(args.models) ? args.models.slice(0, 4) : [];
+      if (!want.length) return "No models specified.";
+      return want
+        .map((w) => {
+          const q = String(w).toLowerCase();
+          const m = list.find(
+            (x) => (x.label || "").toLowerCase().includes(q) || (x.provider || "").toLowerCase().includes(q)
+          );
+          if (!m) return `${w}: not found in Git Times market data`;
+          const ctx = m.context_length ? `${Math.round(m.context_length / 1000)}k ctx` : "ctx ?";
+          const vision = (m.input_modalities || []).includes("image") ? ", vision" : "";
+          return `${m.label} (${m.provider}): $${m.input}/M in, $${m.output}/M out, ${ctx}${vision}`;
+        })
+        .join("\n");
+    }
+
+    const repo = args.repo;
+    if (!repo || !REPO_RE.test(repo)) return `Invalid repo "${repo}". Use the form owner/name.`;
+
+    if (name === "get_repo_meta") {
+      const r = await ghFetch(`/repos/${repo}`, env);
+      if (!r.ok) return `GitHub: repo ${repo} not found (HTTP ${r.status}).`;
+      const d = await r.json();
+      return JSON.stringify({
+        full_name: d.full_name,
+        stars: d.stargazers_count,
+        forks: d.forks_count,
+        open_issues: d.open_issues_count,
+        language: d.language,
+        license: d.license && d.license.spdx_id,
+        topics: d.topics,
+        description: d.description,
+        homepage: d.homepage,
+        pushed_at: d.pushed_at,
+      });
+    }
+    if (name === "get_repo_readme") {
+      const r = await ghFetch(`/repos/${repo}/readme`, env);
+      if (!r.ok) return `GitHub: no README for ${repo} (HTTP ${r.status}).`;
+      const d = await r.json();
+      return _b64decode(d.content).slice(0, 6000) || "(README was empty)";
+    }
+    if (name === "get_repo_file") {
+      const path = String(args.path || "").replace(/^\/+/, "");
+      if (!path || path.includes("..")) return "Invalid file path.";
+      const enc = path.split("/").map(encodeURIComponent).join("/");
+      const r = await ghFetch(`/repos/${repo}/contents/${enc}`, env);
+      if (!r.ok) return `GitHub: ${path} not found in ${repo} (HTTP ${r.status}).`;
+      const d = await r.json();
+      if (Array.isArray(d)) return `${path} is a directory containing: ${d.map((x) => x.name).join(", ").slice(0, 1500)}`;
+      return _b64decode(d.content).slice(0, 6000) || "(file was empty)";
+    }
+    if (name === "get_repo_releases") {
+      const r = await ghFetch(`/repos/${repo}/releases?per_page=5`, env);
+      if (!r.ok) return `GitHub: no releases for ${repo} (HTTP ${r.status}).`;
+      const d = await r.json();
+      if (!Array.isArray(d) || !d.length) return `${repo} has no published releases.`;
+      return d
+        .map((x) => `${x.tag_name}${x.name ? ` — ${x.name}` : ""} (${(x.published_at || "").slice(0, 10)})\n${(x.body || "").slice(0, 500)}`)
+        .join("\n\n");
+    }
+    return `Unknown tool ${name}.`;
+  } catch (e) {
+    return `Tool ${name} failed: ${(e && e.message) || "error"}.`;
+  }
+}
+
+// Bounded tool-resolution loop. Returns the model's final answer text (already
+// grounded in any tool results). The last round forces tool_choice:"none" so we
+// always terminate with an answer rather than another tool request.
+async function resolveTools(systemContent, convo, env, baseUrl) {
+  const messages = convo.slice();
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const last = round === MAX_TOOL_ROUNDS - 1;
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://gittimes.com",
+        "X-Title": "The Git Times",
+      },
+      body: JSON.stringify({
+        model: env.CHAT_MODEL || CHAT_MODEL,
+        temperature: 0.4,
+        messages: [{ role: "system", content: systemContent }, ...messages],
+        tools: TOOL_DEFS,
+        tool_choice: last ? "none" : "auto",
+      }),
+    });
+    if (!res.ok) return { text: "" };
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      return { text: "" };
+    }
+    const msg = data.choices && data.choices[0] && data.choices[0].message;
+    if (!msg) return { text: "" };
+    if (!last && msg.tool_calls && msg.tool_calls.length) {
+      messages.push({ role: "assistant", content: msg.content || "", tool_calls: msg.tool_calls });
+      for (const tc of msg.tool_calls) {
+        let a = {};
+        try {
+          a = JSON.parse((tc.function && tc.function.arguments) || "{}");
+        } catch {
+          /* malformed tool args — pass empty */
+        }
+        const out = await executeTool(tc.function && tc.function.name, a, env);
+        messages.push({ role: "tool", tool_call_id: tc.id, content: String(out).slice(0, 6000) });
+      }
+      continue;
+    }
+    return { text: msg.content || "" };
+  }
+  return { text: "" };
+}
+
 // --- Stats counter helpers ---
 
 async function incrementStat(kv, key, delta) {
@@ -1287,6 +1452,31 @@ const handler = {
       let systemContent = buildSystemPrompt(market);
       if (grounding.block) systemContent += grounding.block;
       if (wantThinking) systemContent += THINKING_INSTRUCTION;
+
+      // Research-agent path: when the question reads like a lookup/comparison and
+      // the user is a logged-in account, resolve tool calls (GitHub + market
+      // data) in a bounded loop, then stream the grounded answer. Ordinary chat
+      // skips this and streams in a single call (keeps the common path cheap).
+      if (accountUser && detectToolIntent(extractQuery(messages))) {
+        const resolved = await resolveTools(systemContent, messages, env, baseUrl);
+        const answer =
+          resolved.text || "I couldn't complete that lookup just now — try rephrasing your question.";
+        const enc = new TextEncoder();
+        const toolStream = new ReadableStream({
+          start(controller) {
+            if (grounding.sources && grounding.sources.length) {
+              controller.enqueue(enc.encode(`data: ${JSON.stringify({ sources: grounding.sources })}\n\n`));
+            }
+            controller.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: answer } }] })}\n\n`));
+            controller.enqueue(enc.encode("data: [DONE]\n\n"));
+            controller.close();
+          },
+        });
+        return new Response(toolStream, {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+        });
+      }
 
       const aiRes = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",

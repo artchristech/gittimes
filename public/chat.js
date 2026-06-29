@@ -265,6 +265,20 @@
     return esc(s).replace(/"/g, '&quot;');
   }
 
+  // Slash commands expand to natural questions that trip the research tools.
+  function expandSlash(t) {
+    var m = t.match(/^\/(compare|readme|releases|file)\s+(.+)/i);
+    if (!m) return t;
+    var arg = m[2].trim();
+    switch (m[1].toLowerCase()) {
+      case 'compare': return 'Compare ' + arg + ' — the key differences, trade-offs, and which to pick.';
+      case 'readme': return 'Summarize the README of ' + arg + ' — what it does, how to use it, and any caveats.';
+      case 'releases': return 'What are the recent releases of ' + arg + ', and what changed?';
+      case 'file': return 'Show and explain the file: ' + arg + '.';
+      default: return t;
+    }
+  }
+
   // Split a streamed answer into its <thinking> reasoning and the answer body.
   // The model emits "<thinking>...</thinking>" first (only when reasoning mode
   // is on); everything after the close tag is the answer.
@@ -397,9 +411,10 @@
     if (starters) starters.style.display = 'none';
     addMsg('user', text);
 
+    var query = expandSlash(text);
     var context = getContext();
     var label = scoped ? 'Story in focus' : "Today's stories";
-    var userMsg = context ? label + ':\n' + context + '\n\nQuestion: ' + text : text;
+    var userMsg = context ? label + ':\n' + context + '\n\nQuestion: ' + query : query;
     history_msgs.push({ role: 'user', content: userMsg });
     display_msgs.push({ role: 'user', text: text });
     persistTranscript();

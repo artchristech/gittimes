@@ -35,6 +35,7 @@ module.exports = [
         ReadableStream: "readonly",
         crypto: "readonly",
         btoa: "readonly",
+        atob: "readonly",
         localStorage: "readonly",
         document: "readonly",
         window: "readonly",
