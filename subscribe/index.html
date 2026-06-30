@@ -1958,6 +1958,9 @@ body.chat-on .hybrid-ask {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  /* Cap content to a reading measure, centered, on the wide docked rail. */
+  padding-left: max(16px, calc((100% - 760px) / 2));
+  padding-right: max(16px, calc((100% - 760px) / 2));
 }
 
 @media (min-width: 900px) {
@@ -2023,6 +2026,193 @@ body.chat-on .hybrid-ask {
   background: color-mix(in srgb, var(--ink) 8%, transparent);
 }
 
+/* Reasoning toggle — lit when on. */
+.chat-think-toggle {
+  font-size: 13px;
+  line-height: 1;
+}
+.chat-think-toggle.on {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* "Thinking" disclosure shown above an answer in reasoning mode. */
+.chat-think {
+  margin: 0 0 6px;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  padding-left: 8px;
+}
+.chat-think > summary {
+  cursor: pointer;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-soft, var(--ink));
+  opacity: 0.75;
+  list-style: none;
+}
+.chat-think > summary::-webkit-details-marker { display: none; }
+.chat-think > summary::before { content: "▸ "; }
+.chat-think[open] > summary::before { content: "▾ "; }
+.chat-think-body {
+  font-size: 12.5px;
+  color: var(--ink-soft, var(--ink));
+  opacity: 0.85;
+  margin-top: 4px;
+}
+.chat-think-body p { margin: 4px 0; }
+
+/* Inline [n] citations in an answer. */
+.chat-cite {
+  font-size: 0.7em;
+}
+.chat-cite a {
+  text-decoration: none;
+  color: var(--accent);
+  font-weight: 600;
+}
+.chat-cite a:hover { text-decoration: underline; }
+
+/* Source list under a grounded answer. */
+.chat-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--rule-light);
+}
+.chat-sources-label {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-soft, var(--ink));
+  opacity: 0.6;
+}
+.chat-source {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-source:hover { text-decoration: underline; }
+
+/* Plan transparency strip above the input: tier, quota, what it's for. */
+.chat-plan {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 14px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-soft, var(--ink));
+}
+.chat-plan-tier {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft, var(--ink));
+  opacity: 0.7;
+}
+.chat-plan-tier.premium {
+  color: var(--accent);
+  opacity: 1;
+}
+.chat-plan-quota {
+  font-weight: 600;
+}
+.chat-plan-detail {
+  opacity: 0.6;
+}
+.chat-plan-upgrade {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chat-plan-upgrade:hover { text-decoration: underline; }
+
+/* Save action under an answer. */
+.chat-actions { margin-top: 8px; }
+.chat-save-btn {
+  background: none;
+  border: 1px solid var(--rule-light);
+  color: var(--ink-soft, var(--ink));
+  font-family: var(--font-meta);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.chat-save-btn:hover { border-color: var(--accent); color: var(--accent); }
+.chat-save-btn.saved { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); cursor: default; }
+
+/* Saved-answers list view. */
+.chat-saved { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; }
+.chat-saved-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft, var(--ink));
+  margin-bottom: 10px;
+}
+.chat-saved-close {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-meta);
+  font-size: 11px;
+  cursor: pointer;
+}
+.chat-saved-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--rule-light);
+  padding: 8px 0;
+}
+.chat-saved-open {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.35;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.chat-saved-open:hover { color: var(--accent); }
+.chat-saved-remove {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.chat-saved-remove:hover { color: var(--accent); }
+.chat-saved-empty { font-family: var(--font-body); font-size: 13px; color: var(--ink-faint); }
+
 .chat-live-dot {
   width: 7px;
   height: 7px;
@@ -2050,28 +2240,32 @@ body.chat-on .hybrid-ask {
 
 .chat-msg-user,
 .chat-msg-ai {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Reader's question: a compact dark bubble, capped to the reading measure. */
+.chat-msg-user {
   font-family: var(--font-meta);
   font-size: 13px;
   line-height: 1.5;
   padding: 8px 12px;
   border-radius: 10px;
-  max-width: 85%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.chat-msg-user {
+  border-bottom-right-radius: 4px;
+  max-width: min(85%, 30rem);
   background: var(--ink);
   color: var(--paper);
   align-self: flex-end;
-  border-bottom-right-radius: 4px;
 }
 
+/* AI reply: editorial prose on paper — no bubble, serif reading face. */
 .chat-msg-ai {
-  background: color-mix(in srgb, var(--paper) 90%, var(--ink) 10%);
+  align-self: stretch;
+  max-width: 100%;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
   color: var(--ink);
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
 }
 
 .chat-msg-ai.streaming::after {
@@ -2087,12 +2281,37 @@ body.chat-on .hybrid-ask {
 }
 
 /* Markdown rendered inside AI replies */
-.chat-msg-ai p { margin: 0 0 8px; }
+.chat-msg-ai p { margin: 0 0 12px; }
 .chat-msg-ai p:last-child { margin-bottom: 0; }
 .chat-msg-ai ul,
-.chat-msg-ai ol { margin: 4px 0 8px; padding-left: 18px; }
-.chat-msg-ai li { margin-bottom: 3px; }
+.chat-msg-ai ol { margin: 6px 0 12px; padding-left: 20px; }
+.chat-msg-ai li { margin-bottom: 6px; }
 .chat-msg-ai strong { font-weight: 700; }
+.chat-msg-ai h3,
+.chat-msg-ai h4,
+.chat-msg-ai h5 {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 18px 0 7px;
+}
+.chat-msg-ai h3:first-child,
+.chat-msg-ai h4:first-child { margin-top: 0; }
+.chat-msg-ai blockquote {
+  margin: 10px 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--rule-light);
+  color: var(--ink-faint);
+  font-style: italic;
+}
+.chat-msg-ai hr {
+  border: none;
+  border-top: 1px solid var(--rule-light);
+  margin: 16px 0;
+}
 .chat-msg-ai code {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 12px;
@@ -2551,12 +2770,25 @@ body.landing {
   letter-spacing: 0.5px;
 }
 
+.masthead-pricing {
+  position: absolute;
+  top: 15px;
+  right: 4px;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.masthead-pricing:hover,
 .masthead-account:hover {
   color: var(--accent);
 }
 
 @media (max-width: 680px) {
-  .masthead-account {
+  .masthead-account,
+  .masthead-pricing {
     position: static;
     display: block;
     text-align: center;
@@ -2834,7 +3066,7 @@ body.account {
     <h2>Recent Editions</h2>
         <a href="/editions/2026-06-30/" class="landing-edition-card">
       <span class="edition-card-date">Tuesday, June 30, 2026</span>
-      <span class="edition-card-headline">NVIDIA Cosmos 3 Unifies World Models for Physical AI Development</span>
+      <span class="edition-card-headline">Scrcpy v4.0 Shifts to SDL3, Refines Android Screen Mirroring</span>
     </a>
     <a href="/editions/2026-06-29/" class="landing-edition-card">
       <span class="edition-card-date">Monday, June 29, 2026</span>
