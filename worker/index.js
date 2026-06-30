@@ -875,6 +875,91 @@ const handler = {
       });
     }
 
+    // --- Saved AI Desk answers (bookmarks). Stored under `saved:<email>` in
+    // USERS KV (excluded from user-count scans), newest-first, capped to 50. ---
+
+    // GET /chat/saved — list the user's saved answers.
+    if (url.pathname === "/chat/saved" && request.method === "GET") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const list = (await env.USERS.get(`saved:${user.email}`, "json")) || [];
+      return new Response(JSON.stringify({ ok: true, saved: list }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // POST /chat/saved — save an answer { text, question?, sources? }.
+    if (url.pathname === "/chat/saved" && request.method === "POST") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ ok: false, error: "Invalid JSON" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const text = typeof body.text === "string" ? body.text.trim() : "";
+      if (!text) {
+        return new Response(JSON.stringify({ ok: false, error: "Missing text" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const list = (await env.USERS.get(`saved:${user.email}`, "json")) || [];
+      const item = {
+        id: crypto.randomUUID(),
+        ts: new Date().toISOString(),
+        question: typeof body.question === "string" ? body.question.slice(0, 300) : "",
+        text: text.slice(0, 8000),
+        sources: Array.isArray(body.sources) ? body.sources.slice(0, 12) : [],
+      };
+      const capped = [item, ...list].slice(0, 50);
+      await env.USERS.put(`saved:${user.email}`, JSON.stringify(capped));
+      return new Response(JSON.stringify({ ok: true, item, count: capped.length }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // POST /chat/saved/delete — remove a saved answer by { id }.
+    if (url.pathname === "/chat/saved/delete" && request.method === "POST") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        body = {};
+      }
+      const id = body.id;
+      const list = (await env.USERS.get(`saved:${user.email}`, "json")) || [];
+      const next = list.filter((x) => x.id !== id);
+      await env.USERS.put(`saved:${user.email}`, JSON.stringify(next));
+      return new Response(JSON.stringify({ ok: true, count: next.length }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // GET /auth/settings — the logged-in user's saved reader settings (Theme/
     // Font/Size/Width + custom colors), so preferences follow them across
     // browsers and devices instead of living in per-browser localStorage.
@@ -976,6 +1061,7 @@ const handler = {
       await Promise.all([
         env.USERS.delete(user.email),
         env.USERS.delete(`transcript:${user.email}`),
+        env.USERS.delete(`saved:${user.email}`),
         env.SUBSCRIBERS.delete(user.email),
         env.SESSIONS.delete(token),
       ]);
@@ -1805,7 +1891,7 @@ const handler = {
           if (cursor) listOpts.cursor = cursor;
           const result = await env.USERS.list(listOpts);
           for (const key of result.keys) {
-            if (key.name.startsWith("stats:") || key.name.startsWith("transcript:")) continue;
+            if (key.name.startsWith("stats:") || key.name.startsWith("transcript:") || key.name.startsWith("saved:")) continue;
             const u = await env.USERS.get(key.name, "json");
             if (u) {
               scannedTotal++;

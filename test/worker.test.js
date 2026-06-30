@@ -1559,3 +1559,70 @@ describe("POST /chat — repo tool-use", () => {
     assert.ok(calls >= 2, "model still gets the rejection and answers");
   });
 });
+
+// --- Saved AI Desk answers (bookmarks) ---
+describe("Saved answers", () => {
+  let env;
+  beforeEach(() => {
+    env = createMockEnv();
+  });
+
+  it("requires authentication", async () => {
+    const res = await worker.fetch(req("POST", "/chat/saved", { body: { text: "x" } }), env);
+    assert.equal(res.status, 401);
+  });
+
+  it("saves, lists newest-first (with sources), and deletes by id", async () => {
+    const token = await createSession(env, "saver@test.com", "premium");
+    const h = { Authorization: "Bearer " + token };
+
+    const r1 = await worker.fetch(
+      req("POST", "/chat/saved", { headers: h, body: { text: "first answer", question: "q1", sources: [{ n: 1, url: "/e/", title: "t" }] } }),
+      env,
+    );
+    assert.equal(r1.status, 200);
+    const d1 = await r1.json();
+    assert.ok(d1.ok && d1.item && d1.item.id, "returns the saved item with an id");
+
+    await worker.fetch(req("POST", "/chat/saved", { headers: h, body: { text: "second answer", question: "q2" } }), env);
+
+    const ld = await (await worker.fetch(req("GET", "/chat/saved", { headers: h }), env)).json();
+    assert.equal(ld.saved.length, 2);
+    assert.equal(ld.saved[0].question, "q2", "newest first");
+    assert.equal(ld.saved[1].sources[0].url, "/e/", "sources persisted");
+
+    const delId = ld.saved[1].id;
+    const dd = await (await worker.fetch(req("POST", "/chat/saved/delete", { headers: h, body: { id: delId } }), env)).json();
+    assert.equal(dd.count, 1);
+    const ld2 = await (await worker.fetch(req("GET", "/chat/saved", { headers: h }), env)).json();
+    assert.equal(ld2.saved.length, 1);
+    assert.equal(ld2.saved[0].question, "q2");
+  });
+
+  it("rejects an empty answer", async () => {
+    const token = await createSession(env, "empty@test.com", "premium");
+    const res = await worker.fetch(req("POST", "/chat/saved", { headers: { Authorization: "Bearer " + token }, body: { text: "   " } }), env);
+    assert.equal(res.status, 400);
+  });
+
+  it("caps saved answers at 50, keeping the newest", async () => {
+    const token = await createSession(env, "cap@test.com", "premium");
+    const h = { Authorization: "Bearer " + token };
+    for (let i = 0; i < 53; i++) {
+      await worker.fetch(req("POST", "/chat/saved", { headers: h, body: { text: "a" + i } }), env);
+    }
+    const ld = await (await worker.fetch(req("GET", "/chat/saved", { headers: h }), env)).json();
+    assert.equal(ld.saved.length, 50);
+    assert.equal(ld.saved[0].text, "a52", "newest kept");
+  });
+
+  it("saved: keys are excluded from the admin user count", async () => {
+    const token = await createSession(env, "counted@test.com", "premium");
+    await worker.fetch(req("POST", "/chat/saved", { headers: { Authorization: "Bearer " + token }, body: { text: "hi" } }), env);
+    const res = await worker.fetch(req("GET", "/admin/stats", { headers: { Authorization: "Bearer " + env.ADMIN_TOKEN } }), env);
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    // One real account; the saved: key must not inflate the user count.
+    assert.equal(data.totalUsers, 1, "saved: key not counted as a user");
+  });
+});

@@ -155,6 +155,25 @@
     });
   })();
 
+  // Inject a "Saved answers" toggle into the header (logged-in readers only).
+  (function setupSavedToggle() {
+    if (!accountSession) return;
+    var header = panel.querySelector('.chat-header');
+    if (!header) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chat-header-btn chat-saved-toggle';
+    btn.setAttribute('aria-label', 'Saved answers');
+    btn.title = 'Saved answers';
+    btn.textContent = '🔖';
+    var firstBtn = header.querySelector('.chat-header-btn');
+    header.insertBefore(btn, firstBtn);
+    btn.addEventListener('click', function() {
+      if (savedView && savedView.style.display === 'block') closeSaved();
+      else openSaved();
+    });
+  })();
+
   function openPanel() {
     if (!panel.classList.contains('open')) {
       panel.classList.add('open');
@@ -411,9 +430,134 @@
   }
 
   // Final render of an AI answer: markdown + inline citations + source list.
-  function renderAnswer(aiDiv, answerText, sources) {
+  function renderAnswer(aiDiv, answerText, sources, question) {
     aiDiv.innerHTML = linkifyCitations(renderMarkdown(answerText || ''), sources);
     appendSources(aiDiv, sources);
+    aiDiv._answer = answerText || '';
+    aiDiv._sources = sources || [];
+    aiDiv._question = question || '';
+    addSaveButton(aiDiv);
+  }
+
+  // A "Save" affordance under each answer, for logged-in readers.
+  function addSaveButton(aiDiv) {
+    if (!accountSession || aiDiv._saveBtn || !aiDiv._answer) return;
+    var bar = document.createElement('div');
+    bar.className = 'chat-actions';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chat-save-btn';
+    btn.textContent = '☆ Save';
+    btn.addEventListener('click', function() { saveAnswer(aiDiv, btn); });
+    bar.appendChild(btn);
+    aiDiv.appendChild(bar);
+    aiDiv._saveBtn = btn;
+  }
+
+  function markSaved(btn) {
+    btn.textContent = '★ Saved';
+    btn.classList.add('saved');
+    btn.disabled = true;
+  }
+
+  function saveAnswer(aiDiv, btn) {
+    if (!accountSession) return;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    fetch(WORKER + '/chat/saved', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accountSession },
+      body: JSON.stringify({ text: aiDiv._answer, sources: aiDiv._sources, question: aiDiv._question })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.ok) markSaved(btn);
+      else { btn.textContent = '☆ Save'; btn.disabled = false; }
+    })
+    .catch(function() { btn.textContent = '☆ Save'; btn.disabled = false; });
+  }
+
+  // --- Saved-answers view (a list that swaps in over the message stream) ---
+  var savedView = null;
+
+  function ensureSavedView() {
+    if (savedView) return savedView;
+    savedView = document.createElement('div');
+    savedView.className = 'chat-saved';
+    savedView.style.display = 'none';
+    if (msgs && msgs.parentNode) msgs.parentNode.insertBefore(savedView, msgs.nextSibling);
+    return savedView;
+  }
+
+  function closeSaved() {
+    if (savedView) savedView.style.display = 'none';
+    if (msgs) msgs.style.display = '';
+  }
+
+  function openSaved() {
+    if (!accountSession) return;
+    ensureSavedView();
+    msgs.style.display = 'none';
+    savedView.style.display = 'block';
+    savedView.innerHTML =
+      '<div class="chat-saved-head"><span>Saved answers</span><button class="chat-saved-close" type="button">Close</button></div>' +
+      '<div class="chat-saved-list">Loading…</div>';
+    savedView.querySelector('.chat-saved-close').addEventListener('click', closeSaved);
+    fetch(WORKER + '/chat/saved', { headers: { 'Authorization': 'Bearer ' + accountSession } })
+      .then(function(r) { return r.json(); })
+      .then(function(d) { renderSavedList((d && d.saved) || []); })
+      .catch(function() {
+        var l = savedView.querySelector('.chat-saved-list');
+        if (l) l.textContent = 'Could not load saved answers.';
+      });
+  }
+
+  function renderSavedList(items) {
+    var list = savedView.querySelector('.chat-saved-list');
+    if (!list) return;
+    if (!items.length) {
+      list.innerHTML = '<p class="chat-saved-empty">No saved answers yet. Tap ☆ Save under any answer to keep it.</p>';
+      return;
+    }
+    list.innerHTML = '';
+    items.forEach(function(it) {
+      var row = document.createElement('div');
+      row.className = 'chat-saved-item';
+      var open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'chat-saved-open';
+      open.textContent = it.question || (it.text || '').slice(0, 80) || 'Saved answer';
+      open.addEventListener('click', function() { openSavedAnswer(it); });
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'chat-saved-remove';
+      rm.setAttribute('aria-label', 'Remove');
+      rm.textContent = '×';
+      rm.addEventListener('click', function() { removeSaved(it.id, row); });
+      row.appendChild(open);
+      row.appendChild(rm);
+      list.appendChild(row);
+    });
+  }
+
+  function openSavedAnswer(it) {
+    closeSaved();
+    if (it.question) addMsg('user', it.question);
+    var div = addMsg('ai', '');
+    renderAnswer(div, it.text || '', it.sources || [], it.question || '');
+    if (div._saveBtn) markSaved(div._saveBtn);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeSaved(id, row) {
+    fetch(WORKER + '/chat/saved/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accountSession },
+      body: JSON.stringify({ id: id })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() { if (row && row.parentNode) row.parentNode.removeChild(row); })
+    .catch(function() {});
   }
 
   function addMsg(role, text) {
@@ -451,7 +595,7 @@
         addMsg('user', m.text);
       } else {
         var div = addMsg('ai', '');
-        renderAnswer(div, m.text || '', m.sources);
+        renderAnswer(div, m.text || '', m.sources, m.question);
       }
     });
     msgs.scrollTop = msgs.scrollHeight;
@@ -568,11 +712,11 @@
       var done = splitThinking(full);
       var answer = done.answer || full;
       if (aiDiv._thinkEl) aiDiv._thinkEl.open = false; // collapse once answered
-      renderAnswer(aiDiv, answer, sources);
+      renderAnswer(aiDiv, answer, sources, text);
       msgs.scrollTop = msgs.scrollHeight;
 
       history_msgs.push({ role: 'assistant', content: answer });
-      display_msgs.push({ role: 'ai', text: answer, sources: sources });
+      display_msgs.push({ role: 'ai', text: answer, sources: sources, question: text });
       persistTranscript();
       decrementQuota();
     } catch {

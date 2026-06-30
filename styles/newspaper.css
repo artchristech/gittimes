@@ -2121,6 +2121,80 @@ body.chat-on .hybrid-ask {
 }
 .chat-plan-upgrade:hover { text-decoration: underline; }
 
+/* Save action under an answer. */
+.chat-actions { margin-top: 8px; }
+.chat-save-btn {
+  background: none;
+  border: 1px solid var(--rule-light);
+  color: var(--ink-soft, var(--ink));
+  font-family: var(--font-meta);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.chat-save-btn:hover { border-color: var(--accent); color: var(--accent); }
+.chat-save-btn.saved { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); cursor: default; }
+
+/* Saved-answers list view. */
+.chat-saved { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; }
+.chat-saved-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft, var(--ink));
+  margin-bottom: 10px;
+}
+.chat-saved-close {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-meta);
+  font-size: 11px;
+  cursor: pointer;
+}
+.chat-saved-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--rule-light);
+  padding: 8px 0;
+}
+.chat-saved-open {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.35;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.chat-saved-open:hover { color: var(--accent); }
+.chat-saved-remove {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.chat-saved-remove:hover { color: var(--accent); }
+.chat-saved-empty { font-family: var(--font-body); font-size: 13px; color: var(--ink-faint); }
+
 .chat-live-dot {
   width: 7px;
   height: 7px;
