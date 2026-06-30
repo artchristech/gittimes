@@ -2,7 +2,7 @@
  * Editorial brain: breakout detection, trend clustering, sleeper identification.
  */
 
-const { leadEligible } = require("./recency");
+const { leadEligible, ageDays, repoPushedAt } = require("./recency");
 
 const TRAJECTORY_MULTIPLIERS = {
   "stagnant":     1.5,  // dormant project spiking = something big happened
@@ -166,11 +166,16 @@ function selectLeadCandidates(repos, deltas, opts = {}) {
   // RECENCY GATE (lead bar): the front-page lead must have a genuine recent hook
   // — a release within the lead window, or a brand-new repo — not push activity
   // alone. Filter the slate to lead-eligible candidates so a years-old-but-
-  // recently-pushed repo can never headline. Fall back to the full slate only if
-  // NONE qualify, so an edition always has a lead.
+  // recently-pushed repo can never headline.
   const eligible = out.filter((c) => leadEligible(c.repo, now));
-  const slate = eligible.length > 0 ? eligible : out;
-  return slate.slice(0, max);
+  if (eligible.length > 0) return eligible.slice(0, max);
+  // No genuine hook in today's slate. Fall back to the FRESHEST activity (most
+  // recent push), never raw star popularity — the editor must never be handed a
+  // "popular but old" slate to lead on.
+  const byRecency = [...out].sort(
+    (a, b) => ageDays(repoPushedAt(a.repo), now) - ageDays(repoPushedAt(b.repo), now)
+  );
+  return byRecency.slice(0, max);
 }
 
 /**

@@ -25,9 +25,12 @@ const DAY_MS = 86400000;
 const HOUR_MS = 3600000;
 
 const RECENCY_RULES = {
-  lead: { windowDays: 30, field: "hook" }, // release date OR created_at (brand-new repo)
-  secondary: { windowDays: 60, field: "pushed" },
-  quickHit: { windowDays: 120, field: "pushed" },
+  // Daily-newspaper windows, not magazine windows. A repo whose only "hook" is a
+  // month-old release is not today's news. Tightened 2026-06-30 (30/60/120 → 7/21/45)
+  // so the front page tracks the velocity of what shipped this week, not what's popular.
+  lead: { windowDays: 7, field: "hook" }, // release date OR created_at (brand-new repo)
+  secondary: { windowDays: 21, field: "pushed" },
+  quickHit: { windowDays: 45, field: "pushed" },
   aiWire: { windowHours: 48, field: "published" },
   radar: { windowDays: 45, field: "pushed" },
 };
@@ -68,9 +71,45 @@ function repoPushedAt(repo) {
  */
 function leadEligible(repo, now = Date.now()) {
   const w = RECENCY_RULES.lead.windowDays;
-  const relAge = ageDays(repoReleaseDate(repo), now);
-  const createdAge = ageDays(repoCreatedAt(repo), now);
-  return relAge <= w || createdAge <= w;
+  return leadHookAgeDays(repo, now) <= w;
+}
+
+/**
+ * Age (days) of a repo's freshest LEAD hook — the more recent of its latest
+ * release or its creation date. Infinity if it has neither (no hook at all).
+ * Used to rank lead candidates by how recently something genuinely happened.
+ */
+function leadHookAgeDays(repo, now = Date.now()) {
+  return Math.min(ageDays(repoReleaseDate(repo), now), ageDays(repoCreatedAt(repo), now));
+}
+
+/**
+ * Pick the index of the best lead from a scored, score-ordered list — a
+ * newspaper rule, not a popularity rule. Tiers (recentLeadRepos are skipped
+ * unless every candidate is one):
+ *   1. genuine recent hook (leadEligible) → freshest hook wins
+ *   2. no hook anywhere → freshest genuine activity (most recent push) wins
+ *   3. nothing distinguishes (no timestamps) → keep incoming score order (index 0)
+ * Crucially never falls back to raw star score, so an old-but-popular repo with
+ * no recent hook can no longer headline. Returns -1 for an empty list.
+ */
+function pickLeadIndex(repos, now = Date.now(), recentLeadRepos = new Set()) {
+  if (!repos || repos.length === 0) return -1;
+  const indexed = repos.map((r, i) => ({ r, i }));
+  const candidates = indexed.filter(({ r }) => !recentLeadRepos.has(r && r.full_name));
+  const pool = candidates.length ? candidates : indexed;
+
+  const eligible = pool.filter(({ r }) => leadEligible(r, now));
+  if (eligible.length) {
+    eligible.sort((a, b) => leadHookAgeDays(a.r, now) - leadHookAgeDays(b.r, now));
+    return eligible[0].i;
+  }
+  const pushed = pool.filter(({ r }) => Number.isFinite(ageDays(repoPushedAt(r), now)));
+  if (pushed.length) {
+    pushed.sort((a, b) => ageDays(repoPushedAt(a.r), now) - ageDays(repoPushedAt(b.r), now));
+    return pushed[0].i;
+  }
+  return pool[0].i;
 }
 
 /** Generic per-slot pushed_at gate (secondary/quickHit/radar). Boundary AT window = included. */
@@ -95,6 +134,8 @@ module.exports = {
   repoCreatedAt,
   repoPushedAt,
   leadEligible,
+  leadHookAgeDays,
+  pickLeadIndex,
   passesPushedRecency,
   withinWireWindow,
 };

@@ -43,8 +43,8 @@ describe("selectLeadCandidates recency gate (lead must have a fresh hook)", () =
     const repos = [
       // years-old, recently PUSHED, but no recent release -> NOT a valid lead
       { full_name: "old/trending", stargazers_count: 50000, description: "x", pushed_at: iso(1), created_at: iso(1460), _latestRelease: { published_at: iso(800) } },
-      // brand-new repo (created 8d ago) -> a genuine hook
-      { full_name: "new/hotness", stargazers_count: 9000, description: "x", pushed_at: iso(2), created_at: iso(8), _latestRelease: null },
+      // brand-new repo (created 5d ago, inside the 7d lead window) -> a genuine hook
+      { full_name: "new/hotness", stargazers_count: 9000, description: "x", pushed_at: iso(2), created_at: iso(5), _latestRelease: null },
     ];
     const deltas = new Map([
       ["old/trending", { starDelta: 6000, previousStars: 44000, daysSinceSnapshot: 1 }],

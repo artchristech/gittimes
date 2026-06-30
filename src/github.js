@@ -7,7 +7,7 @@ const pLimitP = import("p-limit");
 
 const { fetchTrajectories } = require("./star-history");
 const { SECTIONS, SECTION_ORDER } = require("./sections");
-const { leadEligible } = require("./recency");
+const { pickLeadIndex, passesPushedRecency } = require("./recency");
 
 function _graphqlRequest(query, variables, token) {
   return new Promise((resolve, reject) => {
@@ -267,18 +267,37 @@ function categorizeDiverseForSection(scoredRepos, budget, options = {}) {
     return { lead: null, secondary: [], quickHits: [] };
   }
 
+  // RECENCY FLOOR — a daily paper carries nothing that's gone quiet. Drop repos
+  // with no push inside the loosest (quick-hit) window so a years-old repo can't
+  // ride a single fresh commit onto the page. Graceful: if the floor would empty
+  // the section, keep the originals rather than render an empty section.
+  {
+    const live = scoredRepos.filter((r) => passesPushedRecency(r, "quickHit", now));
+    if (live.length) scoredRepos = live;
+  }
+  // FRESH-FIRST — prefer repos pushed inside the secondary window for the
+  // promoted (lead + secondary) slots; stale-but-live repos sink toward quick
+  // hits. Stable partition, so score order is preserved within each group.
+  {
+    const fresh = scoredRepos.filter((r) => passesPushedRecency(r, "secondary", now));
+    if (fresh.length && fresh.length < scoredRepos.length) {
+      const stale = scoredRepos.filter((r) => !passesPushedRecency(r, "secondary", now));
+      scoredRepos = [...fresh, ...stale];
+    }
+  }
+
   // FRONT-PAGE FRESHNESS GATE (section lead): the headline that fronts each
   // section — and so appears on the front-page "Across the Desk" rail — must
   // have a genuine recent hook (a release in the lead window OR a brand-new
   // repo), not star velocity alone. scoreRepo only weights recency softly, so a
   // years-old high-velocity repo (e.g. a 14-year-old bundler with a fresh push)
-  // can otherwise headline with evergreen "still matters" framing. Promote the
-  // highest-scored hook-eligible, non-recent-lead repo into slot 0. Graceful:
-  // if NONE qualify, leave the order untouched and fall back to top-by-score.
+  // can otherwise headline with evergreen "still matters" framing. pickLeadIndex
+  // chooses slot 0 by recency, not popularity: freshest genuine hook first, then
+  // freshest push, and NEVER raw star score — so a popular-but-stale repo can no
+  // longer lead. Falls back to incoming score order only when no repo carries any
+  // timestamp at all.
   if (options.preferHookLead !== false) {
-    const idx = scoredRepos.findIndex(
-      (r) => !recentLeadRepos.has(r.full_name) && leadEligible(r, now)
-    );
+    const idx = pickLeadIndex(scoredRepos, now, recentLeadRepos);
     if (idx > 0) {
       const [hookRepo] = scoredRepos.splice(idx, 1);
       scoredRepos.unshift(hookRepo);

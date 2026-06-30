@@ -27,7 +27,10 @@ describe("leadEligible", () => {
     );
   });
   it("accepts a brand-new repo (created within the lead window, no release)", () => {
-    assert.equal(leadEligible({ pushed_at: iso(0), created_at: iso(10), _latestRelease: null }, NOW), true);
+    assert.equal(leadEligible({ pushed_at: iso(0), created_at: iso(5), _latestRelease: null }, NOW), true);
+  });
+  it("rejects a repo created just outside the (tightened) lead window", () => {
+    assert.equal(leadEligible({ pushed_at: iso(0), created_at: iso(10), _latestRelease: null }, NOW), false);
   });
   it("accepts an old repo with a fresh release (a genuine hook)", () => {
     assert.equal(leadEligible({ created_at: iso(1000), _latestRelease: { published_at: iso(3) } }, NOW), true);

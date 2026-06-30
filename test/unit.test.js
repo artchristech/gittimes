@@ -1425,19 +1425,19 @@ describe("categorizeDiverseForSection — section-lead hook gate", () => {
   it("treats a brand-new repo (created in window) as a hook even with no release", () => {
     const repos = [
       { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
-      { full_name: "brand/new", language: "Go", _score: 6, created_at: iso(10), pushed_at: iso(1) },
+      { full_name: "brand/new", language: "Go", _score: 6, created_at: iso(5), pushed_at: iso(1) },
     ];
     const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW });
     assert.equal(lead.full_name, "brand/new");
   });
 
-  it("falls back to top-by-score when nothing has a recent hook", () => {
+  it("falls back to freshest activity (not top star) when nothing has a recent hook", () => {
     const repos = [
-      { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(1) },
+      { full_name: "old/a", language: "JS", _score: 10, created_at: iso(5000), pushed_at: iso(5) },
       { full_name: "old/b", language: "Go", _score: 6, created_at: iso(4000), pushed_at: iso(2) },
     ];
     const { lead } = categorizeDiverseForSection(repos, budget, { now: NOW });
-    assert.equal(lead.full_name, "old/a", "no hook anywhere → preserve score order");
+    assert.equal(lead.full_name, "old/b", "no hook anywhere → freshest push leads, popularity does not");
   });
 
   it("preferHookLead:false preserves pure score order", () => {

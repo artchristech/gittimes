@@ -63,7 +63,9 @@ FRESHNESS DIRECTIVE — This project is ${ageLabel}. It is NOT new.
 - Do NOT introduce this project as if readers are hearing about it for the first time.
 - Assume your audience is aware this project exists.
 - If there is a genuine recent hook — a new capability, a breaking change, a major release, or a real adoption milestone — lead with it.
-- Do NOT manufacture a hook. A patch/point release with no material change is NOT news; never headline a version number for its own sake. If nothing substantive has changed, write about why the project matters to builders right now — a specific use case, a non-obvious strength, or a real trade-off — rather than inventing significance.
+- Do NOT manufacture a hook. A patch/point release with no material change is NOT news; never headline a version number for its own sake.
+- This is a daily newspaper, not a directory. If there is no concrete recent development, report the single most recent concrete change plainly and keep it SHORT — do NOT pad with evergreen "why this project still matters" significance.
+- BANNED evergreen framings (do not use any phrasing like these): "remains a", "still the", "a staple", "the go-to", "a vital guide", "a hands-on guide", "stands the test of time", "as relevant as ever", "continues to be".
 - Frame: "what's changed" or "why it matters now", never "meet this project."
 `;
 }
