@@ -178,7 +178,13 @@ async function main() {
   try {
     const newsletterSecret = process.env.NEWSLETTER_SECRET;
     const chatWorkerUrl = process.env.CHAT_WORKER_URL;
-    if (newsletterSecret && chatWorkerUrl) {
+    // Explicit opt-out for a same-day republish (the worker /newsletter/send has
+    // no per-date dedup, so a second publish would double-send). Gated on a plain
+    // env flag, NOT a withheld secret — GitHub Actions `cond && '' || secret`
+    // returns the secret when the middle operand is the falsy empty string.
+    if (process.env.SKIP_NEWSLETTER === "true") {
+      console.log("Newsletter skipped (SKIP_NEWSLETTER=true)");
+    } else if (newsletterSecret && chatWorkerUrl) {
       const updatedManifest = readManifest(outDir);
       const latest = updatedManifest[0];
       if (latest) {

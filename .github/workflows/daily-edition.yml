@@ -66,11 +66,12 @@ jobs:
           SITE_BASE_URL: https://gittimes.com
           BASE_PATH: ""
           CHAT_WORKER_URL: ${{ secrets.CHAT_WORKER_URL }}
-          # Withhold the secret on a manual skip_newsletter run → publish-edition.js
-          # skips Step 6 (the worker /newsletter/send has no per-date dedup, so a
-          # same-day republish would otherwise double-send). Scheduled runs are
-          # unaffected (input is empty → secret passes through).
-          NEWSLETTER_SECRET: ${{ github.event.inputs.skip_newsletter == 'true' && '' || secrets.NEWSLETTER_SECRET }}
+          NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
+          # A manual skip_newsletter run regenerates + redeploys WITHOUT re-sending
+          # the newsletter (the worker /newsletter/send has no per-date dedup, so a
+          # same-day republish would otherwise double-send). publish-edition.js gates
+          # on this explicit flag. Scheduled runs leave it empty → newsletter sends.
+          SKIP_NEWSLETTER: ${{ github.event.inputs.skip_newsletter }}
           PLAUSIBLE_DOMAIN: ${{ vars.PLAUSIBLE_DOMAIN }}
 
       - name: Deploy to GitHub Pages
