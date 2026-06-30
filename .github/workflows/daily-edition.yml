@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 7 * * *' # 3 AM America/New_York (EDT). GH cron is UTC, no DST — runs 2 AM ET in winter (EST).
   workflow_dispatch: # Manual trigger
+    inputs:
+      skip_newsletter:
+        description: "Regenerate + redeploy the edition WITHOUT sending the newsletter (use when republishing the same day after a code change)."
+        type: boolean
+        default: false
 
 env:
   TZ: America/New_York
@@ -61,7 +66,11 @@ jobs:
           SITE_BASE_URL: https://gittimes.com
           BASE_PATH: ""
           CHAT_WORKER_URL: ${{ secrets.CHAT_WORKER_URL }}
-          NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
+          # Withhold the secret on a manual skip_newsletter run → publish-edition.js
+          # skips Step 6 (the worker /newsletter/send has no per-date dedup, so a
+          # same-day republish would otherwise double-send). Scheduled runs are
+          # unaffected (input is empty → secret passes through).
+          NEWSLETTER_SECRET: ${{ github.event.inputs.skip_newsletter == 'true' && '' || secrets.NEWSLETTER_SECRET }}
           PLAUSIBLE_DOMAIN: ${{ vars.PLAUSIBLE_DOMAIN }}
 
       - name: Deploy to GitHub Pages
