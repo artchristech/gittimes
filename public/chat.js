@@ -27,6 +27,56 @@
   // Reveal the per-article "Ask about this" buttons now that chat is available.
   document.body.classList.add('chat-on');
 
+  // Inject styles for the newer AI Desk elements (citations, reasoning, plan
+  // strip, saved answers). These mirror the .chat-* rules in styles/newspaper.css
+  // but are injected here so a surgical chat.js deploy styles every page — the
+  // published pages inline CSS at varying versions, so we can't rely on theirs.
+  (function injectChatStyles() {
+    if (document.getElementById('chat-desk-styles')) return;
+    var css = [
+      '.chat-think-toggle{font-size:13px;line-height:1}',
+      '.chat-think-toggle.on{opacity:1;background:color-mix(in srgb,var(--accent) 16%,transparent)}',
+      '.chat-think{margin:0 0 6px;border-left:2px solid color-mix(in srgb,var(--accent) 45%,transparent);padding-left:8px}',
+      '.chat-think>summary{cursor:pointer;font-family:var(--font-meta);font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-soft,var(--ink));opacity:.75;list-style:none}',
+      '.chat-think>summary::-webkit-details-marker{display:none}',
+      '.chat-think>summary::before{content:"\\25B8 "}',
+      '.chat-think[open]>summary::before{content:"\\25BE "}',
+      '.chat-think-body{font-size:12.5px;color:var(--ink-soft,var(--ink));opacity:.85;margin-top:4px}',
+      '.chat-think-body p{margin:4px 0}',
+      '.chat-cite{font-size:.7em}',
+      '.chat-cite a{text-decoration:none;color:var(--accent);font-weight:600}',
+      '.chat-cite a:hover{text-decoration:underline}',
+      '.chat-sources{display:flex;flex-direction:column;gap:3px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--rule-light)}',
+      '.chat-sources-label{font-family:var(--font-meta);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft,var(--ink));opacity:.6}',
+      '.chat-source{font-size:12px;color:var(--accent);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+      '.chat-source:hover{text-decoration:underline}',
+      '.chat-plan{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:6px 14px;border-top:1px solid var(--rule-light);font-family:var(--font-meta);font-size:11px;color:var(--ink-soft,var(--ink))}',
+      '.chat-plan-tier{font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft,var(--ink));opacity:.7}',
+      '.chat-plan-tier.premium{color:var(--accent);opacity:1}',
+      '.chat-plan-quota{font-weight:600}',
+      '.chat-plan-detail{opacity:.6}',
+      '.chat-plan-upgrade{margin-left:auto;color:var(--accent);font-weight:600;text-decoration:none;white-space:nowrap}',
+      '.chat-plan-upgrade:hover{text-decoration:underline}',
+      '.chat-actions{margin-top:8px}',
+      '.chat-save-btn{background:none;border:1px solid var(--rule-light);color:var(--ink-soft,var(--ink));font-family:var(--font-meta);font-size:11px;padding:3px 9px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s}',
+      '.chat-save-btn:hover{border-color:var(--accent);color:var(--accent)}',
+      '.chat-save-btn.saved{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent);cursor:default}',
+      '.chat-saved{flex:1;min-height:0;overflow:auto;padding:12px 14px}',
+      '.chat-saved-head{display:flex;align-items:center;justify-content:space-between;font-family:var(--font-meta);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft,var(--ink));margin-bottom:10px}',
+      '.chat-saved-close{background:none;border:none;color:var(--accent);font-family:var(--font-meta);font-size:11px;cursor:pointer}',
+      '.chat-saved-item{display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule-light);padding:8px 0}',
+      '.chat-saved-open{flex:1;text-align:left;background:none;border:none;color:var(--ink);font-family:var(--font-body);font-size:13px;line-height:1.35;cursor:pointer;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}',
+      '.chat-saved-open:hover{color:var(--accent)}',
+      '.chat-saved-remove{background:none;border:none;color:var(--ink-faint);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}',
+      '.chat-saved-remove:hover{color:var(--accent)}',
+      '.chat-saved-empty{font-family:var(--font-body);font-size:13px;color:var(--ink-faint)}'
+    ].join('');
+    var style = document.createElement('style');
+    style.id = 'chat-desk-styles';
+    style.textContent = css;
+    document.head.appendChild(style);
+  })();
+
   function showChat() {
     paywall.style.display = 'none';
     inputRow.style.display = 'flex';
