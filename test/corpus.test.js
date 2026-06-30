@@ -2,28 +2,58 @@
 
 const { test } = require("node:test");
 const assert = require("node:assert");
+const os = require("os");
 const path = require("path");
 const fs = require("fs");
+const Database = require("better-sqlite3");
 const { buildCorpus } = require("../src/build-corpus");
 const { tokenize, scoreChunks, formatGrounding } = require("../src/retrieve");
 
-const DB = path.join(__dirname, "..", "data", "gittimes.db");
-
 // --- build-corpus ---
 
+// Self-contained fixture DB. build-corpus opens the DB READ-ONLY (it never
+// creates the file), so this test must seed its own. Sharing the canonical
+// data/gittimes.db with other test files is a parallel-run race — `node --test`
+// runs files concurrently, so that DB may not exist yet when this test fires
+// (the cause of intermittent CI "unable to open database file" failures).
+function seedCorpusDb() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gittimes-corpus-"));
+  const dbPath = path.join(dir, "gittimes.db");
+  const db = new Database(dbPath);
+  db.exec(
+    "CREATE TABLE repo_snapshots (repo_name TEXT, stars INTEGER, date TEXT);" +
+      "CREATE TABLE edition_repos (repo_name TEXT, headline TEXT, edition_date TEXT);" +
+      "CREATE TABLE editions (date TEXT, headline TEXT, subheadline TEXT, tagline TEXT, url TEXT);"
+  );
+  db.prepare("INSERT INTO repo_snapshots VALUES (?,?,?)").run("acme/rag-eval", 1200, "2026-06-19");
+  db.prepare("INSERT INTO repo_snapshots VALUES (?,?,?)").run("acme/rag-eval", 1500, "2026-06-20");
+  db.prepare("INSERT INTO edition_repos VALUES (?,?,?)").run("acme/rag-eval", "Acme RAG eval ships v2", "2026-06-20");
+  db.prepare("INSERT INTO editions VALUES (?,?,?,?,?)").run("2026-06-20", "Today in builders", "the subhead", "the tagline", "/editions/2026-06-20/");
+  db.prepare("INSERT INTO editions VALUES (?,?,?,?,?)").run("2026-06-18", "Older lead", "", "", null);
+  db.close();
+  return { dir, dbPath };
+}
+
 test("buildCorpus — emits repo + edition chunks with citable fields", () => {
-  const c = buildCorpus(DB);
-  assert.ok(c.count > 0);
-  assert.ok(c.chunks.every((x) => typeof x.text === "string"));
-  assert.ok(c.chunks.every((x) => /^\/editions\//.test(x.url)), "every chunk cites an edition URL");
-  assert.ok(c.chunks.every((x) => typeof x.i === "number"), "chunks are indexed for [n] labels");
-  assert.ok(c.chunks.some((x) => x.type === "repo"));
-  assert.ok(c.chunks.some((x) => x.type === "edition"));
-  // newest-first ordering
-  for (let i = 1; i < c.chunks.length; i++) {
-    if (c.chunks[i - 1].date && c.chunks[i].date) {
-      assert.ok(c.chunks[i - 1].date >= c.chunks[i].date, "chunks sorted newest-first");
+  const { dir, dbPath } = seedCorpusDb();
+  try {
+    const c = buildCorpus(dbPath);
+    assert.ok(c.count > 0);
+    assert.ok(c.chunks.every((x) => typeof x.text === "string"));
+    assert.ok(c.chunks.every((x) => /^\/editions\//.test(x.url)), "every chunk cites an edition URL");
+    assert.ok(c.chunks.every((x) => typeof x.i === "number"), "chunks are indexed for [n] labels");
+    assert.ok(c.chunks.some((x) => x.type === "repo"));
+    assert.ok(c.chunks.some((x) => x.type === "edition"));
+    const repoChunk = c.chunks.find((x) => x.type === "repo" && x.repo === "acme/rag-eval");
+    assert.equal(repoChunk.stars, 1500, "repo chunk uses the most-recent snapshot's star count");
+    // newest-first ordering
+    for (let i = 1; i < c.chunks.length; i++) {
+      if (c.chunks[i - 1].date && c.chunks[i].date) {
+        assert.ok(c.chunks[i - 1].date >= c.chunks[i].date, "chunks sorted newest-first");
+      }
     }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });
 
