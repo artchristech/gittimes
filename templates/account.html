@@ -191,7 +191,8 @@
           if (user.chatUsage) {
             var usageRow = document.getElementById('account-usage-row');
             usageRow.style.display = 'flex';
-            document.getElementById('account-usage').textContent = user.chatUsage.count + ' / 100 this month';
+            var chatLimit = user.chatLimit || 1000;
+            document.getElementById('account-usage').textContent = user.chatUsage.count + ' / ' + chatLimit + ' this month';
           }
         }
         if (upgradedParam === 'true') {
