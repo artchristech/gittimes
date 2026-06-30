@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-06-29T09:25:38.993Z",
+  "syncedAt": "2026-06-30T08:29:38.139Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
     "matched": 11,
     "missed": 0,
-    "catalog": 309
+    "catalog": 308
   },
   "models": [
     {
@@ -608,12 +608,6 @@
       "created": 1778613011
     },
     {
-      "id": "anthropic/claude-opus-4.6-fast",
-      "name": "Anthropic: Claude Opus 4.6 (Fast)",
-      "outputPrice": 150,
-      "created": 1775592472
-    },
-    {
       "id": "openai/gpt-5-pro",
       "name": "OpenAI: GPT-5 Pro",
       "outputPrice": 120,
@@ -648,6 +642,12 @@
       "name": "OpenAI: GPT-4",
       "outputPrice": 60,
       "created": 1685232000
+    },
+    {
+      "id": "anthropic/claude-fable-5",
+      "name": "Anthropic: Claude Fable 5",
+      "outputPrice": 50,
+      "created": 1781007515
     }
   ],
   "catalog": [
@@ -789,37 +789,6 @@
       ],
       "created": 1778613011,
       "description": "Fast-mode variant of [Opus 4.7](/anthropic/claude-opus-4.7) - identical capabilities with higher output speed at premium 6x pricing.\n\nLearn more in Anthropic's ",
-      "hugging_face_id": null
-    },
-    {
-      "id": "anthropic/claude-opus-4.6-fast",
-      "name": "Anthropic: Claude Opus 4.6 (Fast)",
-      "context_length": 1000000,
-      "input": 30,
-      "output": 150,
-      "cache_read_price": 3,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p",
-        "verbosity"
-      ],
-      "created": 1775592472,
-      "description": "Fast-mode variant of [Opus 4.6](/anthropic/claude-opus-4.6) - identical capabilities with higher output speed at premium 6x pricing.\n\nLearn more in Anthropic's ",
       "hugging_face_id": null
     },
     {
@@ -3345,6 +3314,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "z-ai/glm-5.1",
+      "name": "Z.ai: GLM 5.1",
+      "context_length": 202752,
+      "input": 0.975,
+      "output": 4.300000000000001,
+      "cache_read_price": null,
+      "max_completion_tokens": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1775578025,
+      "description": "GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu",
+      "hugging_face_id": "zai-org/GLM-5.1"
+    },
+    {
       "id": "z-ai/glm-5v-turbo",
       "name": "Z.ai: GLM 5V Turbo",
       "context_length": 202752,
@@ -3731,45 +3739,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "z-ai/glm-5.1",
-      "name": "Z.ai: GLM 5.1",
-      "context_length": 202752,
-      "input": 0.98,
-      "output": 3.08,
-      "cache_read_price": 0.182,
-      "max_completion_tokens": null,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1775578025,
-      "description": "GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu",
-      "hugging_face_id": "zai-org/GLM-5.1"
-    },
-    {
       "id": "google/gemini-3.1-flash-image",
       "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image)",
       "context_length": 131072,
@@ -3800,10 +3769,10 @@
       "id": "z-ai/glm-5.2",
       "name": "Z.ai: GLM 5.2",
       "context_length": 1048576,
-      "input": 0.95,
+      "input": 0.94,
       "output": 3,
       "cache_read_price": 0.18,
-      "max_completion_tokens": 32768,
+      "max_completion_tokens": null,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -8766,10 +8735,10 @@
       "id": "stepfun/step-3.5-flash",
       "name": "StepFun: Step 3.5 Flash",
       "context_length": 262144,
-      "input": 0.09,
+      "input": 0.09999999999999999,
       "output": 0.3,
-      "cache_read_price": 0.02,
-      "max_completion_tokens": 16384,
+      "cache_read_price": null,
+      "max_completion_tokens": 65536,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -8777,15 +8746,8 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "logit_bias",
         "max_tokens",
-        "min_p",
-        "presence_penalty",
         "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
         "temperature",
         "tool_choice",
         "tools",
@@ -9359,6 +9321,7 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "logprobs",
         "max_tokens",
         "presence_penalty",
         "reasoning",
@@ -9367,6 +9330,7 @@
         "structured_outputs",
         "temperature",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "created": 1741812813,
