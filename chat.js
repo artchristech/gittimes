@@ -69,7 +69,19 @@
       '.chat-saved-open:hover{color:var(--accent)}',
       '.chat-saved-remove{background:none;border:none;color:var(--ink-faint);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}',
       '.chat-saved-remove:hover{color:var(--accent)}',
-      '.chat-saved-empty{font-family:var(--font-body);font-size:13px;color:var(--ink-faint)}'
+      '.chat-saved-empty{font-family:var(--font-body);font-size:13px;color:var(--ink-faint)}',
+      // Editorial reply presentation (overrides older inlined newspaper.css).
+      '.chat-msg-user{max-width:min(85%,30rem)}',
+      '.chat-msg-ai{background:none;padding:0;border-radius:0;align-self:stretch;max-width:100%;font-family:var(--font-body);font-size:15px;line-height:1.7;color:var(--ink)}',
+      '.chat-msg-ai p{margin:0 0 12px}',
+      '.chat-msg-ai p:last-child{margin-bottom:0}',
+      '.chat-msg-ai ul,.chat-msg-ai ol{margin:6px 0 12px;padding-left:20px}',
+      '.chat-msg-ai li{margin-bottom:6px}',
+      '.chat-msg-ai h3,.chat-msg-ai h4,.chat-msg-ai h5{font-family:var(--font-meta);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-faint);margin:18px 0 7px}',
+      '.chat-msg-ai h3:first-child,.chat-msg-ai h4:first-child{margin-top:0}',
+      '.chat-msg-ai blockquote{margin:10px 0;padding-left:14px;border-left:3px solid var(--rule-light);color:var(--ink-faint);font-style:italic}',
+      '.chat-msg-ai hr{border:none;border-top:1px solid var(--rule-light);margin:16px 0}',
+      '.chat-panel.docked .chat-messages{padding-left:max(16px,calc((100% - 760px)/2));padding-right:max(16px,calc((100% - 760px)/2))}'
     ].join('');
     var style = document.createElement('style');
     style.id = 'chat-desk-styles';
@@ -367,6 +379,25 @@
         while (i < lines.length && !/^```/.test(lines[i])) { code.push(lines[i]); i++; }
         i++;
         out.push('<pre><code>' + esc(code.join('\n')) + '</code></pre>');
+        continue;
+      }
+      // ATX heading (### Foo) — the model emits these for sections
+      var hm = line.match(/^(#{1,6})\s+(.*\S)\s*#*\s*$/);
+      if (hm) {
+        var lvl = Math.min(hm[1].length, 6);
+        out.push('<h' + lvl + '>' + renderInline(hm[2]) + '</h' + lvl + '>');
+        i++;
+        continue;
+      }
+      // Horizontal rule
+      if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
+      // Blockquote
+      if (/^\s*>\s?/.test(line)) {
+        var quote = [];
+        while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
+          quote.push(lines[i].replace(/^\s*>\s?/, '')); i++;
+        }
+        out.push('<blockquote>' + renderInline(quote.join(' ')) + '</blockquote>');
         continue;
       }
       // List block
@@ -724,6 +755,26 @@
       var decoder = new TextDecoder();
       var buf = '';
 
+      // Coalesce token deltas into one render per animation frame. Re-parsing
+      // the whole answer on every token thrashed layout and made the output
+      // visibly choppy; rAF batches them so it streams smoothly.
+      var rafPending = 0;
+      function flushStream() {
+        rafPending = 0;
+        var sp = splitThinking(full);
+        var think = reasoning + (sp.thinking ? (reasoning ? '\n' : '') + sp.thinking : '');
+        if (think) renderThinking(aiDiv, think, sp.open);
+        // Only follow the stream if the reader is already at the bottom, so it
+        // doesn't yank the view while they scroll up to read.
+        var nearBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 80;
+        aiDiv.innerHTML = renderMarkdown(sp.answer);
+        if (nearBottom) msgs.scrollTop = msgs.scrollHeight;
+      }
+      function scheduleStream() {
+        if (rafPending) return;
+        rafPending = requestAnimationFrame(flushStream);
+      }
+
       while (true) {
         var chunk = await reader.read();
         if (chunk.done) break;
@@ -742,23 +793,14 @@
             var delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
             if (!delta) continue;
             // Native reasoning tokens (reasoning models) feed the Thinking pane.
-            if (delta.reasoning) {
-              reasoning += delta.reasoning;
-              renderThinking(aiDiv, reasoning, true);
-            }
-            if (delta.content) {
-              full += delta.content;
-              var sp = splitThinking(full);
-              var think = reasoning + (sp.thinking ? (reasoning ? '\n' : '') + sp.thinking : '');
-              if (think) renderThinking(aiDiv, think, sp.open);
-              aiDiv.innerHTML = renderMarkdown(sp.answer);
-              msgs.scrollTop = msgs.scrollHeight;
-            }
+            if (delta.reasoning) { reasoning += delta.reasoning; scheduleStream(); }
+            if (delta.content) { full += delta.content; scheduleStream(); }
           } catch { /* skip malformed SSE chunk */ }
         }
       }
 
       // Final render: separate answer from thinking, add inline citations.
+      if (rafPending) { cancelAnimationFrame(rafPending); rafPending = 0; }
       var done = splitThinking(full);
       var answer = done.answer || full;
       if (aiDiv._thinkEl) aiDiv._thinkEl.open = false; // collapse once answered
