@@ -46,6 +46,12 @@ function trajectoryContext(repo) {
   return `\n- Project age: ${ageStr} | Community: ${t.totalStars.toLocaleString()} stars | Traction: ${t.growthPattern}`;
 }
 
+// Evergreen framings that make a daily paper read like a directory ("remains a
+// staple", "the go-to"). Banned in every article-body prompt — the per-repo
+// framing directive AND trend pieces — so the ban can't drift between them.
+const EVERGREEN_BAN =
+  '- BANNED evergreen framings (do not use any phrasing like these): "remains a", "still the", "a staple", "the go-to", "a vital guide", "a hands-on guide", "stands the test of time", "as relevant as ever", "continues to be".';
+
 /**
  * Returns a freshness directive for established repos (≥ 90 days old).
  * New repos get no directive — introductory framing is appropriate for them.
@@ -65,7 +71,7 @@ FRESHNESS DIRECTIVE — This project is ${ageLabel}. It is NOT new.
 - If there is a genuine recent hook — a new capability, a breaking change, a major release, or a real adoption milestone — lead with it.
 - Do NOT manufacture a hook. A patch/point release with no material change is NOT news; never headline a version number for its own sake.
 - This is a daily newspaper, not a directory. If there is no concrete recent development, report the single most recent concrete change plainly and keep it SHORT — do NOT pad with evergreen "why this project still matters" significance.
-- BANNED evergreen framings (do not use any phrasing like these): "remains a", "still the", "a staple", "the go-to", "a vital guide", "a hands-on guide", "stands the test of time", "as relevant as ever", "continues to be".
+${EVERGREEN_BAN}
 - Frame: "what's changed" or "why it matters now", never "meet this project."
 `;
 }
@@ -247,6 +253,8 @@ REPOS IN THIS CLUSTER:
 ${repoList}
 
 The story is the PATTERN, not any single repo. Reference individual repos as evidence of the trend. Explain what this cluster tells us about where open source is heading. Focus on what these projects do and what the pattern means technically — not on popularity metrics.
+- The trend is what's happening NOW. Describe each repo by what it does or what it just shipped, never by evergreen status.
+${EVERGREEN_BAN}
 - Be honest about the pattern: end the body with a short paragraph beginning **The catch:** noting where the trend is overhyped, immature, fragmented, or still unproven — the counter-take a skeptical builder would raise.
 Do not include a word count anywhere in the output.
 Write entirely in English.
