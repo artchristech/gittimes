@@ -677,6 +677,122 @@ body {
 
 /* The AI Wire — now a first-class section panel (non-repo headlines from the
    wider web), no longer a banner pinned above the front page. */
+/* Model Drops — the front-page flow band: freshest Hugging Face releases, the
+   day's actual AI events, pinned above the lead. */
+.model-drops {
+  margin: 0 0 32px;
+  padding: 16px 20px 20px;
+  border: 1px solid var(--rule-light);
+  border-top: 4px solid var(--accent);
+  background: var(--paper);
+}
+
+.model-drops-head {
+  border-bottom: 1px solid var(--rule-light);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.model-drops .section-kicker {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.model-drops-header {
+  font-family: var(--font-headline);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.3px;
+  margin: 0 0 4px;
+}
+
+.model-drops-sub {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.model-drops-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.drop-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule-light);
+}
+
+.drop-link {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.drop-link:hover .drop-name {
+  color: var(--accent);
+}
+
+.drop-name {
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.drop-author {
+  font-family: var(--font-meta);
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+.drop-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  color: var(--ink-light);
+}
+
+.drop-task {
+  text-transform: capitalize;
+}
+
+.drop-likes {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.drop-age {
+  color: var(--ink-faint);
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .model-drops-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .ai-wire {
   padding: 8px 0 0;
 }

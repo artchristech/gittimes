@@ -425,6 +425,49 @@ function renderAIWire(headlines, options = {}) {
 }
 
 /**
+ * Model Drops — the front-page flow band. GitHub trending is a stock/popularity
+ * signal; a new model landing on Hugging Face is the day's actual AI *event*. This
+ * band puts the freshest high-signal releases at the very top of the paper, so the
+ * front page leads with what shipped, not with what's merely popular. Returns ""
+ * when empty (band disappears cleanly).
+ * @param {Array<{id,author,name,task,likes,downloads,ageDays,url}>} drops
+ */
+function renderModelDrops(drops) {
+  if (!Array.isArray(drops) || drops.length === 0) return "";
+  const compact = (n) =>
+    n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n || 0);
+  const items = drops
+    .map((d) => {
+      const task = d.task
+        ? `<span class="drop-task">${escapeHtml(String(d.task).replace(/-/g, " "))}</span>`
+        : "";
+      const age =
+        d.ageDays != null
+          ? `<span class="drop-age">${d.ageDays <= 0 ? "today" : d.ageDays + "d ago"}</span>`
+          : "";
+      return `
+        <li class="drop-item">
+          <a class="drop-link" href="${escapeHtml(d.url)}" target="_blank" rel="noopener">
+            <span class="drop-name">${escapeHtml(d.name)}</span>
+            <span class="drop-author">${escapeHtml(d.author)}</span>
+          </a>
+          <span class="drop-meta">${task}<span class="drop-likes">&#9829; ${compact(d.likes)}</span>${age}</span>
+        </li>`;
+    })
+    .join("");
+  return `
+    <section class="model-drops" aria-label="Latest model releases" data-reveal>
+      <div class="model-drops-head">
+        <span class="section-kicker">Fresh on Hugging Face</span>
+        <h2 class="model-drops-header">Model Drops</h2>
+        <span class="model-drops-sub">The newest model releases builders are picking up right now.</span>
+      </div>
+      <ul class="model-drops-list">${items}
+      </ul>
+    </section>`;
+}
+
+/**
  * "Across the Desk" — the front-page rail. Today's lead headline from every
  * other section (AI, Robotics, Cyber, …), so the front page leads with editorial
  * signal across the whole paper instead of a flat link list. Each item jumps to
@@ -467,13 +510,17 @@ function renderDeskRail(sections, sectionConfigs, order) {
  * the right (the hero), then More on the Front Page + Quick Hits below. Reuses
  * renderHybridArticle for the lead so chat/expand behavior is preserved.
  */
-function renderFrontPagePanel(sections, sectionConfigs, order) {
+function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
   const fp = sections.frontPage;
   if (!fp || fp.isEmpty || !fp.lead) {
     return `<div class="section-empty">No stories on the front page today. Check back tomorrow!</div>`;
   }
 
-  let html = `<div class="front-hero">
+  // Model Drops band sits at the very top — the day's freshest AI events, above
+  // the lead. Empty (no drops / fetch failed) renders nothing.
+  let html = renderModelDrops(opts.modelDrops);
+
+  html += `<div class="front-hero">
       <div class="front-lead-col" data-reveal>${renderHybridArticle(fp.lead, { isLead: true })}</div>
       ${renderDeskRail(sections, sectionConfigs, order)}
     </div>`;
@@ -601,7 +648,9 @@ async function assembleMultiSectionHtml(content, options = {}) {
         ? aiWirePanelHtml
         : `<div class="section-empty">The AI Wire is quiet today. Check back tomorrow!</div>`;
     } else if (id === "frontPage") {
-      panelContent = renderFrontPagePanel(content.sections, SECTIONS, navOrder);
+      panelContent = renderFrontPagePanel(content.sections, SECTIONS, navOrder, {
+        modelDrops: options.modelDrops || (content.modelDrops || []),
+      });
     } else {
       panelContent = renderSectionContent(content.sections[id], SECTIONS[id]);
     }
@@ -826,4 +875,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderDeskRail, renderFrontPagePanel, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderDeskRail, renderFrontPagePanel, renderSourceLine };

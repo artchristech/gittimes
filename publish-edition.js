@@ -9,6 +9,7 @@ const { buildLeadThreadContext } = require("./src/threads");
 const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
+const { fetchModelDrops } = require("./src/model-drops");
 const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
@@ -99,9 +100,13 @@ async function main() {
 
   // Step 2c: Non-repo AI intake (the AI Wire) — the day's top AI stories from the
   // wider web, so the paper isn't blind to headlines that aren't trending repos.
-  const [aiHeadlines, arxivPapers] = await Promise.all([
+  // Model Drops (the flow band) fetches alongside — the day's freshest model
+  // releases from Hugging Face. GT_DISABLE_MODEL_DROPS=1 kills it.
+  const modelDropsOff = process.env.GT_DISABLE_MODEL_DROPS === "1";
+  const [aiHeadlines, arxivPapers, modelDrops] = await Promise.all([
     fetchAIHeadlines({ limit: 5 }),
     fetchArxiv({ limit: 3 }),
+    modelDropsOff ? Promise.resolve([]) : fetchModelDrops({ limit: 6 }),
   ]);
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
@@ -136,6 +141,7 @@ async function main() {
     fullMarketData,
     aiWireHtml,
     aiWire: { headlines: aiHeadlines, research: arxivPapers },
+    modelDrops,
   });
 
   // Step 4b: Record generation telemetry. Observational only and fully wrapped —

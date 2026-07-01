@@ -130,6 +130,7 @@ async function publish(content, outDir, options = {}) {
     tickerHtml: options.tickerHtml || "",
     aiWireHtml: options.aiWireHtml || "",
     aiWire: options.aiWire || null,
+    modelDrops: options.modelDrops || [],
   });
 
   // 4. Write edition to outDir/editions/YYYY-MM-DD/index.html
