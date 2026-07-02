@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-01T08:49:10.920Z",
+  "syncedAt": "2026-07-02T08:10:45.539Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
@@ -4144,8 +4144,8 @@
       "context_length": 262144,
       "input": 0.6,
       "output": 2.5,
-      "cache_read_price": 0.6,
-      "max_completion_tokens": 262144,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 100352,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -4153,10 +4153,8 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "logit_bias",
         "logprobs",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "reasoning",
         "repetition_penalty",
@@ -4215,9 +4213,7 @@
       ],
       "supported_parameters": [
         "frequency_penalty",
-        "logit_bias",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "repetition_penalty",
         "response_format",
@@ -5467,6 +5463,34 @@
       "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Thinking"
     },
     {
+      "id": "qwen/qwen3-30b-a3b-thinking-2507",
+      "name": "Qwen: Qwen3 30B A3B Thinking 2507",
+      "context_length": 131072,
+      "input": 0.13,
+      "output": 1.56,
+      "cache_read_price": null,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "response_format",
+        "seed",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1756399192,
+      "description": "Qwen3-30B-A3B-Thinking-2507 is a 30B parameter Mixture-of-Experts reasoning model optimized for complex tasks requiring extended multi-step thinking. The model ",
+      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Thinking-2507"
+    },
+    {
       "id": "google/gemini-3.1-flash-lite-image",
       "name": "Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
       "context_length": 65536,
@@ -5675,7 +5699,6 @@
         "response_format",
         "seed",
         "stop",
-        "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
@@ -6008,6 +6031,38 @@
       "hugging_face_id": null
     },
     {
+      "id": "minimax/minimax-m2.1",
+      "name": "MiniMax: MiniMax M2.1",
+      "context_length": 204800,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1766454997,
+      "description": "MiniMax-M2.1 is a lightweight, state-of-the-art large language model optimized for coding, agentic workflows, and modern application development. With only 10 b",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.1"
+    },
+    {
       "id": "morph/morph-v3-fast",
       "name": "Morph: Morph V3 Fast",
       "context_length": 81920,
@@ -6188,6 +6243,41 @@
       "hugging_face_id": "MiniMaxAI/MiniMax-Text-01"
     },
     {
+      "id": "minimax/minimax-m2",
+      "name": "MiniMax: MiniMax M2",
+      "context_length": 204800,
+      "input": 0.255,
+      "output": 1.02,
+      "cache_read_price": null,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1761252093,
+      "description": "MiniMax-M2 is a compact, high-efficiency large language model optimized for end-to-end coding and agentic workflows. With 10 billion activated parameters (230 b",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2"
+    },
+    {
       "id": "nex-agi/nex-n2-pro",
       "name": "Nex AGI: Nex-N2-Pro",
       "context_length": 262144,
@@ -6292,43 +6382,6 @@
       "created": 1772053822,
       "description": "The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixtur",
       "hugging_face_id": "Qwen/Qwen3.5-35B-A3B"
-    },
-    {
-      "id": "minimax/minimax-m2",
-      "name": "MiniMax: MiniMax M2",
-      "context_length": 204800,
-      "input": 0.255,
-      "output": 1,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": 196608,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1761252093,
-      "description": "MiniMax-M2 is a compact, high-efficiency large language model optimized for end-to-end coding and agentic workflows. With 10 billion activated parameters (230 b",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2"
     },
     {
       "id": "qwen/qwen2.5-vl-72b-instruct",
@@ -6512,41 +6565,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "minimax/minimax-m2.1",
-      "name": "MiniMax: MiniMax M2.1",
-      "context_length": 204800,
-      "input": 0.29,
-      "output": 0.95,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": 196608,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1766454997,
-      "description": "MiniMax-M2.1 is a lightweight, state-of-the-art large language model optimized for coding, agentic workflows, and modern application development. With only 10 b",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.1"
-    },
-    {
       "id": "deepseek/deepseek-v3.1-terminus",
       "name": "DeepSeek: DeepSeek V3.1 Terminus",
       "context_length": 163840,
@@ -6644,6 +6662,39 @@
       "created": 1754079630,
       "description": "Mistral's cutting-edge language model for coding released end of July 2025. Codestral specializes in low-latency, high-frequency tasks such as fill-in-the-middl",
       "hugging_face_id": null
+    },
+    {
+      "id": "deepseek/deepseek-chat-v3-0324",
+      "name": "DeepSeek: DeepSeek V3 0324",
+      "context_length": 163840,
+      "input": 0.24,
+      "output": 0.8999999999999999,
+      "cache_read_price": 0.135,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1742824755,
+      "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [Deep",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3-0324"
     },
     {
       "id": "qwen/qwen3-vl-235b-a22b-instruct",
@@ -6895,7 +6946,6 @@
         "logit_bias",
         "logprobs",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "repetition_penalty",
         "response_format",
@@ -7054,10 +7104,8 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "logit_bias",
         "logprobs",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "reasoning",
         "repetition_penalty",
@@ -7162,39 +7210,6 @@
       "created": 1738409840,
       "description": "Qwen-Plus, based on the Qwen2.5 foundation model, is a 131K context model with a balanced performance, speed, and cost combination.",
       "hugging_face_id": null
-    },
-    {
-      "id": "deepseek/deepseek-chat-v3-0324",
-      "name": "DeepSeek: DeepSeek V3 0324",
-      "context_length": 163840,
-      "input": 0.19999999999999998,
-      "output": 0.77,
-      "cache_read_price": 0.135,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1742824755,
-      "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [Deep",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3-0324"
     },
     {
       "id": "inception/mercury-2",
@@ -7869,7 +7884,6 @@
         "logit_bias",
         "logprobs",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "repetition_penalty",
         "response_format",
@@ -8023,6 +8037,34 @@
       "created": 1770908502,
       "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
       "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
+    },
+    {
+      "id": "qwen/qwen3-8b",
+      "name": "Qwen: Qwen3 8B",
+      "context_length": 131072,
+      "input": 0.117,
+      "output": 0.45499999999999996,
+      "cache_read_price": null,
+      "max_completion_tokens": 8192,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "response_format",
+        "seed",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1745876632,
+      "description": "Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seam",
+      "hugging_face_id": "Qwen/Qwen3-8B"
     },
     {
       "id": "qwen/qwen3-vl-32b-instruct",
@@ -8288,43 +8330,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3-30b-a3b-thinking-2507",
-      "name": "Qwen: Qwen3 30B A3B Thinking 2507",
-      "context_length": 131072,
-      "input": 0.08,
-      "output": 0.39999999999999997,
-      "cache_read_price": 0.08,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1756399192,
-      "description": "Qwen3-30B-A3B-Thinking-2507 is a 30B parameter Mixture-of-Experts reasoning model optimized for complex tasks requiring extended multi-step thinking. The model ",
-      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Thinking-2507"
-    },
-    {
       "id": "nousresearch/hermes-4-70b",
       "name": "Nous: Hermes 4 70B",
       "context_length": 131072,
@@ -8413,41 +8418,6 @@
       "created": 1753200276,
       "description": "Gemini 2.5 Flash-Lite is a lightweight reasoning model in the Gemini 2.5 family, optimized for ultra-low latency and cost efficiency. It offers improved through",
       "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3-8b",
-      "name": "Qwen: Qwen3 8B",
-      "context_length": 131072,
-      "input": 0.049999999999999996,
-      "output": 0.39999999999999997,
-      "cache_read_price": 0.049999999999999996,
-      "max_completion_tokens": 8192,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1745876632,
-      "description": "Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seam",
-      "hugging_face_id": "Qwen/Qwen3-8B"
     },
     {
       "id": "openai/gpt-4.1-nano",
@@ -8963,6 +8933,7 @@
         "logit_bias",
         "logprobs",
         "max_tokens",
+        "min_p",
         "presence_penalty",
         "reasoning",
         "repetition_penalty",
@@ -9397,13 +9368,47 @@
       "hugging_face_id": "RekaAI/reka-flash-3"
     },
     {
+      "id": "qwen/qwen3-30b-a3b-instruct-2507",
+      "name": "Qwen: Qwen3 30B A3B Instruct 2507",
+      "context_length": 131072,
+      "input": 0.04815,
+      "output": 0.19305,
+      "cache_read_price": null,
+      "max_completion_tokens": 32000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1753806965,
+      "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
+      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
+    },
+    {
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash",
       "context_length": 1048576,
-      "input": 0.098,
-      "output": 0.196,
-      "cache_read_price": 0.02,
-      "max_completion_tokens": null,
+      "input": 0.09,
+      "output": 0.18,
+      "cache_read_price": 0.018,
+      "max_completion_tokens": 16384,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9432,41 +9437,6 @@
       "created": 1777000666,
       "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
       "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
-    },
-    {
-      "id": "qwen/qwen3-30b-a3b-instruct-2507",
-      "name": "Qwen: Qwen3 30B A3B Instruct 2507",
-      "context_length": 131072,
-      "input": 0.04815,
-      "output": 0.19305,
-      "cache_read_price": null,
-      "max_completion_tokens": 32000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1753806965,
-      "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
-      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
     },
     {
       "id": "meta-llama/llama-guard-4-12b",
