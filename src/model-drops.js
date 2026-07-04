@@ -26,6 +26,20 @@ const TRUSTED_ORGS = new Set([
 // primary event. Kept out of the band unless the author is itself a trusted lab.
 const QUANT_RE = /[-_.](gguf|gptq|awq|exl2|exl3|mlx|bnb|4bit|8bit|int4|int8|fp8|onnx|mlc)$/i;
 
+// HF tags that mark a model as DERIVED from someone else's release (a finetune,
+// merge, adapter, or quant) rather than a primary "drop". `base_model:<kind>:<id>`
+// is HF's canonical lineage tag; `merge`/`mergekit` are the bare merge markers.
+const DERIVATIVE_TAG_RE = /^base_model:(finetune|merge|adapter|quantized):/i;
+const DERIVATIVE_BARE = new Set(["merge", "mergekit"]);
+// Roleplay / uncensored community models — never front-page news for a builder
+// paper, and the single biggest source of "ridiculous drop" noise (e.g. the
+// `-Claude-Mythos` uncensored Qwen finetunes that out-like real releases).
+const ROLEPLAY_TAGS = new Set(["not-for-all-audiences", "uncensored", "roleplay", "nsfw"]);
+
+const isDerivative = (tags) =>
+  tags.some((t) => DERIVATIVE_TAG_RE.test(t) || DERIVATIVE_BARE.has(t.toLowerCase()));
+const isRoleplay = (tags) => tags.some((t) => ROLEPLAY_TAGS.has(t.toLowerCase()));
+
 /**
  * Rank + filter raw HF model records into clean drop objects. Pure (no I/O) so
  * it's unit-testable. Keeps genuinely-recent releases with real traction (or from
@@ -35,13 +49,27 @@ const QUANT_RE = /[-_.](gguf|gptq|awq|exl2|exl3|mlx|bnb|4bit|8bit|int4|int8|fp8|
  * @returns {Array<{id,author,name,task,likes,downloads,createdAt,ageDays,url}>}
  */
 function selectModelDrops(models, opts = {}) {
-  const { limit = 6, windowDays = 14, minLikes = 80, nowMs = Date.now() } = opts;
+  const {
+    limit = 6,
+    windowDays = 14,
+    minLikes = 80,
+    nowMs = Date.now(),
+    gravity = 1.3,
+    trustedBoost = 3,
+  } = opts;
   if (!Array.isArray(models)) return [];
   const seen = new Set();
+  // Freshness-decayed traction: what's NEW and getting picked up, not whatever
+  // accreted the most likes across the whole window. Without this, the highest-
+  // like model sits pinned at #1 for days and the band reads as "never updates".
+  // Trusted labs get a boost so a genuine release leads even before likes land.
+  const dropScore = (x) =>
+    ((x.likes + 1) / Math.pow(Math.max(0, x.age) + 2, gravity)) * (x.trusted ? trustedBoost : 1);
   return models
     .filter((m) => m && typeof m.id === "string" && m.id.includes("/"))
     .map((m) => {
       const author = m.id.split("/")[0];
+      const tags = Array.isArray(m.tags) ? m.tags.map(String) : [];
       return {
         m,
         author,
@@ -51,21 +79,24 @@ function selectModelDrops(models, opts = {}) {
         age: ageDays(m.createdAt, nowMs),
         trusted: TRUSTED_ORGS.has(author),
         quant: QUANT_RE.test(m.id),
+        derivative: isDerivative(tags),
+        roleplay: isRoleplay(tags),
       };
     })
     // A "drop" must be genuinely recent — created inside the window, not just hot.
     .filter((x) => x.age <= windowDays)
-    // Signal: a trusted lab (news immediately) OR real community traction. A bare
-    // quantization re-host never qualifies on its own.
-    .filter((x) => (x.trusted || x.likes >= minLikes) && (!x.quant || x.trusted))
+    // Roleplay / uncensored community models are never a builder-paper drop.
+    .filter((x) => !x.roleplay)
+    // A trusted lab is news immediately. Everyone else must be a PRIMARY release
+    // (not a finetune/merge/adapter/quant re-host) WITH real community traction.
+    .filter((x) => x.trusted || (!x.derivative && !x.quant && x.likes >= minLikes))
     .filter((x) => {
       if (seen.has(x.m.id)) return false;
       seen.add(x.m.id);
       return true;
     })
-    // Biggest drop first; downloads break ties. Age is shown, not ranked on, so a
-    // 3k-like release still leads a 5-like one from the same day.
-    .sort((a, b) => b.likes - a.likes || b.downloads - a.downloads)
+    // Freshest, most-picked-up first; downloads break ties.
+    .sort((a, b) => dropScore(b) - dropScore(a) || b.downloads - a.downloads)
     .slice(0, limit)
     .map((x) => ({
       id: x.m.id,

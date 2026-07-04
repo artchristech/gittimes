@@ -11,12 +11,51 @@ const M = (id, likes, ageDays, extra = {}) => ({
   downloads: extra.downloads ?? 0,
   createdAt: iso(ageDays),
   pipeline_tag: extra.tag ?? "text-generation",
+  tags: extra.tags ?? [],
 });
 
 describe("selectModelDrops", () => {
   it("keeps recent high-traction drops, ranked biggest-first", () => {
     const out = selectModelDrops([M("acme/small", 90, 3), M("acme/big", 900, 5)], { nowMs: NOW });
     assert.deepEqual(out.map((d) => d.id), ["acme/big", "acme/small"]);
+  });
+
+  it("ranks a fresh drop above an older but more-liked one (velocity, not stock)", () => {
+    // The core "band never updates" bug: a 13d-old 650-like model must NOT outrank
+    // a 2d-old 200-like one. Freshness-decayed score, not raw likes.
+    const out = selectModelDrops([M("acme/old-hit", 650, 13), M("acme/fresh", 200, 2)], {
+      nowMs: NOW,
+    });
+    assert.deepEqual(out.map((d) => d.id), ["acme/fresh", "acme/old-hit"]);
+  });
+
+  it("excludes a non-trusted uncensored/roleplay finetune even when popular", () => {
+    // The exact live offender: empero-ai/Qwythos-…-Claude-Mythos (uncensored finetune).
+    const out = selectModelDrops(
+      [M("empero-ai/Qwythos-Claude-Mythos", 650, 3, {
+        tags: ["text-generation", "uncensored", "base_model:finetune:Qwen/Qwen3.5-9B"],
+      })],
+      { nowMs: NOW }
+    );
+    assert.equal(out.length, 0);
+  });
+
+  it("excludes a non-trusted community merge", () => {
+    const out = selectModelDrops(
+      [M("rando/frankenmerge", 400, 2, { tags: ["merge", "mergekit", "text-generation"] })],
+      { nowMs: NOW }
+    );
+    assert.equal(out.length, 0);
+  });
+
+  it("keeps a trusted-lab instruct model even though it is tagged a finetune", () => {
+    const out = selectModelDrops(
+      [M("Qwen/Qwen3.5-9B-Instruct", 40, 2, {
+        tags: ["text-generation", "base_model:finetune:Qwen/Qwen3.5-9B"],
+      })],
+      { nowMs: NOW }
+    );
+    assert.deepEqual(out.map((d) => d.id), ["Qwen/Qwen3.5-9B-Instruct"]);
   });
 
   it("drops a model created outside the window even if hot", () => {
