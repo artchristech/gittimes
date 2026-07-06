@@ -10,6 +10,7 @@ const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
 const { fetchModelDrops } = require("./src/model-drops");
+const { fetchGitHubReleases } = require("./src/github-releases");
 const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
@@ -100,13 +101,17 @@ async function main() {
 
   // Step 2c: Non-repo AI intake (the AI Wire) — the day's top AI stories from the
   // wider web, so the paper isn't blind to headlines that aren't trending repos.
-  // Model Drops (the flow band) fetches alongside — the day's freshest model
-  // releases from Hugging Face. GT_DISABLE_MODEL_DROPS=1 kills it.
+  // The flow bands fetch alongside — Model Drops (the day's freshest model
+  // releases from Hugging Face) and GitHub Releases (notable releases from
+  // watched AI/dev-infra repos, trending or not). GT_DISABLE_MODEL_DROPS=1 /
+  // GT_DISABLE_GH_RELEASES=1 kill them individually.
   const modelDropsOff = process.env.GT_DISABLE_MODEL_DROPS === "1";
-  const [aiHeadlines, arxivPapers, modelDrops] = await Promise.all([
+  const ghReleasesOff = process.env.GT_DISABLE_GH_RELEASES === "1";
+  const [aiHeadlines, arxivPapers, modelDrops, ghReleases] = await Promise.all([
     fetchAIHeadlines({ limit: 5 }),
     fetchArxiv({ limit: 3 }),
     modelDropsOff ? Promise.resolve([]) : fetchModelDrops({ limit: 6 }),
+    ghReleasesOff ? Promise.resolve([]) : fetchGitHubReleases({ limit: 5, token: githubToken }),
   ]);
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
@@ -142,6 +147,7 @@ async function main() {
     aiWireHtml,
     aiWire: { headlines: aiHeadlines, research: arxivPapers },
     modelDrops,
+    ghReleases,
   });
 
   // Step 4b: Record generation telemetry. Observational only and fully wrapped —

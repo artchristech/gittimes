@@ -432,10 +432,12 @@ function renderAIWire(headlines, options = {}) {
  * when empty (band disappears cleanly).
  * @param {Array<{id,author,name,task,likes,downloads,ageDays,url}>} drops
  */
+function compactCount(n) {
+  return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n || 0);
+}
+
 function renderModelDrops(drops) {
   if (!Array.isArray(drops) || drops.length === 0) return "";
-  const compact = (n) =>
-    n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n || 0);
   const items = drops
     .map((d) => {
       const task = d.task
@@ -451,7 +453,7 @@ function renderModelDrops(drops) {
             <span class="drop-name">${escapeHtml(d.name)}</span>
             <span class="drop-author">${escapeHtml(d.author)}</span>
           </a>
-          <span class="drop-meta">${task}<span class="drop-likes">&#9829; ${compact(d.likes)}</span>${age}</span>
+          <span class="drop-meta">${task}<span class="drop-likes">&#9829; ${compactCount(d.likes)}</span>${age}</span>
         </li>`;
     })
     .join("");
@@ -461,6 +463,49 @@ function renderModelDrops(drops) {
         <span class="section-kicker">Fresh on Hugging Face</span>
         <h2 class="model-drops-header">Model Drops</h2>
         <span class="model-drops-sub">The newest model releases builders are picking up right now.</span>
+      </div>
+      <ul class="model-drops-list">${items}
+      </ul>
+    </section>`;
+}
+
+/**
+ * Just Shipped — the GitHub half of the flow band. Trending is a stock signal;
+ * a significant release from a watched AI/dev-infra repo is an *event* worth
+ * the wire even when that repo isn't in today's trending set. Sits beside
+ * Model Drops above the lead, sharing the drops band chrome so the two read
+ * as one system. Returns "" when empty (band disappears cleanly).
+ * @param {Array<{repo,owner,name,tag,title,reactions,ageDays,url}>} releases
+ */
+function renderGitHubReleases(releases) {
+  if (!Array.isArray(releases) || releases.length === 0) return "";
+  const items = releases
+    .map((r) => {
+      const tag = r.tag ? `<span class="drop-tag">${escapeHtml(r.tag)}</span>` : "";
+      const reactions =
+        r.reactions > 0
+          ? `<span class="drop-likes">&#9650; ${compactCount(r.reactions)}</span>`
+          : "";
+      const age =
+        r.ageDays != null
+          ? `<span class="drop-age">${r.ageDays <= 0 ? "today" : r.ageDays + "d ago"}</span>`
+          : "";
+      return `
+        <li class="drop-item">
+          <a class="drop-link" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">
+            <span class="drop-name">${escapeHtml(r.name)}</span>
+            <span class="drop-author">${escapeHtml(r.owner)}</span>
+          </a>
+          <span class="drop-meta">${tag}${reactions}${age}</span>
+        </li>`;
+    })
+    .join("");
+  return `
+    <section class="model-drops gh-releases" aria-label="Notable GitHub releases" data-reveal>
+      <div class="model-drops-head">
+        <span class="section-kicker">Fresh on GitHub</span>
+        <h2 class="model-drops-header">Just Shipped</h2>
+        <span class="model-drops-sub">Significant new releases from the AI and dev-infra repos builders run on.</span>
       </div>
       <ul class="model-drops-list">${items}
       </ul>
@@ -516,9 +561,11 @@ function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
     return `<div class="section-empty">No stories on the front page today. Check back tomorrow!</div>`;
   }
 
-  // Model Drops band sits at the very top — the day's freshest AI events, above
-  // the lead. Empty (no drops / fetch failed) renders nothing.
+  // The flow bands sit at the very top — the day's freshest AI events, above
+  // the lead: Model Drops (Hugging Face) then Just Shipped (GitHub releases).
+  // Empty (no items / fetch failed) renders nothing.
   let html = renderModelDrops(opts.modelDrops);
+  html += renderGitHubReleases(opts.ghReleases);
 
   html += `<div class="front-hero">
       <div class="front-lead-col" data-reveal>${renderHybridArticle(fp.lead, { isLead: true })}</div>
@@ -650,6 +697,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     } else if (id === "frontPage") {
       panelContent = renderFrontPagePanel(content.sections, SECTIONS, navOrder, {
         modelDrops: options.modelDrops || (content.modelDrops || []),
+        ghReleases: options.ghReleases || (content.ghReleases || []),
       });
     } else {
       panelContent = renderSectionContent(content.sections[id], SECTIONS[id]);
@@ -875,4 +923,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderDeskRail, renderFrontPagePanel, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderDeskRail, renderFrontPagePanel, renderSourceLine };
