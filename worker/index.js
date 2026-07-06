@@ -997,11 +997,15 @@ const handler = {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const ALLOWED = ["theme", "font", "size", "width", "bgH", "bgS", "bgL", "txH", "txS", "txL"];
+      const ALLOWED = ["design", "theme", "font", "size", "width", "bgH", "bgS", "bgL", "txH", "txS", "txL"];
+      // `design` selects a whole page identity, so only known presets are
+      // stored — a junk value can never be replayed to other devices via GET.
+      const DESIGNS = ["newspaper", "cyberpunk", "business", "whitepaper"];
       const clean = {};
       for (const key of ALLOWED) {
         if (incoming[key] != null) clean[key] = String(incoming[key]).slice(0, 16);
       }
+      if (clean.design != null && !DESIGNS.includes(clean.design)) delete clean.design;
       user.readerSettings = clean;
       await env.USERS.put(user.email, JSON.stringify(user));
       return new Response(JSON.stringify({ ok: true, settings: clean }), {

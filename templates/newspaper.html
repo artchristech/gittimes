@@ -32,6 +32,15 @@
     </button>
     <div class="toolbar-panel" id="toolbar-panel">
       <div class="panel-group">
+        <span class="panel-label">Design</span>
+        <div class="panel-options panel-options-grid" data-setting="design">
+          <button class="panel-pill" data-value="newspaper">Newspaper</button>
+          <button class="panel-pill" data-value="cyberpunk">Cyberpunk</button>
+          <button class="panel-pill" data-value="business">Business</button>
+          <button class="panel-pill" data-value="whitepaper">Whitepaper</button>
+        </div>
+      </div>
+      <div class="panel-group panel-group-color">
         <span class="panel-label">Preset</span>
         <div class="panel-options" data-setting="theme">
           <button class="panel-pill" data-value="light">Light</button>
@@ -40,7 +49,7 @@
           <button class="panel-pill" data-value="midnight">Night</button>
         </div>
       </div>
-      <div class="panel-group">
+      <div class="panel-group panel-group-color">
         <div class="panel-label-row">
           <span class="panel-label">Background</span>
           <span class="panel-swatch" id="bg-swatch"></span>
@@ -51,7 +60,7 @@
           <input type="range" class="panel-slider-mini" id="slider-bg-lit" min="0" max="100" step="1">
         </div>
       </div>
-      <div class="panel-group">
+      <div class="panel-group panel-group-color">
         <div class="panel-label-row">
           <span class="panel-label">Text</span>
           <span class="panel-swatch" id="text-swatch"></span>
@@ -129,11 +138,17 @@
       var trigger = document.getElementById('toolbar-toggle');
 
       var defaults = {
+        design: 'newspaper',
         theme: 'light', font: 'serif', size: 'medium', width: 'normal',
         bgH: '40', bgS: '18', bgL: '97',
         txH: '0', txS: '0', txL: '10'
       };
       var customColors = false;
+
+      // Full design identities — typography + palette + chrome, applied via
+      // [data-design] blocks in the stylesheet. Unknown values collapse to the
+      // default so a stale cache or synced junk can never wedge the page.
+      var DESIGNS = ['newspaper', 'cyberpunk', 'business', 'whitepaper'];
 
       // Theme preset color maps (H, S, L for bg and text)
       var presets = {
@@ -147,6 +162,7 @@
       Object.keys(defaults).forEach(function (key) {
         state[key] = localStorage.getItem('gittimes-' + key) || defaults[key];
       });
+      if (DESIGNS.indexOf(state.design) === -1) state.design = defaults.design;
 
       var sliderBg    = document.getElementById('slider-bg');
       var sliderBgSat = document.getElementById('slider-bg-sat');
@@ -183,21 +199,29 @@
         var txColor = hsl(txH, txS, txL);
         var d = deriveColors(bgH, bgS, bgL);
 
-        root.style.setProperty('--paper', bgColor);
-        root.style.setProperty('--ink', txColor);
-        root.style.setProperty('--ink-light', d.inkLight);
-        root.style.setProperty('--ink-faint', d.inkFaint);
-        root.style.setProperty('--rule', d.rule);
-        root.style.setProperty('--rule-light', d.ruleLight);
+        if (state.design !== 'newspaper') {
+          // A design preset owns the full palette — drop any inline color
+          // overrides so its [data-design] stylesheet block shows through.
+          ['--paper', '--ink', '--ink-light', '--ink-faint', '--rule', '--rule-light', '--accent', '--bt-bg'].forEach(function (prop) {
+            root.style.removeProperty(prop);
+          });
+        } else {
+          root.style.setProperty('--paper', bgColor);
+          root.style.setProperty('--ink', txColor);
+          root.style.setProperty('--ink-light', d.inkLight);
+          root.style.setProperty('--ink-faint', d.inkFaint);
+          root.style.setProperty('--rule', d.rule);
+          root.style.setProperty('--rule-light', d.ruleLight);
 
-        // Accent based on hue complement
-        var accentH = (parseInt(bgH) + 180) % 360;
-        root.style.setProperty('--accent', hsl(accentH, 65, parseInt(bgL) < 50 ? 60 : 35));
+          // Accent based on hue complement
+          var accentH = (parseInt(bgH) + 180) % 360;
+          root.style.setProperty('--accent', hsl(accentH, 65, parseInt(bgL) < 50 ? 60 : 35));
 
-        // Builder's take bg
-        var btL1 = parseInt(bgL) < 50 ? parseInt(bgL) + 5 : parseInt(bgL) - 4;
-        var btL2 = parseInt(bgL) < 50 ? parseInt(bgL) + 3 : parseInt(bgL) - 6;
-        root.style.setProperty('--bt-bg', 'linear-gradient(135deg,' + hsl(bgH, bgS, btL1) + ',' + hsl(bgH, bgS, btL2) + ')');
+          // Builder's take bg
+          var btL1 = parseInt(bgL) < 50 ? parseInt(bgL) + 5 : parseInt(bgL) - 4;
+          var btL2 = parseInt(bgL) < 50 ? parseInt(bgL) + 3 : parseInt(bgL) - 6;
+          root.style.setProperty('--bt-bg', 'linear-gradient(135deg,' + hsl(bgH, bgS, btL1) + ',' + hsl(bgH, bgS, btL2) + ')');
+        }
 
         // Update swatches
         bgSwatch.style.background = bgColor;
@@ -235,7 +259,7 @@
       // anonymous + offline cache; the account is source of truth when signed in.
       // The worker URL is set by the chat script later in the body, so resolve
       // it lazily rather than at parse time. ---
-      var SYNC_KEYS = ['theme', 'font', 'size', 'width', 'bgH', 'bgS', 'bgL', 'txH', 'txS', 'txL'];
+      var SYNC_KEYS = ['design', 'theme', 'font', 'size', 'width', 'bgH', 'bgS', 'bgL', 'txH', 'txS', 'txL'];
       var pushTimer = null;
 
       function syncCtx() {
@@ -274,6 +298,7 @@
             SYNC_KEYS.forEach(function (k) {
               if (s[k] != null && s[k] !== state[k]) { state[k] = s[k]; changed = true; }
             });
+            if (DESIGNS.indexOf(state.design) === -1) state.design = defaults.design;
             if (changed) apply(); // writes data-attrs + localStorage cache; never re-pushes
           })
           .catch(function () {});
@@ -447,7 +472,9 @@
       function armReveals(root) {
         var els = [].slice.call((root || document).querySelectorAll('[data-reveal]:not(.in)'));
         if (!els.length) return;
-        if (reduceMotion || !('IntersectionObserver' in window)) {
+        // The Whitepaper design scratches entry animations entirely (its CSS
+        // also force-reveals, so a mid-session switch needs no re-arm here).
+        if (reduceMotion || state.design === 'whitepaper' || !('IntersectionObserver' in window)) {
           els.forEach(function(el) { el.classList.add('in'); });
           return;
         }

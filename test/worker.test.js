@@ -397,6 +397,47 @@ describe("Worker endpoints", () => {
       assert.deepEqual((await res.json()).settings, { width: "wide" });
     });
 
+    it("round-trips design and drops junk design values", async () => {
+      const token = await createSession(env, "s5@test.com", "free");
+      // A known design preset persists and comes back on GET
+      await worker.fetch(
+        req("POST", "/auth/settings", {
+          headers: { Authorization: "Bearer " + token },
+          body: { settings: { design: "cyberpunk", theme: "dark" } },
+        }),
+        env,
+      );
+      let get = await worker.fetch(req("GET", "/auth/settings", { headers: { Authorization: "Bearer " + token } }), env);
+      let data = await get.json();
+      assert.equal(data.settings.design, "cyberpunk");
+
+      // A junk design is ignored: stored settings carry no design key, so it
+      // can never be replayed to another device via GET
+      await worker.fetch(
+        req("POST", "/auth/settings", {
+          headers: { Authorization: "Bearer " + token },
+          body: { settings: { design: "zebra", theme: "sepia" } },
+        }),
+        env,
+      );
+      get = await worker.fetch(req("GET", "/auth/settings", { headers: { Authorization: "Bearer " + token } }), env);
+      data = await get.json();
+      assert.equal(data.settings.theme, "sepia");
+      assert.equal("design" in data.settings, false);
+
+      // All four presets are accepted
+      for (const design of ["newspaper", "cyberpunk", "business", "whitepaper"]) {
+        const res = await worker.fetch(
+          req("POST", "/auth/settings", {
+            headers: { Authorization: "Bearer " + token },
+            body: { settings: { design } },
+          }),
+          env,
+        );
+        assert.equal((await res.json()).settings.design, design);
+      }
+    });
+
     it("returns 401 without auth (GET and POST)", async () => {
       assert.equal((await worker.fetch(req("GET", "/auth/settings"), env)).status, 401);
       assert.equal((await worker.fetch(req("POST", "/auth/settings", { body: { width: "wide" } }), env)).status, 401);
