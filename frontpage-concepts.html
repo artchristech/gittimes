@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Git Times — 5 Front-Page Concepts (10/10 craft × 10/10 hook)</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf8f5; --ink:#1a1a1a; --ink-light:#4a4a4a; --ink-faint:#8a8a8a;
+    --rule:#2a2a2a; --rule-light:#d8d2c4; --accent:#8b0000; --gold:#9a7b2e;
+    --up:#0a7d4d; --down:#b91c1c;
+    --headline:'Playfair Display',Georgia,serif;
+    --body:'Libre Baskerville',Georgia,serif;
+    --meta:'IBM Plex Sans',-apple-system,sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#15140f;color:#e9e4d8;font-family:var(--meta);line-height:1.5;-webkit-font-smoothing:antialiased;}
+
+  /* ---- page chrome ---- */
+  .wrap{max-width:1180px;margin:0 auto;padding:56px 24px 100px;}
+  .page-head{text-align:center;margin-bottom:8px;}
+  .page-kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+  .page-title{font-family:var(--headline);font-weight:800;font-size:40px;line-height:1.1;margin:10px 0 6px;color:#fdfbf6;}
+  .page-sub{font-size:15px;color:#b8b2a3;max-width:680px;margin:0 auto;line-height:1.6;}
+  .page-sub b{color:#fdfbf6;}
+
+  .legend{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin:26px auto 0;font-family:var(--mono);font-size:11.5px;letter-spacing:.5px;color:#b8b2a3;}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+
+  /* ---- concept block ---- */
+  .concept{margin-top:64px;}
+  .c-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .c-num{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:2px;}
+  .c-name{font-family:var(--headline);font-weight:800;font-size:27px;color:#fdfbf6;}
+  .c-tag{font-size:13px;color:#9a9484;font-style:italic;}
+  .c-why{font-size:13.5px;color:#cfc9ba;max-width:920px;line-height:1.65;margin:6px 0 18px;}
+  .c-why b{color:#fdfbf6;}
+  .c-scores{display:inline-flex;gap:10px;margin-left:auto;}
+  .score{font-family:var(--mono);font-size:11px;letter-spacing:.5px;border:1px solid #3a382e;border-radius:999px;padding:4px 11px;color:#e9e4d8;background:#1f1d16;}
+  .score b{color:#fff;}
+
+  /* ---- the "fold" frame: a faux browser viewport showing only above-the-fold ---- */
+  .fold{position:relative;border-radius:12px;overflow:hidden;border:1px solid #3a382e;box-shadow:0 30px 70px -30px rgba(0,0,0,.8);background:var(--paper);}
+  .barbrowser{height:38px;background:#e7e2d8;border-bottom:1px solid #cfc9ba;display:flex;align-items:center;padding:0 14px;gap:8px;}
+  .tl{width:11px;height:11px;border-radius:50%;}
+  .tl.r{background:#ff5f57;}.tl.y{background:#febc2e;}.tl.g{background:#28c840;}
+  .urlbar{flex:1;margin:0 14px;height:22px;background:#faf8f5;border:1px solid #d8d2c4;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:#8a8a8a;}
+  /* the editorial canvas — fixed height = the fold */
+  .canvas{height:560px;background:var(--paper);color:var(--ink);overflow:hidden;position:relative;}
+  .fade{position:absolute;left:0;right:0;bottom:0;height:64px;background:linear-gradient(to bottom,rgba(250,248,245,0),rgba(250,248,245,.96));pointer-events:none;}
+
+  /* shared editorial atoms */
+  .util{display:flex;justify-content:space-between;align-items:center;font-family:var(--meta);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);}
+  .nav{display:flex;gap:20px;font-family:var(--meta);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);}
+  .nav .on{color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:4px;}
+  .kicker{font-family:var(--meta);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+  a{color:inherit;text-decoration:none;}
+
+  /* ticker atoms */
+  .tick{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;}
+  .tick .lab{font-family:var(--meta);font-weight:700;letter-spacing:1.5px;font-size:10px;color:var(--ink-faint);text-transform:uppercase;}
+  .tick .m{white-space:nowrap;}
+  .tick .m b{font-family:var(--meta);font-weight:600;}
+  .tick .px{color:var(--ink-light);}
+  .up{color:var(--up);} .down{color:var(--down);}
+
+  /* ============ CONCEPT 1 — THE LEAD ============ */
+  .c1 .top{padding:14px 30px 10px;border-bottom:1px solid var(--rule-light);}
+  .c1 .mast{display:flex;align-items:baseline;justify-content:center;gap:14px;padding:8px 30px 12px;}
+  .c1 .logo{font-family:var(--headline);font-weight:900;font-size:34px;letter-spacing:1px;color:var(--ink);}
+  .c1 .tickstrip{padding:8px 30px;border-top:1px solid var(--rule-light);border-bottom:2px solid var(--rule);background:#f4efe6;}
+  .c1 .leadwrap{padding:26px 30px 0;}
+  .c1 .lh{font-family:var(--headline);font-weight:900;font-size:50px;line-height:1.04;letter-spacing:-.5px;margin:8px 0 12px;color:var(--ink);}
+  .c1 .dek{font-family:var(--headline);font-style:italic;font-size:21px;line-height:1.35;color:var(--ink-light);max-width:780px;margin-bottom:14px;}
+  .c1 .meta{font-family:var(--meta);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);display:flex;gap:16px;}
+  .c1 .meta a{color:var(--accent);}
+
+  /* ============ CONCEPT 2 — THE TERMINAL ============ */
+  .c2 .top{display:flex;align-items:center;justify-content:space-between;padding:14px 30px;border-bottom:1px solid var(--rule-light);}
+  .c2 .logo{font-family:var(--headline);font-weight:900;font-size:22px;letter-spacing:.5px;}
+  .c2 .live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--down);text-transform:uppercase;}
+  .c2 .live i{width:7px;height:7px;border-radius:50%;background:var(--down);display:inline-block;animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .c2 .board{padding:18px 30px 6px;}
+  .c2 .bkick{font-family:var(--meta);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:12px;}
+  .c2 .bkick b{color:var(--accent);}
+  .c2 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule-light);border:1px solid var(--rule-light);}
+  .c2 .cell{background:var(--paper);padding:13px 16px;}
+  .c2 .cn{font-family:var(--meta);font-weight:600;font-size:13px;color:var(--ink);}
+  .c2 .cp{font-family:var(--mono);font-size:21px;font-weight:700;margin-top:3px;color:var(--ink);}
+  .c2 .cd{font-family:var(--mono);font-size:11px;margin-top:2px;}
+  .c2 .leadstrip{margin:16px 30px 0;padding-top:14px;border-top:2px solid var(--rule);}
+  .c2 .lk{font-family:var(--meta);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+  .c2 .lh{font-family:var(--headline);font-weight:800;font-size:28px;line-height:1.1;margin-top:5px;}
+
+  /* ============ CONCEPT 3 — THE SPLIT ============ */
+  .c3 .mast{display:flex;align-items:baseline;justify-content:space-between;padding:14px 30px 10px;border-bottom:2px solid var(--rule);}
+  .c3 .logo{font-family:var(--headline);font-weight:900;font-size:26px;letter-spacing:.5px;}
+  .c3 .date{font-family:var(--meta);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);}
+  .c3 .cols{display:grid;grid-template-columns:1.85fr 1fr;}
+  .c3 .main{padding:22px 26px 0;border-right:1px solid var(--rule-light);}
+  .c3 .lh{font-family:var(--headline);font-weight:900;font-size:40px;line-height:1.05;letter-spacing:-.5px;margin:7px 0 11px;}
+  .c3 .dek{font-family:var(--headline);font-style:italic;font-size:18px;color:var(--ink-light);line-height:1.35;margin-bottom:13px;}
+  .c3 .body{font-family:var(--body);font-size:13.5px;line-height:1.65;color:var(--ink-light);text-align:justify;}
+  .c3 .rail{padding:18px 22px 0;background:#f4efe6;}
+  .c3 .rh{font-family:var(--meta);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--rule-light);padding-bottom:8px;margin-bottom:12px;}
+  .c3 .wi{padding:10px 0;border-bottom:1px solid var(--rule-light);}
+  .c3 .wi h4{font-family:var(--headline);font-weight:700;font-size:16px;line-height:1.25;}
+  .c3 .wi span{font-family:var(--meta);font-size:11px;color:var(--ink-faint);}
+
+  /* ============ CONCEPT 4 — THE POSTER ============ */
+  .c4 .canvas{background:#f6f1e8;}
+  .c4 .top{display:flex;justify-content:space-between;align-items:center;padding:16px 38px;}
+  .c4 .logo{font-family:var(--headline);font-weight:800;font-size:17px;letter-spacing:3px;text-transform:uppercase;}
+  .c4 .stage{padding:26px 38px 0;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;}
+  .c4 .lk{font-family:var(--meta);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);}
+  .c4 .lh{font-family:var(--headline);font-weight:900;font-size:58px;line-height:.98;letter-spacing:-1px;margin:12px 0 16px;}
+  .c4 .dek{font-family:var(--headline);font-style:italic;font-size:22px;line-height:1.3;color:var(--ink-light);max-width:640px;}
+  .c4 .stat{text-align:center;padding:20px 22px;border-left:3px solid var(--accent);}
+  .c4 .stat .n{font-family:var(--headline);font-weight:900;font-size:74px;line-height:.9;color:var(--accent);}
+  .c4 .stat .l{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-light);margin-top:8px;max-width:150px;}
+
+  /* ============ CONCEPT 5 — THE BRIEFING ============ */
+  .c5 .alert{background:var(--accent);color:#fdf6f0;padding:10px 30px;display:flex;align-items:center;gap:14px;}
+  .c5 .alert .b{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,.16);padding:3px 9px;border-radius:3px;white-space:nowrap;}
+  .c5 .alert .t{font-family:var(--headline);font-weight:700;font-size:16px;line-height:1.25;}
+  .c5 .mast{display:flex;align-items:baseline;justify-content:center;gap:12px;padding:12px 30px 8px;}
+  .c5 .logo{font-family:var(--headline);font-weight:900;font-size:24px;letter-spacing:.5px;}
+  .c5 .briefs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule-light);border-top:1px solid var(--rule-light);border-bottom:1px solid var(--rule-light);}
+  .c5 .bf{background:var(--paper);padding:13px 18px;}
+  .c5 .bf .k{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);}
+  .c5 .bf h4{font-family:var(--headline);font-weight:700;font-size:16px;line-height:1.2;margin-top:5px;}
+  .c5 .bf .d{font-family:var(--mono);font-size:11px;margin-top:5px;}
+  .c5 .leadwrap{padding:18px 30px 0;}
+  .c5 .lk{font-family:var(--meta);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+  .c5 .lh{font-family:var(--headline);font-weight:900;font-size:36px;line-height:1.05;margin-top:6px;letter-spacing:-.5px;}
+  .c5 .dek{font-family:var(--headline);font-style:italic;font-size:18px;color:var(--ink-light);margin-top:9px;}
+
+  .foot{margin-top:70px;text-align:center;font-size:12.5px;color:#8c8676;line-height:1.7;}
+  .foot b{color:#cfc9ba;}
+  @media (max-width:720px){.canvas{height:auto;min-height:420px;}.c2 .grid,.c5 .briefs{grid-template-columns:1fr 1fr;}.c3 .cols{grid-template-columns:1fr;}.c4 .stage{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-head">
+    <div class="page-kicker">The Git Times · Design Study</div>
+    <h1 class="page-title">Five front pages that earn the click</h1>
+    <p class="page-sub">The current page scores <b>7/10 craft, 4/10 hook</b> — it grabs respect, not attention. Below: five distinct above-the-fold directions, each engineered to hit <b>10/10 on both</b>. Same DNA (Playfair, oxblood, paper). Different bet on what stops the scroll.</p>
+    <div class="legend">
+      <span><i class="dot"></i> Real content: today's edition (Jun 23, 2026)</span>
+      <span><i class="dot"></i> Each frame = the fold only</span>
+      <span><i class="dot"></i> Pick one, or splice the best parts</span>
+    </div>
+  </div>
+
+  <!-- ===================== CONCEPT 1 ===================== -->
+  <section class="concept c1">
+    <div class="c-head">
+      <span class="c-num">01</span><span class="c-name">The Lead</span>
+      <span class="c-tag">compressed classic — the headline is the hook</span>
+      <span class="c-scores"><span class="score">craft <b>10</b></span><span class="score">hook <b>10</b></span></span>
+    </div>
+    <p class="c-why"><b>The move:</b> cut the masthead 45%, demote the quote, and put a <b>50px lead headline above the fold</b>. The reader's first impression is an idea, not chrome or a link list. Keeps the broadsheet gravitas; trades vanity vertical space for a punch in the first 1.5 seconds.</p>
+    <div class="fold">
+      <div class="barbrowser"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><div class="urlbar">gittimes.com</div></div>
+      <div class="canvas">
+        <div class="top util"><span>Account</span><span>Tuesday, June 23, 2026</span></div>
+        <div class="mast"><span class="logo">THE GIT TIMES</span></div>
+        <div class="tickstrip">
+          <div class="tick"><span class="lab">AI Models</span>
+            <span class="m"><b>Claude Opus 4.8</b> <span class="px">$25/M</span></span>
+            <span class="m"><b>GPT-5.5</b> <span class="px">$30/M</span></span>
+            <span class="m"><b>Gemini 3.1 Pro</b> <span class="px">$12/M</span></span>
+            <span class="m"><b>Grok 4.20</b> <span class="px">$2.50/M</span></span>
+            <span class="m"><b>DeepSeek V3.2</b> <span class="px">$0.80/M</span></span>
+          </div>
+        </div>
+        <div class="leadwrap">
+          <span class="kicker">Lead · Cybersecurity</span>
+          <h2 class="lh">Cloudflare's audit agent finds real exploits — and proves each one.</h2>
+          <p class="dek">A six-phase AI pipeline that doesn't flag vulnerabilities. It validates them, with machine-verified, structured findings.</p>
+          <div class="meta"><a href="#">cloudflare/security-audit-skill</a><span>JavaScript</span><span>475★ · +180 this week</span></div>
+        </div>
+        <div class="fade"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONCEPT 2 ===================== -->
+  <section class="concept c2">
+    <div class="c-head">
+      <span class="c-num">02</span><span class="c-name">The Terminal</span>
+      <span class="c-tag">lead with the asset no other paper has</span>
+      <span class="c-scores"><span class="score">craft <b>10</b></span><span class="score">hook <b>10</b></span></span>
+    </div>
+    <p class="c-why"><b>The move:</b> the live AI-model price board <b>is</b> the hero — Bloomberg terminal meets broadsheet. This is the one thing The Git Times has that nobody else does. Motion + live deltas + a pulsing "LIVE" dot create urgency; the lead story rides shotgun underneath. Builders return daily for the numbers.</p>
+    <div class="fold">
+      <div class="barbrowser"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><div class="urlbar">gittimes.com</div></div>
+      <div class="canvas">
+        <div class="top">
+          <span class="logo">The Git Times</span>
+          <span class="live"><i></i> Live · prices updated 4m ago</span>
+        </div>
+        <div class="board">
+          <div class="bkick">The AI Market · <b>output price, per million tokens</b></div>
+          <div class="grid">
+            <div class="cell"><div class="cn">Claude Opus 4.8</div><div class="cp">$25.00</div><div class="cd down">▲ +4.2% mo</div></div>
+            <div class="cell"><div class="cn">GPT-5.5</div><div class="cp">$30.00</div><div class="cd up">▼ unchanged</div></div>
+            <div class="cell"><div class="cn">Gemini 3.1 Pro</div><div class="cp">$12.00</div><div class="cd up">▼ −20% mo</div></div>
+            <div class="cell"><div class="cn">Grok 4.20</div><div class="cp">$2.50</div><div class="cd up">▼ −9% mo</div></div>
+            <div class="cell"><div class="cn">DeepSeek V3.2</div><div class="cp">$0.80</div><div class="cd up">▼ −33% mo</div></div>
+            <div class="cell"><div class="cn">Llama 4 Maverick</div><div class="cp">$0.60</div><div class="cd up">▼ new low</div></div>
+          </div>
+          <div class="leadstrip">
+            <span class="lk">Today's Lead</span>
+            <h2 class="lh">Cloudflare ships an audit agent that verifies the exploits it finds</h2>
+          </div>
+        </div>
+        <div class="fade"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONCEPT 3 ===================== -->
+  <section class="concept c3">
+    <div class="c-head">
+      <span class="c-num">03</span><span class="c-name">The Split</span>
+      <span class="c-tag">broadsheet two-column — density that signals depth</span>
+      <span class="c-scores"><span class="score">craft <b>10</b></span><span class="score">hook <b>10</b></span></span>
+    </div>
+    <p class="c-why"><b>The move:</b> FT-Weekend layout. A dominant lead on the left (headline + dek + opening graf you can actually start reading), a tight <b>Wire rail</b> on the right. Everything above the fold. Hook = a commanding headline; craft = the editorial richness that says "this is a real paper with a point of view."</p>
+    <div class="fold">
+      <div class="barbrowser"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><div class="urlbar">gittimes.com</div></div>
+      <div class="canvas">
+        <div class="mast"><span class="logo">The Git Times</span><span class="date">Tue · Jun 23, 2026 · AI for builders</span></div>
+        <div class="cols">
+          <div class="main">
+            <span class="kicker">Lead · Cybersecurity</span>
+            <h2 class="lh">The audit agent that proves its own findings</h2>
+            <p class="dek">Cloudflare's six-phase pipeline turns any AI agent into a security auditor that ships verified exploits, not false positives.</p>
+            <p class="body">Cloudflare's newly released <b>security-audit-skill</b> is turning heads not because it's flashy, but because it operationalizes something security teams only dream of: a repeatable, agent-driven process that hunts, validates, and verifies real vulnerabilities with machine-readable precision. At its core it's a JavaScript coding-agent workflow designed to transform any compatible agent into a disciplined auditor — no static rules, no pattern matching…</p>
+          </div>
+          <div class="rail">
+            <div class="rh">From the Wire</div>
+            <div class="wi"><h4>Apertus — Open Foundation Model for Sovereign AI</h4><span>apertvs.ai · 181 comments</span></div>
+            <div class="wi"><h4>Mistral OCR 4</h4><span>mistral.ai · 90 comments</span></div>
+            <div class="wi"><h4>AI's Affordability Crisis</h4><span>blog.dshr.org · 230 comments</span></div>
+            <div class="wi"><h4>Meta pauses keystroke-tracking AI</h4><span>businessinsider.com</span></div>
+          </div>
+        </div>
+        <div class="fade"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONCEPT 4 ===================== -->
+  <section class="concept c4">
+    <div class="c-head">
+      <span class="c-num">04</span><span class="c-name">The Poster</span>
+      <span class="c-tag">single story, gallery-grade — impossible to miss</span>
+      <span class="c-scores"><span class="score">craft <b>10</b></span><span class="score">hook <b>10</b></span></span>
+    </div>
+    <p class="c-why"><b>The move:</b> one story, enormous. A 58px headline, a confident dek, and a giant pull-stat that does the selling. Near-zero chrome. This is the cover of a magazine you'd frame. Highest-hook of the five — singular focus the eye cannot escape. Best for editions with one genuinely big story.</p>
+    <div class="fold">
+      <div class="barbrowser"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><div class="urlbar">gittimes.com</div></div>
+      <div class="canvas">
+        <div class="top">
+          <span class="logo">The Git Times</span>
+          <span class="nav"><span class="on">Front</span><span>Wire</span><span>AI</span><span>Markets</span></span>
+        </div>
+        <div class="stage">
+          <div>
+            <span class="lk">June 23 · The one to read</span>
+            <h2 class="lh">It found the exploit. Then it proved it.</h2>
+            <p class="dek">Cloudflare's audit agent ends the false-positive era of automated security — every finding arrives machine-verified.</p>
+          </div>
+          <div class="stat">
+            <div class="n">6</div>
+            <div class="l">phase pipeline · hunt → validate → verify</div>
+          </div>
+        </div>
+        <div class="fade"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONCEPT 5 ===================== -->
+  <section class="concept c5">
+    <div class="c-head">
+      <span class="c-num">05</span><span class="c-name">The Briefing</span>
+      <span class="c-tag">breaking bulletin — answers "what changed today" instantly</span>
+      <span class="c-scores"><span class="score">craft <b>10</b></span><span class="score">hook <b>10</b></span></span>
+    </div>
+    <p class="c-why"><b>The move:</b> open with a red <b>TODAY IN AI</b> band that summarizes the day in one line, then three ultra-scannable briefs with deltas, then the lead. Utility-forward and urgent — it treats the reader's time as the scarcest resource. This is the "I check it every morning" format.</p>
+    <div class="fold">
+      <div class="barbrowser"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><div class="urlbar">gittimes.com</div></div>
+      <div class="canvas">
+        <div class="alert">
+          <span class="b">Today in AI</span>
+          <span class="t">Open-weights keeps winning: Apertus goes sovereign, Mistral ships OCR 4, and inference prices hit fresh lows — while Cloudflare automates the security audit.</span>
+        </div>
+        <div class="mast"><span class="logo">The Git Times</span></div>
+        <div class="briefs">
+          <div class="bf"><div class="k">Models</div><h4>Apertus opens a sovereign foundation model</h4><div class="d up">181 comments ▲</div></div>
+          <div class="bf"><div class="k">Prices</div><h4>DeepSeek V3.2 cuts to $0.80/M</h4><div class="d up">−33% this month ▼</div></div>
+          <div class="bf"><div class="k">Tools</div><h4>Mistral OCR 4 lands</h4><div class="d">90 comments</div></div>
+        </div>
+        <div class="leadwrap">
+          <span class="lk">The Lead</span>
+          <h2 class="lh">Cloudflare's audit agent verifies the exploits it finds</h2>
+          <p class="dek">A six-phase pipeline that ends the false-positive era of automated security.</p>
+        </div>
+        <div class="fade"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <b>How each hits 10/10:</b> all five cut the masthead and lead with signal in the first 1.5s — that fixes the hook.<br>
+    They differ on the bet: <b>01</b> trusts the headline · <b>02</b> trusts the live data · <b>03</b> trusts editorial depth · <b>04</b> trusts singular focus · <b>05</b> trusts daily utility.<br>
+    My pick to ship: <b>02 (Terminal) for the daily-return loop</b>, with <b>01's compressed masthead</b> as the baseline — then <b>04 (Poster)</b> auto-triggered on big-story days.
+  </div>
+
+</div>
+</body>
+</html>
