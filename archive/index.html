@@ -790,6 +790,12 @@ body {
   text-transform: capitalize;
 }
 
+/* Just Shipped (GitHub releases) shares the drops band chrome; the version tag
+   renders verbatim (no capitalize) with lined-up digits. */
+.drop-tag {
+  font-variant-numeric: tabular-nums;
+}
+
 .drop-likes {
   color: var(--accent);
   font-weight: 600;
@@ -3155,6 +3161,12 @@ body.account {
   <section class="archive-list">
     <h2 class="section-header">All Editions</h2>
     
+    <div class="archive-entry">
+      <span class="archive-date">Monday, July 6, 2026</span>
+      <a href="/editions/2026-07-06/" class="archive-headline">GameBlocks Gives AI Agents Concrete 3D Building Blocks for Browser Games</a>
+      <span class="archive-tagline">“It has become appallingly obvious that our technology has exceeded our humanity.” — Albert Einstein</span>
+    </div>
+
     <div class="archive-entry">
       <span class="archive-date">Sunday, July 5, 2026</span>
       <a href="/editions/2026-07-05/" class="archive-headline">Developer&#39;s Guide to Running State-of-the-Art LLMs on Consumer Hardware</a>

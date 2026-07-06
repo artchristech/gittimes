@@ -792,6 +792,12 @@ body {
   text-transform: capitalize;
 }
 
+/* Just Shipped (GitHub releases) shares the drops band chrome; the version tag
+   renders verbatim (no capitalize) with lined-up digits. */
+.drop-tag {
+  font-variant-numeric: tabular-nums;
+}
+
 .drop-likes {
   color: var(--accent);
   font-weight: 600;
@@ -3180,7 +3186,11 @@ body.account {
 
   <section class="landing-editions">
     <h2>Recent Editions</h2>
-        <a href="/editions/2026-07-05/" class="landing-edition-card">
+        <a href="/editions/2026-07-06/" class="landing-edition-card">
+      <span class="edition-card-date">Monday, July 6, 2026</span>
+      <span class="edition-card-headline">GameBlocks Gives AI Agents Concrete 3D Building Blocks for Browser Games</span>
+    </a>
+    <a href="/editions/2026-07-05/" class="landing-edition-card">
       <span class="edition-card-date">Sunday, July 5, 2026</span>
       <span class="edition-card-headline">Developer&#39;s Guide to Running State-of-the-Art LLMs on Consumer Hardware</span>
     </a>
@@ -3195,10 +3205,6 @@ body.account {
     <a href="/editions/2026-07-02/" class="landing-edition-card">
       <span class="edition-card-date">Thursday, July 2, 2026</span>
       <span class="edition-card-headline">AI Coding Agents Now Learn From Their Own Hard-Won Debugging Sessions</span>
-    </a>
-    <a href="/editions/2026-07-01/" class="landing-edition-card">
-      <span class="edition-card-date">Wednesday, July 1, 2026</span>
-      <span class="edition-card-headline">Zed’s AI-Powered Multiplayer Editing Reaches New Maturity</span>
     </a>
   </section>
 
