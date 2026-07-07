@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-07-06T08:59:51.604Z",
+  "syncedAt": "2026-07-07T08:22:45.723Z",
   "source": "openrouter",
   "stats": {
     "total": 11,
     "matched": 11,
     "missed": 0,
-    "catalog": 310
+    "catalog": 312
   },
   "models": [
     {
@@ -26,11 +26,13 @@
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
         "stop",
         "structured_outputs",
+        "temperature",
         "tool_choice",
         "tools",
         "verbosity"
@@ -1288,11 +1290,13 @@
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
         "stop",
         "structured_outputs",
+        "temperature",
         "tool_choice",
         "tools",
         "verbosity"
@@ -1317,11 +1321,13 @@
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
         "stop",
         "structured_outputs",
+        "temperature",
         "tool_choice",
         "tools",
         "verbosity"
@@ -1346,6 +1352,7 @@
       ],
       "supported_parameters": [
         "include_reasoning",
+        "max_completion_tokens",
         "max_tokens",
         "reasoning",
         "response_format",
@@ -2492,28 +2499,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "inflection/inflection-3-productivity",
-      "name": "Inflection: Inflection 3 Productivity",
-      "context_length": 8000,
-      "input": 2.5,
-      "output": 10,
-      "cache_read_price": null,
-      "max_completion_tokens": 1024,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "max_tokens",
-        "stop",
-        "temperature",
-        "top_p"
-      ],
-      "created": 1728604800,
-      "description": "Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It ",
-      "hugging_face_id": null
-    },
-    {
       "id": "inflection/inflection-3-pi",
       "name": "Inflection: Inflection 3 Pi",
       "context_length": 8000,
@@ -2533,6 +2518,28 @@
       ],
       "created": 1728604800,
       "description": "Inflection 3 Pi powers Inflection's [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "inflection/inflection-3-productivity",
+      "name": "Inflection: Inflection 3 Productivity",
+      "context_length": 8000,
+      "input": 2.5,
+      "output": 10,
+      "cache_read_price": null,
+      "max_completion_tokens": 1024,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "max_tokens",
+        "stop",
+        "temperature",
+        "top_p"
+      ],
+      "created": 1728604800,
+      "description": "Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It ",
       "hugging_face_id": null
     },
     {
@@ -3938,9 +3945,9 @@
       "id": "z-ai/glm-5.2",
       "name": "Z.ai: GLM 5.2",
       "context_length": 1048576,
-      "input": 0.896,
-      "output": 2.816,
-      "cache_read_price": 0.16640000000000002,
+      "input": 0.9086,
+      "output": 2.8556,
+      "cache_read_price": 0.16874,
       "max_completion_tokens": 131072,
       "modality": "text->text",
       "input_modalities": [
@@ -4301,7 +4308,7 @@
       "context_length": 256000,
       "input": 0.385,
       "output": 2.4499999999999997,
-      "cache_read_price": null,
+      "cache_read_price": 0.111,
       "max_completion_tokens": null,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -4610,7 +4617,7 @@
       "context_length": 262144,
       "input": 0.375,
       "output": 2.025,
-      "cache_read_price": null,
+      "cache_read_price": 0.203,
       "max_completion_tokens": null,
       "modality": "text+image->text",
       "input_modalities": [
@@ -6900,6 +6907,40 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-V3"
     },
     {
+      "id": "tencent/hy3",
+      "name": "Tencent: Hy3",
+      "context_length": 262144,
+      "input": 0.19999999999999998,
+      "output": 0.7999999999999999,
+      "cache_read_price": 0.5,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1783344048,
+      "description": "Hy3 is a 295B-parameter Mixture-of-Experts model from Tencent (21B active, 192 experts with top-8 routing) built for reasoning, agentic workflows, and real-worl",
+      "hugging_face_id": "tencent/Hy3"
+    },
+    {
       "id": "arcee-ai/trinity-large-thinking",
       "name": "Arcee AI: Trinity Large Thinking",
       "context_length": 262144,
@@ -7665,8 +7706,8 @@
       "hugging_face_id": null
     },
     {
-      "id": "openai/gpt-4o-mini",
-      "name": "OpenAI: GPT-4o-mini",
+      "id": "openai/gpt-4o-mini-2024-07-18",
+      "name": "OpenAI: GPT-4o-mini (2024-07-18)",
       "context_length": 128000,
       "input": 0.15,
       "output": 0.6,
@@ -7682,7 +7723,6 @@
         "frequency_penalty",
         "logit_bias",
         "logprobs",
-        "max_completion_tokens",
         "max_tokens",
         "presence_penalty",
         "response_format",
@@ -7701,8 +7741,8 @@
       "hugging_face_id": null
     },
     {
-      "id": "openai/gpt-4o-mini-2024-07-18",
-      "name": "OpenAI: GPT-4o-mini (2024-07-18)",
+      "id": "openai/gpt-4o-mini",
+      "name": "OpenAI: GPT-4o-mini",
       "context_length": 128000,
       "input": 0.15,
       "output": 0.6,
@@ -7718,6 +7758,7 @@
         "frequency_penalty",
         "logit_bias",
         "logprobs",
+        "max_completion_tokens",
         "max_tokens",
         "presence_penalty",
         "response_format",
@@ -8652,37 +8693,6 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
     },
     {
-      "id": "meta-llama/llama-3.2-3b-instruct",
-      "name": "Meta: Llama 3.2 3B Instruct",
-      "context_length": 131072,
-      "input": 0.0509,
-      "output": 0.335,
-      "cache_read_price": null,
-      "max_completion_tokens": 80000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "seed",
-        "stop",
-        "temperature",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1727222400,
-      "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reas",
-      "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
-    },
-    {
       "id": "google/gemma-4-26b-a4b-it",
       "name": "Google: Gemma 4 26B A4B ",
       "context_length": 262144,
@@ -8720,6 +8730,38 @@
       "created": 1775227989,
       "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur",
       "hugging_face_id": "google/gemma-4-26B-A4B-it"
+    },
+    {
+      "id": "meta-llama/llama-3.2-3b-instruct",
+      "name": "Meta: Llama 3.2 3B Instruct",
+      "context_length": 131072,
+      "input": 0.049999999999999996,
+      "output": 0.33,
+      "cache_read_price": null,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1727222400,
+      "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reas",
+      "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
     },
     {
       "id": "meta-llama/llama-3.3-70b-instruct",
@@ -8914,7 +8956,7 @@
       "context_length": 1048576,
       "input": 0.105,
       "output": 0.28,
-      "cache_read_price": null,
+      "cache_read_price": 0.028,
       "max_completion_tokens": null,
       "modality": "text+image+audio+video->text",
       "input_modalities": [
@@ -9380,6 +9422,7 @@
         "logit_bias",
         "logprobs",
         "max_tokens",
+        "min_p",
         "presence_penalty",
         "repetition_penalty",
         "response_format",
@@ -9941,6 +9984,37 @@
       "created": 1760927695,
       "description": "Granite-4.0-H-Micro is a 3B parameter from the Granite 4 family of models. These models are the latest in a series of models released by IBM. They are fine-tune",
       "hugging_face_id": "ibm-granite/granite-4.0-h-micro"
+    },
+    {
+      "id": "nex-agi/nex-n2-mini",
+      "name": "Nex AGI: Nex-N2-Mini",
+      "context_length": 262144,
+      "input": 0.024999999999999998,
+      "output": 0.09999999999999999,
+      "cache_read_price": 0.0025,
+      "max_completion_tokens": 262144,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1782312964,
+      "description": "Nex-N2-Mini is an open-source agentic mixture-of-experts model from Nex AGI, the smaller sibling in the Nex-N2 series. It accepts text and image input and is bu",
+      "hugging_face_id": "nex-agi/Nex-N2-Mini"
     },
     {
       "id": "ibm-granite/granite-4.1-8b",
