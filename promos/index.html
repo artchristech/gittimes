@@ -11,7 +11,7 @@
   <meta property="og:site_name" content="The Git Times">
 
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
 *,
 *::before,
@@ -1600,6 +1600,19 @@ body.chat-on .hybrid-ask {
   flex: 0 0 calc(33.33% - 3px);
 }
 
+/* Design row — four named presets on a 2x2 grid so the labels fit the panel */
+.panel-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Hairline separators keep the open panel reading as ordered groups
+   (Design, Preset, Background, Text, ...) rather than a loose stack */
+.panel-group + .panel-group {
+  border-top: 1px solid color-mix(in srgb, var(--rule-light) 55%, transparent);
+  padding-top: 9px;
+}
+
 .panel-pill {
   flex: 1;
   padding: 5px 0;
@@ -3142,6 +3155,352 @@ body.account {
   }
 }
 
+/* === DESIGN PRESETS === */
+/* Each [data-design] value is a full identity — typography, palette, chrome
+   and texture — not a color swap. `newspaper` is the absence of overrides
+   (the default design), so existing pages stay pixel-identical until a
+   reader opts in. Palette lives in the custom properties every component
+   already consumes; chrome is a small set of scoped overrides on the
+   signature components (masthead, rules, cards, toolbar) rather than
+   per-component forks. These blocks sit last in the sheet so an active
+   design wins over the color themes above; the font-var overrides are
+   scoped to [data-font="serif"] (the untouched default) so a reader's
+   explicit Font choice still applies inside any design.
+
+   A design owns its palette outright: while one is active the color
+   Preset / Background / Text groups are hidden (and the inline HSL custom
+   colors are cleared by the toolbar script). */
+
+[data-design="cyberpunk"] .panel-group-color,
+[data-design="business"] .panel-group-color,
+[data-design="whitepaper"] .panel-group-color {
+  display: none;
+}
+
+/* --- Cyberpunk: neon on near-black, technical, high contrast --- */
+
+[data-design="cyberpunk"] {
+  --paper: #0a0e16;
+  --ink: #d7f3ff;
+  --ink-light: #96bcd1;
+  --ink-faint: #5f8299;
+  --rule: #00e5ff;
+  --rule-light: #14323f;
+  --accent: #ff2d78;
+}
+
+[data-design="cyberpunk"][data-font="serif"] {
+  --font-headline: 'Rajdhani', 'IBM Plex Sans', sans-serif;
+  --font-body: 'Rajdhani', 'IBM Plex Sans', sans-serif;
+  --font-meta: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Scanline + horizon-glow texture */
+[data-design="cyberpunk"] body {
+  font-weight: 500;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.03) 0, rgba(0, 229, 255, 0.03) 1px, transparent 1px, transparent 3px),
+    radial-gradient(1100px 480px at 50% -80px, rgba(0, 229, 255, 0.09), transparent 65%);
+  background-attachment: fixed;
+}
+
+/* The nameplate is the design's logo — it stays techno even under a custom
+   reader font. Single neon rules replace the double black ones. */
+[data-design="cyberpunk"] .masthead {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 0 26px rgba(0, 229, 255, 0.12), inset 0 0 26px rgba(0, 229, 255, 0.05);
+}
+
+[data-design="cyberpunk"] .masthead-title {
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-weight: 900;
+  font-size: clamp(17px, 4vw, 30px);
+  letter-spacing: 0.24em;
+  color: #eefcff;
+  text-shadow: 0 0 6px rgba(0, 229, 255, 0.45), 0 0 26px rgba(0, 229, 255, 0.35);
+}
+
+[data-design="cyberpunk"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+
+/* Sharp corners everywhere — neon tech has no soft edges */
+[data-design="cyberpunk"] .toolbar-trigger,
+[data-design="cyberpunk"] .toolbar-panel,
+[data-design="cyberpunk"] .panel-pill,
+[data-design="cyberpunk"] .panel-reset,
+[data-design="cyberpunk"] .panel-slider,
+[data-design="cyberpunk"] .panel-slider-mini,
+[data-design="cyberpunk"] .article-insights,
+[data-design="cyberpunk"] .hybrid-toggle,
+[data-design="cyberpunk"] .hybrid-ask,
+[data-design="cyberpunk"] .quick-hits-toggle,
+[data-design="cyberpunk"] .trend-repo-pill,
+[data-design="cyberpunk"] .x-sentiment-badge,
+[data-design="cyberpunk"] .repo-age,
+[data-design="cyberpunk"] .ticker-grade {
+  border-radius: 0;
+}
+
+[data-design="cyberpunk"] .toolbar-panel {
+  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.22), 0 10px 32px rgba(0, 0, 0, 0.6);
+}
+
+[data-design="cyberpunk"] .panel-pill.active {
+  background: var(--rule);
+  border-color: var(--rule);
+  color: #06131a;
+}
+
+[data-design="cyberpunk"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="cyberpunk"] .section-tab.active {
+  color: var(--rule);
+  border-bottom-color: var(--rule);
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+}
+
+[data-design="cyberpunk"] .section-header {
+  color: var(--rule);
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+}
+
+[data-design="cyberpunk"] .article-insights {
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.07), rgba(0, 229, 255, 0.02));
+  border: 1px solid var(--rule-light);
+  border-left: 2px solid var(--accent);
+}
+
+/* Rajdhani ships no italics — keep subheads upright deck lines */
+[data-design="cyberpunk"] .lead-subheadline,
+[data-design="cyberpunk"] .hybrid-subheadline,
+[data-design="cyberpunk"] .secondary-subheadline,
+[data-design="cyberpunk"] .featured-subheadline {
+  font-style: normal;
+}
+
+[data-design="cyberpunk"] .footer {
+  border-top: 1px solid var(--rule);
+}
+
+/* Legible signal colors on the dark ground (mirrors the dark themes) */
+[data-design="cyberpunk"] .ticker-delta.down { color: #4ade80; }
+[data-design="cyberpunk"] .ticker-delta.up { color: #f87171; }
+
+[data-design="cyberpunk"] .x-sentiment-badge,
+[data-design="cyberpunk"] .repo-age {
+  background: rgba(0, 229, 255, 0.12);
+  color: #9be9f7;
+}
+
+/* --- Business: modern, sleek, professional --- */
+
+[data-design="business"] {
+  --paper: #f5f7fa;
+  --ink: #0f172a;
+  --ink-light: #334155;
+  --ink-faint: #64748b;
+  --rule: #cbd5e1;
+  --rule-light: #e2e8f0;
+  --accent: #2563eb;
+}
+
+[data-design="business"][data-font="serif"] {
+  --font-headline: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+/* Faint corporate-blue wash at the top of the page */
+[data-design="business"] body {
+  background-image: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(37, 99, 235, 0) 340px);
+}
+
+/* Wordmark, not a nameplate: sentence case, tight tracking, no heavy rules */
+[data-design="business"] .masthead {
+  border-top: none;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="business"] .masthead-title {
+  text-transform: none;
+  font-weight: 600;
+  font-size: clamp(24px, 5vw, 34px);
+  letter-spacing: -0.6px;
+}
+
+[data-design="business"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* White cards on the cool ground, soft shadows, generous radius */
+[data-design="business"] .lead-story,
+[data-design="business"] .hybrid-lead,
+[data-design="business"] .secondary-section,
+[data-design="business"] .model-drops,
+[data-design="business"] .article-insights,
+[data-design="business"] .toolbar-panel {
+  background: #ffffff;
+  border: 1px solid var(--rule-light);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+[data-design="business"] .lead-headline,
+[data-design="business"] .hybrid-headline,
+[data-design="business"] .hybrid-headline-lead,
+[data-design="business"] .secondary-headline,
+[data-design="business"] .featured-headline,
+[data-design="business"] .model-drops-header {
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+[data-design="business"] .lead-subheadline,
+[data-design="business"] .hybrid-subheadline,
+[data-design="business"] .secondary-subheadline,
+[data-design="business"] .featured-subheadline {
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+[data-design="business"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="business"] .panel-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-design="business"] .footer {
+  border-top: 1px solid var(--rule-light);
+}
+
+/* --- Whitepaper: minimal, monochrome, easy on the eyes, no motion --- */
+
+[data-design="whitepaper"] {
+  --paper: #ffffff;
+  --ink: #1c1c1c;
+  --ink-light: #3f3f3f;
+  --ink-faint: #757575;
+  --rule: #d9d9d9;
+  --rule-light: #ebebeb;
+  --accent: #111111;
+}
+
+[data-design="whitepaper"][data-font="serif"] {
+  --font-headline: 'Lora', Georgia, serif;
+  --font-body: 'Lora', Georgia, serif;
+  --font-meta: 'Source Sans 3', -apple-system, sans-serif;
+}
+
+/* Document head, not a nameplate */
+[data-design="whitepaper"] .masthead {
+  border-top: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="whitepaper"] .masthead-title {
+  text-transform: none;
+  font-weight: 700;
+  font-size: clamp(22px, 4.6vw, 30px);
+  letter-spacing: 0;
+}
+
+/* Bare-paper chrome: square corners, hairlines, no shadows or tinted bands */
+[data-design="whitepaper"] .toolbar-trigger,
+[data-design="whitepaper"] .toolbar-panel,
+[data-design="whitepaper"] .panel-pill,
+[data-design="whitepaper"] .panel-reset,
+[data-design="whitepaper"] .article-insights,
+[data-design="whitepaper"] .hybrid-toggle,
+[data-design="whitepaper"] .hybrid-ask,
+[data-design="whitepaper"] .quick-hits-toggle,
+[data-design="whitepaper"] .trend-repo-pill {
+  border-radius: 0;
+}
+
+[data-design="whitepaper"] .toolbar-panel {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+[data-design="whitepaper"] .toolbar-trigger:hover,
+[data-design="whitepaper"] .toolbar-trigger.active {
+  box-shadow: none;
+}
+
+[data-design="whitepaper"] .article-insights {
+  background: #fafafa;
+  border: 1px solid var(--rule-light);
+  border-left: 2px solid var(--ink);
+}
+
+[data-design="whitepaper"] .secondary-section {
+  background: transparent;
+  border-top: 1px solid var(--rule);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+[data-design="whitepaper"] .hybrid-lead,
+[data-design="whitepaper"] .lead-story {
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+[data-design="whitepaper"] .section-nav {
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="whitepaper"] .footer {
+  border-top: 1px solid var(--rule);
+}
+
+/* Monochrome badges — semantics stay in the label, not the hue */
+[data-design="whitepaper"] .x-sentiment-badge,
+[data-design="whitepaper"] .repo-age {
+  background: #f2f2f2;
+  color: #4b4b4b;
+}
+
+/* Underlines carry link affordance once the accent collapses to ink */
+[data-design="whitepaper"] .lead-meta a,
+[data-design="whitepaper"] .hybrid-meta a,
+[data-design="whitepaper"] .secondary-meta a,
+[data-design="whitepaper"] .featured-meta a,
+[data-design="whitepaper"] .compact-meta a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: #bdbdbd;
+}
+
+/* Animations scratched: entry reveals render settled, the scroll bar goes.
+   (Also holds when the reveal observer never runs — CSS alone settles it.) */
+[data-design="whitepaper"] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-design="whitepaper"] .scroll-progress {
+  display: none;
+}
+
   </style>
   <script>
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
@@ -3161,6 +3520,17 @@ body.account {
   <section class="promos-list">
     <h2 class="section-header">Edition Reel</h2>
     <div class="promos-grid">
+    <figure class="promo-card">
+      <video class="promo-video" controls preload="none" playsinline poster="/promos/2026-07-07.jpg">
+        <source src="/promos/2026-07-07.mp4" type="video/mp4">
+        <track kind="captions" srclang="en" label="English" src="/promos/2026-07-07.vtt" default>
+      </video>
+      <figcaption class="promo-meta">
+        <span class="promo-date">Tuesday, July 7, 2026</span>
+        <a href="/editions/2026-07-07/" class="promo-headline">FFmpeg’s Silent Engine Powers Modern Streaming Infrastructure</a>
+      </figcaption>
+    </figure>
+
     <figure class="promo-card">
       <video class="promo-video" controls preload="none" playsinline poster="/promos/2026-07-06.jpg">
         <source src="/promos/2026-07-06.mp4" type="video/mp4">

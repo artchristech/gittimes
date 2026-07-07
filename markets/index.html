@@ -12,7 +12,7 @@
   <meta name="description" content="AI model pricing, inference speed, and market data — updated daily">
 
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
 *,
 *::before,
@@ -1601,6 +1601,19 @@ body.chat-on .hybrid-ask {
   flex: 0 0 calc(33.33% - 3px);
 }
 
+/* Design row — four named presets on a 2x2 grid so the labels fit the panel */
+.panel-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Hairline separators keep the open panel reading as ordered groups
+   (Design, Preset, Background, Text, ...) rather than a loose stack */
+.panel-group + .panel-group {
+  border-top: 1px solid color-mix(in srgb, var(--rule-light) 55%, transparent);
+  padding-top: 9px;
+}
+
 .panel-pill {
   flex: 1;
   padding: 5px 0;
@@ -3143,6 +3156,352 @@ body.account {
   }
 }
 
+/* === DESIGN PRESETS === */
+/* Each [data-design] value is a full identity — typography, palette, chrome
+   and texture — not a color swap. `newspaper` is the absence of overrides
+   (the default design), so existing pages stay pixel-identical until a
+   reader opts in. Palette lives in the custom properties every component
+   already consumes; chrome is a small set of scoped overrides on the
+   signature components (masthead, rules, cards, toolbar) rather than
+   per-component forks. These blocks sit last in the sheet so an active
+   design wins over the color themes above; the font-var overrides are
+   scoped to [data-font="serif"] (the untouched default) so a reader's
+   explicit Font choice still applies inside any design.
+
+   A design owns its palette outright: while one is active the color
+   Preset / Background / Text groups are hidden (and the inline HSL custom
+   colors are cleared by the toolbar script). */
+
+[data-design="cyberpunk"] .panel-group-color,
+[data-design="business"] .panel-group-color,
+[data-design="whitepaper"] .panel-group-color {
+  display: none;
+}
+
+/* --- Cyberpunk: neon on near-black, technical, high contrast --- */
+
+[data-design="cyberpunk"] {
+  --paper: #0a0e16;
+  --ink: #d7f3ff;
+  --ink-light: #96bcd1;
+  --ink-faint: #5f8299;
+  --rule: #00e5ff;
+  --rule-light: #14323f;
+  --accent: #ff2d78;
+}
+
+[data-design="cyberpunk"][data-font="serif"] {
+  --font-headline: 'Rajdhani', 'IBM Plex Sans', sans-serif;
+  --font-body: 'Rajdhani', 'IBM Plex Sans', sans-serif;
+  --font-meta: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Scanline + horizon-glow texture */
+[data-design="cyberpunk"] body {
+  font-weight: 500;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.03) 0, rgba(0, 229, 255, 0.03) 1px, transparent 1px, transparent 3px),
+    radial-gradient(1100px 480px at 50% -80px, rgba(0, 229, 255, 0.09), transparent 65%);
+  background-attachment: fixed;
+}
+
+/* The nameplate is the design's logo — it stays techno even under a custom
+   reader font. Single neon rules replace the double black ones. */
+[data-design="cyberpunk"] .masthead {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 0 26px rgba(0, 229, 255, 0.12), inset 0 0 26px rgba(0, 229, 255, 0.05);
+}
+
+[data-design="cyberpunk"] .masthead-title {
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-weight: 900;
+  font-size: clamp(17px, 4vw, 30px);
+  letter-spacing: 0.24em;
+  color: #eefcff;
+  text-shadow: 0 0 6px rgba(0, 229, 255, 0.45), 0 0 26px rgba(0, 229, 255, 0.35);
+}
+
+[data-design="cyberpunk"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+
+/* Sharp corners everywhere — neon tech has no soft edges */
+[data-design="cyberpunk"] .toolbar-trigger,
+[data-design="cyberpunk"] .toolbar-panel,
+[data-design="cyberpunk"] .panel-pill,
+[data-design="cyberpunk"] .panel-reset,
+[data-design="cyberpunk"] .panel-slider,
+[data-design="cyberpunk"] .panel-slider-mini,
+[data-design="cyberpunk"] .article-insights,
+[data-design="cyberpunk"] .hybrid-toggle,
+[data-design="cyberpunk"] .hybrid-ask,
+[data-design="cyberpunk"] .quick-hits-toggle,
+[data-design="cyberpunk"] .trend-repo-pill,
+[data-design="cyberpunk"] .x-sentiment-badge,
+[data-design="cyberpunk"] .repo-age,
+[data-design="cyberpunk"] .ticker-grade {
+  border-radius: 0;
+}
+
+[data-design="cyberpunk"] .toolbar-panel {
+  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.22), 0 10px 32px rgba(0, 0, 0, 0.6);
+}
+
+[data-design="cyberpunk"] .panel-pill.active {
+  background: var(--rule);
+  border-color: var(--rule);
+  color: #06131a;
+}
+
+[data-design="cyberpunk"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="cyberpunk"] .section-tab.active {
+  color: var(--rule);
+  border-bottom-color: var(--rule);
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+}
+
+[data-design="cyberpunk"] .section-header {
+  color: var(--rule);
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+}
+
+[data-design="cyberpunk"] .article-insights {
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.07), rgba(0, 229, 255, 0.02));
+  border: 1px solid var(--rule-light);
+  border-left: 2px solid var(--accent);
+}
+
+/* Rajdhani ships no italics — keep subheads upright deck lines */
+[data-design="cyberpunk"] .lead-subheadline,
+[data-design="cyberpunk"] .hybrid-subheadline,
+[data-design="cyberpunk"] .secondary-subheadline,
+[data-design="cyberpunk"] .featured-subheadline {
+  font-style: normal;
+}
+
+[data-design="cyberpunk"] .footer {
+  border-top: 1px solid var(--rule);
+}
+
+/* Legible signal colors on the dark ground (mirrors the dark themes) */
+[data-design="cyberpunk"] .ticker-delta.down { color: #4ade80; }
+[data-design="cyberpunk"] .ticker-delta.up { color: #f87171; }
+
+[data-design="cyberpunk"] .x-sentiment-badge,
+[data-design="cyberpunk"] .repo-age {
+  background: rgba(0, 229, 255, 0.12);
+  color: #9be9f7;
+}
+
+/* --- Business: modern, sleek, professional --- */
+
+[data-design="business"] {
+  --paper: #f5f7fa;
+  --ink: #0f172a;
+  --ink-light: #334155;
+  --ink-faint: #64748b;
+  --rule: #cbd5e1;
+  --rule-light: #e2e8f0;
+  --accent: #2563eb;
+}
+
+[data-design="business"][data-font="serif"] {
+  --font-headline: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+/* Faint corporate-blue wash at the top of the page */
+[data-design="business"] body {
+  background-image: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(37, 99, 235, 0) 340px);
+}
+
+/* Wordmark, not a nameplate: sentence case, tight tracking, no heavy rules */
+[data-design="business"] .masthead {
+  border-top: none;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="business"] .masthead-title {
+  text-transform: none;
+  font-weight: 600;
+  font-size: clamp(24px, 5vw, 34px);
+  letter-spacing: -0.6px;
+}
+
+[data-design="business"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* White cards on the cool ground, soft shadows, generous radius */
+[data-design="business"] .lead-story,
+[data-design="business"] .hybrid-lead,
+[data-design="business"] .secondary-section,
+[data-design="business"] .model-drops,
+[data-design="business"] .article-insights,
+[data-design="business"] .toolbar-panel {
+  background: #ffffff;
+  border: 1px solid var(--rule-light);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+[data-design="business"] .lead-headline,
+[data-design="business"] .hybrid-headline,
+[data-design="business"] .hybrid-headline-lead,
+[data-design="business"] .secondary-headline,
+[data-design="business"] .featured-headline,
+[data-design="business"] .model-drops-header {
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+[data-design="business"] .lead-subheadline,
+[data-design="business"] .hybrid-subheadline,
+[data-design="business"] .secondary-subheadline,
+[data-design="business"] .featured-subheadline {
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+[data-design="business"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="business"] .panel-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-design="business"] .footer {
+  border-top: 1px solid var(--rule-light);
+}
+
+/* --- Whitepaper: minimal, monochrome, easy on the eyes, no motion --- */
+
+[data-design="whitepaper"] {
+  --paper: #ffffff;
+  --ink: #1c1c1c;
+  --ink-light: #3f3f3f;
+  --ink-faint: #757575;
+  --rule: #d9d9d9;
+  --rule-light: #ebebeb;
+  --accent: #111111;
+}
+
+[data-design="whitepaper"][data-font="serif"] {
+  --font-headline: 'Lora', Georgia, serif;
+  --font-body: 'Lora', Georgia, serif;
+  --font-meta: 'Source Sans 3', -apple-system, sans-serif;
+}
+
+/* Document head, not a nameplate */
+[data-design="whitepaper"] .masthead {
+  border-top: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="whitepaper"] .masthead-title {
+  text-transform: none;
+  font-weight: 700;
+  font-size: clamp(22px, 4.6vw, 30px);
+  letter-spacing: 0;
+}
+
+/* Bare-paper chrome: square corners, hairlines, no shadows or tinted bands */
+[data-design="whitepaper"] .toolbar-trigger,
+[data-design="whitepaper"] .toolbar-panel,
+[data-design="whitepaper"] .panel-pill,
+[data-design="whitepaper"] .panel-reset,
+[data-design="whitepaper"] .article-insights,
+[data-design="whitepaper"] .hybrid-toggle,
+[data-design="whitepaper"] .hybrid-ask,
+[data-design="whitepaper"] .quick-hits-toggle,
+[data-design="whitepaper"] .trend-repo-pill {
+  border-radius: 0;
+}
+
+[data-design="whitepaper"] .toolbar-panel {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+[data-design="whitepaper"] .toolbar-trigger:hover,
+[data-design="whitepaper"] .toolbar-trigger.active {
+  box-shadow: none;
+}
+
+[data-design="whitepaper"] .article-insights {
+  background: #fafafa;
+  border: 1px solid var(--rule-light);
+  border-left: 2px solid var(--ink);
+}
+
+[data-design="whitepaper"] .secondary-section {
+  background: transparent;
+  border-top: 1px solid var(--rule);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+[data-design="whitepaper"] .hybrid-lead,
+[data-design="whitepaper"] .lead-story {
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+[data-design="whitepaper"] .section-nav {
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="whitepaper"] .footer {
+  border-top: 1px solid var(--rule);
+}
+
+/* Monochrome badges — semantics stay in the label, not the hue */
+[data-design="whitepaper"] .x-sentiment-badge,
+[data-design="whitepaper"] .repo-age {
+  background: #f2f2f2;
+  color: #4b4b4b;
+}
+
+/* Underlines carry link affordance once the accent collapses to ink */
+[data-design="whitepaper"] .lead-meta a,
+[data-design="whitepaper"] .hybrid-meta a,
+[data-design="whitepaper"] .secondary-meta a,
+[data-design="whitepaper"] .featured-meta a,
+[data-design="whitepaper"] .compact-meta a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: #bdbdbd;
+}
+
+/* Animations scratched: entry reveals render settled, the scroll bar goes.
+   (Also holds when the reveal observer never runs — CSS alone settles it.) */
+[data-design="whitepaper"] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-design="whitepaper"] .scroll-progress {
+  display: none;
+}
+
 
 /* === MARKETS PAGE === */
 
@@ -3922,7 +4281,7 @@ body.account {
     <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
     <div class="markets-freshness"><span class="fresh-chip live" data-pulse>
       <span class="fresh-dot"></span>
-      <span class="fresh-text"><strong>Pricing live</strong> · synced 3 min ago · <span class="fresh-abs">Jul 6, 7:41 AM EDT</span></span>
+      <span class="fresh-text"><strong>Pricing live</strong> · synced 6 min ago · <span class="fresh-abs">Jul 7, 6:29 AM EDT</span></span>
     </span><span class="fresh-chip curated"><span class="fresh-dot"></span><span class="fresh-text"><strong>Evals curated</strong> · as of 2026-06-15</span></span></div>
   </div>
 
@@ -3937,8 +4296,8 @@ body.account {
       <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
     </linearGradient></defs>
-    <path class="area-fill" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 144.0 L375.2 6.0 L397.2 6.0 L419.3 6.0 L441.4 6.0 L463.4 6.0 L485.5 6.0 L507.6 6.0 L529.7 6.0 L551.7 6.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
-    <path class="area-line" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 143.6 L353.1 144.0 L375.2 6.0 L397.2 6.0 L419.3 6.0 L441.4 6.0 L463.4 6.0 L485.5 6.0 L507.6 6.0 L529.7 6.0 L551.7 6.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="area-fill" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 144.0 L353.1 6.0 L375.2 6.0 L397.2 6.0 L419.3 6.0 L441.4 6.0 L463.4 6.0 L485.5 6.0 L507.6 6.0 L529.7 6.0 L551.7 6.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
+    <path class="area-line" d="M0.0 143.6 L22.1 143.6 L44.1 143.6 L66.2 143.6 L88.3 143.6 L110.3 143.6 L132.4 143.6 L154.5 143.6 L176.6 143.6 L198.6 143.6 L220.7 143.6 L242.8 143.6 L264.8 143.6 L286.9 143.6 L309.0 143.6 L331.0 144.0 L353.1 6.0 L375.2 6.0 L397.2 6.0 L419.3 6.0 L441.4 6.0 L463.4 6.0 L485.5 6.0 L507.6 6.0 L529.7 6.0 L551.7 6.0 L573.8 6.0 L595.9 6.0 L617.9 6.0 L640.0 6.0" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle class="area-dot" cx="640.0" cy="6.0" r="3.5" fill="var(--accent)"/>
   </svg></div>
     </div>
@@ -4280,7 +4639,7 @@ body.account {
       <td class="model-price price-cell" data-sort="25" data-priceval="25">$25</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 7.7,2.0 15.4,2.0 23.1,2.0 30.8,2.0 38.5,2.0 46.2,2.0 53.8,2.0 61.5,2.0 69.2,2.0 76.9,2.0 84.6,2.0 92.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="3" data-cache="0.3" data-provider="Anthropic" data-label="Claude Sonnet 4.6">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="claude-sonnet-4.6" aria-label="Compare Claude Sonnet 4.6"></td>
@@ -4302,7 +4661,7 @@ body.account {
       <td class="model-price price-cell" data-sort="30" data-priceval="30">$30</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 7.7,2.0 15.4,2.0 23.1,2.0 30.8,2.0 38.5,2.0 46.2,2.0 53.8,2.0 61.5,2.0 69.2,2.0 76.9,2.0 84.6,2.0 92.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="2.5" data-cache="0.25" data-provider="OpenAI" data-label="GPT-5.4">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="gpt-5.4" aria-label="Compare GPT-5.4"></td>
@@ -4335,7 +4694,7 @@ body.account {
       <td class="model-price price-cell" data-sort="9" data-priceval="9">$9</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 7.7,2.0 15.4,2.0 23.1,2.0 30.8,2.0 38.5,2.0 46.2,2.0 53.8,2.0 61.5,2.0 69.2,2.0 76.9,2.0 84.6,2.0 92.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="1.25" data-cache="0.19999999999999998" data-provider="xAI" data-label="Grok 4.20">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="grok-4.20" aria-label="Compare Grok 4.20"></td>
@@ -4346,7 +4705,7 @@ body.account {
       <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5">$2.50</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="2000000">2.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,2.0 58.6,22.0 62.1,22.0 65.5,22.0 69.0,22.0 72.4,22.0 75.9,22.0 79.3,22.0 82.8,22.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,22.0 58.6,22.0 62.1,22.0 65.5,22.0 69.0,22.0 72.4,22.0 75.9,22.0 79.3,22.0 82.8,22.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="0" data-output="0.8000999999999999" data-input="0.20020000000000002" data-cache="" data-provider="DeepSeek" data-label="DeepSeek V3.2">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-v3.2" aria-label="Compare DeepSeek V3.2"></td>
@@ -4357,7 +4716,7 @@ body.account {
       <td class="model-price price-cell" data-sort="0.8000999999999999" data-priceval="0.8000999999999999">$0.80</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="131072" title="Max output: 16,000 tokens">131k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,2.0 55.2,22.0 58.6,22.0 62.1,22.0 65.5,22.0 69.0,22.0 72.4,22.0 75.9,22.0 79.3,22.0 82.8,22.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.4,2.0 6.9,2.0 10.3,2.0 13.8,2.0 17.2,2.0 20.7,2.0 24.1,2.0 27.6,2.0 31.0,2.0 34.5,2.0 37.9,2.0 41.4,2.0 44.8,2.0 48.3,2.0 51.7,22.0 55.2,22.0 58.6,22.0 62.1,22.0 65.5,22.0 69.0,22.0 72.4,22.0 75.9,22.0 79.3,22.0 82.8,22.0 86.2,22.0 89.7,22.0 93.1,22.0 96.6,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="0.7" data-cache="" data-provider="DeepSeek" data-label="DeepSeek R1">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-r1" aria-label="Compare DeepSeek R1"></td>
@@ -4522,22 +4881,34 @@ body.account {
       <table class="markets-table">
         <thead><tr><th>Model</th><th>Provider</th><th>Output</th><th>Added</th></tr></thead>
         <tbody><tr>
+    <td class="model-name">Tencent: Hy3</td>
+    <td class="model-provider">tencent</td>
+    <td class="model-price">$0.80</td>
+    <td class="model-added">today</td>
+  </tr>
+<tr>
     <td class="model-name">Poolside: Laguna XS 2.1</td>
     <td class="model-provider">poolside</td>
     <td class="model-price">$0.12</td>
-    <td class="model-added">3d ago</td>
+    <td class="model-added">4d ago</td>
   </tr>
 <tr>
     <td class="model-name">Anthropic: Claude Sonnet 5</td>
     <td class="model-provider">anthropic</td>
     <td class="model-price">$10</td>
-    <td class="model-added">5d ago</td>
+    <td class="model-added">6d ago</td>
   </tr>
 <tr>
     <td class="model-name">Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)</td>
     <td class="model-provider">google</td>
     <td class="model-price">$1.50</td>
-    <td class="model-added">5d ago</td>
+    <td class="model-added">6d ago</td>
+  </tr>
+<tr>
+    <td class="model-name">Nex AGI: Nex-N2-Mini</td>
+    <td class="model-provider">nex-agi</td>
+    <td class="model-price">$0.10</td>
+    <td class="model-added">1w ago</td>
   </tr>
 <tr>
     <td class="model-name">Sakana: Fugu Ultra</td>
@@ -4556,18 +4927,6 @@ body.account {
     <td class="model-provider">google</td>
     <td class="model-price">$12</td>
     <td class="model-added">2w ago</td>
-  </tr>
-<tr>
-    <td class="model-name">Z.ai: GLM 5.2</td>
-    <td class="model-provider">z-ai</td>
-    <td class="model-price">$2.86</td>
-    <td class="model-added">2w ago</td>
-  </tr>
-<tr>
-    <td class="model-name">MoonshotAI: Kimi K2.7 Code</td>
-    <td class="model-provider">moonshotai</td>
-    <td class="model-price">$3.50</td>
-    <td class="model-added">3w ago</td>
   </tr></tbody>
       </table>
     </div>
@@ -4634,7 +4993,7 @@ body.account {
   </div></div>
         </details>
 <details class="desk-details">
-          <summary>All Models by Provider — 310 across 54 providers</summary>
+          <summary>All Models by Provider — 312 across 54 providers</summary>
           <div class="desk-details-body"><div class="markets-filterbar" data-filter-scope="catalog">
     <div class="filter-field">
         <label for="catalog-search">Search</label>
@@ -4997,14 +5356,14 @@ T">OpenAI: GPT-3.5 Turbo</span><span class="feature-badges"><span class="feature
           <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini">
-          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini (2024-07-18)">
+          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini (2024-07-18)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span><span class="cache-price">cache: $0.07</span></td>
           <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini (2024-07-18)">
-          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini (2024-07-18)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini">
+          <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span><span class="cache-price">cache: $0.07</span></td>
           <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
@@ -5534,8 +5893,8 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         <h3 class="provider-name">inflection</h3>
         <table class="markets-table">
         <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-        <tbody><tr class="provider-flagship catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="inflection" data-label="inflection: inflection 3 productivity">
-          <td class="catalog-name"><span title="Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It ">Inflection: Inflection 3 Productivity</span></td>
+        <tbody><tr class="provider-flagship catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="inflection" data-label="inflection: inflection 3 pi">
+          <td class="catalog-name"><span title="Inflection 3 Pi powers Inflection&#39;s [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent ">Inflection: Inflection 3 Pi</span></td>
           <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span></td>
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="8000" title="Max output: 1,024 tokens">8k</td>
@@ -5545,8 +5904,8 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <summary>1 more model</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="inflection" data-label="inflection: inflection 3 pi">
-          <td class="catalog-name"><span title="Inflection 3 Pi powers Inflection&#39;s [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent ">Inflection: Inflection 3 Pi</span></td>
+            <tbody><tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="inflection" data-label="inflection: inflection 3 productivity">
+          <td class="catalog-name"><span title="Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It ">Inflection: Inflection 3 Productivity</span></td>
           <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span></td>
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="8000" title="Max output: 1,024 tokens">8k</td>
@@ -5774,9 +6133,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="2.6">$2.60</td>
           <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.4499999999999997" data-input="0.385" data-cache="" data-provider="qwen" data-label="qwen: qwen3.5 397b a17b">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.4499999999999997" data-input="0.385" data-cache="0.111" data-provider="qwen" data-label="qwen: qwen3.5 397b a17b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-397B-A17B" title="The Qwen3.5 series 397B-A17B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-o">Qwen: Qwen3.5 397B A17B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.385" data-priceval="0.385"><span class="price-main">$0.39</span></td>
+          <td class="model-price price-cell" data-sort="0.385" data-priceval="0.385"><span class="price-main">$0.39</span><span class="cache-price">cache: $0.11</span></td>
           <td class="model-price price-cell" data-priceval="2.4499999999999997">$2.45</td>
           <td class="model-ctx" data-sort="256000">256k</td>
         </tr>
@@ -6076,11 +6435,11 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="3.036">$3.04</td>
           <td class="model-ctx" data-sort="202752" title="Max output: 128,000 tokens">203k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.8556" data-input="0.9086" data-cache="0.16874" data-provider="z-ai" data-label="z.ai: glm 5.2">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.8600000000000003" data-input="0.8999999999999999" data-cache="0.16999999999999998" data-provider="z-ai" data-label="z.ai: glm 5.2">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.2" title="GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf">Z.ai: GLM 5.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.9086" data-priceval="0.9086"><span class="price-main">$0.91</span><span class="cache-price">cache: $0.17</span></td>
-          <td class="model-price price-cell" data-priceval="2.8556">$2.86</td>
-          <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
+          <td class="model-price price-cell" data-sort="0.8999999999999999" data-priceval="0.8999999999999999"><span class="price-main">$0.90</span><span class="cache-price">cache: $0.17</span></td>
+          <td class="model-price price-cell" data-priceval="2.8600000000000003">$2.86</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 1,048,576 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.2" data-input="0.6" data-cache="0.11" data-provider="z-ai" data-label="z.ai: glm 4.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.5" title="GLM-4.5 is our latest flagship foundation model, purpose-built for agent-based applications. It leverages a Mixture-of-Experts (MoE) architecture and supports a">Z.ai: GLM 4.5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6172,9 +6531,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="2.3">$2.30</td>
           <td class="model-ctx" data-sort="131072" title="Max output: 100,352 tokens">131k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.025" data-input="0.375" data-cache="" data-provider="moonshotai" data-label="moonshotai: kimi k2.5">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.025" data-input="0.375" data-cache="0.203" data-provider="moonshotai" data-label="moonshotai: kimi k2.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/moonshotai/Kimi-K2.5" title="Kimi K2.5 is Moonshot AI&#39;s native multimodal model, delivering state-of-the-art visual coding capability and a self-directed agent swarm paradigm. Built on Kimi">MoonshotAI: Kimi K2.5</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.375" data-priceval="0.375"><span class="price-main">$0.38</span></td>
+          <td class="model-price price-cell" data-sort="0.375" data-priceval="0.375"><span class="price-main">$0.38</span><span class="cache-price">cache: $0.20</span></td>
           <td class="model-price price-cell" data-priceval="2.025">$2.02</td>
           <td class="model-ctx" data-sort="262144">262k</td>
         </tr></tbody>
@@ -6696,7 +7055,18 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr></tbody>
       </table>
-        
+        <details class="provider-more">
+          <summary>1 more model</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.09999999999999999" data-input="0.024999999999999998" data-cache="0.0025" data-provider="nex-agi" data-label="nex agi: nex-n2-mini">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nex-agi/Nex-N2-Mini" title="Nex-N2-Mini is an open-source agentic mixture-of-experts model from Nex AGI, the smaller sibling in the Nex-N2 series. It accepts text and image input and is bu">Nex AGI: Nex-N2-Mini</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.024999999999999998" data-priceval="0.024999999999999998"><span class="price-main">$0.02</span><span class="cache-price">cache: $0.003</span></td>
+          <td class="model-price price-cell" data-priceval="0.09999999999999999">$0.10</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
+        </tr></tbody>
+          </table>
+        </details>
       </div>
 <div class="provider-group">
         <h3 class="provider-name">mancer</h3>
@@ -6726,11 +7096,41 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <summary>1 more model</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.28" data-input="0.105" data-cache="" data-provider="xiaomi" data-label="xiaomi: mimo-v2.5">
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.28" data-input="0.105" data-cache="0.028" data-provider="xiaomi" data-label="xiaomi: mimo-v2.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/XiaomiMiMo/MiMo-V2.5" title="MiMo-V2.5 is a native omnimodal model by Xiaomi. It delivers Pro-level agentic performance at roughly half the inference cost, while surpassing MiMo-V2-Omni in ">Xiaomi: MiMo-V2.5</a><span class="modality-badge">aud</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.105" data-priceval="0.105"><span class="price-main">$0.10</span></td>
+          <td class="model-price price-cell" data-sort="0.105" data-priceval="0.105"><span class="price-main">$0.10</span><span class="cache-price">cache: $0.03</span></td>
           <td class="model-price price-cell" data-priceval="0.28">$0.28</td>
           <td class="model-ctx" data-sort="1048576">1.0M</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">tencent</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.7999999999999999" data-input="0.19999999999999998" data-cache="0.5" data-provider="tencent" data-label="tencent: hy3">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/tencent/Hy3" title="Hy3 is a 295B-parameter Mixture-of-Experts model from Tencent (21B active, 192 experts with top-8 routing) built for reasoning, agentic workflows, and real-worl">Tencent: Hy3</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.19999999999999998" data-priceval="0.19999999999999998"><span class="price-main">$0.20</span><span class="cache-price">cache: $0.50</span></td>
+          <td class="model-price price-cell" data-priceval="0.7999999999999999">$0.80</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 131,072 tokens">262k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>2 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="0.5700000000000001" data-input="0.14" data-cache="" data-provider="tencent" data-label="tencent: hunyuan a13b instruct">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/tencent/Hunyuan-A13B-Instruct" title="Hunyuan-A13B is a 13B active parameter Mixture-of-Experts (MoE) language model developed by Tencent, with a total parameter count of 80B and support for reasoni">Tencent: Hunyuan A13B Instruct</a><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span></td>
+          <td class="model-price price-cell" data-priceval="0.5700000000000001">$0.57</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 131,072 tokens">131k</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.21" data-input="0.063" data-cache="0.020999999999999998" data-provider="tencent" data-label="tencent: hy3 preview">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/tencent/Hy3-preview" title="Hy3 preview is a high-efficiency Mixture-of-Experts model from Tencent designed for agentic workflows and production use. It supports configurable reasoning lev">Tencent: Hy3 preview</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.063" data-priceval="0.063"><span class="price-main">$0.06</span><span class="cache-price">cache: $0.02</span></td>
+          <td class="model-price price-cell" data-priceval="0.21">$0.21</td>
+          <td class="model-ctx" data-sort="262144">262k</td>
         </tr></tbody>
           </table>
         </details>
@@ -6891,11 +7291,11 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="0.345">$0.34</td>
           <td class="model-ctx" data-sort="131072" title="Max output: 16,384 tokens">131k</td>
         </tr>
-<tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="0.335" data-input="0.0509" data-cache="" data-provider="meta-llama" data-label="meta: llama 3.2 3b instruct">
+<tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="0.33" data-input="0.049999999999999996" data-cache="" data-provider="meta-llama" data-label="meta: llama 3.2 3b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct" title="Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reas">Meta: Llama 3.2 3B Instruct</a></td>
-          <td class="model-price price-cell" data-sort="0.0509" data-priceval="0.0509"><span class="price-main">$0.05</span></td>
-          <td class="model-price price-cell" data-priceval="0.335">$0.34</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 80,000 tokens">131k</td>
+          <td class="model-price price-cell" data-sort="0.049999999999999996" data-priceval="0.049999999999999996"><span class="price-main">$0.05</span></td>
+          <td class="model-price price-cell" data-priceval="0.33">$0.33</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 131,072 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.32" data-input="0.09999999999999999" data-cache="" data-provider="meta-llama" data-label="meta: llama 3.3 70b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct" title="The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr">Meta: Llama 3.3 70B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6932,30 +7332,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.02" data-priceval="0.02"><span class="price-main">$0.02</span></td>
           <td class="model-price price-cell" data-priceval="0.03">$0.03</td>
           <td class="model-ctx" data-sort="131072" title="Max output: 16,384 tokens">131k</td>
-        </tr></tbody>
-          </table>
-        </details>
-      </div>
-<div class="provider-group">
-        <h3 class="provider-name">tencent</h3>
-        <table class="markets-table">
-        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-        <tbody><tr class="provider-flagship catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="0.5700000000000001" data-input="0.14" data-cache="" data-provider="tencent" data-label="tencent: hunyuan a13b instruct">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/tencent/Hunyuan-A13B-Instruct" title="Hunyuan-A13B is a 13B active parameter Mixture-of-Experts (MoE) language model developed by Tencent, with a total parameter count of 80B and support for reasoni">Tencent: Hunyuan A13B Instruct</a><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span></td>
-          <td class="model-price price-cell" data-priceval="0.5700000000000001">$0.57</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 131,072 tokens">131k</td>
-        </tr></tbody>
-      </table>
-        <details class="provider-more">
-          <summary>1 more model</summary>
-          <table class="markets-table markets-table-compact">
-            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.21" data-input="0.063" data-cache="0.020999999999999998" data-provider="tencent" data-label="tencent: hy3 preview">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/tencent/Hy3-preview" title="Hy3 preview is a high-efficiency Mixture-of-Experts model from Tencent designed for agentic workflows and production use. It supports configurable reasoning lev">Tencent: Hy3 preview</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.063" data-priceval="0.063"><span class="price-main">$0.06</span><span class="cache-price">cache: $0.02</span></td>
-          <td class="model-price price-cell" data-priceval="0.21">$0.21</td>
-          <td class="model-ctx" data-sort="262144">262k</td>
         </tr></tbody>
           </table>
         </details>
