@@ -209,6 +209,10 @@ async function getTickerData(outDir) {
   const history = loadHistory(outDir);
   const prevSnapshot = history.length > 0 ? history[0] : loadSnapshot(outDir);
 
+  // Render list = curated trackedModels ONLY. The auto-latest banner roster lives
+  // in a SEPARATE `bannerModels` field (below) consumed by the banner alone, so it
+  // never leaks into `models` — which drives the markets table + Cost-of-Intelligence
+  // index. Keeping this === trackedModels is the isolation the banner feature requires.
   const models = trackedModels.map((m) => {
     const current = modelPrices[m.key] || { input: null, output: null, context_length: null };
     const prev = prevSnapshot?.models?.find((p) => p.key === m.key);
@@ -256,6 +260,19 @@ async function getTickerData(outDir) {
     };
   });
 
+  // Auto-latest banner roster: the resolved slots written by sync-models.js.
+  // Rendered by the banner ONLY (renderTickerBanner prefers this over the legacy
+  // bannerKeys path). Enrich each with an output delta vs the previous snapshot so
+  // the banner can show price movement once history accrues; absent ⇒ null (flat).
+  const bannerModels = (synced?.bannerModels || []).map((bm) => {
+    const prev = prevSnapshot?.models?.find((p) => p.key === bm.key);
+    let outputDelta = null;
+    if (prev && bm.output != null && prev.output != null && prev.output !== bm.output) {
+      outputDelta = ((bm.output - prev.output) / prev.output) * 100;
+    }
+    return { ...bm, outputDelta };
+  });
+
   return {
     models,
     speed: speedData,
@@ -264,6 +281,7 @@ async function getTickerData(outDir) {
     indexValue,
     indexHistory,
     bannerKeys,
+    bannerModels,
     evals: synced?.evals || curated?.evals || null,
     untracked: synced?.untracked || [],
     syncedAt: synced?.syncedAt || null,
@@ -336,13 +354,17 @@ function renderTickerBanner(tickerData, options = {}) {
   if (!tickerData) return "";
 
   const basePath = options.basePath || "";
-  const bannerKeys = tickerData.bannerKeys || [];
-  const bannerModels = tickerData.models.filter((m) => bannerKeys.includes(m.key));
+  // Prefer the auto-latest roster (bannerModels) resolved by sync-models.js when
+  // present; else fall back to filtering the tracked models by bannerKeys (the
+  // legacy path — keeps existing behavior when no slots are configured).
+  const roster = (Array.isArray(tickerData.bannerModels) && tickerData.bannerModels.length > 0)
+    ? tickerData.bannerModels
+    : (tickerData.models || []).filter((m) => (tickerData.bannerKeys || []).includes(m.key));
 
-  const modelItems = bannerModels
+  const modelItems = roster
     .filter((m) => m.output != null) // skip models with no price data
     .map((m) => {
-      const delta = m.outputDelta;
+      const delta = m.outputDelta ?? null;
       let deltaHtml = '<span class="ticker-delta flat">&mdash;</span>';
       if (delta !== null && delta !== 0) {
         if (delta < 0) {

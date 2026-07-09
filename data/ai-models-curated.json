@@ -5,7 +5,18 @@
     "gemini-3.1-pro",
     "grok-4.20",
     "deepseek-v3.2",
-    "llama-4-maverick"
+    "qwen3-max",
+    "kimi-k2"
+  ],
+  "_bannerSlots_note": "Auto-latest roster: sync-models.js resolves each slot to the NEWEST FLAGSHIP catalog model whose id starts with `match` and contains none of `exclude`, by `created` timestamp. Excludes must drop sub-flagship tiers so 'newest' means newest flagship (e.g. Claude excludes `sonnet`/`haiku` → resolves the premium `claude-fable-*`, not the newer mid-tier Sonnet). `pin` forces an exact id; optional `expect` substring warns when the resolved id lacks it (catalog lags a known launch). The provider set + excludes are editorial — tune at the desk; the resolution mechanism is what's tested. Resolved slots are written to `bannerModels` (front-page banner ONLY) — they do NOT enter `models`, so the markets table + Cost-of-Intelligence index stay on the curated trackedModels. Each sync also prints a Banner Roster report and writes data/banner-roster.json (the easy check). bannerKeys/trackedModels/evals remain as backward-compat fallback.",
+  "bannerSlots": [
+    { "label": "Claude", "match": "anthropic/claude-", "exclude": ["sonnet", "haiku", "-fast", "-latest", "-image", "-audio", "-embedding", ":free", "-preview", "-exp"], "expect": "claude-fable" },
+    { "label": "GPT", "match": "openai/gpt-", "exclude": ["-mini", "-nano", "-image", "-audio", "-codex", "-pro", "chat-latest", "-search", "-embedding", ":free", "-preview"] },
+    { "label": "Gemini", "match": "google/gemini-", "exclude": ["-image", "-flash", "-lite", "-audio", "-embedding", "-tts", "customtools", "computer-use", ":free"] },
+    { "label": "Grok", "match": "x-ai/grok-", "exclude": ["-build", "-multi-agent", "-mini", "-image", "-fast", ":free", "-code"] },
+    { "label": "DeepSeek", "match": "deepseek/deepseek-", "exclude": ["-flash", "-exp", "-distill", "-base", "-r1-distill", ":free"] },
+    { "label": "Qwen", "match": "qwen/qwen", "exclude": ["-plus", "-flash", "-preview", "-thinking", "-image", "-coder", "-vl", "-embedding", "-9b", "-27b", "-35b", "-122b", "b-a", ":free"] },
+    { "label": "Kimi", "match": "moonshotai/kimi-", "exclude": ["-code", "-thinking", "-vl", "-instruct", ":free"] }
   ],
   "trackedModels": [
     { "key": "claude-opus-4.8", "openrouterId": "anthropic/claude-opus-4.8", "label": "Claude Opus 4.8", "provider": "Anthropic" },
@@ -18,7 +29,9 @@
     { "key": "deepseek-v3.2", "openrouterId": "deepseek/deepseek-chat", "label": "DeepSeek V3.2", "provider": "DeepSeek" },
     { "key": "deepseek-r1", "openrouterId": "deepseek/deepseek-r1", "label": "DeepSeek R1", "provider": "DeepSeek" },
     { "key": "llama-4-maverick", "openrouterId": "meta-llama/llama-4-maverick", "label": "Llama 4 Maverick", "provider": "Meta" },
-    { "key": "mistral-large", "openrouterId": "mistralai/mistral-large-2512", "label": "Mistral Large", "provider": "Mistral" }
+    { "key": "mistral-large", "openrouterId": "mistralai/mistral-large-2512", "label": "Mistral Large", "provider": "Mistral" },
+    { "key": "qwen3-max", "openrouterId": "qwen/qwen3-max", "label": "Qwen3 Max", "provider": "Alibaba", "input": 0.30, "output": 1.20 },
+    { "key": "kimi-k2", "openrouterId": "moonshotai/kimi-k2", "label": "Kimi K2", "provider": "Moonshot", "input": 0.55, "output": 2.50 }
   ],
   "speed": [
     { "name": "Cerebras", "tokPerSec": 969, "model": "Llama 4 Maverick" },
@@ -60,7 +73,9 @@
       "deepseek-v3.2":     { "mmlu_pro": 84.5, "gpqa": 73.8, "swe_bench": 66.0, "arena_elo": 1394 },
       "deepseek-r1":       { "mmlu_pro": 85.9, "gpqa": 77.2, "swe_bench": 68.5, "arena_elo": 1408 },
       "llama-4-maverick":  { "mmlu_pro": 80.5, "gpqa": 69.8, "swe_bench": 55.1, "arena_elo": 1366 },
-      "mistral-large":     { "mmlu_pro": 79.0, "gpqa": 67.0, "swe_bench": 52.3, "arena_elo": 1351 }
+      "mistral-large":     { "mmlu_pro": 79.0, "gpqa": 67.0, "swe_bench": 52.3, "arena_elo": 1351 },
+      "qwen3-max":         { "mmlu_pro": 85.2, "gpqa": 74.5, "swe_bench": 66.8, "arena_elo": 1418 },
+      "kimi-k2":           { "mmlu_pro": 84.8, "gpqa": 73.0, "swe_bench": 69.5, "arena_elo": 1410 }
     }
   }
 }

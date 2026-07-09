@@ -1,11 +1,12 @@
 {
-  "syncedAt": "2026-07-09T08:36:52.257Z",
+  "syncedAt": "2026-07-09T11:25:02.059Z",
   "source": "openrouter",
   "stats": {
-    "total": 11,
-    "matched": 11,
+    "total": 13,
+    "matched": 13,
     "missed": 0,
-    "catalog": 312
+    "catalog": 312,
+    "bannerSlots": 7
   },
   "models": [
     {
@@ -405,6 +406,151 @@
       "expiration_date": null,
       "hugging_face_id": null,
       "source": "openrouter"
+    },
+    {
+      "key": "qwen3-max",
+      "openrouterId": "qwen/qwen3-max",
+      "label": "Qwen3 Max",
+      "provider": "Alibaba",
+      "input": 0.78,
+      "output": 3.9,
+      "context_length": 262144,
+      "cache_read_price": 0.156,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p"
+      ],
+      "description": "Qwen3-Max is an updated release built on the Qwen3 series, offering major improvements in reasoning, instruction following, multilingual support, and long-tail knowledge coverage compared to the January 2025 version. It...",
+      "created": 1758662808,
+      "expiration_date": null,
+      "hugging_face_id": null,
+      "source": "openrouter"
+    },
+    {
+      "key": "kimi-k2",
+      "openrouterId": "moonshotai/kimi-k2",
+      "label": "Kimi K2",
+      "provider": "Moonshot",
+      "input": 0.5700000000000001,
+      "output": 2.3,
+      "context_length": 131072,
+      "cache_read_price": null,
+      "max_completion_tokens": 100352,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "description": "Kimi K2 Instruct is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active per forward pass. It is optimized for...",
+      "created": 1752263252,
+      "expiration_date": null,
+      "hugging_face_id": "moonshotai/Kimi-K2-Instruct",
+      "source": "openrouter"
+    }
+  ],
+  "bannerModels": [
+    {
+      "key": "anthropic-claude-fable-5",
+      "label": "Claude Fable 5",
+      "openrouterId": "anthropic/claude-fable-5",
+      "provider": "Anthropic",
+      "input": 10,
+      "output": 50,
+      "context_length": 1000000,
+      "created": 1781007515,
+      "source": "banner-slot"
+    },
+    {
+      "key": "gpt-5.5",
+      "label": "GPT-5.5",
+      "openrouterId": "openai/gpt-5.5",
+      "provider": "OpenAI",
+      "input": 5,
+      "output": 30,
+      "context_length": 1050000,
+      "created": 1777051893,
+      "source": "banner-slot"
+    },
+    {
+      "key": "gemini-3.1-pro",
+      "label": "Gemini 3.1 Pro Preview",
+      "openrouterId": "google/gemini-3.1-pro-preview",
+      "provider": "Google",
+      "input": 2,
+      "output": 12,
+      "context_length": 1048576,
+      "created": 1771509627,
+      "source": "banner-slot"
+    },
+    {
+      "key": "x-ai-grok-4-5",
+      "label": "Grok 4.5",
+      "openrouterId": "x-ai/grok-4.5",
+      "provider": "xAI",
+      "input": 2,
+      "output": 6,
+      "context_length": 500000,
+      "created": 1783523154,
+      "source": "banner-slot"
+    },
+    {
+      "key": "deepseek-deepseek-v4-pro",
+      "label": "DeepSeek V4 Pro",
+      "openrouterId": "deepseek/deepseek-v4-pro",
+      "provider": "DeepSeek",
+      "input": 0.435,
+      "output": 0.87,
+      "context_length": 1048576,
+      "created": 1777000679,
+      "source": "banner-slot"
+    },
+    {
+      "key": "qwen-qwen3-7-max",
+      "label": "Qwen3.7 Max",
+      "openrouterId": "qwen/qwen3.7-max",
+      "provider": "Alibaba",
+      "input": 1.25,
+      "output": 3.75,
+      "context_length": 1000000,
+      "created": 1779376861,
+      "source": "banner-slot"
+    },
+    {
+      "key": "moonshotai-kimi-k2-6",
+      "label": "Kimi K2.6",
+      "openrouterId": "moonshotai/kimi-k2.6",
+      "provider": "Moonshot",
+      "input": 0.65,
+      "output": 3.41,
+      "context_length": 262144,
+      "created": 1776699402,
+      "source": "banner-slot"
     }
   ],
   "bannerKeys": [
@@ -413,7 +559,8 @@
     "gemini-3.1-pro",
     "grok-4.20",
     "deepseek-v3.2",
-    "llama-4-maverick"
+    "qwen3-max",
+    "kimi-k2"
   ],
   "speed": [
     {
@@ -587,21 +734,63 @@
         "gpqa": 67,
         "swe_bench": 52.3,
         "arena_elo": 1351
+      },
+      "qwen3-max": {
+        "mmlu_pro": 85.2,
+        "gpqa": 74.5,
+        "swe_bench": 66.8,
+        "arena_elo": 1418
+      },
+      "kimi-k2": {
+        "mmlu_pro": 84.8,
+        "gpqa": 73,
+        "swe_bench": 69.5,
+        "arena_elo": 1410
       }
     }
   },
   "untracked": [
     {
-      "id": "openai/o1-pro",
-      "name": "OpenAI: o1-pro",
-      "outputPrice": 600,
-      "created": 1742423211
+      "id": "x-ai/grok-4.5",
+      "name": "xAI: Grok 4.5",
+      "outputPrice": 6,
+      "created": 1783523154
     },
     {
-      "id": "openai/gpt-5.2-pro",
-      "name": "OpenAI: GPT-5.2 Pro",
-      "outputPrice": 168,
-      "created": 1765389780
+      "id": "anthropic/claude-sonnet-5",
+      "name": "Anthropic: Claude Sonnet 5",
+      "outputPrice": 10,
+      "created": 1782843083
+    },
+    {
+      "id": "google/gemini-3.1-flash-lite-image",
+      "name": "Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
+      "outputPrice": 1.5,
+      "created": 1782837225
+    },
+    {
+      "id": "google/gemini-3.1-flash-image",
+      "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image)",
+      "outputPrice": 3,
+      "created": 1781754065
+    },
+    {
+      "id": "google/gemini-3-pro-image",
+      "name": "Google: Nano Banana Pro (Gemini 3 Pro Image)",
+      "outputPrice": 12,
+      "created": 1781754054
+    },
+    {
+      "id": "anthropic/claude-fable-5",
+      "name": "Anthropic: Claude Fable 5",
+      "outputPrice": 50,
+      "created": 1781007515
+    },
+    {
+      "id": "x-ai/grok-build-0.1",
+      "name": "xAI: Grok Build 0.1",
+      "outputPrice": 2,
+      "created": 1779298123
     },
     {
       "id": "anthropic/claude-opus-4.7-fast",
@@ -610,46 +799,16 @@
       "created": 1778613011
     },
     {
-      "id": "openai/gpt-5-pro",
-      "name": "OpenAI: GPT-5 Pro",
-      "outputPrice": 120,
-      "created": 1759776663
+      "id": "google/gemini-3.1-flash-lite",
+      "name": "Google: Gemini 3.1 Flash Lite",
+      "outputPrice": 1.5,
+      "created": 1778168828
     },
     {
-      "id": "openai/o3-pro",
-      "name": "OpenAI: o3 Pro",
-      "outputPrice": 80,
-      "created": 1749598352
-    },
-    {
-      "id": "anthropic/claude-opus-4.1",
-      "name": "Anthropic: Claude Opus 4.1",
-      "outputPrice": 75,
-      "created": 1754411591
-    },
-    {
-      "id": "anthropic/claude-opus-4",
-      "name": "Anthropic: Claude Opus 4",
-      "outputPrice": 75,
-      "created": 1747931245
-    },
-    {
-      "id": "openai/o1",
-      "name": "OpenAI: o1",
-      "outputPrice": 60,
-      "created": 1734459999
-    },
-    {
-      "id": "openai/gpt-4",
-      "name": "OpenAI: GPT-4",
-      "outputPrice": 60,
-      "created": 1685232000
-    },
-    {
-      "id": "anthropic/claude-fable-5",
-      "name": "Anthropic: Claude Fable 5",
-      "outputPrice": 50,
-      "created": 1781007515
+      "id": "openai/gpt-chat-latest",
+      "name": "OpenAI: GPT Chat Latest",
+      "outputPrice": 30,
+      "created": 1778000212
     }
   ],
   "catalog": [
@@ -3785,45 +3944,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.8999999999999999,
-      "output": 3.08,
-      "cache_read_price": 0.18,
-      "max_completion_tokens": 1048576,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "z-ai/glm-5.1",
       "name": "Z.ai: GLM 5.1",
       "context_length": 202752,
@@ -3886,6 +4006,45 @@
       "created": 1781754065,
       "description": "Gemini 3.1 Flash Image, a.k.a. \"Nano Banana 2,\" is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at F",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.9299999999999999,
+      "output": 3,
+      "cache_read_price": 0.18,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "google/gemini-3.1-flash-image-preview",
