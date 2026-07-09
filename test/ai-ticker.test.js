@@ -270,11 +270,11 @@ describe("curated data integrity", () => {
   it("loads tracked models from curated config", () => {
     assert.ok(TRACKED_MODELS.length >= 10);
     const keys = TRACKED_MODELS.map((m) => m.key);
-    assert.ok(keys.includes("claude-sonnet-4.6"));
-    assert.ok(keys.includes("gpt-5.4"));
+    assert.ok(keys.includes("claude-fable-5"));
+    assert.ok(keys.includes("gpt-5.5"));
     assert.ok(keys.includes("gemini-3.1-pro"));
-    assert.ok(keys.includes("grok-4.20"));
-    assert.ok(keys.includes("deepseek-v3.2"));
+    assert.ok(keys.includes("grok-4.5"));
+    assert.ok(keys.includes("deepseek-v4-pro"));
     for (const m of TRACKED_MODELS) {
       assert.ok(m.provider, `${m.key} missing provider`);
     }
