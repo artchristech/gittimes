@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-07-09T16:16:10.406Z",
+  "syncedAt": "2026-07-10T08:22:10.348Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 12,
     "missed": 0,
-    "catalog": 310,
+    "catalog": 317,
     "bannerSlots": 7
   },
   "models": [
@@ -381,10 +381,10 @@
       "openrouterId": "moonshotai/kimi-k2.6",
       "label": "Kimi K2.6",
       "provider": "Moonshot",
-      "input": 0.65,
+      "input": 0.66,
       "output": 3.41,
       "context_length": 262144,
-      "cache_read_price": 0.14,
+      "cache_read_price": 0.15,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -468,14 +468,14 @@
       "source": "banner-slot"
     },
     {
-      "key": "gpt-5.5",
-      "label": "GPT-5.5",
-      "openrouterId": "openai/gpt-5.5",
+      "key": "openai-gpt-5-6-luna",
+      "label": "GPT-5.6 Luna",
+      "openrouterId": "openai/gpt-5.6-luna",
       "provider": "OpenAI",
-      "input": 5,
-      "output": 30,
+      "input": 1,
+      "output": 6,
       "context_length": 1050000,
-      "created": 1777051893,
+      "created": 1783590864,
       "source": "banner-slot"
     },
     {
@@ -527,7 +527,7 @@
       "label": "Kimi K2.6",
       "openrouterId": "moonshotai/kimi-k2.6",
       "provider": "Moonshot",
-      "input": 0.65,
+      "input": 0.66,
       "output": 3.41,
       "context_length": 262144,
       "created": 1776699402,
@@ -726,6 +726,42 @@
   },
   "untracked": [
     {
+      "id": "openai/gpt-5.6-luna-pro",
+      "name": "OpenAI: GPT-5.6 Luna Pro",
+      "outputPrice": 6,
+      "created": 1783590867
+    },
+    {
+      "id": "openai/gpt-5.6-luna",
+      "name": "OpenAI: GPT-5.6 Luna",
+      "outputPrice": 6,
+      "created": 1783590864
+    },
+    {
+      "id": "openai/gpt-5.6-terra-pro",
+      "name": "OpenAI: GPT-5.6 Terra Pro",
+      "outputPrice": 15,
+      "created": 1783590861
+    },
+    {
+      "id": "openai/gpt-5.6-terra",
+      "name": "OpenAI: GPT-5.6 Terra",
+      "outputPrice": 15,
+      "created": 1783590857
+    },
+    {
+      "id": "openai/gpt-5.6-sol-pro",
+      "name": "OpenAI: GPT-5.6 Sol Pro",
+      "outputPrice": 30,
+      "created": 1783590854
+    },
+    {
+      "id": "openai/gpt-5.6-sol",
+      "name": "OpenAI: GPT-5.6 Sol",
+      "outputPrice": 30,
+      "created": 1783590850
+    },
+    {
       "id": "google/gemini-3.1-flash-lite-image",
       "name": "Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
       "outputPrice": 1.5,
@@ -748,42 +784,6 @@
       "name": "xAI: Grok Build 0.1",
       "outputPrice": 2,
       "created": 1779298123
-    },
-    {
-      "id": "anthropic/claude-opus-4.7-fast",
-      "name": "Anthropic: Claude Opus 4.7 (Fast)",
-      "outputPrice": 150,
-      "created": 1778613011
-    },
-    {
-      "id": "google/gemini-3.1-flash-lite",
-      "name": "Google: Gemini 3.1 Flash Lite",
-      "outputPrice": 1.5,
-      "created": 1778168828
-    },
-    {
-      "id": "openai/gpt-chat-latest",
-      "name": "OpenAI: GPT Chat Latest",
-      "outputPrice": 30,
-      "created": 1778000212
-    },
-    {
-      "id": "x-ai/grok-4.3",
-      "name": "xAI: Grok 4.3",
-      "outputPrice": 2.5,
-      "created": 1777591821
-    },
-    {
-      "id": "mistralai/mistral-medium-3-5",
-      "name": "Mistral: Mistral Medium 3.5",
-      "outputPrice": 7.5,
-      "created": 1777570439
-    },
-    {
-      "id": "anthropic/claude-opus-4.7",
-      "name": "Anthropic: Claude Opus 4.7",
-      "outputPrice": 25,
-      "created": 1776351100
     }
   ],
   "catalog": [
@@ -1238,6 +1238,66 @@
       "hugging_face_id": null
     },
     {
+      "id": "openai/gpt-5.6-sol-pro",
+      "name": "OpenAI: GPT-5.6 Sol Pro",
+      "context_length": 1050000,
+      "input": 5,
+      "output": 30,
+      "cache_read_price": 0.5,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1783590854,
+      "description": "GPT-5.6 Sol Pro is the same underlying model as [GPT-5.6 Sol](https://openrouter.ai/openai/gpt-5.6-sol), served with `reasoning.mode` set to `pro` for higher-qu",
+      "hugging_face_id": null
+    },
+    {
+      "id": "openai/gpt-5.6-sol",
+      "name": "OpenAI: GPT-5.6 Sol",
+      "context_length": 1050000,
+      "input": 5,
+      "output": 30,
+      "cache_read_price": 0.5,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1783590850,
+      "description": "GPT-5.6 Sol is the flagship model in OpenAI's GPT-5.6 series. It is suited for complex reasoning, coding, and agentic workflows, and is particularly strong at c",
+      "hugging_face_id": null
+    },
+    {
       "id": "sakana/fugu-ultra",
       "name": "Sakana: Fugu Ultra",
       "context_length": 1000000,
@@ -1579,6 +1639,66 @@
       ],
       "created": 1764010580,
       "description": "Claude Opus 4.5 is Anthropic’s frontier reasoning model optimized for complex software engineering, agentic workflows, and long-horizon computer use. It offers ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "openai/gpt-5.6-terra-pro",
+      "name": "OpenAI: GPT-5.6 Terra Pro",
+      "context_length": 1050000,
+      "input": 2.5,
+      "output": 15,
+      "cache_read_price": 0.25,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1783590861,
+      "description": "GPT-5.6 Terra Pro is the same underlying model as [GPT-5.6 Terra](https://openrouter.ai/openai/gpt-5.6-terra), served with `reasoning.mode` set to `pro` for hig",
+      "hugging_face_id": null
+    },
+    {
+      "id": "openai/gpt-5.6-terra",
+      "name": "OpenAI: GPT-5.6 Terra",
+      "context_length": 1050000,
+      "input": 2.5,
+      "output": 15,
+      "cache_read_price": 0.25,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1783590857,
+      "description": "GPT-5.6 Terra is a balanced model in OpenAI's GPT-5.6 series, positioned between the flagship Sol tier and the cost-efficient Luna tier. It is suited for everyd",
       "hugging_face_id": null
     },
     {
@@ -2666,28 +2786,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "inflection/inflection-3-pi",
-      "name": "Inflection: Inflection 3 Pi",
-      "context_length": 8000,
-      "input": 2.5,
-      "output": 10,
-      "cache_read_price": null,
-      "max_completion_tokens": 1024,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "max_tokens",
-        "stop",
-        "temperature",
-        "top_p"
-      ],
-      "created": 1728604800,
-      "description": "Inflection 3 Pi powers Inflection's [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent ",
-      "hugging_face_id": null
-    },
-    {
       "id": "inflection/inflection-3-productivity",
       "name": "Inflection: Inflection 3 Productivity",
       "context_length": 8000,
@@ -2707,6 +2805,28 @@
       ],
       "created": 1728604800,
       "description": "Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "inflection/inflection-3-pi",
+      "name": "Inflection: Inflection 3 Pi",
+      "context_length": 8000,
+      "input": 2.5,
+      "output": 10,
+      "cache_read_price": null,
+      "max_completion_tokens": 1024,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "max_tokens",
+        "stop",
+        "temperature",
+        "top_p"
+      ],
+      "created": 1728604800,
+      "description": "Inflection 3 Pi powers Inflection's [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent ",
       "hugging_face_id": null
     },
     {
@@ -3115,6 +3235,66 @@
       ],
       "created": 1777260242,
       "description": "Qwen3.6-Max-Preview is a proprietary frontier model from Alibaba Cloud built on a sparse mixture-of-experts architecture with approximately 1 trillion total par",
+      "hugging_face_id": null
+    },
+    {
+      "id": "openai/gpt-5.6-luna-pro",
+      "name": "OpenAI: GPT-5.6 Luna Pro",
+      "context_length": 1050000,
+      "input": 1,
+      "output": 6,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1783590867,
+      "description": "GPT-5.6 Luna Pro is the same underlying model as [GPT-5.6 Luna](https://openrouter.ai/openai/gpt-5.6-luna), served with `reasoning.mode` set to `pro` for higher",
+      "hugging_face_id": null
+    },
+    {
+      "id": "openai/gpt-5.6-luna",
+      "name": "OpenAI: GPT-5.6 Luna",
+      "context_length": 1050000,
+      "input": 1,
+      "output": 6,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": 128000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1783590864,
+      "description": "GPT-5.6 Luna is a fast, cost-efficient model in OpenAI's GPT-5.6 series. It is suited for high-volume, latency-sensitive tasks such as chat, classification, and",
       "hugging_face_id": null
     },
     {
@@ -3790,8 +3970,8 @@
       "name": "MoonshotAI: Kimi K2.7 Code",
       "context_length": 262144,
       "input": 0.72,
-      "output": 3.5,
-      "cache_read_price": 0.15,
+      "output": 3.49,
+      "cache_read_price": 0.159,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -3828,9 +4008,9 @@
       "id": "~moonshotai/kimi-latest",
       "name": "MoonshotAI Kimi Latest",
       "context_length": 262144,
-      "input": 0.65,
+      "input": 0.66,
       "output": 3.41,
-      "cache_read_price": 0.14,
+      "cache_read_price": 0.15,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -3867,9 +4047,9 @@
       "id": "moonshotai/kimi-k2.6",
       "name": "MoonshotAI: Kimi K2.6",
       "context_length": 262144,
-      "input": 0.65,
+      "input": 0.66,
       "output": 3.41,
-      "cache_read_price": 0.14,
+      "cache_read_price": 0.15,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -4020,6 +4200,45 @@
       "created": 1781754065,
       "description": "Gemini 3.1 Flash Image, a.k.a. \"Nano Banana 2,\" is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at F",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.9199999999999999,
+      "output": 3,
+      "cache_read_price": 0.18,
+      "max_completion_tokens": 1048576,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "google/gemini-3.1-flash-image-preview",
@@ -5481,45 +5700,6 @@
       "hugging_face_id": "zai-org/GLM-4.6"
     },
     {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.546,
-      "output": 1.716,
-      "cache_read_price": 0.10139999999999999,
-      "max_completion_tokens": 128000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "aion-labs/aion-2.0",
       "name": "AionLabs: Aion-2.0",
       "context_length": 131072,
@@ -6188,7 +6368,7 @@
       "input": 0.3,
       "output": 1.2,
       "cache_read_price": 0.06,
-      "max_completion_tokens": 512000,
+      "max_completion_tokens": 131072,
       "modality": "text+image+video->text",
       "input_modalities": [
         "text",
@@ -6814,6 +6994,43 @@
       "hugging_face_id": null
     },
     {
+      "id": "minimax/minimax-m2.7",
+      "name": "MiniMax: MiniMax M2.7",
+      "context_length": 204800,
+      "input": 0.24,
+      "output": 0.96,
+      "cache_read_price": null,
+      "max_completion_tokens": 196608,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1773836697,
+      "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
+    },
+    {
       "id": "deepseek/deepseek-v3.1-terminus",
       "name": "DeepSeek: DeepSeek V3.1 Terminus",
       "context_length": 163840,
@@ -6847,6 +7064,44 @@
       "created": 1758548275,
       "description": "DeepSeek-V3.1 Terminus is an update to [DeepSeek V3.1](/deepseek/deepseek-chat-v3.1) that maintains the model's original capabilities while addressing issues re",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1-Terminus"
+    },
+    {
+      "id": "minimax/minimax-m2.5",
+      "name": "MiniMax: MiniMax M2.5",
+      "context_length": 204800,
+      "input": 0.15,
+      "output": 0.8999999999999999,
+      "cache_read_price": 0.049999999999999996,
+      "max_completion_tokens": 196608,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1770908502,
+      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
     },
     {
       "id": "z-ai/glm-4.6v",
@@ -6911,6 +7166,32 @@
       "created": 1754079630,
       "description": "Mistral's cutting-edge language model for coding released end of July 2025. Codestral specializes in low-latency, high-frequency tasks such as fill-in-the-middl",
       "hugging_face_id": null
+    },
+    {
+      "id": "cognitivecomputations/dolphin-mistral-24b-venice-edition",
+      "name": "Venice: Uncensored",
+      "context_length": 128000,
+      "input": 0.19999999999999998,
+      "output": 0.8999999999999999,
+      "cache_read_price": null,
+      "max_completion_tokens": 8192,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "stop",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1752094966,
+      "description": "Venice Uncensored Dolphin Mistral 24B Venice Edition is a fine-tuned variant of Mistral-Small-24B-Instruct-2501, developed by dphn.ai in collaboration with Veni",
+      "hugging_face_id": "cognitivecomputations/Dolphin-Mistral-24B-Venice-Edition"
     },
     {
       "id": "deepseek/deepseek-chat-v3-0324",
@@ -7518,43 +7799,6 @@
       "created": 1734535928,
       "description": "Euryale L3.3 70B is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.2](/models/sao10k/l3",
       "hugging_face_id": "Sao10K/L3.3-70B-Euryale-v2.3"
-    },
-    {
-      "id": "minimax/minimax-m2.7",
-      "name": "MiniMax: MiniMax M2.7",
-      "context_length": 204800,
-      "input": 0.18,
-      "output": 0.72,
-      "cache_read_price": null,
-      "max_completion_tokens": 196608,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1773836697,
-      "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
     },
     {
       "id": "nousresearch/hermes-3-llama-3.1-70b",
@@ -8258,44 +8502,6 @@
       "hugging_face_id": "TheDrummer/Rocinante-12B-v1.1"
     },
     {
-      "id": "minimax/minimax-m2.5",
-      "name": "MiniMax: MiniMax M2.5",
-      "context_length": 204800,
-      "input": 0.12,
-      "output": 0.48,
-      "cache_read_price": null,
-      "max_completion_tokens": 196608,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1770908502,
-      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
-    },
-    {
       "id": "qwen/qwen3-vl-8b-instruct",
       "name": "Qwen: Qwen3 VL 8B Instruct",
       "context_length": 256000,
@@ -8881,43 +9087,6 @@
       "hugging_face_id": "meta-llama/Llama-3.2-11B-Vision-Instruct"
     },
     {
-      "id": "deepseek/deepseek-v3.2",
-      "name": "DeepSeek: DeepSeek V3.2",
-      "context_length": 131072,
-      "input": 0.2288,
-      "output": 0.3432,
-      "cache_read_price": 0.02288,
-      "max_completion_tokens": 64000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1764594642,
-      "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
-    },
-    {
       "id": "google/gemma-4-26b-a4b-it",
       "name": "Google: Gemma 4 26B A4B ",
       "context_length": 262144,
@@ -8987,6 +9156,43 @@
       "created": 1727222400,
       "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reas",
       "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
+    },
+    {
+      "id": "deepseek/deepseek-v3.2",
+      "name": "DeepSeek: DeepSeek V3.2",
+      "context_length": 131072,
+      "input": 0.2145,
+      "output": 0.32175,
+      "cache_read_price": 0.02145,
+      "max_completion_tokens": 64000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1764594642,
+      "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
     },
     {
       "id": "meta-llama/llama-3.3-70b-instruct",
@@ -9681,6 +9887,45 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
+      "id": "openai/gpt-oss-120b",
+      "name": "OpenAI: gpt-oss-120b",
+      "context_length": 131072,
+      "input": 0.036,
+      "output": 0.18,
+      "cache_read_price": null,
+      "max_completion_tokens": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1754414231,
+      "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose pro",
+      "hugging_face_id": "openai/gpt-oss-120b"
+    },
+    {
       "id": "meta-llama/llama-guard-4-12b",
       "name": "Meta: Llama Guard 4 12B",
       "context_length": 163840,
@@ -9850,45 +10095,6 @@
       "created": 1764601720,
       "description": "Trinity Mini is a 26B-parameter (3B active) sparse mixture-of-experts language model featuring 128 experts with 8 active per token. Engineered for efficient rea",
       "hugging_face_id": "arcee-ai/Trinity-Mini"
-    },
-    {
-      "id": "openai/gpt-oss-120b",
-      "name": "OpenAI: gpt-oss-120b",
-      "context_length": 131072,
-      "input": 0.03,
-      "output": 0.15,
-      "cache_read_price": null,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1754414231,
-      "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose pro",
-      "hugging_face_id": "openai/gpt-oss-120b"
     },
     {
       "id": "google/gemma-3-12b-it",
