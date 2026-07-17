@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}{{CSP_EXTRA}}">
   <title>The Git Times — Account</title>
   {{ANALYTICS_SCRIPT}}
+  {{CLERK_SCRIPT}}
   <meta property="og:title" content="The Git Times — Account">
   <meta property="og:site_name" content="The Git Times">
 
@@ -29,7 +30,10 @@
   <!-- Login form (visible by default) -->
   <section class="account-login" id="account-login">
     <h2>Sign In</h2>
-    <p>Enter your email to receive a magic sign-in link.</p>
+    <p id="account-login-intro">Enter your email to receive a magic sign-in link.</p>
+    <!-- Clerk <SignIn/> mounts here when CLERK_PUBLISHABLE_KEY is configured;
+         the magic-link form below is the fallback when it isn't. -->
+    <div id="clerk-signin"></div>
     <form class="subscribe-form" id="magic-link-form">
       <input type="email" name="email" placeholder="you@example.com" required>
       <button type="submit">Send Magic Link</button>
@@ -40,6 +44,8 @@
   <!-- Dashboard (hidden by default) -->
   <section class="account-dashboard" id="account-dashboard" style="display:none">
     <h2>Your Account</h2>
+    <!-- Clerk <UserProfile/> (name, avatar, connected accounts, security) -->
+    <div id="clerk-profile" style="display:none"></div>
     <div class="account-info">
       <div class="account-row">
         <span class="account-label">Email</span>
@@ -94,6 +100,7 @@
   <script>
     (function() {
       var WORKER = '{{WORKER_URL}}';
+      var CLERK_PK = '{{CLERK_PUBLISHABLE_KEY}}';
       var loginSection = document.getElementById('account-login');
       var dashSection = document.getElementById('account-dashboard');
       var errorSection = document.getElementById('account-error');
@@ -150,10 +157,101 @@
 
       var session = localStorage.getItem('gittimes-session');
 
+      // --- Clerk (professional sign-in + profile) ---
+      // When CLERK_PK is baked in, Clerk owns sign-in/profile UI and we trade
+      // its JWT for a native session at /auth/clerk-exchange. When it isn't
+      // (or clerk-js fails to load), the magic-link form below still works.
+      var clerkInstance = null;
+
+      function showMagicLinkFallback() {
+        form.style.display = '';
+        document.getElementById('account-login-intro').textContent = 'Enter your email to receive a magic sign-in link.';
+      }
+
+      function mountClerkSignIn() {
+        if (!clerkInstance || clerkInstance.user) return;
+        var el = document.getElementById('clerk-signin');
+        if (el && !el.dataset.mounted) {
+          el.dataset.mounted = '1';
+          clerkInstance.mountSignIn(el);
+        }
+      }
+
+      function mountClerkProfile() {
+        if (!clerkInstance || !clerkInstance.user) return;
+        var el = document.getElementById('clerk-profile');
+        if (el && !el.dataset.mounted) {
+          el.dataset.mounted = '1';
+          el.style.display = 'block';
+          clerkInstance.mountUserProfile(el);
+        }
+      }
+
+      function clerkExchange() {
+        clerkInstance.session.getToken({ template: 'gittimes' })
+          .then(function(jwt) {
+            if (!jwt) throw new Error('Could not get a Clerk token.');
+            return fetch(WORKER + '/auth/clerk-exchange', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: jwt })
+            });
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.ok || !data.token) throw new Error(data.error || 'Sign-in exchange failed.');
+            localStorage.setItem('gittimes-session', data.token);
+            session = data.token;
+            return fetch(WORKER + '/auth/me', { headers: { 'Authorization': 'Bearer ' + session } })
+              .then(function(r) { return r.json(); });
+          })
+          .then(function(data) {
+            if (data.ok && data.user) showDashboard(data.user);
+          })
+          .catch(function(err) {
+            status.textContent = (err && err.message) || 'Sign-in could not complete. Please try again.';
+            status.className = 'subscribe-status error';
+            // Sign out of Clerk so a broken exchange can't loop.
+            try { clerkInstance.signOut(); } catch (e) { /* ignore */ }
+            showLogin();
+          });
+      }
+
+      function clerkBoot() {
+        if (!CLERK_PK) return;
+        // Clerk mode: hide the magic-link form unless clerk-js fails to load.
+        form.style.display = 'none';
+        document.getElementById('account-login-intro').textContent = 'Sign in or create your account.';
+        var tries = 0;
+        (function wait() {
+          if (window.__clerkLoadFailed) {
+            showMagicLinkFallback();
+          } else if (window.Clerk) {
+            window.Clerk.load()
+              .then(function() {
+                clerkInstance = window.Clerk;
+                if (clerkInstance.user) {
+                  mountClerkProfile();
+                  // Clerk session but no native session → exchange.
+                  if (!session) clerkExchange();
+                } else {
+                  mountClerkSignIn();
+                }
+              })
+              .catch(showMagicLinkFallback);
+          } else if (++tries < 100) {
+            setTimeout(wait, 100);
+          } else {
+            showMagicLinkFallback();
+          }
+        })();
+      }
+
       function showLogin() {
         loginSection.style.display = 'block';
         dashSection.style.display = 'none';
         errorSection.style.display = 'none';
+        mountClerkSignIn();
       }
 
       var currentUser = null;
@@ -168,6 +266,7 @@
         loginSection.style.display = 'none';
         dashSection.style.display = 'block';
         errorSection.style.display = 'none';
+        mountClerkProfile();
         document.getElementById('account-email').textContent = user.email;
         document.getElementById('account-plan').textContent = user.plan === 'premium' ? 'Premium' : 'Free';
         updateNewsletterUI(user.subscribedToNewsletter !== false);
@@ -222,6 +321,11 @@
       } else {
         showLogin();
       }
+
+      // Boot Clerk in parallel with the session check — whichever side has a
+      // valid identity wins; a Clerk user with no native session triggers the
+      // exchange above.
+      clerkBoot();
 
       // Login form submit
       form.addEventListener('submit', function(e) {
@@ -299,7 +403,7 @@
         .finally(function() { manageSubBtn.disabled = false; });
       });
 
-      // Logout
+      // Logout — both sessions must die: the native token AND Clerk's.
       logoutBtn.addEventListener('click', function() {
         if (session) {
           fetch(WORKER + '/auth/logout', {
@@ -309,7 +413,12 @@
         }
         localStorage.removeItem('gittimes-session');
         session = null;
-        showLogin();
+        if (clerkInstance && clerkInstance.user) {
+          // Reload after Clerk sign-out so the sign-in component remounts clean.
+          clerkInstance.signOut().catch(function() {}).then(function() { location.reload(); });
+        } else {
+          showLogin();
+        }
       });
 
       // Delete Account
@@ -327,6 +436,11 @@
             localStorage.removeItem('gittimes-session');
             localStorage.removeItem('gittimes-chat-session');
             session = null;
+            // The worker already deleted the Clerk user; clear the local Clerk
+            // session so the page doesn't try to re-exchange a dead identity.
+            if (clerkInstance && clerkInstance.user) {
+              clerkInstance.signOut().catch(function() {});
+            }
             showLogin();
             status.textContent = 'Your account has been deleted.';
             status.className = 'subscribe-status success';

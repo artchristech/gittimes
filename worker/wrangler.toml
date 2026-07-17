@@ -25,6 +25,16 @@ CHAT_MODEL = "openai/gpt-4o-mini"
 # Owner-alert address for free->premium conversions (sent via Resend, out-of-band
 # to the owner — not a Stripe customer). Unset => conversion alert is OFF.
 ALERT_EMAIL = "mandalazenwave@gmail.com"
+# Clerk (hybrid exchange). Leave CLERK_ISSUER/CLERK_JWKS_URL empty until the
+# Clerk instance exists — /auth/clerk-exchange 404s while unset, so deploys are
+# inert. Production values: issuer https://clerk.gittimes.com and its
+# /.well-known/jwks.json; dev instance uses https://<slug>.clerk.accounts.dev.
+# CLERK_AUTHORIZED_PARTIES (optional, comma-separated) defaults to ALLOWED_ORIGIN.
+CLERK_ISSUER = ""
+CLERK_JWKS_URL = ""
+# Legacy magic-link sign-in. Kept ON as a fallback for one release after Clerk
+# lands; flip to "false" to retire, then delete the route + Resend template.
+MAGIC_LINK_ENABLED = "true"
 
 # Secrets (set via `wrangler secret put`):
 # - STRIPE_SECRET_KEY
@@ -35,6 +45,7 @@ ALERT_EMAIL = "mandalazenwave@gmail.com"
 # - RESEND_API_KEY
 # - NEWSLETTER_SECRET
 # - ADMIN_TOKEN
+# - CLERK_SECRET_KEY  (optional — only used to delete the Clerk user on account deletion)
 
 [[kv_namespaces]]
 binding = "SUBSCRIBERS"

@@ -66,6 +66,9 @@ jobs:
           SITE_BASE_URL: https://gittimes.com
           BASE_PATH: ""
           CHAT_WORKER_URL: ${{ secrets.CHAT_WORKER_URL }}
+          # Clerk sign-in on /account/ — page falls back to magic-link until both are set.
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_FRONTEND_API: ${{ secrets.CLERK_FRONTEND_API }}
           NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
           # A manual skip_newsletter run regenerates + redeploys WITHOUT re-sending
           # the newsletter (the worker /newsletter/send has no per-date dedup, so a

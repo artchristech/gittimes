@@ -11,6 +11,30 @@ Debt mood: clean — 18 grade items still resolved, no new ones opened by today'
 
 ## Entries
 
+### 2026-07-17 — Clerk sign-in via hybrid exchange (code complete; ops gate remains)
+**Did:** Professional auth without touching what works. Clerk owns sign-in + profile UI on
+`/account/` only; a new `POST /auth/clerk-exchange` verifies Clerk's session JWT — manual
+JWKS fetch + WebCrypto RS256, zero deps, because the worker is zero-build and the test
+loader `_compile`s it as CJS — then mints the SAME 64-hex KV session token the magic-link
+flow mints. Chat, checkout, webhook, transcripts: all unchanged; existing users keep plan +
+billing (KV keyed by email). Claims come from a required Clerk JWT template `gittimes`
+(default session JWTs carry no email); `iss`/`azp`/`exp` validated, disposable-email guard +
+IP rate-limit for parity, `email_verified:false` refused. Account page mounts Clerk SignIn/
+UserProfile with CSP extended (clerk host + Turnstile in script/connect-src, NEW frame-src +
+worker-src directives) ONLY when `CLERK_PUBLISHABLE_KEY`+`CLERK_FRONTEND_API` are baked in;
+otherwise it renders today's magic-link page byte-for-byte-equivalent — and if clerk-js
+fails to load at runtime (script onerror → immediate, 10s poll as backstop) the form comes
+back. Magic link stays flag-gated ON (`MAGIC_LINK_ENABLED`) for one release. Delete-account
+now also deletes the Clerk user (needs `CLERK_SECRET_KEY`, never blocks the KV wipe).
+15 new worker tests sign real RS256 JWTs against a mocked JWKS; 3 account-render tests
+cover both CSP modes. 706 tests green, lint clean; both page variants verified in-browser.
+**Ops gate (owner, sequenced):** create Clerk app (dev first) with GitHub/Google/email-link/
+password (enforce verify-at-signup); add JWT template `gittimes` (email/name/avatar claims);
+prod custom domain CNAME `clerk.gittimes.com` (grey-cloud); set repo secrets
+`CLERK_PUBLISHABLE_KEY`+`CLERK_FRONTEND_API` and worker vars `CLERK_ISSUER`+`CLERK_JWKS_URL`
+(+`CLERK_SECRET_KEY` secret); deploy worker; manual edition publish. Until then everything
+ships inert: exchange 404s, page renders legacy form.
+
 ### 2026-07-17 — talk-to-the-archive: search→chat bridge, story chips, reader-visible continuity
 **Did:** Three product moves from a grounded critique. (1) Search now bridges into the AI Desk:
 when a query returns <3 clippings (and chat is on), a dashed coupon-styled "Ask the AI Desk"

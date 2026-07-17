@@ -1667,3 +1667,194 @@ describe("Saved answers", () => {
     assert.equal(data.totalUsers, 1, "saved: key not counted as a user");
   });
 });
+
+// --- Clerk hybrid exchange ---
+// Real RS256 keypairs generated in-test; the JWKS endpoint is served through a
+// scoped fetch mock. The worker's JWKS cache is module-scoped with a 1h TTL, so
+// all tests share ONE issuer/JWKS URL and one primary keypair; the rotation
+// test uses a second key that only appears in the JWKS on refetch.
+describe("POST /auth/clerk-exchange", () => {
+  const ISSUER = "https://clerk.test";
+  const JWKS_URL = "https://clerk.test/.well-known/jwks.json";
+  let keyA, keyB, jwkA, jwkB;
+  let env;
+  let origFetch;
+  let jwksKeys; // what the mocked JWKS endpoint currently serves
+  let jwksFetches;
+
+  function b64url(bytes) {
+    return Buffer.from(bytes).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  async function makeKey(kid) {
+    const pair = await crypto.subtle.generateKey(
+      { name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
+      true,
+      ["sign", "verify"],
+    );
+    const jwk = await crypto.subtle.exportKey("jwk", pair.publicKey);
+    return { pair, jwk: { ...jwk, kid, alg: "RS256", use: "sig" } };
+  }
+
+  async function signJwt(privateKey, kid, claims) {
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+      iss: ISSUER,
+      sub: "user_clerk_1",
+      azp: "https://gittimes.com",
+      iat: now,
+      exp: now + 300,
+      email: "clerk@test.com",
+      ...claims,
+    };
+    const head = b64url(Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT", kid })));
+    const body = b64url(Buffer.from(JSON.stringify(payload)));
+    const sig = await crypto.subtle.sign(
+      "RSASSA-PKCS1-v1_5",
+      privateKey,
+      new TextEncoder().encode(`${head}.${body}`),
+    );
+    return `${head}.${body}.${b64url(new Uint8Array(sig))}`;
+  }
+
+  beforeEach(async () => {
+    env = createMockEnv();
+    env.CLERK_ISSUER = ISSUER;
+    env.CLERK_JWKS_URL = JWKS_URL;
+    if (!keyA) {
+      keyA = await makeKey("kid-a");
+      keyB = await makeKey("kid-b");
+      jwkA = keyA.jwk;
+      jwkB = keyB.jwk;
+    }
+    jwksKeys = [jwkA];
+    jwksFetches = 0;
+    origFetch = globalThis.fetch;
+    globalThis.fetch = (url) => {
+      if (String(url) === JWKS_URL) {
+        jwksFetches++;
+        return Promise.resolve(new Response(JSON.stringify({ keys: jwksKeys }), { status: 200 }));
+      }
+      return Promise.resolve(new Response("unmocked: " + url, { status: 500 }));
+    };
+  });
+
+  afterEach(() => {
+    globalThis.fetch = origFetch;
+  });
+
+  it("404s when CLERK_JWKS_URL is unset (feature off)", async () => {
+    delete env.CLERK_JWKS_URL;
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: "x" } }), env);
+    assert.equal(res.status, 404);
+  });
+
+  it("exchanges a valid Clerk JWT for a native 64-hex session and upserts the user", async () => {
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { name: "Clerk User", avatar: "https://img.clerk.com/x.png" });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.ok, true);
+    assert.match(data.token, /^[0-9a-f]{64}$/);
+
+    const sess = await env.SESSIONS.get(data.token, "json");
+    assert.equal(sess.email, "clerk@test.com");
+
+    const user = await env.USERS.get("clerk@test.com", "json");
+    assert.equal(user.plan, "free");
+    assert.equal(user.displayName, "Clerk User");
+    assert.equal(user.avatarUrl, "https://img.clerk.com/x.png");
+    assert.equal(user.clerkUserId, "user_clerk_1");
+    assert.equal(user.subscribedToNewsletter, true);
+
+    const sub = await env.SUBSCRIBERS.get("clerk@test.com", "json");
+    assert.equal(sub.source, "clerk");
+
+    // Minted token works against a session-gated endpoint.
+    const me = await worker.fetch(req("GET", "/auth/me", { headers: { Authorization: "Bearer " + data.token } }), env);
+    assert.equal(me.status, 200);
+    const meData = await me.json();
+    assert.equal(meData.user.displayName, "Clerk User");
+    assert.equal(meData.user.avatarUrl, "https://img.clerk.com/x.png");
+  });
+
+  it("preserves an existing premium user's plan and Stripe fields", async () => {
+    await env.USERS.put("clerk@test.com", JSON.stringify({
+      email: "clerk@test.com",
+      createdAt: "2026-01-01T00:00:00Z",
+      plan: "premium",
+      stripeCustomerId: "cus_9",
+      stripeSubscriptionId: "sub_9",
+      subscribedToNewsletter: false,
+    }));
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", {});
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 200);
+    const user = await env.USERS.get("clerk@test.com", "json");
+    assert.equal(user.plan, "premium");
+    assert.equal(user.stripeCustomerId, "cus_9");
+    assert.equal(user.stripeSubscriptionId, "sub_9");
+    assert.equal(user.subscribedToNewsletter, false, "does not resubscribe an opted-out user");
+    assert.equal(user.clerkUserId, "user_clerk_1");
+  });
+
+  it("rejects a JWT signed by the wrong key", async () => {
+    // keyB's private key, but claiming keyA's kid → signature check fails.
+    const jwt = await signJwt(keyB.pair.privateKey, "kid-a", {});
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 401);
+  });
+
+  it("rejects an expired JWT", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { exp: now - 3600, iat: now - 7200 });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 401);
+  });
+
+  it("rejects a wrong issuer", async () => {
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { iss: "https://evil.example" });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 401);
+  });
+
+  it("rejects an unauthorized azp", async () => {
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { azp: "https://evil.example" });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 401);
+  });
+
+  it("400s with a template hint when the email claim is missing", async () => {
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { email: undefined });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 400);
+    const data = await res.json();
+    assert.match(data.error, /JWT template/);
+  });
+
+  it("403s when the email is explicitly unverified", async () => {
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { email_verified: false });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 403);
+  });
+
+  it("rejects disposable emails", async () => {
+    const jwt = await signJwt(keyA.pair.privateKey, "kid-a", { email: "x@mailinator.com" });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 400);
+  });
+
+  it("refetches the JWKS once on an unknown kid (key rotation)", async () => {
+    jwksKeys = [jwkA, jwkB]; // rotation already visible at the endpoint
+    const jwt = await signJwt(keyB.pair.privateKey, "kid-b", { email: "rotated@test.com" });
+    const res = await worker.fetch(req("POST", "/auth/clerk-exchange", { body: { token: jwt } }), env);
+    assert.equal(res.status, 200);
+    assert.ok(jwksFetches >= 1, "refetched the JWKS to find the new kid");
+  });
+
+  it("magic-link route disappears when MAGIC_LINK_ENABLED=false", async () => {
+    env.MAGIC_LINK_ENABLED = "false";
+    const res = await worker.fetch(req("POST", "/auth/send-magic-link", { body: { email: "a@b.com" } }), env);
+    assert.equal(res.status, 404);
+  });
+});

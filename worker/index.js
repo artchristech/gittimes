@@ -679,6 +679,93 @@ async function verifyStripeSignature(payload, sigHeader, secret) {
   return result === 0;
 }
 
+// --- Clerk (hybrid exchange) ---
+// Clerk owns sign-in + profile UI on /account/ only. The worker verifies
+// Clerk's session JWT (a custom JWT template named "gittimes" must add
+// email/name/avatar claims — the default session token has no email) and
+// mints the same 64-hex KV session token the magic-link flow mints, so
+// everything downstream (chat, checkout, Stripe webhook) is unchanged.
+
+let _clerkJwksCache = null; // { url, keys, fetchedAt } — per-isolate, ~1h TTL
+
+async function getClerkJwks(env, forceRefresh) {
+  const jwksUrl = env.CLERK_JWKS_URL;
+  const now = Date.now();
+  if (
+    !forceRefresh &&
+    _clerkJwksCache &&
+    _clerkJwksCache.url === jwksUrl &&
+    now - _clerkJwksCache.fetchedAt < 60 * 60 * 1000
+  ) {
+    return _clerkJwksCache.keys;
+  }
+  const res = await fetch(jwksUrl);
+  if (!res.ok) throw new Error(`Clerk JWKS fetch failed (${res.status})`);
+  const data = await res.json();
+  _clerkJwksCache = { url: jwksUrl, keys: data.keys || [], fetchedAt: now };
+  return _clerkJwksCache.keys;
+}
+
+function b64urlDecode(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  const bin = atob(s);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+async function verifyClerkJwt(token, env) {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const decoder = new TextDecoder();
+    const header = JSON.parse(decoder.decode(b64urlDecode(parts[0])));
+    const payload = JSON.parse(decoder.decode(b64urlDecode(parts[1])));
+    if (header.alg !== "RS256") return null;
+
+    let keys = await getClerkJwks(env);
+    let jwk = keys.find((k) => k.kid === header.kid);
+    if (!jwk) {
+      // Unknown kid — refetch once to pick up key rotation before failing.
+      keys = await getClerkJwks(env, true);
+      jwk = keys.find((k) => k.kid === header.kid);
+      if (!jwk) return null;
+    }
+
+    const key = await crypto.subtle.importKey(
+      "jwk",
+      jwk,
+      { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+      false,
+      ["verify"],
+    );
+    const valid = await crypto.subtle.verify(
+      "RSASSA-PKCS1-v1_5",
+      key,
+      b64urlDecode(parts[2]),
+      new TextEncoder().encode(`${parts[0]}.${parts[1]}`),
+    );
+    if (!valid) return null;
+
+    const nowSec = Date.now() / 1000;
+    const skew = 60;
+    if (typeof payload.exp !== "number" || nowSec > payload.exp + skew) return null;
+    if (typeof payload.nbf === "number" && nowSec < payload.nbf - skew) return null;
+    if (!env.CLERK_ISSUER || payload.iss !== env.CLERK_ISSUER) return null;
+    if (payload.azp) {
+      const parties = (env.CLERK_AUTHORIZED_PARTIES || env.ALLOWED_ORIGIN || "https://gittimes.com")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!parties.includes(payload.azp)) return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 const handler = {
   async fetch(request, env) {
     const _origin = request.headers.get("Origin") || "";
@@ -697,8 +784,9 @@ const handler = {
 
     // --- Auth endpoints ---
 
-    // POST /auth/send-magic-link
-    if (url.pathname === "/auth/send-magic-link" && request.method === "POST") {
+    // POST /auth/send-magic-link — legacy homegrown flow, flag-gated while
+    // Clerk bakes in (flip MAGIC_LINK_ENABLED="false" to retire, then delete).
+    if (url.pathname === "/auth/send-magic-link" && request.method === "POST" && env.MAGIC_LINK_ENABLED !== "false") {
       let body;
       try {
         body = await request.json();
@@ -826,6 +914,121 @@ const handler = {
       return Response.redirect(`${allowed}/account/?token=${sessionToken}`, 302);
     }
 
+    // POST /auth/clerk-exchange — trade a verified Clerk session JWT for a
+    // native GitTimes session token. Inert (404) until CLERK_JWKS_URL is set,
+    // so deploys are safe before the Clerk instance exists.
+    if (url.pathname === "/auth/clerk-exchange" && request.method === "POST") {
+      if (!env.CLERK_JWKS_URL) {
+        return new Response(JSON.stringify({ ok: false, error: "Not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Cheap DoS guard: signature verification is CPU work.
+      const clerkIp = request.headers.get("CF-Connecting-IP") || "unknown";
+      const clerkIpAllowed = await checkRateLimit(env.MAGIC_LINKS, `ratelimit:clerk:${clerkIp}`, 20, 900);
+      if (!clerkIpAllowed) {
+        return new Response(JSON.stringify({ ok: false, error: "Too many requests. Please try again later." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ ok: false, error: "Invalid JSON" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const clerkJwt = (body.token || "").toString();
+      const payload = clerkJwt ? await verifyClerkJwt(clerkJwt, env) : null;
+      if (!payload) {
+        return new Response(JSON.stringify({ ok: false, error: "Invalid or expired Clerk token." }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const email = (payload.email || "").toString().trim().toLowerCase();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        // Default Clerk session JWTs carry no email — the "gittimes" JWT
+        // template must add it. Surface that loudly rather than 500ing.
+        return new Response(JSON.stringify({ ok: false, error: "Clerk token carries no email claim — check the 'gittimes' JWT template." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (payload.email_verified === false) {
+        return new Response(JSON.stringify({ ok: false, error: "Please verify your email address first." }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (isDisposableEmail(email)) {
+        return new Response(JSON.stringify({ ok: false, error: "Please use a permanent email address." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const displayName = (payload.name || "").toString().slice(0, 120);
+      const avatarUrl =
+        typeof payload.avatar === "string" && /^https:\/\//.test(payload.avatar)
+          ? payload.avatar.slice(0, 500)
+          : "";
+
+      // Upsert user by email — an existing (possibly premium) record keeps its
+      // plan/Stripe fields and just gains the Clerk profile fields.
+      const existingClerkUser = await env.USERS.get(email, "json");
+      if (!existingClerkUser) {
+        const newUser = {
+          email,
+          createdAt: new Date().toISOString(),
+          plan: "free",
+          subscribedToNewsletter: true,
+          clerkUserId: payload.sub,
+        };
+        if (displayName) newUser.displayName = displayName;
+        if (avatarUrl) newUser.avatarUrl = avatarUrl;
+        await env.USERS.put(email, JSON.stringify(newUser));
+        await incrementStat(env.USERS, "stats:totalUsers", 1);
+      } else {
+        const updated = { ...existingClerkUser, clerkUserId: payload.sub };
+        if (displayName) updated.displayName = displayName;
+        if (avatarUrl) updated.avatarUrl = avatarUrl;
+        await env.USERS.put(email, JSON.stringify(updated));
+      }
+
+      // Upsert subscriber — Clerk sign-ups join the newsletter like magic-link ones.
+      const existingClerkSub = await env.SUBSCRIBERS.get(email);
+      if (!existingClerkSub) {
+        await env.SUBSCRIBERS.put(email, JSON.stringify({
+          email,
+          subscribedAt: new Date().toISOString(),
+          source: "clerk",
+        }));
+      }
+
+      // Mint the native session exactly like /auth/verify does.
+      const clerkSessionToken = generateToken();
+      const clerkSessionExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      await env.SESSIONS.put(clerkSessionToken, JSON.stringify({
+        email,
+        createdAt: new Date().toISOString(),
+        expiresAt: clerkSessionExpiry,
+      }), { expirationTtl: 30 * 24 * 60 * 60 });
+
+      return new Response(JSON.stringify({ ok: true, token: clerkSessionToken }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // GET /auth/me
     if (url.pathname === "/auth/me" && request.method === "GET") {
       const user = await getSessionUser(request, env);
@@ -843,6 +1046,8 @@ const handler = {
           plan: user.plan,
           subscribedToNewsletter: user.subscribedToNewsletter,
           createdAt: user.createdAt,
+          displayName: user.displayName || null,
+          avatarUrl: user.avatarUrl || null,
           chatUsage: user.chatUsage || null,
           chatLimit: parseInt(env.CHAT_MONTHLY_LIMIT || "1000"),
           freeChatUsage: user.freeChatUsage || null,
@@ -1059,6 +1264,19 @@ const handler = {
           );
         } catch {
           // Don't block deletion if Stripe call fails
+        }
+      }
+
+      // Delete the Clerk user too — otherwise "Delete Account" leaves them one
+      // click from silently recreating it. Never blocks the KV wipe.
+      if (user.clerkUserId && env.CLERK_SECRET_KEY) {
+        try {
+          await fetch(`https://api.clerk.com/v1/users/${encodeURIComponent(user.clerkUserId)}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${env.CLERK_SECRET_KEY}` },
+          });
+        } catch {
+          // Don't block deletion if Clerk call fails
         }
       }
 
