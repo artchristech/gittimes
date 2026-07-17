@@ -23,7 +23,7 @@ whose repo appeared in the last 7 editions carry a "Previously in The Times" lin
 headline + date, linking the prior edition) — `attachPriorCoverage` in xai.js threads the
 coverage map onto article objects; renderHybridArticle emits `{{BASE_PATH}}`-relative links
 (article-page assembly reordered so BASE_PATH resolves after content injection). Verified
-all three in-browser on a scratch page; 695 tests green.
+all three in-browser on a scratch page; 691 tests green.
 **Found along the way:** the chat Worker was already deployed and live on gittimes.com
 (secrets set 2026-06-23) with streaming — the buildlog's "dormant until creds" note is stale.
 
