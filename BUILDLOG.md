@@ -11,6 +11,60 @@ Debt mood: clean — 18 grade items still resolved, no new ones opened by today'
 
 ## Entries
 
+### 2026-07-16 — The fold: archive search as a layer, not a route
+**Did:** Shipped the search-bar transition. A slim dateline bar ("Ask the archive… /") sits
+under the masthead's bottom double rule; on click or `/`, `public/search.js` wraps the whole
+page once into a `.gt-fold` container, freezes it at its exact on-screen box
+(`getBoundingClientRect` → `position:fixed`), and compresses it with a transform while the
+search surface unfolds over it — transforms + opacity only, ~280ms crease easing, edition DOM
+never unloads. Escape / the fold line unfolds back to the exact scroll position (verified to
+the pixel: 1200 → search → 1200). Results render as clippings — kicker/headline/catch/date
+cards with a 22ms stagger — ranked over the same `/data/corpus.json` the AI Desk grounds on
+(lazy-fetched on first open, prefetched on bar hover). Score = per-term title×4 + repo×3 +
+text×1, every term must land; empty query shows the latest editions. Wired the same way as
+chat.js: template script tags (newspaper/article/archive), `publish.js` copies the asset,
+`site/search.js` mirrored. Lint clean, full test suite green, headless-browser QA on the real
+baked front page (desktop + 375px mobile, zero console errors).
+**Felt:** The metaphor did the engineering: once "search is the paper folded shut" was taken
+literally, every hard choice (no route, no unmount, freeze-the-box, symmetric state) fell out
+of it. Reusing the AI Desk corpus meant the whole feature cost zero new data plumbing.
+**Deploy (owner):** commit + push main, then republish (daily cron or
+`gh workflow run "Daily Edition" -f skip_newsletter=true`) — already-published editions keep
+the old HTML until regenerated; root + new editions pick up the bar.
+
+### 2026-07-13 — x402 agent paywall: closed the F3 loophole (facilitator + EIP-3009)
+**Did:** Turned the agent API from "unsafe to monetize" into "one credential away from live."
+Rewrote `src/x402.js` from self-rolled Base RPC verification (`verifyOnChain`: *find any USDC
+Transfer to the receiver, use once, recent*) to the x402 **"exact" scheme over EIP-3009**,
+verified + settled through a hosted **facilitator** (`/verify` → `/settle`). This closes
+Gate 1 (F3) *by construction*: a payment is now a signature over an authorization that pays
+*us* and settles exactly once — there is no inbound transfer to blind-claim anymore. Kept the
+free tier, kept `sim` mode for tests, kept SQLite replay protection (now keyed on the
+authorization `from:nonce`, not a txHash we don't have until after settle). Facilitator is
+pluggable via env (`X402_FACILITATOR_URL` + optional bearer) so the mainnet provider is ops
+config, not code — stays zero-dep (`fetch` only). Discovery doc + API index now advertise the
+scheme + facilitator. Added 10 facilitator tests that stand up an ephemeral loopback
+facilitator and exercise the real verify→settle path (success, replay, wrong-receiver,
+underpay, bad-sig 402, settle-fail 402 without consuming the nonce, transport 502). Wrote
+`docs/agent-api.md` (agent-facing, with an `x402-fetch` snippet) and `deploy/api.env.example`
+(the go-live env). **684 tests green, lint clean.**
+**Settlement decided + wired (same day):** checked how `fillin`/Glyph settle mainnet — they
+use NO facilitator (plain inbound-Transfer monitor + prepaid credits + EIP-191), a different
+architecture, so they didn't hand us one. Chose **Coinbase CDP** (fee-free on Base, sponsors
+gas, canonical, works with off-the-shelf `x402-fetch` agents). Added a pluggable per-request
+**auth-header seam** (`authHeadersFor`: none / static Bearer / CDP-JWT) mirroring the official
+`createAuthHeaders` hook, and `src/x402-cdp.js` — a thin adapter that lazy-`require`s
+`@coinbase/cdp-sdk`'s `generateJwt({apiKeyId,apiKeySecret,requestMethod,requestHost,requestPath})`
+per request (JWT bound to method+host+path, 120s expiry). CDP keys (`CDP_API_KEY_ID/SECRET`)
+auto-target the CDP facilitator URL; the dep loads ONLY in CDP mode so non-CDP stays
+dependency-light; a missing dep throws an actionable "npm install @coinbase/cdp-sdk". +4 auth
+tests (static Bearer reaches the facilitator, no-key sends no auth, CDP detection auto-targets
+the CDP URL, CDP-without-dep throws). **688 tests green, lint clean.**
+**Gate:** now purely credentialed — on the VPS: `npm install @coinbase/cdp-sdk`, set
+`X402_RECEIVER` (dedicated Base wallet) + `CDP_API_KEY_ID`/`CDP_API_KEY_SECRET` in
+`deploy/api.env`, point `api.gittimes.com` DNS at the box, nginx+certbot per `deploy/DEPLOY.md`.
+Gate 2 (rate-limited TLS nginx) + a live $0.01 settle smoke-test still owner-run (needs the key).
+
 ### 2026-06-22 — Worker deploy prep (one-shot human-product activation)
 **Did:** Made the dormant reader product a credentials-only activation. Confirmed the CI is
 already wired (`deploy-worker.yml` auto-deploys on `worker/**` via `CF_API_TOKEN`;

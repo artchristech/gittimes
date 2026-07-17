@@ -373,10 +373,12 @@ async function publish(content, outDir, options = {}) {
   fs.writeFileSync(path.join(docsDir, "index.html"), renderApiDocsPage(basePath));
   fs.writeFileSync(path.join(docsDir, "openapi.json"), JSON.stringify(generateOpenApiSpec(), null, 2));
 
-  // 15. Copy chat.js to outDir for external script loading
-  const chatJsSrc = path.join(__dirname, "..", "public", "chat.js");
-  if (fs.existsSync(chatJsSrc)) {
-    fs.copyFileSync(chatJsSrc, path.join(outDir, "chat.js"));
+  // 15. Copy client assets to outDir for external script loading
+  for (const asset of ["chat.js", "search.js"]) {
+    const assetSrc = path.join(__dirname, "..", "public", asset);
+    if (fs.existsSync(assetSrc)) {
+      fs.copyFileSync(assetSrc, path.join(outDir, asset));
+    }
   }
 
   // 15b. Build + publish the AI Desk retrieval corpus so the chat worker can
