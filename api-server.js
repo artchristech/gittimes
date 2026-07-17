@@ -405,9 +405,11 @@ const server = http.createServer(async (req, res) => {
         description: "Structured feed of what builders are shipping — readable by humans, queryable by agents.",
         payment: {
           protocol: "x402",
+          scheme: "exact",
           enabled: c.enabled,
           price_per_call_usdc: c.priceUsdc,
           network: c.network,
+          facilitator: c.enabled ? c.facilitatorUrl : null,
           discovery: "GET /v1/payment/info",
         },
         free_endpoints: [
