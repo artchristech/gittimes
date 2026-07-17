@@ -11,6 +11,22 @@ Debt mood: clean — 18 grade items still resolved, no new ones opened by today'
 
 ## Entries
 
+### 2026-07-17 — talk-to-the-archive: search→chat bridge, story chips, reader-visible continuity
+**Did:** Three product moves from a grounded critique. (1) Search now bridges into the AI Desk:
+when a query returns <3 clippings (and chat is on), a dashed coupon-styled "Ask the AI Desk"
+card appears; clicking folds search away and hands the query to chat via a new
+`window.__gtChat.ask()` hook — sends immediately when unlocked, waits in the input box when
+paywalled. (2) Focusing a story ("Ask about this") now seeds 3 per-story suggested-question
+chips built client-side from the article's data attributes, killing the cold-start empty box.
+(3) The prior-coverage continuity the LLM prompt already saw is now reader-visible: articles
+whose repo appeared in the last 7 editions carry a "Previously in The Times" line (prior
+headline + date, linking the prior edition) — `attachPriorCoverage` in xai.js threads the
+coverage map onto article objects; renderHybridArticle emits `{{BASE_PATH}}`-relative links
+(article-page assembly reordered so BASE_PATH resolves after content injection). Verified
+all three in-browser on a scratch page; 695 tests green.
+**Found along the way:** the chat Worker was already deployed and live on gittimes.com
+(secrets set 2026-06-23) with streaming — the buildlog's "dormant until creds" note is stale.
+
 ### 2026-07-16 — The fold: archive search as a layer, not a route
 **Did:** Shipped the search-bar transition. A slim dateline bar ("Ask the archive… /") sits
 under the masthead's bottom double rule; on click or `/`, `public/search.js` wraps the whole

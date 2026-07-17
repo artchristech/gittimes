@@ -732,6 +732,44 @@ describe("renderHybridArticle", () => {
     const html = renderHybridArticle({ ...baseArticle, repo: { ...baseArticle.repo, releaseName: "v2.0" } }, { isLead: true });
     assert.ok(html.includes("v2.0"));
   });
+
+  it("renders a Previously in The Times line linking the prior edition", () => {
+    const article = {
+      ...baseArticle,
+      priorCoverage: [
+        { date: "2026-06-12", headline: "Old Coverage Headline" },
+        { date: "2026-06-01", headline: "Even Older" },
+      ],
+    };
+    const html = renderHybridArticle(article);
+    assert.ok(html.includes("hybrid-prior"));
+    assert.ok(html.includes("Previously in The Times"));
+    assert.ok(html.includes('href="{{BASE_PATH}}/editions/2026-06-12/"'), "links most recent prior edition");
+    assert.ok(html.includes("Old Coverage Headline"));
+    assert.ok(!html.includes("Even Older"), "only the most recent prior entry is shown");
+  });
+
+  it("omits the prior line without coverage and escapes headline when present", () => {
+    assert.ok(!renderHybridArticle(baseArticle).includes("hybrid-prior"));
+    const evil = {
+      ...baseArticle,
+      priorCoverage: [{ date: "2026-06-12", headline: '<script>alert(1)</script>' }],
+    };
+    const html = renderHybridArticle(evil);
+    assert.ok(!html.includes("<script>alert(1)"));
+    assert.ok(html.includes("&lt;script&gt;"));
+  });
+
+  it("suppresses the prior line on trend articles", () => {
+    const trend = {
+      ...baseArticle,
+      _isTrend: true,
+      _trendRepos: [],
+      repo: { ...baseArticle.repo, shortName: "trendy" },
+      priorCoverage: [{ date: "2026-06-12", headline: "X" }],
+    };
+    assert.ok(!renderHybridArticle(trend).includes("hybrid-prior"));
+  });
 });
 
 // --------------- section config ---------------

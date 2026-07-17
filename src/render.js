@@ -31,6 +31,16 @@ function formatStars(n) {
   return n.toString();
 }
 
+// "2026-06-12" -> "Jun 12" (same year) or "Jun 12, 2025". UTC so the label
+// matches the edition date regardless of build-machine timezone.
+function formatEditionDate(iso) {
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (isNaN(d)) return iso || "";
+  const opts = { month: "short", day: "numeric", timeZone: "UTC" };
+  if (d.getUTCFullYear() !== new Date().getUTCFullYear()) opts.year = "numeric";
+  return d.toLocaleDateString("en-US", opts);
+}
+
 /**
  * Convert a headline string into a URL-safe slug.
  * @param {string} text
@@ -199,6 +209,16 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
           <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
         </div>`;
 
+  // Continuity line: the paper has memory, so show it. Links to the edition
+  // that last covered this repo. {{BASE_PATH}} is resolved at page-assembly
+  // time (render/renderArticlePage replace it after injecting article HTML).
+  const prior = !isTrend && Array.isArray(article.priorCoverage) && article.priorCoverage.length > 0
+    ? article.priorCoverage[0]
+    : null;
+  const priorHtml = prior
+    ? `<p class="hybrid-prior"><span class="hybrid-prior-label">Previously in The Times</span> <a href="{{BASE_PATH}}/editions/${escapeHtml(prior.date)}/">&ldquo;${escapeHtml(prior.headline || "covered")}&rdquo; &mdash; ${escapeHtml(formatEditionDate(prior.date))}</a></p>`
+    : "";
+
   // Rich data attributes so the chat can scope to this exact story (repo facts the
   // reader can't see in the body). Hidden from view; consumed by chat.js.
   const dataAttrs = [
@@ -216,6 +236,7 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
         <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
         <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
         ${metaHtml}
+        ${priorHtml}
         ${isLead && article.leadRationale ? `<p class="lead-rationale"><span class="lead-rationale-label">Why this leads today</span> ${escapeHtml(article.leadRationale)}</p>` : ""}
         <div class="hybrid-preview">
           ${bodyToHtml(preview)}
@@ -907,9 +928,11 @@ async function assembleArticlePage(article, options = {}) {
     .replace("{{ARTICLE_HEADLINE}}", escapeHtml(article.headline))
     .replace(/\{\{EDITION_DATE\}\}/g, editionDate)
     .replace(/\{\{DATE_STR\}\}/g, dateStr)
-    .replace(/\{\{BASE_PATH\}\}/g, basePath)
     .replace("{{SECTION_LABEL}}", escapeHtml(sectionLabel))
+    // Inject article HTML before resolving {{BASE_PATH}} — the article body
+    // may carry its own {{BASE_PATH}} links (e.g. the prior-coverage line).
     .replace("{{ARTICLE_CONTENT}}", articleContent)
+    .replace(/\{\{BASE_PATH\}\}/g, basePath)
     .replace(/\{\{OG_TITLE\}\}/g, ogTitle)
     .replace(/\{\{OG_DESCRIPTION\}\}/g, ogDescription)
     .replace(/\{\{OG_URL\}\}/g, articleUrl)

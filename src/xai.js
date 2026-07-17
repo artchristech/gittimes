@@ -229,6 +229,17 @@ function parseQuickHits(text, repos) {
 }
 
 /**
+ * Attach the repo's prior-coverage entries (date + headline, newest first) to
+ * the article so the renderer can show readers a "Previously in The Times"
+ * line — the same continuity the LLM prompt already sees.
+ */
+function attachPriorCoverage(article, repo, coverage) {
+  const entries = coverage && repo && repo.name ? coverage.get(repo.name) : null;
+  if (entries && entries.length > 0) article.priorCoverage = entries.slice(0, 3);
+  return article;
+}
+
+/**
  * Generate an article with one parse-level retry.
  * If the first LLM response fails to parse, re-prompt once before giving up.
  */
@@ -236,16 +247,16 @@ async function generateArticleWithRetry(client, model, promptFn, repo, maxTokens
   try {
     const raw = await llmLimit(() => chat(client, model, promptFn(repo, coverage), maxTokens));
     const article = { ...parseArticle(raw, repo), repo };
-    if (!article._isFallback) return article;
+    if (!article._isFallback) return attachPriorCoverage(article, repo, coverage);
 
     // Retry once with a nudge to use the required format
     console.warn(`Retrying article generation for ${repo.name} after parse failure`);
     const retryRaw = await llmLimit(() => chat(client, model, promptFn(repo, coverage), maxTokens));
     const retryArticle = { ...parseArticle(retryRaw, repo), repo };
-    return retryArticle;
+    return attachPriorCoverage(retryArticle, repo, coverage);
   } catch (err) {
     console.warn(`Article generation failed for ${repo.name}: ${err.message}, using fallback`);
-    return { ...parseArticle("", repo), repo };
+    return attachPriorCoverage({ ...parseArticle("", repo), repo }, repo, coverage);
   }
 }
 
@@ -679,7 +690,11 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
 
       const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta, coverage);
       const raw = await llmLimit(() => chat(client, MODEL, breakoutPrompt, 2500));
-      const breakoutArticle = { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo };
+      const breakoutArticle = attachPriorCoverage(
+        { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo },
+        breakoutRepo,
+        coverage
+      );
 
       if (!breakoutArticle._isFallback && result.frontPage && result.frontPage.lead) {
         const breakoutName = breakoutRepo.full_name || breakoutRepo.name;

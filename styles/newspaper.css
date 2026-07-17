@@ -658,6 +658,34 @@ body {
   margin-right: 6px;
 }
 
+/* Continuity line: the paper remembers covering this repo before. */
+.hybrid-prior {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-light);
+  margin: 0 0 12px;
+}
+
+.hybrid-prior-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+
+.hybrid-prior a {
+  color: var(--ink-light);
+  text-decoration-color: var(--rule-light);
+  text-underline-offset: 2px;
+}
+
+.hybrid-prior a:hover {
+  color: var(--accent);
+}
+
 /* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
    the editions read with the same confident, airy typographic rhythm. */
 .section-head {
@@ -3734,6 +3762,26 @@ body.gt-searching .gt-fold {
   color: var(--ink-faint);
   margin-top: auto;
   padding-top: 4px;
+}
+
+/* Bridge card into the AI Desk — a clipping-shaped button, dashed like a
+   coupon to read as an action rather than an archive hit. */
+.gt-ask-desk {
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.gt-ask-desk:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--paper) 92%, var(--accent) 8%);
+}
+
+.gt-ask-desk .gt-clipping-hed {
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 640px) {

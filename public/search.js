@@ -78,6 +78,17 @@
     layer.querySelector(".gt-foldline").addEventListener("click", closeSearch);
     input().addEventListener("input", onType);
 
+    // Bridge into the AI Desk: hand the query to chat once the paper unfolds.
+    layer.addEventListener("click", function (e) {
+      var btn = e.target.closest && e.target.closest(".gt-ask-desk");
+      if (!btn) return;
+      var q = btn.getAttribute("data-q") || "";
+      closeSearch();
+      setTimeout(function () {
+        if (window.__gtChat) window.__gtChat.ask(q);
+      }, FOLD_MS);
+    });
+
     document.addEventListener("keydown", function (e) {
       if (e.defaultPrevented) return;
       if (e.key === "Escape" && state.open) {
@@ -285,6 +296,28 @@
     );
   }
 
+  // When keyword matching comes up empty or thin, the question may still be a
+  // good one — offer to put it to the AI Desk (grounded in this same corpus).
+  function askDeskHtml(q, i) {
+    return (
+      '<button type="button" class="gt-clipping gt-ask-desk" data-q="' +
+      esc(q) +
+      '" style="--gt-i:' +
+      Math.min(i, 12) +
+      '">' +
+      '<span class="gt-clipping-kicker">AI Desk</span>' +
+      '<h3 class="gt-clipping-hed">Ask the AI Desk: &ldquo;' + esc(q) + '&rdquo;</h3>' +
+      '<p class="gt-clipping-catch">Put the question to the desk &mdash; it answers from the same archive, in full sentences.</p>' +
+      "</button>"
+    );
+  }
+
+  function chatAvailable() {
+    return document.body.classList.contains("chat-on");
+  }
+
+  var THIN_RESULTS = 3;
+
   function render(query) {
     if (!state.corpus) {
       setStatus("Opening the archive…");
@@ -293,11 +326,16 @@
     var q = String(query || "").trim();
     var results = q ? search(q) : latestEditions();
     var box = layer.querySelector("#gt-clippings");
+    var offerDesk = q && chatAvailable() && results.length < THIN_RESULTS;
 
     if (!q) {
       setStatus("The latest editions, fresh from the desk — or ask for anything the paper has covered.");
     } else if (results.length === 0) {
-      setStatus("No clippings for “" + q + "” — the paper hasn’t covered it yet.");
+      setStatus(
+        offerDesk
+          ? "No clippings for “" + q + "” — but the AI Desk can take the question."
+          : "No clippings for “" + q + "” — the paper hasn’t covered it yet."
+      );
     } else {
       setStatus(
         results.length + (results.length === 1 ? " clipping" : " clippings") + " from the archive"
@@ -306,6 +344,7 @@
 
     var html = "";
     for (var i = 0; i < results.length; i++) html += clippingHtml(results[i], i);
+    if (offerDesk) html += askDeskHtml(q, results.length);
     box.innerHTML = html;
   }
 
