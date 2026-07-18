@@ -6,6 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'; connect-src 'self' https://gittimes-chat.mandalazenwave.workers.dev">
   <title>The Git Times — Account</title>
   
+  
   <meta property="og:title" content="The Git Times — Account">
   <meta property="og:site_name" content="The Git Times">
 
@@ -668,6 +669,34 @@ body {
   font-size: 11px;
   color: var(--accent);
   margin-right: 6px;
+}
+
+/* Continuity line: the paper remembers covering this repo before. */
+.hybrid-prior {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-light);
+  margin: 0 0 12px;
+}
+
+.hybrid-prior-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+
+.hybrid-prior a {
+  color: var(--ink-light);
+  text-decoration-color: var(--rule-light);
+  text-underline-offset: 2px;
+}
+
+.hybrid-prior a:hover {
+  color: var(--accent);
 }
 
 /* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
@@ -3500,6 +3529,283 @@ body.account {
   display: none;
 }
 
+/* === ARCHIVE SEARCH — THE FOLD ===
+   A slim dateline bar under the masthead; on open the whole edition (wrapped
+   into .gt-fold at runtime by search.js) compresses downward like a paper
+   being folded shut while the search surface unfolds over it. Transforms and
+   opacity only — the edition DOM stays mounted underneath. */
+
+.gt-search-bar {
+  margin: -12px 0 18px; /* tuck up against the masthead's bottom double rule */
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.gt-search-bar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 12px;
+  background: none;
+  border: 0;
+  cursor: text;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.gt-search-bar-btn:hover .gt-search-bar-hint {
+  color: var(--ink-light);
+}
+
+.gt-search-bar-kbd {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border: 1px solid var(--rule-light);
+  border-radius: 3px;
+  color: var(--ink-faint);
+}
+
+/* The paper, folding shut. The frozen box (position/top/left/width) is set
+   inline by search.js; only transform + opacity move. */
+.gt-fold {
+  transform-origin: 50% 0;
+}
+
+body.gt-searching .gt-fold {
+  transform: translateY(-2.5vh) scaleY(0.88);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The search surface, unfolding open from the masthead line. */
+.gt-search-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  overflow-y: auto;
+  background: var(--paper);
+  color: var(--ink);
+  transform-origin: 50% 0;
+  transform: translateY(-1.5vh) scaleY(0.94);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gt-search-layer.gt-search-open {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gt-fold,
+  .gt-search-layer {
+    /* the paper-crease: fast commit, soft landing, one continuous motion */
+    transition:
+      transform 0.28s cubic-bezier(0.6, 0.04, 0.2, 1),
+      opacity 0.24s cubic-bezier(0.6, 0.04, 0.2, 1);
+  }
+}
+
+.gt-foldline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 12px 8px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.gt-foldline-rule {
+  display: block;
+  width: min(520px, 60%);
+  border-top: 3px double var(--rule);
+}
+
+.gt-foldline:hover {
+  color: var(--ink-light);
+}
+
+.gt-foldline kbd {
+  font-size: 9px;
+  padding: 1px 4px;
+  border: 1px solid var(--rule-light);
+  border-radius: 3px;
+}
+
+.gt-search-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 20px 60px;
+}
+
+.gt-search-head {
+  border-top: 1px solid var(--rule-light);
+  border-bottom: 3px double var(--rule);
+  padding: 14px 0;
+  margin-bottom: 14px;
+}
+
+.gt-search-input {
+  display: block;
+  width: 100%;
+  background: none;
+  border: 0;
+  outline: none;
+  font-family: var(--font-headline);
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+}
+
+.gt-search-input::placeholder {
+  color: var(--ink-faint);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.gt-search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.gt-search-status {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-bottom: 22px;
+  min-height: 14px;
+}
+
+/* Results as clippings — small newspaper cards, quick stagger on entry. */
+.gt-clippings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.gt-clipping {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--rule-light);
+  background: color-mix(in srgb, var(--paper) 97%, var(--ink) 3%);
+  text-decoration: none;
+  color: inherit;
+  animation: gt-clip-in 0.22s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--gt-i, 0) * 22ms);
+}
+
+.gt-clipping:hover {
+  border-color: var(--ink-faint);
+  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+}
+
+@keyframes gt-clip-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-clipping {
+    animation: none;
+  }
+}
+
+.gt-clipping-kicker {
+  font-family: var(--font-meta);
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gt-clipping-hed {
+  font-family: var(--font-headline);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.gt-clipping-catch {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-light);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gt-clipping-date {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+/* Bridge card into the AI Desk — a clipping-shaped button, dashed like a
+   coupon to read as an action rather than an archive hit. */
+.gt-ask-desk {
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.gt-ask-desk:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--paper) 92%, var(--accent) 8%);
+}
+
+.gt-ask-desk .gt-clipping-hed {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .gt-clippings {
+    grid-template-columns: 1fr;
+  }
+  .gt-search-bar-kbd {
+    display: none;
+  }
+}
+
   </style>
   <script>
     (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
@@ -3518,7 +3824,10 @@ body.account {
   <!-- Login form (visible by default) -->
   <section class="account-login" id="account-login">
     <h2>Sign In</h2>
-    <p>Enter your email to receive a magic sign-in link.</p>
+    <p id="account-login-intro">Enter your email to receive a magic sign-in link.</p>
+    <!-- Clerk <SignIn/> mounts here when CLERK_PUBLISHABLE_KEY is configured;
+         the magic-link form below is the fallback when it isn't. -->
+    <div id="clerk-signin"></div>
     <form class="subscribe-form" id="magic-link-form">
       <input type="email" name="email" placeholder="you@example.com" required>
       <button type="submit">Send Magic Link</button>
@@ -3529,6 +3838,8 @@ body.account {
   <!-- Dashboard (hidden by default) -->
   <section class="account-dashboard" id="account-dashboard" style="display:none">
     <h2>Your Account</h2>
+    <!-- Clerk <UserProfile/> (name, avatar, connected accounts, security) -->
+    <div id="clerk-profile" style="display:none"></div>
     <div class="account-info">
       <div class="account-row">
         <span class="account-label">Email</span>
@@ -3583,6 +3894,7 @@ body.account {
   <script>
     (function() {
       var WORKER = 'https://gittimes-chat.mandalazenwave.workers.dev';
+      var CLERK_PK = '';
       var loginSection = document.getElementById('account-login');
       var dashSection = document.getElementById('account-dashboard');
       var errorSection = document.getElementById('account-error');
@@ -3639,10 +3951,101 @@ body.account {
 
       var session = localStorage.getItem('gittimes-session');
 
+      // --- Clerk (professional sign-in + profile) ---
+      // When CLERK_PK is baked in, Clerk owns sign-in/profile UI and we trade
+      // its JWT for a native session at /auth/clerk-exchange. When it isn't
+      // (or clerk-js fails to load), the magic-link form below still works.
+      var clerkInstance = null;
+
+      function showMagicLinkFallback() {
+        form.style.display = '';
+        document.getElementById('account-login-intro').textContent = 'Enter your email to receive a magic sign-in link.';
+      }
+
+      function mountClerkSignIn() {
+        if (!clerkInstance || clerkInstance.user) return;
+        var el = document.getElementById('clerk-signin');
+        if (el && !el.dataset.mounted) {
+          el.dataset.mounted = '1';
+          clerkInstance.mountSignIn(el);
+        }
+      }
+
+      function mountClerkProfile() {
+        if (!clerkInstance || !clerkInstance.user) return;
+        var el = document.getElementById('clerk-profile');
+        if (el && !el.dataset.mounted) {
+          el.dataset.mounted = '1';
+          el.style.display = 'block';
+          clerkInstance.mountUserProfile(el);
+        }
+      }
+
+      function clerkExchange() {
+        clerkInstance.session.getToken({ template: 'gittimes' })
+          .then(function(jwt) {
+            if (!jwt) throw new Error('Could not get a Clerk token.');
+            return fetch(WORKER + '/auth/clerk-exchange', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: jwt })
+            });
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.ok || !data.token) throw new Error(data.error || 'Sign-in exchange failed.');
+            localStorage.setItem('gittimes-session', data.token);
+            session = data.token;
+            return fetch(WORKER + '/auth/me', { headers: { 'Authorization': 'Bearer ' + session } })
+              .then(function(r) { return r.json(); });
+          })
+          .then(function(data) {
+            if (data.ok && data.user) showDashboard(data.user);
+          })
+          .catch(function(err) {
+            status.textContent = (err && err.message) || 'Sign-in could not complete. Please try again.';
+            status.className = 'subscribe-status error';
+            // Sign out of Clerk so a broken exchange can't loop.
+            try { clerkInstance.signOut(); } catch (e) { /* ignore */ }
+            showLogin();
+          });
+      }
+
+      function clerkBoot() {
+        if (!CLERK_PK) return;
+        // Clerk mode: hide the magic-link form unless clerk-js fails to load.
+        form.style.display = 'none';
+        document.getElementById('account-login-intro').textContent = 'Sign in or create your account.';
+        var tries = 0;
+        (function wait() {
+          if (window.__clerkLoadFailed) {
+            showMagicLinkFallback();
+          } else if (window.Clerk) {
+            window.Clerk.load()
+              .then(function() {
+                clerkInstance = window.Clerk;
+                if (clerkInstance.user) {
+                  mountClerkProfile();
+                  // Clerk session but no native session → exchange.
+                  if (!session) clerkExchange();
+                } else {
+                  mountClerkSignIn();
+                }
+              })
+              .catch(showMagicLinkFallback);
+          } else if (++tries < 100) {
+            setTimeout(wait, 100);
+          } else {
+            showMagicLinkFallback();
+          }
+        })();
+      }
+
       function showLogin() {
         loginSection.style.display = 'block';
         dashSection.style.display = 'none';
         errorSection.style.display = 'none';
+        mountClerkSignIn();
       }
 
       var currentUser = null;
@@ -3657,6 +4060,7 @@ body.account {
         loginSection.style.display = 'none';
         dashSection.style.display = 'block';
         errorSection.style.display = 'none';
+        mountClerkProfile();
         document.getElementById('account-email').textContent = user.email;
         document.getElementById('account-plan').textContent = user.plan === 'premium' ? 'Premium' : 'Free';
         updateNewsletterUI(user.subscribedToNewsletter !== false);
@@ -3711,6 +4115,11 @@ body.account {
       } else {
         showLogin();
       }
+
+      // Boot Clerk in parallel with the session check — whichever side has a
+      // valid identity wins; a Clerk user with no native session triggers the
+      // exchange above.
+      clerkBoot();
 
       // Login form submit
       form.addEventListener('submit', function(e) {
@@ -3788,7 +4197,7 @@ body.account {
         .finally(function() { manageSubBtn.disabled = false; });
       });
 
-      // Logout
+      // Logout — both sessions must die: the native token AND Clerk's.
       logoutBtn.addEventListener('click', function() {
         if (session) {
           fetch(WORKER + '/auth/logout', {
@@ -3798,7 +4207,12 @@ body.account {
         }
         localStorage.removeItem('gittimes-session');
         session = null;
-        showLogin();
+        if (clerkInstance && clerkInstance.user) {
+          // Reload after Clerk sign-out so the sign-in component remounts clean.
+          clerkInstance.signOut().catch(function() {}).then(function() { location.reload(); });
+        } else {
+          showLogin();
+        }
       });
 
       // Delete Account
@@ -3816,6 +4230,11 @@ body.account {
             localStorage.removeItem('gittimes-session');
             localStorage.removeItem('gittimes-chat-session');
             session = null;
+            // The worker already deleted the Clerk user; clear the local Clerk
+            // session so the page doesn't try to re-exchange a dead identity.
+            if (clerkInstance && clerkInstance.user) {
+              clerkInstance.signOut().catch(function() {});
+            }
             showLogin();
             status.textContent = 'Your account has been deleted.';
             status.className = 'subscribe-status success';

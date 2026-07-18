@@ -336,12 +336,48 @@
     ctxLabel.textContent = 'Asking about: ' + scoped.title;
     ctxBar.style.display = 'flex';
     input.placeholder = 'Ask about this story…';
+    showScopeSuggestions(article);
   }
 
   function clearScope() {
     scoped = null;
     ctxBar.style.display = 'none';
     input.placeholder = 'Ask about an article…';
+    hideScopeSuggestions();
+  }
+
+  // Per-story suggested questions so focusing a story never opens on an empty
+  // box. Built client-side from the article's data attributes; chips reuse
+  // .chat-starter so the existing delegated click handler sends them.
+  var scopeChips = null;
+  function showScopeSuggestions(article) {
+    if (!scopeChips) {
+      scopeChips = document.createElement('div');
+      scopeChips.className = 'chat-starters chat-scope-starters';
+    }
+    var repo = article.dataset.repo || '';
+    var name = repo ? repo.split('/').pop() : 'this project';
+    var questions = [
+      'What’s the catch with ' + name + '?',
+      'Who should actually use ' + name + ', and for what?',
+      article.dataset.sentiment
+        ? 'Why is X sentiment on ' + name + ' ' + article.dataset.sentiment + '?'
+        : 'How does ' + name + ' compare to the alternatives?'
+    ];
+    scopeChips.innerHTML = '';
+    for (var i = 0; i < questions.length; i++) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chat-starter';
+      b.textContent = questions[i];
+      scopeChips.appendChild(b);
+    }
+    msgs.appendChild(scopeChips); // (re)attach at the bottom of the transcript
+    scopeChips.style.display = '';
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  function hideScopeSuggestions() {
+    if (scopeChips) scopeChips.style.display = 'none';
   }
 
   if (ctxClear) ctxClear.addEventListener('click', clearScope);
@@ -697,6 +733,7 @@
     sendBtn.disabled = true;
     var starters = document.getElementById('chat-starters');
     if (starters) starters.style.display = 'none';
+    hideScopeSuggestions();
     addMsg('user', text);
 
     var query = expandSlash(text);
@@ -830,4 +867,17 @@
 
   // Restore any prior conversation from this tab session.
   rehydrateTranscript();
+
+  // Tiny public hook so other surfaces (archive search) can hand a question to
+  // the desk. Opens whole-paper scope; sends only when the input row is live
+  // (i.e. not paywalled) — otherwise the question waits in the box past unlock.
+  window.__gtChat = {
+    ask: function (q) {
+      clearScope();
+      openPanel();
+      if (!q) return;
+      input.value = q;
+      if (inputRow && inputRow.style.display !== 'none') sendMessage();
+    }
+  };
 })();

@@ -672,6 +672,34 @@ body {
   margin-right: 6px;
 }
 
+/* Continuity line: the paper remembers covering this repo before. */
+.hybrid-prior {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-light);
+  margin: 0 0 12px;
+}
+
+.hybrid-prior-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+
+.hybrid-prior a {
+  color: var(--ink-light);
+  text-decoration-color: var(--rule-light);
+  text-underline-offset: 2px;
+}
+
+.hybrid-prior a:hover {
+  color: var(--accent);
+}
+
 /* Shared section header (kicker + title + rule) — mirrors the /markets/ pages so
    the editions read with the same confident, airy typographic rhythm. */
 .section-head {
@@ -3500,6 +3528,283 @@ body.account {
 
 [data-design="whitepaper"] .scroll-progress {
   display: none;
+}
+
+/* === ARCHIVE SEARCH — THE FOLD ===
+   A slim dateline bar under the masthead; on open the whole edition (wrapped
+   into .gt-fold at runtime by search.js) compresses downward like a paper
+   being folded shut while the search surface unfolds over it. Transforms and
+   opacity only — the edition DOM stays mounted underneath. */
+
+.gt-search-bar {
+  margin: -12px 0 18px; /* tuck up against the masthead's bottom double rule */
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.gt-search-bar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 12px;
+  background: none;
+  border: 0;
+  cursor: text;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.gt-search-bar-btn:hover .gt-search-bar-hint {
+  color: var(--ink-light);
+}
+
+.gt-search-bar-kbd {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border: 1px solid var(--rule-light);
+  border-radius: 3px;
+  color: var(--ink-faint);
+}
+
+/* The paper, folding shut. The frozen box (position/top/left/width) is set
+   inline by search.js; only transform + opacity move. */
+.gt-fold {
+  transform-origin: 50% 0;
+}
+
+body.gt-searching .gt-fold {
+  transform: translateY(-2.5vh) scaleY(0.88);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The search surface, unfolding open from the masthead line. */
+.gt-search-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  overflow-y: auto;
+  background: var(--paper);
+  color: var(--ink);
+  transform-origin: 50% 0;
+  transform: translateY(-1.5vh) scaleY(0.94);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gt-search-layer.gt-search-open {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gt-fold,
+  .gt-search-layer {
+    /* the paper-crease: fast commit, soft landing, one continuous motion */
+    transition:
+      transform 0.28s cubic-bezier(0.6, 0.04, 0.2, 1),
+      opacity 0.24s cubic-bezier(0.6, 0.04, 0.2, 1);
+  }
+}
+
+.gt-foldline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 12px 8px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.gt-foldline-rule {
+  display: block;
+  width: min(520px, 60%);
+  border-top: 3px double var(--rule);
+}
+
+.gt-foldline:hover {
+  color: var(--ink-light);
+}
+
+.gt-foldline kbd {
+  font-size: 9px;
+  padding: 1px 4px;
+  border: 1px solid var(--rule-light);
+  border-radius: 3px;
+}
+
+.gt-search-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 20px 60px;
+}
+
+.gt-search-head {
+  border-top: 1px solid var(--rule-light);
+  border-bottom: 3px double var(--rule);
+  padding: 14px 0;
+  margin-bottom: 14px;
+}
+
+.gt-search-input {
+  display: block;
+  width: 100%;
+  background: none;
+  border: 0;
+  outline: none;
+  font-family: var(--font-headline);
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+}
+
+.gt-search-input::placeholder {
+  color: var(--ink-faint);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.gt-search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.gt-search-status {
+  font-family: var(--font-meta);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-bottom: 22px;
+  min-height: 14px;
+}
+
+/* Results as clippings — small newspaper cards, quick stagger on entry. */
+.gt-clippings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.gt-clipping {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--rule-light);
+  background: color-mix(in srgb, var(--paper) 97%, var(--ink) 3%);
+  text-decoration: none;
+  color: inherit;
+  animation: gt-clip-in 0.22s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--gt-i, 0) * 22ms);
+}
+
+.gt-clipping:hover {
+  border-color: var(--ink-faint);
+  background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+}
+
+@keyframes gt-clip-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-clipping {
+    animation: none;
+  }
+}
+
+.gt-clipping-kicker {
+  font-family: var(--font-meta);
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gt-clipping-hed {
+  font-family: var(--font-headline);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.gt-clipping-catch {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-light);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gt-clipping-date {
+  font-family: var(--font-meta);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+/* Bridge card into the AI Desk — a clipping-shaped button, dashed like a
+   coupon to read as an action rather than an archive hit. */
+.gt-ask-desk {
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.gt-ask-desk:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--paper) 92%, var(--accent) 8%);
+}
+
+.gt-ask-desk .gt-clipping-hed {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .gt-clippings {
+    grid-template-columns: 1fr;
+  }
+  .gt-search-bar-kbd {
+    display: none;
+  }
 }
 
 
