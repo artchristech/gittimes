@@ -479,16 +479,17 @@
           return;
         }
         var io = new IntersectionObserver(function(entries) {
+          // Stagger within the batch entering together, capped so elements
+          // deep in a section never inherit a long invisible wait.
+          var batch = 0;
           entries.forEach(function(e) {
             if (!e.isIntersecting) return;
             var el = e.target;
-            var sibs = [].slice.call(el.parentNode.querySelectorAll('[data-reveal]'));
-            var idx = sibs.indexOf(el);
-            el.style.transitionDelay = (Math.max(idx, 0) * 70) + 'ms';
+            el.style.transitionDelay = (Math.min(batch++, 4) * 60) + 'ms';
             el.classList.add('in');
             io.unobserve(el);
           });
-        }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+        }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });
         els.forEach(function(el) { io.observe(el); });
       }
       armReveals(document);
