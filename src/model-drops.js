@@ -132,14 +132,22 @@ async function fetchModelDrops(options = {}) {
     return [];
   }
 
-  // Two lanes, merged: `likes7d` = what got traction this week; `createdAt` =
+  // Three lanes, merged: `likes7d` = what got traction this week; `createdAt` =
   // what JUST dropped (catches a fresh lab release before its likes accumulate —
   // selectModelDrops keeps only trusted-org rows from this noisy newest-first
-  // list). full=true carries createdAt/likes/downloads.
+  // list); one `author=<org>` query per trusted lab, because the global newest-100
+  // list turns over in minutes on HF — a trusted drop from even a few hours before
+  // publish can miss BOTH global lanes and never be considered. The per-org lane
+  // guarantees every trusted lab's latest repos enter the pool on day one.
+  // full=true carries createdAt/likes/downloads.
   const base = "https://huggingface.co/api/models";
   const urls = [
     `${base}?sort=likes7d&direction=-1&limit=80&full=true&config=false`,
     `${base}?sort=createdAt&direction=-1&limit=100&full=true&config=false`,
+    ...[...TRUSTED_ORGS].map(
+      (org) =>
+        `${base}?author=${encodeURIComponent(org)}&sort=createdAt&direction=-1&limit=4&full=true&config=false`
+    ),
   ];
 
   const AbortCtor = globalThis.AbortController;
@@ -161,8 +169,8 @@ async function fetchModelDrops(options = {}) {
     }
   };
 
-  const [hot, fresh] = await Promise.all(urls.map(get));
-  const drops = selectModelDrops([...hot, ...fresh], { limit, windowDays, minLikes, nowMs });
+  const pages = await Promise.all(urls.map(get));
+  const drops = selectModelDrops(pages.flat(), { limit, windowDays, minLikes, nowMs });
   console.log(`Model Drops: ${drops.length} recent model release(s) from Hugging Face`);
   return drops;
 }

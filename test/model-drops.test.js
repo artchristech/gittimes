@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { selectModelDrops } = require("../src/model-drops");
+const { selectModelDrops, fetchModelDrops, TRUSTED_ORGS } = require("../src/model-drops");
 
 const NOW = Date.parse("2026-07-01T00:00:00Z");
 const iso = (d) => new Date(NOW - d * 86400000).toISOString();
@@ -109,5 +109,73 @@ describe("selectModelDrops", () => {
   it("respects limit", () => {
     const many = Array.from({ length: 10 }, (_, i) => M(`acme/m${i}`, 100 + i, 1));
     assert.equal(selectModelDrops(many, { nowMs: NOW, limit: 3 }).length, 3);
+  });
+});
+
+describe("fetchModelDrops trusted-org lane", () => {
+  // Mock HF: route by URL. `byUrl` maps a substring → rows; unmatched URLs get [].
+  const mockFetch = (byUrl) => async (url) => ({
+    ok: true,
+    json: async () => {
+      for (const [needle, rows] of Object.entries(byUrl)) {
+        if (url.includes(needle)) return rows;
+      }
+      return [];
+    },
+  });
+
+  it("queries a dedicated author lane for every trusted org", async () => {
+    const seen = [];
+    await fetchModelDrops({
+      nowMs: NOW,
+      fetchImpl: async (url) => { seen.push(url); return { ok: true, json: async () => [] }; },
+    });
+    for (const org of TRUSTED_ORGS) {
+      assert.ok(
+        seen.some((u) => u.includes(`author=${encodeURIComponent(org)}`) && u.includes("sort=createdAt")),
+        `missing author lane for ${org}`
+      );
+    }
+  });
+
+  it("surfaces a day-one trusted drop that missed both global lanes (the Kimi K3 case)", async () => {
+    const drops = await fetchModelDrops({
+      nowMs: NOW,
+      fetchImpl: mockFetch({
+        "sort=likes7d": [M("acme/hot-thing", 500, 3)],
+        "author=moonshotai": [M("moonshotai/Kimi-K3", 12, 0.5)],
+      }),
+    });
+    assert.ok(drops.some((d) => d.id === "moonshotai/Kimi-K3"));
+  });
+
+  it("dedupes a model present in both a global lane and its org lane", async () => {
+    const drops = await fetchModelDrops({
+      nowMs: NOW,
+      fetchImpl: mockFetch({
+        "sort=likes7d": [M("moonshotai/Kimi-K3", 400, 1)],
+        "author=moonshotai": [M("moonshotai/Kimi-K3", 400, 1)],
+      }),
+    });
+    assert.equal(drops.filter((d) => d.id === "moonshotai/Kimi-K3").length, 1);
+  });
+
+  it("survives a failing org lane without losing the other lanes", async () => {
+    const drops = await fetchModelDrops({
+      nowMs: NOW,
+      fetchImpl: async (url) => {
+        if (url.includes("author=")) throw new Error("HF 500");
+        return { ok: true, json: async () => [M("acme/fresh-hit", 300, 2)] };
+      },
+    });
+    assert.deepEqual(drops.map((d) => d.id), ["acme/fresh-hit"]);
+  });
+
+  it("returns [] when every lane fails", async () => {
+    const drops = await fetchModelDrops({
+      nowMs: NOW,
+      fetchImpl: async () => { throw new Error("network down"); },
+    });
+    assert.deepEqual(drops, []);
   });
 });

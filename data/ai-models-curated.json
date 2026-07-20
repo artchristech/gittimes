@@ -6,7 +6,7 @@
     "grok-4.5",
     "deepseek-v4-pro",
     "qwen3.7-max",
-    "kimi-k2.6"
+    "kimi-k3"
   ],
   "_bannerSlots_note": "Auto-latest roster: sync-models.js resolves each slot to the NEWEST FLAGSHIP catalog model whose id starts with `match` and contains none of `exclude`, by `created` timestamp. Excludes must drop sub-flagship tiers so 'newest' means newest flagship (e.g. Claude excludes `sonnet`/`haiku` → resolves the premium `claude-fable-*`, not the newer mid-tier Sonnet). `pin` forces an exact id; optional `expect` substring warns when the resolved id lacks it (catalog lags a known launch). The provider set + excludes are editorial — tune at the desk; the resolution mechanism is what's tested. Resolved slots are written to `bannerModels` (front-page banner ONLY) — they do NOT enter `models`, so the markets table + Cost-of-Intelligence index stay on the curated trackedModels. Each sync also prints a Banner Roster report and writes data/banner-roster.json (the easy check). trackedModels/evals are the curated current frontier — refresh them at the desk to match the auto-resolved banner; bannerKeys is the backward-compat banner fallback.",
   "bannerSlots": [
@@ -29,6 +29,7 @@
     { "key": "grok-4.5", "openrouterId": "x-ai/grok-4.5", "label": "Grok 4.5", "provider": "xAI", "input": 2.00, "output": 6.00 },
     { "key": "deepseek-v4-pro", "openrouterId": "deepseek/deepseek-v4-pro", "label": "DeepSeek V4 Pro", "provider": "DeepSeek", "input": 0.28, "output": 0.87 },
     { "key": "qwen3.7-max", "openrouterId": "qwen/qwen3.7-max", "label": "Qwen3.7 Max", "provider": "Alibaba", "input": 1.20, "output": 3.75 },
+    { "key": "kimi-k3", "openrouterId": "moonshotai/kimi-k3", "label": "Kimi K3", "provider": "Moonshot", "input": 3.00, "output": 15.00 },
     { "key": "kimi-k2.6", "openrouterId": "moonshotai/kimi-k2.6", "label": "Kimi K2.6", "provider": "Moonshot", "input": 0.55, "output": 3.41 },
     { "key": "mistral-large", "openrouterId": "mistralai/mistral-large-2512", "label": "Mistral Large", "provider": "Mistral", "input": 0.50, "output": 1.50 }
   ],

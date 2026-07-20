@@ -11,6 +11,27 @@ Debt mood: clean — 18 grade items still resolved, no new ones opened by today'
 
 ## Entries
 
+### 2026-07-19 — Model Drops: per-trusted-org lane (the Kimi K3 miss)
+**Did:** Investigated why Kimi K3 never hit the Model Drops band. Diagnosis surprised: it
+wasn't the suspected likes7d-page miss — K3 has NO public Hugging Face repo at all
+(moonshotai's newest public model is K2.7-Code, June 11; K3 launched July 16 on OpenRouter
+as an API-first release, weights unpublished). The band is HF-driven, so no query shape
+could have caught it. But the investigation exposed a real fragility: the global
+`sort=createdAt` lane only sees HF's newest ~100 repos site-wide, which turn over in
+minutes — a trusted lab's drop from even a few hours before publish can miss BOTH global
+lanes and never be considered. Fixed by adding a third lane: one
+`author=<org>&sort=createdAt&limit=4` query per TRUSTED_ORGS entry, merged into the pool
+before `selectModelDrops` (which already dedupes by id). Zero-key, each lane fails to `[]`
+independently, band still never fails the edition. Live check confirmed the org lanes
+surface sub-80-like trusted drops (internlm, nvidia) the global pages missed. Also: K3 IS
+on OpenRouter, so added `kimi-k3` to trackedModels ($3.00/$15.00 per M, live prices) and
+pointed the bannerKeys fallback at it — the Kimi banner slot auto-resolves to K3 already;
+no eval scores fabricated (desk curates those, missing keys render as null). 5 new
+fetch-lane tests with mocked HF routing. 711 tests green, lint clean.
+**Felt:** The suspected root cause being wrong is the story. The fix was still right — it
+just fixes the NEXT miss, not this one. When K3's weights do land on HF, day one is now
+guaranteed consideration.
+
 ### 2026-07-17 — Clerk sign-in via hybrid exchange (code complete; ops gate remains)
 **Did:** Professional auth without touching what works. Clerk owns sign-in + profile UI on
 `/account/` only; a new `POST /auth/clerk-exchange` verifies Clerk's session JWT — manual
