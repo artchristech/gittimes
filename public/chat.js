@@ -310,7 +310,11 @@
     if (article.dataset.sentiment) facts.push('X sentiment: ' + article.dataset.sentiment);
     if (article.dataset.url) facts.push(article.dataset.url);
     if (facts.length) parts.push(facts.join(' · '));
-    var full = article.querySelector('.hybrid-full') || article.querySelector('.hybrid-preview');
+    // The preview holds the lede and the full block holds the remainder plus
+    // extras (use cases, source, sentiment) — the AI needs both, not either.
+    var preview = article.querySelector('.hybrid-preview');
+    if (preview) parts.push(preview.textContent.trim());
+    var full = article.querySelector('.hybrid-full');
     if (full) parts.push(full.textContent.trim());
     return parts.join('\n').substring(0, 4000);
   }
