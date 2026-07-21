@@ -189,14 +189,17 @@ function renderTrendMeta(article) {
         </div>`;
 }
 
-function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) {
+function renderHybridArticle(article, { isLead = false, articleUrl = "", expanded = false } = {}) {
   const { headline, subheadline, body, useCases, repo, xSentiment } = article;
   const headlineClass = isLead ? "hybrid-headline hybrid-headline-lead" : "hybrid-headline";
   const isTrend = article._isTrend;
-  const articleClass = isLead ? "hybrid-article hybrid-lead" : isTrend ? "hybrid-article hybrid-trend" : "hybrid-article";
-  const preview = previewBody(body, 3);
-  const rest = remainderBody(body, 3);
-  const hasMore = rest.length > 0;
+  let articleClass = isLead ? "hybrid-article hybrid-lead" : isTrend ? "hybrid-article hybrid-trend" : "hybrid-article";
+  if (expanded) articleClass += " expanded";
+  // Tight ledes: the collapsed card carries only the story's opening — the
+  // lead gets three sentences, everything else two. The rest is behind the fold.
+  const ledeLen = isLead ? 3 : 2;
+  const preview = previewBody(body, ledeLen);
+  const rest = remainderBody(body, ledeLen);
   const slug = slugify(headline);
 
   const shareLink = articleUrl
@@ -231,24 +234,32 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "" } = {}) 
       ? `data-sentiment="${escapeHtml(xSentiment.sentiment)}"` : "",
   ].filter(Boolean).join(" ");
 
+  // Every piece of secondary furniture — prior coverage, lead rationale, use
+  // cases, source line, sentiment — lives behind "Read more". The collapsed
+  // card is pure front page: headline, deck, one byline, the lede.
+  const extras = [
+    priorHtml,
+    isLead && article.leadRationale ? `<p class="lead-rationale"><span class="lead-rationale-label">Why this leads today</span> ${escapeHtml(article.leadRationale)}</p>` : "",
+    renderInsights(useCases),
+    renderSourceLine(article),
+    renderSentimentBadge(xSentiment),
+  ].filter(Boolean).join("\n        ");
+  const fullHtml = `${rest ? bodyToHtml(rest) : ""}${extras ? `\n        ${extras}` : ""}`;
+  const expandable = fullHtml.trim().length > 0;
+
   return `
       <article class="${articleClass}" ${dataAttrs}>
         <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
         <p class="hybrid-subheadline">${escapeHtml(subheadline)}</p>
         ${metaHtml}
-        ${priorHtml}
-        ${isLead && article.leadRationale ? `<p class="lead-rationale"><span class="lead-rationale-label">Why this leads today</span> ${escapeHtml(article.leadRationale)}</p>` : ""}
         <div class="hybrid-preview">
           ${bodyToHtml(preview)}
         </div>
-        ${hasMore ? `<div class="hybrid-full">
-          ${bodyToHtml(rest)}
+        ${expandable ? `<div class="hybrid-full">
+          ${fullHtml}
         </div>` : ""}
-        ${renderInsights(useCases)}
-        ${renderSourceLine(article)}
-        ${renderSentimentBadge(xSentiment)}
         <div class="hybrid-actions">
-          ${hasMore ? `<button class="hybrid-toggle" aria-expanded="false">Read more</button>` : ""}
+          ${expandable ? `<button class="hybrid-toggle" aria-expanded="${expanded ? "true" : "false"}">${expanded ? "Read less" : "Read more"}</button>` : ""}
           <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
         </div>
       </article>`;
@@ -913,7 +924,9 @@ async function assembleArticlePage(article, options = {}) {
   const sectionConfig = SECTIONS[options.sectionId];
   const sectionLabel = sectionConfig ? sectionConfig.label : "";
 
-  const articleContent = renderHybridArticle(article, { isLead: true });
+  // Permalink pages exist to show the whole story — render pre-expanded so
+  // share visitors never land on a collapsed teaser of the article itself.
+  const articleContent = renderHybridArticle(article, { isLead: true, expanded: true });
 
   const ogTitle = escapeHtml(article.headline + " \u2014 The Git Times");
   const ogDescription = escapeHtml(article.subheadline || "");

@@ -714,11 +714,63 @@ describe("renderHybridArticle", () => {
     assert.ok(!html.includes("hybrid-headline-lead"));
   });
 
-  it("omits toggle when body has 3 or fewer sentences", () => {
-    const shortArticle = { ...baseArticle, body: "One. Two. Three." };
+  it("gives leads a 3-sentence lede and secondaries a 2-sentence lede", () => {
+    const splitAt = (html) => html.indexOf("hybrid-full");
+    const leadHtml = renderHybridArticle(baseArticle, { isLead: true });
+    const secHtml = renderHybridArticle(baseArticle);
+    // Lead preview carries sentence 3; secondary pushes it behind the fold.
+    assert.ok(leadHtml.slice(0, splitAt(leadHtml)).includes("Third sentence here"));
+    assert.ok(!secHtml.slice(0, splitAt(secHtml)).includes("Third sentence here"));
+    assert.ok(secHtml.slice(splitAt(secHtml)).includes("Third sentence here"));
+  });
+
+  it("keeps all extras inside the hybrid-full fold, not the collapsed card", () => {
+    const html = renderHybridArticle({
+      ...baseArticle,
+      priorCoverage: [{ date: "2026-06-12", headline: "Old Coverage" }],
+      xSentiment: { sentiment: "positive", postCount: 3, blurb: "Liked" },
+      leadRationale: "It changes the cost math.",
+    }, { isLead: true });
+    const foldStart = html.indexOf("hybrid-full");
+    assert.ok(foldStart > -1);
+    for (const marker of ["article-insights", "article-source", "hybrid-prior", "lead-rationale", "x-sentiment"]) {
+      assert.ok(html.includes(marker), `${marker} should render`);
+      assert.ok(html.indexOf(marker) > foldStart, `${marker} must sit behind the fold`);
+    }
+  });
+
+  it("suppresses lead-rationale for non-lead articles", () => {
+    const html = renderHybridArticle({ ...baseArticle, leadRationale: "Reason" });
+    assert.ok(!html.includes("lead-rationale"));
+  });
+
+  it("renders expanded permalink state with Read less toggle", () => {
+    const html = renderHybridArticle(baseArticle, { isLead: true, expanded: true });
+    assert.ok(html.includes('class="hybrid-article hybrid-lead expanded"'));
+    assert.ok(html.includes('aria-expanded="true"'));
+    assert.ok(html.includes("Read less"));
+  });
+
+  // Extras (use cases, source line, sentiment) live behind "Read more" now, so
+  // a short body still gets a toggle when extras exist — and none when nothing
+  // remains to reveal.
+  it("keeps toggle for short body when extras exist behind the fold", () => {
+    const shortArticle = { ...baseArticle, body: "One. Two." };
     const html = renderHybridArticle(shortArticle);
-    assert.ok(!html.includes("hybrid-toggle"), "Should not show toggle for short body");
-    assert.ok(!html.includes("hybrid-full"), "Should not render full div for short body");
+    assert.ok(html.includes("hybrid-toggle"), "Extras should be expandable");
+    assert.ok(html.includes("hybrid-full"));
+  });
+
+  it("omits toggle when short body has no extras", () => {
+    const bareArticle = {
+      ...baseArticle,
+      body: "One. Two.",
+      useCases: [],
+      repo: { ...baseArticle.repo, url: "#" },
+    };
+    const html = renderHybridArticle(bareArticle);
+    assert.ok(!html.includes("hybrid-toggle"), "Should not show toggle when nothing to reveal");
+    assert.ok(!html.includes("hybrid-full"), "Should not render full div when nothing to reveal");
   });
 
   it("renders repo metadata", () => {
