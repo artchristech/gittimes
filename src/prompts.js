@@ -8,6 +8,14 @@ function sanitizeRepoField(text) {
   return String(text).replace(/\b(HEADLINE|SUBHEADLINE|BODY|USE_CASES|SIMILAR_PROJECTS)\s*:/gi, "$1 -");
 }
 
+// The headline IS the story. Shared across every article prompt so the whole
+// paper reads front-page: active sentences, not labels; tight bodies, no filler.
+const STORY_STYLE_GUIDELINE = `- The headline must BE the story: a complete active-voice sentence with a subject, a verb, and stakes (e.g. "Tiny Rust Runtime Puts Agents on the Edge for Pennies") — never a label, a colon-description ("X: A Framework for Y"), or a question.
+- The subheadline advances the story with the second-most-important fact; it never restates the headline.
+- Write TIGHT. Every sentence must earn its place. No throat-clearing, no restating the headline in the lede, no filler transitions, no "in the world of" scene-setting. Short declarative sentences beat long ones.
+- The first two sentences must carry the whole story — what happened and why a builder cares — because most readers see only those.
+`;
+
 // Forces every article to carry one honest limitation or open question, so the
 // piece reads as reporting rather than a rewritten README. Shared across prompts.
 const HONEST_LIMITATION_GUIDELINE = `- A press release lists only strengths; an article is honest. You MUST surface one genuine limitation, trade-off, maturity gap, or open question — e.g. early version, narrow scope, missing platform, heavy dependency, unproven at scale, or a design choice that won't suit everyone. Base it on the data — the Signals line (open issues, last-commit age), a thin/aging release, or a narrow scope are good grounds; if the data is thin, raise the most important question a builder would ask before adopting. Do not invent flaws and do not let it become marketing ("the only catch is it's too powerful").
@@ -107,7 +115,7 @@ function leadArticlePrompt(repo, coverage) {
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
-  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 300-400 word article about this GitHub project.
+  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a tight 180-250 word article about this GitHub project.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -127,7 +135,7 @@ ${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL
 - Do not lead with, emphasize, or build narratives around star counts or GitHub popularity metrics.
 - Focus on: the problem it solves, how it works technically, what's new or different about it, and who should care.
 - Stars may be mentioned once for context but should never be the headline, lede, or thesis.
-${HONEST_LIMITATION_GUIDELINE}Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need.
+${STORY_STYLE_GUIDELINE}${HONEST_LIMITATION_GUIDELINE}Write in authoritative newspaper style. No hype, no fluff — give builders the signal they need.
 Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
@@ -135,7 +143,7 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling newspaper headline about what this project does or why it matters, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline, 12-20 words]
-BODY: [300-400 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, missing capability, or open question a builder should weigh.]
+BODY: [180-250 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, missing capability, or open question a builder should weigh.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -147,7 +155,7 @@ function secondaryArticlePrompt(repo, coverage) {
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
-  return `You are a technology journalist writing for The Git Times, a broadsheet newspaper for builders. Write a tight 150-200 word article about this GitHub project.
+  return `You are a technology journalist writing for The Git Times, a broadsheet newspaper for builders. Write a tight 90-130 word article about this GitHub project.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -164,7 +172,7 @@ ${readme || "(no readme available)"}
 ${release ? `RELEASE NOTES:\n${release}` : ""}
 ${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL GUIDELINES:
 - Focus on what this project does and why it matters. Do not lead with or emphasize star counts.
-${HONEST_LIMITATION_GUIDELINE}Write in crisp newspaper style. No hype. Concrete details only.
+${STORY_STYLE_GUIDELINE}${HONEST_LIMITATION_GUIDELINE}Write in crisp newspaper style. No hype. Concrete details only.
 Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations — focus on what the project does technically.
 
@@ -172,7 +180,7 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [Newspaper headline about what this project does, 6-10 words]
 SUBHEADLINE: [Clarifying subheadline, 10-16 words]
-BODY: [150-200 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with one sentence beginning **The catch:** naming an honest limitation or open question.]
+BODY: [90-130 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with one sentence beginning **The catch:** naming an honest limitation or open question.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -202,7 +210,7 @@ function breakoutArticlePrompt(repo, delta, coverage) {
   const readme = sanitizeRepoField(repo.readmeExcerpt);
   const release = sanitizeRepoField(repo.releaseNotes);
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
-  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a compelling 400-500 word SPOTLIGHT article about this GitHub project that is gaining significant developer attention right now.
+  return `You are a senior technology journalist writing for The Git Times, a broadsheet newspaper for builders and developers. Write a tight 220-300 word SPOTLIGHT article about this GitHub project that is gaining significant developer attention right now.
 
 PROJECT DATA:
 - Name: ${repo.name}
@@ -223,14 +231,14 @@ ${priorCoverageBlock(repo, coverage)}${editorialFramingDirective(repo)}EDITORIAL
 - Do NOT lead with star counts, growth numbers, or popularity metrics. Those are not the story.
 - The story is the PROJECT — its capabilities, its approach, who it's for, and what it changes.
 - You may mention that it's gaining traction, but as context, not as the headline or lede.
-${HONEST_LIMITATION_GUIDELINE}Do not include a word count anywhere in the output.
+${STORY_STYLE_GUIDELINE}${HONEST_LIMITATION_GUIDELINE}Do not include a word count anywhere in the output.
 Write entirely in English. Do not reference multilingual documentation, language badges, or translations.
 
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling newspaper headline about what this project does or changes, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline about its capabilities or significance, 12-20 words]
-BODY: [400-500 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, or open question.]
+BODY: [220-300 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, or open question.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -245,7 +253,7 @@ function trendArticlePrompt(trend) {
     )
     .join("\n");
 
-  return `You are a senior technology journalist writing for The Git Times. Write a 250-350 word TREND article about an emerging pattern in open source.
+  return `You are a senior technology journalist writing for The Git Times. Write a tight 150-220 word TREND article about an emerging pattern in open source.
 
 TREND THEME: ${trend.theme}
 
@@ -263,7 +271,7 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling headline about the trend pattern, 8-12 words]
 SUBHEADLINE: [A clarifying subheadline, 12-20 words]
-BODY: [250-350 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with a **The catch:** paragraph as instructed above.]
+BODY: [150-220 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with a **The catch:** paragraph as instructed above.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
@@ -277,7 +285,7 @@ function sleeperArticlePrompt(sleeper) {
   const language = repo.language || "Unknown";
   const topics = sanitizeRepoField((repo.topics || []).join(", ") || "none listed");
 
-  return `You are a technology journalist writing for The Git Times "Deep Cuts" section — hidden gems most developers haven't discovered yet. Write a 150-200 word feature.
+  return `You are a technology journalist writing for The Git Times "Deep Cuts" section — hidden gems most developers haven't discovered yet. Write a tight 90-130 word feature.
 
 PROJECT DATA:
 - Name: ${name}
@@ -296,7 +304,7 @@ Output EXACTLY in this format (include the markers):
 
 HEADLINE: [An intriguing headline about what this project does, 6-10 words]
 SUBHEADLINE: [A clarifying subheadline, 10-16 words]
-BODY: [150-200 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names. End with a **The catch:** sentence as instructed above.]
+BODY: [90-130 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names. End with a **The catch:** sentence as instructed above.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
 2. [8-12 word use case]
