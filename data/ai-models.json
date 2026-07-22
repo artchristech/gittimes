@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-07-21T07:32:12.827Z",
+  "syncedAt": "2026-07-22T07:33:21.701Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
     "matched": 13,
     "missed": 0,
-    "catalog": 317,
+    "catalog": 320,
     "bannerSlots": 7
   },
   "models": [
@@ -760,6 +760,12 @@
   },
   "untracked": [
     {
+      "id": "google/gemini-3.6-flash",
+      "name": "Google: Gemini 3.6 Flash",
+      "outputPrice": 7.5,
+      "created": 1784646733
+    },
+    {
       "id": "openai/gpt-5.6-luna-pro",
       "name": "OpenAI: GPT-5.6 Luna Pro",
       "outputPrice": 6,
@@ -812,12 +818,6 @@
       "name": "Google: Nano Banana Pro (Gemini 3 Pro Image)",
       "outputPrice": 12,
       "created": 1781754054
-    },
-    {
-      "id": "x-ai/grok-build-0.1",
-      "name": "xAI: Grok Build 0.1",
-      "outputPrice": 2,
-      "created": 1779298123
     }
   ],
   "catalog": [
@@ -2210,7 +2210,7 @@
     {
       "id": "google/gemini-3-pro-image",
       "name": "Google: Nano Banana Pro (Gemini 3 Pro Image)",
-      "context_length": 65536,
+      "context_length": 131072,
       "input": 2,
       "output": 12,
       "cache_read_price": 0.19999999999999998,
@@ -2274,7 +2274,7 @@
     {
       "id": "google/gemini-3.1-pro-preview-customtools",
       "name": "Google: Gemini 3.1 Pro Preview Custom Tools",
-      "context_length": 1048756,
+      "context_length": 1048576,
       "input": 2,
       "output": 12,
       "cache_read_price": 0.19999999999999998,
@@ -3058,40 +3058,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "~google/gemini-flash-latest",
-      "name": "Google Gemini Flash Latest",
-      "context_length": 1048576,
-      "input": 1.5,
-      "output": 9,
-      "cache_read_price": 0.15,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1777318398,
-      "description": "This model always redirects to the latest model in the Google Gemini Flash family.",
-      "hugging_face_id": null
-    },
-    {
       "id": "openai/o4-mini-deep-research",
       "name": "OpenAI: o4 Mini Deep Research",
       "context_length": 200000,
@@ -3265,6 +3231,40 @@
       "hugging_face_id": null
     },
     {
+      "id": "google/gemini-3.6-flash",
+      "name": "Google: Gemini 3.6 Flash",
+      "context_length": 1048576,
+      "input": 1.5,
+      "output": 7.5,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1784646733,
+      "description": "Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It is designed to produce polished outputs w",
+      "hugging_face_id": null
+    },
+    {
       "id": "mistralai/mistral-medium-3-5",
       "name": "Mistral: Mistral Medium 3.5",
       "context_length": 262144,
@@ -3296,6 +3296,40 @@
       ],
       "created": 1777570439,
       "description": "Mistral Medium 3.5 is a dense 128B instruction-following model from Mistral AI. It supports text and image inputs with text output, and is designed for agentic ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "~google/gemini-flash-latest",
+      "name": "Google Gemini Flash Latest",
+      "context_length": 1048576,
+      "input": 1.5,
+      "output": 7.5,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1777318398,
+      "description": "This model always redirects to the latest model in the Google Gemini Flash family.",
       "hugging_face_id": null
     },
     {
@@ -3667,7 +3701,7 @@
     {
       "id": "anthracite-org/magnum-v4-72b",
       "name": "Magnum v4 72B",
-      "context_length": 32768,
+      "context_length": 16384,
       "input": 3,
       "output": 5,
       "cache_read_price": null,
@@ -3938,7 +3972,7 @@
     {
       "id": "thinkingmachines/inkling",
       "name": "Thinking Machines: Inkling",
-      "context_length": 1048576,
+      "context_length": 524288,
       "input": 1,
       "output": 4.05,
       "cache_read_price": 0.16999999999999998,
@@ -4161,7 +4195,7 @@
     {
       "id": "nvidia/nemotron-3-ultra-550b-a55b",
       "name": "NVIDIA: Nemotron 3 Ultra",
-      "context_length": 1000000,
+      "context_length": 512288,
       "input": 0.6,
       "output": 3.5999999999999996,
       "cache_read_price": 0.19999999999999998,
@@ -4290,7 +4324,7 @@
     {
       "id": "z-ai/glm-5.1",
       "name": "Z.ai: GLM 5.1",
-      "context_length": 202752,
+      "context_length": 204800,
       "input": 0.966,
       "output": 3.036,
       "cache_read_price": 0.1794,
@@ -4359,7 +4393,7 @@
       "input": 0.5,
       "output": 3,
       "cache_read_price": null,
-      "max_completion_tokens": 32768,
+      "max_completion_tokens": 65536,
       "modality": "text+image->text+image",
       "input_modalities": [
         "image",
@@ -4503,45 +4537,6 @@
       "created": 1753449557,
       "description": "Qwen3-235B-A22B-Thinking-2507 is a high-performance, open-weight Mixture-of-Experts (MoE) language model optimized for complex reasoning tasks. It activates 22B",
       "hugging_face_id": "Qwen/Qwen3-235B-A22B-Thinking-2507"
-    },
-    {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.9463999999999999,
-      "output": 2.9743999999999997,
-      "cache_read_price": 0.17576,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "kwaipilot/kat-coder-pro-v2.5",
@@ -4761,6 +4756,79 @@
       "created": 1770829182,
       "description": "GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it de",
       "hugging_face_id": "zai-org/GLM-5"
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.805,
+      "output": 2.53,
+      "cache_read_price": 0.14950000000000002,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
+    },
+    {
+      "id": "google/gemini-3.5-flash-lite",
+      "name": "Google: Gemini 3.5 Flash-Lite",
+      "context_length": 1048576,
+      "input": 0.3,
+      "output": 2.5,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1784646726,
+      "description": "Gemini 3.5 Flash-Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subagents that execute focused tasks within co",
+      "hugging_face_id": null
     },
     {
       "id": "x-ai/grok-4.3",
@@ -5479,7 +5547,7 @@
     {
       "id": "z-ai/glm-4.6",
       "name": "Z.ai: GLM 4.6",
-      "context_length": 202752,
+      "context_length": 204800,
       "input": 0.5,
       "output": 2,
       "cache_read_price": 0.09999999999999999,
@@ -5701,7 +5769,7 @@
     {
       "id": "qwen/qwen3-vl-235b-a22b-instruct",
       "name": "Qwen: Qwen3 VL 235B A22B Instruct",
-      "context_length": 131072,
+      "context_length": 262144,
       "input": 0.21,
       "output": 1.9,
       "cache_read_price": 0.09999999999999999,
@@ -5856,7 +5924,7 @@
     {
       "id": "z-ai/glm-4.7",
       "name": "Z.ai: GLM 4.7",
-      "context_length": 202752,
+      "context_length": 204800,
       "input": 0.39999999999999997,
       "output": 1.75,
       "cache_read_price": 0.08,
@@ -6002,7 +6070,7 @@
     {
       "id": "qwen/qwen3-vl-30b-a3b-thinking",
       "name": "Qwen: Qwen3 VL 30B A3B Thinking",
-      "context_length": 131072,
+      "context_length": 262144,
       "input": 0.13,
       "output": 1.56,
       "cache_read_price": null,
@@ -6036,7 +6104,7 @@
     {
       "id": "qwen/qwen3-30b-a3b-thinking-2507",
       "name": "Qwen: Qwen3 30B A3B Thinking 2507",
-      "context_length": 131072,
+      "context_length": 81920,
       "input": 0.13,
       "output": 1.56,
       "cache_read_price": null,
@@ -6276,7 +6344,7 @@
     {
       "id": "qwen/qwen3-vl-8b-thinking",
       "name": "Qwen: Qwen3 VL 8B Thinking",
-      "context_length": 256000,
+      "context_length": 131072,
       "input": 0.117,
       "output": 1.365,
       "cache_read_price": null,
@@ -6423,7 +6491,7 @@
     {
       "id": "baidu/ernie-4.5-vl-424b-a47b",
       "name": "Baidu: ERNIE 4.5 VL 424B A47B ",
-      "context_length": 131072,
+      "context_length": 123000,
       "input": 0.42,
       "output": 1.25,
       "cache_read_price": null,
@@ -6551,7 +6619,7 @@
     {
       "id": "kwaipilot/kat-coder-pro-v2",
       "name": "Kwaipilot: KAT-Coder-Pro V2",
-      "context_length": 256000,
+      "context_length": 262144,
       "input": 0.3,
       "output": 1.2,
       "cache_read_price": 0.06,
@@ -6725,7 +6793,7 @@
     {
       "id": "stepfun/step-3.7-flash",
       "name": "StepFun: Step 3.7 Flash",
-      "context_length": 256000,
+      "context_length": 262144,
       "input": 0.19999999999999998,
       "output": 1.15,
       "cache_read_price": 0.04,
@@ -6827,6 +6895,41 @@
       "created": 1742824755,
       "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [Deep",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3-0324"
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-instruct",
+      "name": "Qwen: Qwen3 Next 80B A3B Instruct",
+      "context_length": 262144,
+      "input": 0.09999999999999999,
+      "output": 1.1,
+      "cache_read_price": 0.07,
+      "max_completion_tokens": 262144,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1757612213,
+      "description": "Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targe",
+      "hugging_face_id": "Qwen/Qwen3-Next-80B-A3B-Instruct"
     },
     {
       "id": "minimax/minimax-01",
@@ -6998,7 +7101,7 @@
     {
       "id": "deepseek/deepseek-v3.1-terminus",
       "name": "DeepSeek: DeepSeek V3.1 Terminus",
-      "context_length": 131072,
+      "context_length": 163840,
       "input": 0.27,
       "output": 1,
       "cache_read_price": 0.135,
@@ -7033,7 +7136,7 @@
     {
       "id": "qwen/qwen3-coder",
       "name": "Qwen: Qwen3 Coder 480B A35B",
-      "context_length": 1048576,
+      "context_length": 262144,
       "input": 0.3,
       "output": 1,
       "cache_read_price": 0.09999999999999999,
@@ -7068,7 +7171,7 @@
     {
       "id": "qwen/qwen2.5-vl-72b-instruct",
       "name": "Qwen: Qwen2.5 VL 72B Instruct",
-      "context_length": 131072,
+      "context_length": 128000,
       "input": 0.7999999999999999,
       "output": 1,
       "cache_read_price": 0.39999999999999997,
@@ -7127,7 +7230,7 @@
     {
       "id": "qwen/qwen-2.5-coder-32b-instruct",
       "name": "Qwen2.5 Coder 32B Instruct",
-      "context_length": 128000,
+      "context_length": 32768,
       "input": 0.66,
       "output": 1,
       "cache_read_price": null,
@@ -7419,7 +7522,7 @@
     {
       "id": "xiaomi/mimo-v2.5-pro",
       "name": "Xiaomi: MiMo-V2.5-Pro",
-      "context_length": 1048576,
+      "context_length": 1050000,
       "input": 0.435,
       "output": 0.87,
       "cache_read_price": 0.0036,
@@ -7520,7 +7623,7 @@
     {
       "id": "deepseek/deepseek-chat",
       "name": "DeepSeek: DeepSeek V3",
-      "context_length": 131072,
+      "context_length": 163840,
       "input": 0.20020000000000002,
       "output": 0.8000999999999999,
       "cache_read_price": null,
@@ -7691,7 +7794,7 @@
     {
       "id": "deepseek/deepseek-r1-distill-llama-70b",
       "name": "DeepSeek: R1 Distill Llama 70B",
-      "context_length": 128000,
+      "context_length": 8192,
       "input": 0.7999999999999999,
       "output": 0.7999999999999999,
       "cache_read_price": null,
@@ -7751,41 +7854,6 @@
       "created": 1757612284,
       "description": "Qwen3-Next-80B-A3B-Thinking is a reasoning-first chat model in the Qwen3-Next line that outputs structured “thinking” traces by default. It’s designed for hard ",
       "hugging_face_id": "Qwen/Qwen3-Next-80B-A3B-Thinking"
-    },
-    {
-      "id": "qwen/qwen3-next-80b-a3b-instruct",
-      "name": "Qwen: Qwen3 Next 80B A3B Instruct",
-      "context_length": 262144,
-      "input": 0.0975,
-      "output": 0.78,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1757612213,
-      "description": "Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targe",
-      "hugging_face_id": "Qwen/Qwen3-Next-80B-A3B-Instruct"
     },
     {
       "id": "qwen/qwen-plus-2025-07-28",
@@ -8032,7 +8100,7 @@
       "input": 0.44999999999999996,
       "output": 0.65,
       "cache_read_price": null,
-      "max_completion_tokens": 4096,
+      "max_completion_tokens": 2048,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -8128,7 +8196,7 @@
     {
       "id": "microsoft/wizardlm-2-8x22b",
       "name": "WizardLM-2 8x22B",
-      "context_length": 65536,
+      "context_length": 65535,
       "input": 0.62,
       "output": 0.62,
       "cache_read_price": null,
@@ -8701,7 +8769,7 @@
     {
       "id": "qwen/qwen3-vl-8b-instruct",
       "name": "Qwen: Qwen3 VL 8B Instruct",
-      "context_length": 256000,
+      "context_length": 262144,
       "input": 0.117,
       "output": 0.45499999999999996,
       "cache_read_price": null,
@@ -8802,7 +8870,7 @@
     {
       "id": "qwen/qwen3-vl-32b-instruct",
       "name": "Qwen: Qwen3 VL 32B Instruct",
-      "context_length": 262144,
+      "context_length": 131072,
       "input": 0.10400000000000001,
       "output": 0.41600000000000004,
       "cache_read_price": null,
@@ -8925,7 +8993,7 @@
     {
       "id": "z-ai/glm-4.7-flash",
       "name": "Z.ai: GLM 4.7 Flash",
-      "context_length": 200000,
+      "context_length": 202752,
       "input": 0.060500000000000005,
       "output": 0.39999999999999997,
       "cache_read_price": null,
@@ -9186,7 +9254,7 @@
     {
       "id": "qwen/qwen-2.5-72b-instruct",
       "name": "Qwen2.5 72B Instruct",
-      "context_length": 131072,
+      "context_length": 32768,
       "input": 0.36,
       "output": 0.39999999999999997,
       "cache_read_price": null,
@@ -9518,7 +9586,7 @@
     {
       "id": "mistralai/mistral-small-3.2-24b-instruct",
       "name": "Mistral: Mistral Small 3.2 24B",
-      "context_length": 131072,
+      "context_length": 256000,
       "input": 0.09999999999999999,
       "output": 0.3,
       "cache_read_price": 0.01,
@@ -9554,7 +9622,7 @@
     {
       "id": "meta-llama/llama-4-scout",
       "name": "Meta: Llama 4 Scout",
-      "context_length": 10000000,
+      "context_length": 1310720,
       "input": 0.09999999999999999,
       "output": 0.3,
       "cache_read_price": null,
@@ -9588,7 +9656,7 @@
     {
       "id": "google/gemma-3-27b-it",
       "name": "Google: Gemma 3 27B",
-      "context_length": 131072,
+      "context_length": 262144,
       "input": 0.09999999999999999,
       "output": 0.3,
       "cache_read_price": null,
@@ -9624,7 +9692,7 @@
     {
       "id": "xiaomi/mimo-v2.5",
       "name": "Xiaomi: MiMo-V2.5",
-      "context_length": 1048576,
+      "context_length": 1050000,
       "input": 0.14,
       "output": 0.28,
       "cache_read_price": 0.0028,
@@ -9701,7 +9769,7 @@
     {
       "id": "qwen/qwen3-coder-30b-a3b-instruct",
       "name": "Qwen: Qwen3 Coder 30B A3B Instruct",
-      "context_length": 160000,
+      "context_length": 262144,
       "input": 0.07,
       "output": 0.27,
       "cache_read_price": null,
@@ -9765,7 +9833,7 @@
     {
       "id": "qwen/qwen3-14b",
       "name": "Qwen: Qwen3 14B",
-      "context_length": 131702,
+      "context_length": 131072,
       "input": 0.12,
       "output": 0.24,
       "cache_read_price": null,
@@ -9858,7 +9926,7 @@
     {
       "id": "meta-llama/llama-3.2-1b-instruct",
       "name": "Meta: Llama 3.2 1B Instruct",
-      "context_length": 131072,
+      "context_length": 60000,
       "input": 0.027,
       "output": 0.201,
       "cache_read_price": null,
@@ -9883,6 +9951,31 @@
       "created": 1727222400,
       "description": "Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual",
       "hugging_face_id": "meta-llama/Llama-3.2-1B-Instruct"
+    },
+    {
+      "id": "poolside/laguna-s-2.1",
+      "name": "Poolside: Laguna S 2.1",
+      "context_length": 1048576,
+      "input": 0.09999999999999999,
+      "output": 0.19999999999999998,
+      "cache_read_price": 0.01,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1784652683,
+      "description": "Laguna S 2.1 is the latest coding agent model from [Poolside](<https://poolside.ai/>). Laguna S 2.1 is a 118B total parameter model with 8B active parameters, s",
+      "hugging_face_id": "poolside/Laguna-S-2.1"
     },
     {
       "id": "nvidia/nemotron-3-nano-30b-a3b",
@@ -9936,10 +10029,8 @@
       ],
       "supported_parameters": [
         "frequency_penalty",
-        "logprobs",
         "max_tokens",
         "presence_penalty",
-        "repetition_penalty",
         "response_format",
         "seed",
         "stop",
@@ -9947,7 +10038,6 @@
         "temperature",
         "tool_choice",
         "tools",
-        "top_logprobs",
         "top_p"
       ],
       "created": 1764681735,
@@ -10021,9 +10111,9 @@
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash",
       "context_length": 1048576,
-      "input": 0.09380000000000001,
-      "output": 0.18760000000000002,
-      "cache_read_price": 0.01876,
+      "input": 0.098,
+      "output": 0.196,
+      "cache_read_price": 0.0196,
       "max_completion_tokens": null,
       "modality": "text->text",
       "input_modalities": [
@@ -10058,7 +10148,7 @@
     {
       "id": "meta-llama/llama-guard-4-12b",
       "name": "Meta: Llama Guard 4 12B",
-      "context_length": 163840,
+      "context_length": 1048576,
       "input": 0.18,
       "output": 0.18,
       "cache_read_price": null,
@@ -10550,10 +10640,8 @@
       ],
       "supported_parameters": [
         "frequency_penalty",
-        "logprobs",
         "max_tokens",
         "presence_penalty",
-        "repetition_penalty",
         "response_format",
         "seed",
         "stop",
@@ -10561,7 +10649,6 @@
         "temperature",
         "tool_choice",
         "tools",
-        "top_logprobs",
         "top_p"
       ],
       "created": 1764681560,
@@ -10603,7 +10690,7 @@
     {
       "id": "qwen/qwen-2.5-7b-instruct",
       "name": "Qwen: Qwen2.5 7B Instruct",
-      "context_length": 131072,
+      "context_length": 32768,
       "input": 0.04,
       "output": 0.09999999999999999,
       "cache_read_price": null,
@@ -10704,7 +10791,7 @@
     {
       "id": "gryphe/mythomax-l2-13b",
       "name": "MythoMax 13B",
-      "context_length": 4096,
+      "context_length": 8192,
       "input": 0.06,
       "output": 0.06,
       "cache_read_price": null,
