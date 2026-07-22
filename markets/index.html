@@ -573,16 +573,18 @@ body {
 
 /* === HYBRID ARTICLES === */
 
+/* Every story gets the front-page treatment: big story headline, italic deck,
+   one byline, the lede. Uniform from the lead down to the last deep cut. */
 .hybrid-article {
   background-color: var(--paper);
-  padding: 16px 20px;
+  padding: 32px 0 28px;
   contain: content;
   isolation: isolate;
   border-bottom: 1px solid var(--rule-light);
 }
 
 .hybrid-lead {
-  padding: 32px 24px;
+  padding: 36px 28px 32px;
   border: 1px solid var(--rule-light);
   border-bottom: 2px solid var(--rule);
   margin-bottom: 32px;
@@ -590,18 +592,20 @@ body {
 
 .hybrid-headline {
   font-family: var(--font-headline);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 4px;
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.3px;
+  max-width: 24em;
+  margin-bottom: 8px;
 }
 
 .hybrid-headline-lead {
-  font-size: 42px;
+  font-size: clamp(34px, 4.5vw, 46px);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.08;
   letter-spacing: -0.5px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .hybrid-share {
@@ -623,24 +627,25 @@ body {
 .hybrid-subheadline {
   font-family: var(--font-headline);
   font-style: italic;
-  font-size: 15px;
+  font-size: 18px;
   color: var(--ink-light);
   line-height: 1.4;
-  margin-bottom: 8px;
+  max-width: 44em;
+  margin-bottom: 10px;
 }
 
 .hybrid-lead .hybrid-subheadline {
-  font-size: 20px;
+  font-size: 21px;
   margin-bottom: 12px;
 }
 
 .hybrid-meta {
   font-family: var(--font-meta);
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .hybrid-meta a {
@@ -1096,8 +1101,9 @@ body {
 }
 
 .hybrid-preview {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 70ch;
   max-height: 500px;
   opacity: 1;
   overflow: hidden;
@@ -1109,12 +1115,16 @@ body {
 }
 
 .hybrid-full {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 70ch;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.35s ease, opacity 0.25s ease;
+  /* visibility keeps the collapsed fold's links (source, prior coverage) out
+     of the tab order and accessibility tree — max-height alone doesn't. */
+  visibility: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease, visibility 0s 0.35s;
 }
 
 .hybrid-full p {
@@ -1122,8 +1132,9 @@ body {
 }
 
 /* Expanded keeps the preview (the lede) visible and reveals the remainder
-   beneath it. The full block holds only the text past the preview, so the
-   body is never duplicated in the markup. */
+   beneath it. The full block holds the text past the preview PLUS all the
+   secondary furniture (use cases, source line, sentiment, prior coverage),
+   so the collapsed card stays pure front page. */
 .hybrid-article.expanded .hybrid-preview {
   max-height: 1000px;
   opacity: 1;
@@ -1132,15 +1143,20 @@ body {
 .hybrid-article.expanded .hybrid-full {
   max-height: 5000px;
   opacity: 1;
+  visibility: visible;
+  transition: max-height 0.35s ease, opacity 0.25s ease, visibility 0s;
   margin-top: 8px;
 }
 
 .hybrid-lead .hybrid-preview {
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .hybrid-lead .hybrid-full {
-  font-size: 15px;
+  font-size: 17px;
+  /* The lead's expanded remainder runs newspaper columns — let it fill the
+     bordered card instead of inheriting the single-column 70ch cap. */
+  max-width: none;
   text-align: justify;
   hyphens: auto;
 }
@@ -1152,8 +1168,14 @@ body {
   column-rule: 1px solid var(--rule-light);
 }
 
-.hybrid-lead .article-insights {
+/* Extras must span the lead's columns, never split across them. */
+.hybrid-lead .article-insights,
+.hybrid-lead .article-source,
+.hybrid-lead .hybrid-prior,
+.hybrid-lead .lead-rationale,
+.hybrid-lead .x-sentiment {
   column-span: all;
+  break-inside: avoid;
 }
 
 .hybrid-article .article-insights {
@@ -1250,15 +1272,20 @@ body.chat-on .hybrid-ask {
   color: var(--accent);
 }
 
+/* Single column: every story runs full-width, front-page style, separated by
+   a hairline rule — no cramped multi-column card grid. */
 .hybrid-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: 1fr;
   gap: 0;
 }
 
 .hybrid-grid > .hybrid-article {
-  border-right: 1px solid var(--rule-light);
   border-bottom: 1px solid var(--rule-light);
+}
+
+.hybrid-grid > .hybrid-article:last-child {
+  border-bottom: none;
 }
 
 /* === TREND ARTICLES === */
@@ -1375,7 +1402,7 @@ body.chat-on .hybrid-ask {
 .quick-hit-name {
   font-family: var(--font-meta);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   white-space: nowrap;
 }
 
@@ -1389,7 +1416,7 @@ body.chat-on .hybrid-ask {
 }
 
 .quick-hit-summary {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-light);
   flex: 1;
 }
@@ -1870,16 +1897,16 @@ body.chat-on .hybrid-ask {
 [data-size="small"] .secondary-headline { font-size: 19px; }
 [data-size="small"] .featured-headline { font-size: 19px; }
 [data-size="small"] .compact-headline { font-size: 16px; }
-[data-size="small"] .hybrid-headline { font-size: 17px; }
-[data-size="small"] .hybrid-headline-lead { font-size: 36px; }
+[data-size="small"] .hybrid-headline { font-size: clamp(22px, 2.8vw, 28px); }
+[data-size="small"] .hybrid-headline-lead { font-size: clamp(28px, 4vw, 38px); }
 
 [data-size="large"] body { font-size: 18px; }
 [data-size="large"] .lead-headline { font-size: 56px; }
 [data-size="large"] .secondary-headline { font-size: 26px; }
 [data-size="large"] .featured-headline { font-size: 26px; }
 [data-size="large"] .compact-headline { font-size: 20px; }
-[data-size="large"] .hybrid-headline { font-size: 24px; }
-[data-size="large"] .hybrid-headline-lead { font-size: 52px; }
+[data-size="large"] .hybrid-headline { font-size: clamp(30px, 3.6vw, 38px); }
+[data-size="large"] .hybrid-headline-lead { font-size: clamp(38px, 5vw, 52px); }
 
 /* === WIDTH === */
 
@@ -2683,9 +2710,6 @@ body.chat-on .hybrid-ask {
     column-count: 1;
   }
 
-  .hybrid-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {
@@ -4586,7 +4610,7 @@ body.gt-searching .gt-fold {
     <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
     <div class="markets-freshness"><span class="fresh-chip live" data-pulse>
       <span class="fresh-dot"></span>
-      <span class="fresh-text"><strong>Pricing live</strong> · synced 6 min ago · <span class="fresh-abs">Jul 21, 5:32 AM EDT</span></span>
+      <span class="fresh-text"><strong>Pricing live</strong> · synced 4 min ago · <span class="fresh-abs">Jul 22, 5:31 AM EDT</span></span>
     </span><span class="fresh-chip curated"><span class="fresh-dot"></span><span class="fresh-text"><strong>Evals curated</strong> · as of 2026-07-09</span></span></div>
   </div>
 
@@ -4594,15 +4618,15 @@ body.gt-searching .gt-fold {
     <div class="hero-index">
       <p class="section-kicker">Cost of Intelligence Index</p>
       <p class="hero-figure"><span class="coi-value" data-countup="14.02" data-prefix="$" data-decimals="2">$14.02</span><span class="hero-unit">/M tokens</span></p>
-      <p class="hero-delta"><span class="markets-delta up">▲ 0.6% 30d</span> <span class="hero-note">avg. output price · 13 frontier models</span></p>
+      <p class="hero-delta"><span class="markets-delta flat">&mdash;</span> <span class="hero-note">avg. output price · 13 frontier models</span></p>
       <p class="coi-methodology">Methodology: the unweighted mean of the live output price ($/M tokens) across all 13 tracked frontier models. Live from OpenRouter — no weighting, no curation.</p>
       <div class="hero-chart"><svg class="area-chart" viewBox="0 0 640 150" preserveAspectRatio="none" role="img" aria-label="Cost of Intelligence Index trend">
     <defs><linearGradient id="coi-fill" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
     </linearGradient></defs>
-    <path class="area-fill" d="M0.0 144.0 L22.1 144.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 6.0 L264.8 6.0 L286.9 6.0 L309.0 6.0 L331.0 6.0 L353.1 6.0 L375.2 6.0 L397.2 41.9 L419.3 41.9 L441.4 41.9 L463.4 41.9 L485.5 41.9 L507.6 41.9 L529.7 41.9 L551.7 39.4 L573.8 39.4 L595.9 39.4 L617.9 40.6 L640.0 38.7 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
-    <path class="area-line" d="M0.0 144.0 L22.1 144.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 6.0 L264.8 6.0 L286.9 6.0 L309.0 6.0 L331.0 6.0 L353.1 6.0 L375.2 6.0 L397.2 41.9 L419.3 41.9 L441.4 41.9 L463.4 41.9 L485.5 41.9 L507.6 41.9 L529.7 41.9 L551.7 39.4 L573.8 39.4 L595.9 39.4 L617.9 40.6 L640.0 38.7" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="area-fill" d="M0.0 144.0 L22.1 6.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 6.0 L264.8 6.0 L286.9 6.0 L309.0 6.0 L331.0 6.0 L353.1 6.0 L375.2 41.9 L397.2 41.9 L419.3 41.9 L441.4 41.9 L463.4 41.9 L485.5 41.9 L507.6 41.9 L529.7 39.4 L551.7 39.4 L573.8 39.4 L595.9 40.6 L617.9 38.7 L640.0 38.7 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
+    <path class="area-line" d="M0.0 144.0 L22.1 6.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 6.0 L264.8 6.0 L286.9 6.0 L309.0 6.0 L331.0 6.0 L353.1 6.0 L375.2 41.9 L397.2 41.9 L419.3 41.9 L441.4 41.9 L463.4 41.9 L485.5 41.9 L507.6 41.9 L529.7 39.4 L551.7 39.4 L573.8 39.4 L595.9 40.6 L617.9 38.7 L640.0 38.7" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle class="area-dot" cx="640.0" cy="38.7" r="3.5" fill="var(--accent)"/>
   </svg></div>
     </div>
@@ -4966,7 +4990,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="50" data-priceval="50">$50</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 9.1,2.0 18.2,2.0 27.3,2.0 36.4,2.0 45.5,2.0 54.5,2.0 63.6,2.0 72.7,2.0 81.8,2.0 90.9,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="25" data-input="5" data-cache="0.5" data-provider="Anthropic" data-label="Claude Opus 4.8">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="claude-opus-4.8" aria-label="Compare Claude Opus 4.8"></td>
@@ -4977,7 +5001,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="25" data-priceval="25">$25</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.7,2.0 7.4,2.0 11.1,2.0 14.8,2.0 18.5,2.0 22.2,2.0 25.9,2.0 29.6,2.0 33.3,2.0 37.0,2.0 40.7,2.0 44.4,2.0 48.1,2.0 51.9,2.0 55.6,2.0 59.3,2.0 63.0,2.0 66.7,2.0 70.4,2.0 74.1,2.0 77.8,2.0 81.5,2.0 85.2,2.0 88.9,2.0 92.6,2.0 96.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.6,2.0 7.1,2.0 10.7,2.0 14.3,2.0 17.9,2.0 21.4,2.0 25.0,2.0 28.6,2.0 32.1,2.0 35.7,2.0 39.3,2.0 42.9,2.0 46.4,2.0 50.0,2.0 53.6,2.0 57.1,2.0 60.7,2.0 64.3,2.0 67.9,2.0 71.4,2.0 75.0,2.0 78.6,2.0 82.1,2.0 85.7,2.0 89.3,2.0 92.9,2.0 96.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="10" data-input="2" data-cache="0.19999999999999998" data-provider="Anthropic" data-label="Claude Sonnet 5">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="claude-sonnet-5" aria-label="Compare Claude Sonnet 5"></td>
@@ -4988,7 +5012,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="10" data-priceval="10">$10</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 9.1,2.0 18.2,2.0 27.3,2.0 36.4,2.0 45.5,2.0 54.5,2.0 63.6,2.0 72.7,2.0 81.8,2.0 90.9,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="30" data-input="5" data-cache="0.5" data-provider="OpenAI" data-label="GPT-5.5">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="gpt-5.5" aria-label="Compare GPT-5.5"></td>
@@ -4999,7 +5023,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="30" data-priceval="30">$30</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.7,2.0 7.4,2.0 11.1,2.0 14.8,2.0 18.5,2.0 22.2,2.0 25.9,2.0 29.6,2.0 33.3,2.0 37.0,2.0 40.7,2.0 44.4,2.0 48.1,2.0 51.9,2.0 55.6,2.0 59.3,2.0 63.0,2.0 66.7,2.0 70.4,2.0 74.1,2.0 77.8,2.0 81.5,2.0 85.2,2.0 88.9,2.0 92.6,2.0 96.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.6,2.0 7.1,2.0 10.7,2.0 14.3,2.0 17.9,2.0 21.4,2.0 25.0,2.0 28.6,2.0 32.1,2.0 35.7,2.0 39.3,2.0 42.9,2.0 46.4,2.0 50.0,2.0 53.6,2.0 57.1,2.0 60.7,2.0 64.3,2.0 67.9,2.0 71.4,2.0 75.0,2.0 78.6,2.0 82.1,2.0 85.7,2.0 89.3,2.0 92.9,2.0 96.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="2.5" data-cache="0.25" data-provider="OpenAI" data-label="GPT-5.4">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="gpt-5.4" aria-label="Compare GPT-5.4"></td>
@@ -5032,7 +5056,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="9" data-priceval="9">$9</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.7,2.0 7.4,2.0 11.1,2.0 14.8,2.0 18.5,2.0 22.2,2.0 25.9,2.0 29.6,2.0 33.3,2.0 37.0,2.0 40.7,2.0 44.4,2.0 48.1,2.0 51.9,2.0 55.6,2.0 59.3,2.0 63.0,2.0 66.7,2.0 70.4,2.0 74.1,2.0 77.8,2.0 81.5,2.0 85.2,2.0 88.9,2.0 92.6,2.0 96.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 3.6,2.0 7.1,2.0 10.7,2.0 14.3,2.0 17.9,2.0 21.4,2.0 25.0,2.0 28.6,2.0 32.1,2.0 35.7,2.0 39.3,2.0 42.9,2.0 46.4,2.0 50.0,2.0 53.6,2.0 57.1,2.0 60.7,2.0 64.3,2.0 67.9,2.0 71.4,2.0 75.0,2.0 78.6,2.0 82.1,2.0 85.7,2.0 89.3,2.0 92.9,2.0 96.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="6" data-input="2" data-cache="0.3" data-provider="xAI" data-label="Grok 4.5">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="grok-4.5" aria-label="Compare Grok 4.5"></td>
@@ -5043,7 +5067,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="6" data-priceval="6">$6</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="500000">500k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 9.1,2.0 18.2,2.0 27.3,2.0 36.4,2.0 45.5,2.0 54.5,2.0 63.6,2.0 72.7,2.0 81.8,2.0 90.9,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="0.87" data-input="0.435" data-cache="0.003625" data-provider="DeepSeek" data-label="DeepSeek V4 Pro">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-v4-pro" aria-label="Compare DeepSeek V4 Pro"></td>
@@ -5054,7 +5078,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="0.87" data-priceval="0.87">$0.87</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576" title="Max output: 384,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 9.1,2.0 18.2,2.0 27.3,2.0 36.4,2.0 45.5,2.0 54.5,2.0 63.6,2.0 72.7,2.0 81.8,2.0 90.9,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 8.3,2.0 16.7,2.0 25.0,2.0 33.3,2.0 41.7,2.0 50.0,2.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="4.425" data-input="1.475" data-cache="0.295" data-provider="Alibaba" data-label="Qwen3.7 Max">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="qwen3.7-max" aria-label="Compare Qwen3.7 Max"></td>
@@ -5065,7 +5089,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="4.425" data-priceval="4.425">$4.42</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 9.1,22.0 18.2,22.0 27.3,22.0 36.4,22.0 45.5,22.0 54.5,22.0 63.6,2.0 72.7,2.0 81.8,2.0 90.9,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 8.3,22.0 16.7,22.0 25.0,22.0 33.3,22.0 41.7,22.0 50.0,22.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,2.0 91.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="3" data-cache="0.3" data-provider="Moonshot" data-label="Kimi K3">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="kimi-k3" aria-label="Compare Kimi K3"></td>
@@ -5076,7 +5100,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="15" data-priceval="15">$15</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576">1.0M</td>
-      <td class="model-spark"></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="3.42" data-input="0.684" data-cache="0.144" data-provider="Moonshot" data-label="Kimi K2.6">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="kimi-k2.6" aria-label="Compare Kimi K2.6"></td>
@@ -5087,7 +5111,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="3.42" data-priceval="3.42">$3.42</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 9.1,22.0 18.2,22.0 27.3,22.0 36.4,22.0 45.5,22.0 54.5,22.0 63.6,2.0 72.7,2.0 81.8,2.0 90.9,21.7 100.0,21.7" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 8.3,22.0 16.7,22.0 25.0,22.0 33.3,22.0 41.7,22.0 50.0,22.0 58.3,2.0 66.7,2.0 75.0,2.0 83.3,21.7 91.7,21.7 100.0,21.7" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="0" data-output="1.5" data-input="0.5" data-cache="0.049999999999999996" data-provider="Mistral" data-label="Mistral Large">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="mistral-large" aria-label="Compare Mistral Large"></td>
@@ -5230,52 +5254,52 @@ body.gt-searching .gt-fold {
       <table class="markets-table">
         <thead><tr><th>Model</th><th>Provider</th><th>Output</th><th>Added</th></tr></thead>
         <tbody><tr>
+    <td class="model-name">Poolside: Laguna S 2.1</td>
+    <td class="model-provider">poolside</td>
+    <td class="model-price">$0.20</td>
+    <td class="model-added">today</td>
+  </tr>
+<tr>
+    <td class="model-name">Google: Gemini 3.6 Flash</td>
+    <td class="model-provider">google</td>
+    <td class="model-price">$7.50</td>
+    <td class="model-added">today</td>
+  </tr>
+<tr>
+    <td class="model-name">Google: Gemini 3.5 Flash-Lite</td>
+    <td class="model-provider">google</td>
+    <td class="model-price">$2.50</td>
+    <td class="model-added">today</td>
+  </tr>
+<tr>
     <td class="model-name">Meituan: LongCat 2.0</td>
     <td class="model-provider">meituan</td>
     <td class="model-price">$1.20</td>
-    <td class="model-added">today</td>
+    <td class="model-added">1d ago</td>
   </tr>
 <tr>
     <td class="model-name">Thinking Machines: Inkling</td>
     <td class="model-provider">thinkingmachines</td>
     <td class="model-price">$4.05</td>
-    <td class="model-added">3d ago</td>
+    <td class="model-added">4d ago</td>
   </tr>
 <tr>
     <td class="model-name">Kimi K3</td>
     <td class="model-provider">Moonshot</td>
     <td class="model-price">$15</td>
-    <td class="model-added">4d ago</td>
+    <td class="model-added">5d ago</td>
   </tr>
 <tr>
     <td class="model-name">MoonshotAI: Kimi K3</td>
     <td class="model-provider">moonshotai</td>
     <td class="model-price">$15</td>
-    <td class="model-added">4d ago</td>
+    <td class="model-added">5d ago</td>
   </tr>
 <tr>
     <td class="model-name">Meta: Muse Spark 1.1</td>
     <td class="model-provider">meta</td>
     <td class="model-price">$4.25</td>
-    <td class="model-added">4d ago</td>
-  </tr>
-<tr>
-    <td class="model-name">Kwaipilot: KAT-Coder-Air V2.5</td>
-    <td class="model-provider">kwaipilot</td>
-    <td class="model-price">$0.60</td>
-    <td class="model-added">1w ago</td>
-  </tr>
-<tr>
-    <td class="model-name">Kwaipilot: KAT-Coder-Pro V2.5</td>
-    <td class="model-provider">kwaipilot</td>
-    <td class="model-price">$2.96</td>
-    <td class="model-added">1w ago</td>
-  </tr>
-<tr>
-    <td class="model-name">OpenAI: GPT-5.6 Luna Pro</td>
-    <td class="model-provider">openai</td>
-    <td class="model-price">$6</td>
-    <td class="model-added">1w ago</td>
+    <td class="model-added">5d ago</td>
   </tr></tbody>
       </table>
     </div>
@@ -5290,6 +5314,12 @@ body.gt-searching .gt-fold {
       <table class="markets-table">
         <thead><tr><th>Model</th><th>Provider</th><th>Output</th><th>Listed</th></tr></thead>
         <tbody><tr>
+      <td class="model-name">Google: Gemini 3.6 Flash</td>
+      <td class="model-provider">google</td>
+      <td class="model-price">$7.50</td>
+      <td class="model-added">today</td>
+    </tr>
+<tr>
       <td class="model-name">OpenAI: GPT-5.6 Luna Pro</td>
       <td class="model-provider">openai</td>
       <td class="model-price">$6</td>
@@ -5329,20 +5359,14 @@ body.gt-searching .gt-fold {
       <td class="model-name">Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)</td>
       <td class="model-provider">google</td>
       <td class="model-price">$1.50</td>
-      <td class="model-added">2w ago</td>
-    </tr>
-<tr>
-      <td class="model-name">Google: Nano Banana 2 (Gemini 3.1 Flash Image)</td>
-      <td class="model-provider">google</td>
-      <td class="model-price">$3</td>
-      <td class="model-added">4w ago</td>
+      <td class="model-added">3w ago</td>
     </tr></tbody>
       </table>
     </div>
   </div></div>
         </details>
 <details class="desk-details">
-          <summary>All Models by Provider — 317 across 57 providers</summary>
+          <summary>All Models by Provider — 320 across 57 providers</summary>
           <div class="desk-details-body"><div class="markets-filterbar" data-filter-scope="catalog">
     <div class="filter-field">
         <label for="catalog-search">Search</label>
@@ -6131,20 +6155,20 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr></tbody>
       </table>
         <details class="provider-more">
-          <summary>23 more models</summary>
+          <summary>25 more models</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
             <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="12" data-input="2" data-cache="0.19999999999999998" data-provider="google" data-label="google: nano banana pro (gemini 3 pro image)">
           <td class="catalog-name"><span title="Nano Banana Pro is Google’s most advanced image-generation and editing model, built on Gemini 3 Pro. It extends the original Nano Banana with significantly impr">Google: Nano Banana Pro (Gemini 3 Pro Image)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="2" data-priceval="2"><span class="price-main">$2</span><span class="cache-price">cache: $0.20</span></td>
           <td class="model-price price-cell" data-priceval="12">$12</td>
-          <td class="model-ctx" data-sort="65536" title="Max output: 32,768 tokens">66k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="12" data-input="2" data-cache="0.19999999999999998" data-provider="google" data-label="google: gemini 3.1 pro preview custom tools">
           <td class="catalog-name"><span title="Gemini 3.1 Pro Preview Custom Tools is a variant of Gemini 3.1 Pro that improves tool selection behavior by preventing overuse of a general bash tool when more ">Google: Gemini 3.1 Pro Preview Custom Tools</span><span class="modality-badge">aud</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="2" data-priceval="2"><span class="price-main">$2</span><span class="cache-price">cache: $0.20</span></td>
           <td class="model-price price-cell" data-priceval="12">$12</td>
-          <td class="model-ctx" data-sort="1048756" title="Max output: 65,536 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="12" data-input="2" data-cache="0.19999999999999998" data-provider="google" data-label="google: nano banana pro (gemini 3 pro image preview)">
           <td class="catalog-name"><span title="Nano Banana Pro is Google’s most advanced image-generation and editing model, built on Gemini 3 Pro. It extends the original Nano Banana with significantly impr">Google: Nano Banana Pro (Gemini 3 Pro Image Preview)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
@@ -6176,6 +6200,12 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="9">$9</td>
           <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
         </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="7.5" data-input="1.5" data-cache="0.15" data-provider="google" data-label="google: gemini 3.6 flash">
+          <td class="catalog-name"><span title="Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It is designed to produce polished outputs w">Google: Gemini 3.6 Flash</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="modality-badge">aud</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="1.5" data-priceval="1.5"><span class="price-main">$1.50</span><span class="cache-price">cache: $0.15</span></td>
+          <td class="model-price price-cell" data-priceval="7.5">$7.50</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
+        </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="" data-provider="google" data-label="google: nano banana 2 (gemini 3.1 flash image)">
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual quality at F">Google: Nano Banana 2 (Gemini 3.1 Flash Image)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span></td>
@@ -6186,13 +6216,19 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image Preview, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual qual">Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span></td>
           <td class="model-price price-cell" data-priceval="3">$3</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 65,536 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="0.049999999999999996" data-provider="google" data-label="google: gemini 3 flash preview">
           <td class="catalog-name"><span title="Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and coding assistance. It delivers near Pro l">Google: Gemini 3 Flash Preview</span><span class="modality-badge">img</span><span class="modality-badge">aud</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span><span class="cache-price">cache: $0.05</span></td>
           <td class="model-price price-cell" data-priceval="3">$3</td>
           <td class="model-ctx" data-sort="1048576" title="Max output: 65,535 tokens">1.0M</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5" data-input="0.3" data-cache="0.03" data-provider="google" data-label="google: gemini 3.5 flash-lite">
+          <td class="catalog-name"><span title="Gemini 3.5 Flash-Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subagents that execute focused tasks within co">Google: Gemini 3.5 Flash-Lite</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="modality-badge">aud</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.3" data-priceval="0.3"><span class="price-main">$0.30</span><span class="cache-price">cache: $0.03</span></td>
+          <td class="model-price price-cell" data-priceval="2.5">$2.50</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="2.5" data-input="0.3" data-cache="0.03" data-provider="google" data-label="google: nano banana (gemini 2.5 flash image)">
           <td class="catalog-name"><span title="Gemini 2.5 Flash Image, a.k.a. &quot;Nano Banana,&quot; is now generally available. It is a state of the art image generation model with contextual understanding. It is c">Google: Nano Banana (Gemini 2.5 Flash Image)</span><span class="modality-badge">img</span></td>
@@ -6252,7 +6288,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/google/gemma-3-27b-it" title="Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language">Google: Gemma 3 27B</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span></td>
           <td class="model-price price-cell" data-priceval="0.3">$0.30</td>
-          <td class="model-ctx" data-sort="131072">131k</td>
+          <td class="model-ctx" data-sort="262144">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.15" data-input="0.049999999999999996" data-cache="" data-provider="google" data-label="google: gemma 3 12b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/google/gemma-3-12b-it" title="Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language">Google: Gemma 3 12B</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6290,10 +6326,10 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <summary>1 more model</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="9" data-input="1.5" data-cache="0.15" data-provider="~google" data-label="google gemini flash latest">
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="7.5" data-input="1.5" data-cache="0.15" data-provider="~google" data-label="google gemini flash latest">
           <td class="catalog-name"><span title="This model always redirects to the latest model in the Google Gemini Flash family.">Google Gemini Flash Latest</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="modality-badge">aud</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="1.5" data-priceval="1.5"><span class="price-main">$1.50</span><span class="cache-price">cache: $0.15</span></td>
-          <td class="model-price price-cell" data-priceval="9">$9</td>
+          <td class="model-price price-cell" data-priceval="7.5">$7.50</td>
           <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
         </tr></tbody>
           </table>
@@ -6463,7 +6499,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/mistralai/Mistral-Small-3.2-24B-Instruct-2506" title="Mistral-Small-3.2-24B-Instruct-2506 is an updated 24B parameter model from Mistral optimized for instruction following, repetition reduction, and improved funct">Mistral: Mistral Small 3.2 24B</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span><span class="cache-price">cache: $0.01</span></td>
           <td class="model-price price-cell" data-priceval="0.3">$0.30</td>
-          <td class="model-ctx" data-sort="131072">131k</td>
+          <td class="model-ctx" data-sort="256000">256k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.19999999999999998" data-input="0.19999999999999998" data-cache="0.02" data-provider="mistralai" data-label="mistral: ministral 3 14b 2512">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512" title="The largest model in the Ministral 3 family, Ministral 3 14B offers frontier capabilities and performance comparable to its larger Mistral Small 3.2 24B counter">Mistral: Ministral 3 14B 2512</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6583,7 +6619,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-VL-235B-A22B-Instruct" title="Qwen3-VL-235B-A22B Instruct is an open-weight multimodal model that unifies strong text generation with visual understanding across images and video. The Instru">Qwen: Qwen3 VL 235B A22B Instruct</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.21" data-priceval="0.21"><span class="price-main">$0.21</span><span class="cache-price">cache: $0.10</span></td>
           <td class="model-price price-cell" data-priceval="1.9">$1.90</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1.8199999999999998" data-input="0.45499999999999996" data-cache="" data-provider="qwen" data-label="qwen: qwen3 235b a22b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-235B-A22B" title="Qwen3-235B-A22B is a 235B parameter mixture-of-experts (MoE) model developed by Qwen, activating 22B parameters per forward pass. It supports seamless switching">Qwen: Qwen3 235B A22B</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6607,19 +6643,19 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-VL-30B-A3B-Thinking" title="Qwen3-VL-30B-A3B-Thinking is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Thinking variant enhanc">Qwen: Qwen3 VL 30B A3B Thinking</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.13" data-priceval="0.13"><span class="price-main">$0.13</span></td>
           <td class="model-price price-cell" data-priceval="1.56">$1.56</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1.56" data-input="0.13" data-cache="" data-provider="qwen" data-label="qwen: qwen3 30b a3b thinking 2507">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-30B-A3B-Thinking-2507" title="Qwen3-30B-A3B-Thinking-2507 is a 30B parameter Mixture-of-Experts reasoning model optimized for complex tasks requiring extended multi-step thinking. The model ">Qwen: Qwen3 30B A3B Thinking 2507</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.13" data-priceval="0.13"><span class="price-main">$0.13</span></td>
           <td class="model-price price-cell" data-priceval="1.56">$1.56</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="81920" title="Max output: 32,768 tokens">82k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1.365" data-input="0.117" data-cache="" data-provider="qwen" data-label="qwen: qwen3 vl 8b thinking">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-VL-8B-Thinking" title="Qwen3-VL-8B-Thinking is the reasoning-optimized variant of the Qwen3-VL-8B multimodal model, designed for advanced visual and textual reasoning across complex s">Qwen: Qwen3 VL 8B Thinking</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.117" data-priceval="0.117"><span class="price-main">$0.12</span></td>
           <td class="model-price price-cell" data-priceval="1.365">$1.36</td>
-          <td class="model-ctx" data-sort="256000" title="Max output: 32,768 tokens">256k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1.28" data-input="0.32" data-cache="0.064" data-provider="qwen" data-label="qwen: qwen3.7 plus">
           <td class="catalog-name"><span title="Qwen3.7-Plus is a cost-effective model in Alibaba&#39;s Qwen3.7 series. It supports text and image input with text output, building on the series&#39; text capabilities">Qwen: Qwen3.7 Plus</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6632,6 +6668,12 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.1875" data-priceval="0.1875"><span class="price-main">$0.19</span></td>
           <td class="model-price price-cell" data-priceval="1.125">$1.13</td>
           <td class="model-ctx" data-sort="1000000" title="Max output: 65,536 tokens">1.0M</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="1.1" data-input="0.09999999999999999" data-cache="0.07" data-provider="qwen" data-label="qwen: qwen3 next 80b a3b instruct">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct" title="Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targe">Qwen: Qwen3 Next 80B A3B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
+          <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span><span class="cache-price">cache: $0.07</span></td>
+          <td class="model-price price-cell" data-priceval="1.1">$1.10</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1" data-input="0.14" data-cache="" data-provider="qwen" data-label="qwen: qwen3.6 35b a3b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.6-35B-A3B" title="Qwen3.6-35B-A3B is an open-weight multimodal model from Alibaba Cloud with 35 billion total parameters and 3 billion active parameters per token. It uses a hybr">Qwen: Qwen3.6 35B A3B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6649,19 +6691,19 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct" title="Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is optimized for agentic coding tasks such as ">Qwen: Qwen3 Coder 480B A35B</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.3" data-priceval="0.3"><span class="price-main">$0.30</span><span class="cache-price">cache: $0.10</span></td>
           <td class="model-price price-cell" data-priceval="1">$1</td>
-          <td class="model-ctx" data-sort="1048576" title="Max output: 65,536 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 65,536 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="1" data-input="0.7999999999999999" data-cache="0.39999999999999997" data-provider="qwen" data-label="qwen: qwen2.5 vl 72b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct" title="Qwen2.5-VL is proficient in recognizing common objects such as flowers, birds, fish, and insects. It is also highly capable of analyzing texts, charts, icons, g">Qwen: Qwen2.5 VL 72B Instruct</a><span class="modality-badge">img</span></td>
           <td class="model-price price-cell" data-sort="0.7999999999999999" data-priceval="0.7999999999999999"><span class="price-main">$0.80</span><span class="cache-price">cache: $0.40</span></td>
           <td class="model-price price-cell" data-priceval="1">$1</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 128,000 tokens">131k</td>
+          <td class="model-ctx" data-sort="128000" title="Max output: 128,000 tokens">128k</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="1" data-input="0.66" data-cache="" data-provider="qwen" data-label="qwen2.5 coder 32b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct" title="Qwen2.5-Coder is the latest series of Code-Specific Qwen large language models (formerly known as CodeQwen). Qwen2.5-Coder brings the following improvements upo">Qwen2.5 Coder 32B Instruct</a></td>
           <td class="model-price price-cell" data-sort="0.66" data-priceval="0.66"><span class="price-main">$0.66</span></td>
           <td class="model-price price-cell" data-priceval="1">$1</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 32,768 tokens">128k</td>
+          <td class="model-ctx" data-sort="32768" title="Max output: 32,768 tokens">33k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.975" data-input="0.195" data-cache="0.039" data-provider="qwen" data-label="qwen: qwen3 coder flash">
           <td class="catalog-name"><span title="Qwen3 Coder Flash is Alibaba&#39;s fast and cost efficient version of their proprietary Qwen3 Coder Plus. It is a powerful coding agent model specializing in autono">Qwen: Qwen3 Coder Flash</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6677,12 +6719,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.78" data-input="0.0975" data-cache="" data-provider="qwen" data-label="qwen: qwen3 next 80b a3b thinking">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Thinking" title="Qwen3-Next-80B-A3B-Thinking is a reasoning-first chat model in the Qwen3-Next line that outputs structured “thinking” traces by default. It’s designed for hard ">Qwen: Qwen3 Next 80B A3B Thinking</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.0975" data-priceval="0.0975"><span class="price-main">$0.10</span></td>
-          <td class="model-price price-cell" data-priceval="0.78">$0.78</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
-        </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.78" data-input="0.0975" data-cache="" data-provider="qwen" data-label="qwen: qwen3 next 80b a3b instruct">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct" title="Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targe">Qwen: Qwen3 Next 80B A3B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.0975" data-priceval="0.0975"><span class="price-main">$0.10</span></td>
           <td class="model-price price-cell" data-priceval="0.78">$0.78</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
@@ -6727,7 +6763,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct" title="Qwen3-VL-8B-Instruct is a multimodal vision-language model from the Qwen3-VL series, built for high-fidelity understanding and reasoning across text, images, an">Qwen: Qwen3 VL 8B Instruct</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.117" data-priceval="0.117"><span class="price-main">$0.12</span></td>
           <td class="model-price price-cell" data-priceval="0.45499999999999996">$0.45</td>
-          <td class="model-ctx" data-sort="256000" title="Max output: 32,768 tokens">256k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.45499999999999996" data-input="0.117" data-cache="" data-provider="qwen" data-label="qwen: qwen3 8b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-8B" title="Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seam">Qwen: Qwen3 8B</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6739,13 +6775,13 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-VL-32B-Instruct" title="Qwen3-VL-32B-Instruct is a large-scale multimodal vision-language model designed for high-precision understanding and reasoning across text, images, and video. ">Qwen: Qwen3 VL 32B Instruct</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.10400000000000001" data-priceval="0.10400000000000001"><span class="price-main">$0.10</span></td>
           <td class="model-price price-cell" data-priceval="0.41600000000000004">$0.42</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.39999999999999997" data-input="0.36" data-cache="" data-provider="qwen" data-label="qwen2.5 72b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-72B-Instruct" title="Qwen2.5 72B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has gre">Qwen2.5 72B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.36" data-priceval="0.36"><span class="price-main">$0.36</span></td>
           <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 16,384 tokens">131k</td>
+          <td class="model-ctx" data-sort="32768" title="Max output: 16,384 tokens">33k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.3" data-input="0.09999999999999999" data-cache="" data-provider="qwen" data-label="qwen: qwen3 30b a3b instruct 2507">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507" title="Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin">Qwen: Qwen3 30B A3B Instruct 2507</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6763,7 +6799,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct" title="Qwen3-Coder-30B-A3B-Instruct is a 30.5B parameter Mixture-of-Experts (MoE) model with 128 experts (8 active per forward pass), designed for advanced code genera">Qwen: Qwen3 Coder 30B A3B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.07" data-priceval="0.07"><span class="price-main">$0.07</span></td>
           <td class="model-price price-cell" data-priceval="0.27">$0.27</td>
-          <td class="model-ctx" data-sort="160000" title="Max output: 32,768 tokens">160k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 32,768 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.26" data-input="0.065" data-cache="" data-provider="qwen" data-label="qwen: qwen3.5-flash">
           <td class="catalog-name"><span title="The Qwen3.5 native vision-language Flash models are built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-experts">Qwen: Qwen3.5-Flash</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6775,7 +6811,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3-14B" title="Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle">Qwen: Qwen3 14B</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.12" data-priceval="0.12"><span class="price-main">$0.12</span></td>
           <td class="model-price price-cell" data-priceval="0.24">$0.24</td>
-          <td class="model-ctx" data-sort="131702" title="Max output: 16,384 tokens">132k</td>
+          <td class="model-ctx" data-sort="131072" title="Max output: 16,384 tokens">131k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.15" data-input="0.09999999999999999" data-cache="" data-provider="qwen" data-label="qwen: qwen3.5-9b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-9B" title="Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and visual understanding in an efficient 9B-p">Qwen: Qwen3.5-9B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6787,7 +6823,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct" title="Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has grea">Qwen: Qwen2.5 7B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.04" data-priceval="0.04"><span class="price-main">$0.04</span></td>
           <td class="model-price price-cell" data-priceval="0.09999999999999999">$0.10</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="32768" title="Max output: 32,768 tokens">33k</td>
         </tr></tbody>
           </table>
         </details>
@@ -6904,7 +6940,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/anthracite-org/magnum-v4-72b" title="This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet">Magnum v4 72B</a></td>
           <td class="model-price price-cell" data-sort="3" data-priceval="3"><span class="price-main">$3</span></td>
           <td class="model-price price-cell" data-priceval="5">$5</td>
-          <td class="model-ctx" data-sort="32768" title="Max output: 2,048 tokens">33k</td>
+          <td class="model-ctx" data-sort="16384" title="Max output: 2,048 tokens">16k</td>
         </tr></tbody>
       </table>
         
@@ -6930,7 +6966,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/thinkingmachines/Inkling" title="Inkling is an open-weight multimodal mixture-of-experts model from Thinking Machines Lab, with 41B active parameters out of 975B total. It is designed for gener">Thinking Machines: Inkling</a><span class="modality-badge">img</span><span class="modality-badge">aud</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="1" data-priceval="1"><span class="price-main">$1</span><span class="cache-price">cache: $0.17</span></td>
           <td class="model-price price-cell" data-priceval="4.05">$4.05</td>
-          <td class="model-ctx" data-sort="1048576">1.0M</td>
+          <td class="model-ctx" data-sort="524288">524k</td>
         </tr></tbody>
       </table>
         
@@ -6960,19 +6996,19 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.1" title="GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu">Z.ai: GLM 5.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.966" data-priceval="0.966"><span class="price-main">$0.97</span><span class="cache-price">cache: $0.18</span></td>
           <td class="model-price price-cell" data-priceval="3.036">$3.04</td>
-          <td class="model-ctx" data-sort="202752" title="Max output: 128,000 tokens">203k</td>
-        </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.9436" data-input="0.9366" data-cache="0.17394" data-provider="z-ai" data-label="z.ai: glm 5.2">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.2" title="GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf">Z.ai: GLM 5.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.9366" data-priceval="0.9366"><span class="price-main">$0.94</span><span class="cache-price">cache: $0.17</span></td>
-          <td class="model-price price-cell" data-priceval="2.9436">$2.94</td>
-          <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="204800" title="Max output: 128,000 tokens">205k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5500000000000003" data-input="0.95" data-cache="0.19999999999999998" data-provider="z-ai" data-label="z.ai: glm 5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5" title="GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it de">Z.ai: GLM 5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.95" data-priceval="0.95"><span class="price-main">$0.95</span><span class="cache-price">cache: $0.20</span></td>
           <td class="model-price price-cell" data-priceval="2.5500000000000003">$2.55</td>
           <td class="model-ctx" data-sort="204800" title="Max output: 131,072 tokens">205k</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.5036" data-input="0.7966" data-cache="0.14794000000000002" data-provider="z-ai" data-label="z.ai: glm 5.2">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.2" title="GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf">Z.ai: GLM 5.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.7966" data-priceval="0.7966"><span class="price-main">$0.80</span><span class="cache-price">cache: $0.15</span></td>
+          <td class="model-price price-cell" data-priceval="2.5036">$2.50</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.2" data-input="0.6" data-cache="0.11" data-provider="z-ai" data-label="z.ai: glm 4.5">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.5" title="GLM-4.5 is our latest flagship foundation model, purpose-built for agent-based applications. It leverages a Mixture-of-Experts (MoE) architecture and supports a">Z.ai: GLM 4.5</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6984,7 +7020,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.6" title="Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en">Z.ai: GLM 4.6</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span><span class="cache-price">cache: $0.10</span></td>
           <td class="model-price price-cell" data-priceval="2">$2</td>
-          <td class="model-ctx" data-sort="202752" title="Max output: 131,072 tokens">203k</td>
+          <td class="model-ctx" data-sort="204800" title="Max output: 131,072 tokens">205k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1.7999999999999998" data-input="0.6" data-cache="0.11" data-provider="z-ai" data-label="z.ai: glm 4.5v">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.5V" title="GLM-4.5V is a vision-language foundation model for multimodal agent applications. Built on a Mixture-of-Experts (MoE) architecture with 106B parameters and 12B ">Z.ai: GLM 4.5V</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6996,7 +7032,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.7" title="GLM-4.7 is Z.ai’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. ">Z.ai: GLM 4.7</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.39999999999999997" data-priceval="0.39999999999999997"><span class="price-main">$0.40</span><span class="cache-price">cache: $0.08</span></td>
           <td class="model-price price-cell" data-priceval="1.75">$1.75</td>
-          <td class="model-ctx" data-sort="202752" title="Max output: 131,072 tokens">203k</td>
+          <td class="model-ctx" data-sort="204800" title="Max output: 131,072 tokens">205k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.8999999999999999" data-input="0.3" data-cache="0.055" data-provider="z-ai" data-label="z.ai: glm 4.6v">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.6V" title="GLM-4.6V is a large multimodal model designed for high-fidelity visual understanding and long-context reasoning across images, documents, and mixed media. It su">Z.ai: GLM 4.6V</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -7014,7 +7050,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-4.7-Flash" title="As a 30B-class SOTA model, GLM-4.7-Flash offers a new option that balances performance and efficiency. It is further optimized for agentic coding use cases, str">Z.ai: GLM 4.7 Flash</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.060500000000000005" data-priceval="0.060500000000000005"><span class="price-main">$0.06</span></td>
           <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
-          <td class="model-ctx" data-sort="200000" title="Max output: 131,072 tokens">200k</td>
+          <td class="model-ctx" data-sort="202752" title="Max output: 131,072 tokens">203k</td>
         </tr></tbody>
           </table>
         </details>
@@ -7027,7 +7063,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16" title="NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid">NVIDIA: Nemotron 3 Ultra</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.6" data-priceval="0.6"><span class="price-main">$0.60</span><span class="cache-price">cache: $0.20</span></td>
           <td class="model-price price-cell" data-priceval="3.5999999999999996">$3.60</td>
-          <td class="model-ctx" data-sort="1000000">1.0M</td>
+          <td class="model-ctx" data-sort="512288">512k</td>
         </tr></tbody>
       </table>
         <details class="provider-more">
@@ -7128,7 +7164,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="KAT-Coder-Pro V2 is the latest high-performance model in KwaiKAT’s KAT-Coder series, designed for complex enterprise-grade software engineering and SaaS integra">Kwaipilot: KAT-Coder-Pro V2</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.3" data-priceval="0.3"><span class="price-main">$0.30</span><span class="cache-price">cache: $0.06</span></td>
           <td class="model-price price-cell" data-priceval="1.2">$1.20</td>
-          <td class="model-ctx" data-sort="256000" title="Max output: 80,000 tokens">256k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 80,000 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.03" data-provider="kwaipilot" data-label="kwaipilot: kat-coder-air v2.5">
           <td class="catalog-name"><span title="KAT-Coder-Air V2.5 is a flagship-level Agentic Coding model that can directly hand over an entire issue or an entire business workflow to it, allowing it to aut">Kwaipilot: KAT-Coder-Air V2.5</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -7176,7 +7212,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V3.1-Terminus" title="DeepSeek-V3.1 Terminus is an update to [DeepSeek V3.1](/deepseek/deepseek-chat-v3.1) that maintains the model&#39;s original capabilities while addressing issues re">DeepSeek: DeepSeek V3.1 Terminus</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.27" data-priceval="0.27"><span class="price-main">$0.27</span><span class="cache-price">cache: $0.14</span></td>
           <td class="model-price price-cell" data-priceval="1">$1</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 32,768 tokens">131k</td>
+          <td class="model-ctx" data-sort="163840" title="Max output: 32,768 tokens">164k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.95" data-input="0.25" data-cache="0.13" data-provider="deepseek" data-label="deepseek: deepseek v3.1">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V3.1" title="DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinking modes via prompt templates. It extend">DeepSeek: DeepSeek V3.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -7188,13 +7224,13 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V3" title="DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on ne">DeepSeek: DeepSeek V3</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.20020000000000002" data-priceval="0.20020000000000002"><span class="price-main">$0.20</span></td>
           <td class="model-price price-cell" data-priceval="0.8000999999999999">$0.80</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 16,000 tokens">131k</td>
+          <td class="model-ctx" data-sort="163840" title="Max output: 16,000 tokens">164k</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="0.7999999999999999" data-input="0.7999999999999999" data-cache="" data-provider="deepseek" data-label="deepseek: r1 distill llama 70b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B" title="DeepSeek R1 Distill Llama 70B is a distilled large language model based on [Llama-3.3-70B-Instruct](/meta-llama/llama-3.3-70b-instruct), using outputs from [Dee">DeepSeek: R1 Distill Llama 70B</a><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.7999999999999999" data-priceval="0.7999999999999999"><span class="price-main">$0.80</span></td>
           <td class="model-price price-cell" data-priceval="0.7999999999999999">$0.80</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 8,192 tokens">128k</td>
+          <td class="model-ctx" data-sort="8192" title="Max output: 8,192 tokens">8k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.41" data-input="0.27" data-cache="" data-provider="deepseek" data-label="deepseek: deepseek v3.2 exp">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Exp" title="DeepSeek-V3.2-Exp is an experimental large language model released by DeepSeek as an intermediate step between V3.1 and future architectures. It introduces Deep">DeepSeek: DeepSeek V3.2 Exp</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -7208,10 +7244,10 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
           <td class="model-ctx" data-sort="163840" title="Max output: 65,536 tokens">164k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.18760000000000002" data-input="0.09380000000000001" data-cache="0.01876" data-provider="deepseek" data-label="deepseek: deepseek v4 flash">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.196" data-input="0.098" data-cache="0.0196" data-provider="deepseek" data-label="deepseek: deepseek v4 flash">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash" title="DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok">DeepSeek: DeepSeek V4 Flash</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.09380000000000001" data-priceval="0.09380000000000001"><span class="price-main">$0.09</span><span class="cache-price">cache: $0.02</span></td>
-          <td class="model-price price-cell" data-priceval="0.18760000000000002">$0.19</td>
+          <td class="model-price price-cell" data-sort="0.098" data-priceval="0.098"><span class="price-main">$0.10</span><span class="cache-price">cache: $0.02</span></td>
+          <td class="model-price price-cell" data-priceval="0.196">$0.20</td>
           <td class="model-ctx" data-sort="1048576">1.0M</td>
         </tr></tbody>
           </table>
@@ -7371,7 +7407,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/baidu/ERNIE-4.5-VL-424B-A47B-PT" title="ERNIE-4.5-VL-424B-A47B is a multimodal Mixture-of-Experts (MoE) model from Baidu’s ERNIE 4.5 series, featuring 424B total parameters with 47B active per token. ">Baidu: ERNIE 4.5 VL 424B A47B </a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.42" data-priceval="0.42"><span class="price-main">$0.42</span></td>
           <td class="model-price price-cell" data-priceval="1.25">$1.25</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 16,000 tokens">131k</td>
+          <td class="model-ctx" data-sort="123000" title="Max output: 16,000 tokens">123k</td>
         </tr></tbody>
       </table>
         
@@ -7421,7 +7457,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/stepfun-ai/Step-3.7-Flash" title="Step 3.7 Flash is StepFun&#39;s latest high-efficiency multimodal Mixture-of-Experts model. It pairs a 196B-parameter language backbone with a vision encoder for na">StepFun: Step 3.7 Flash</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.19999999999999998" data-priceval="0.19999999999999998"><span class="price-main">$0.20</span><span class="cache-price">cache: $0.04</span></td>
           <td class="model-price price-cell" data-priceval="1.15">$1.15</td>
-          <td class="model-ctx" data-sort="256000" title="Max output: 256,000 tokens">256k</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 256,000 tokens">262k</td>
         </tr></tbody>
       </table>
         <details class="provider-more">
@@ -7482,7 +7518,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/XiaomiMiMo/MiMo-V2.5-Pro" title="MiMo-V2.5-Pro is Xiaomi’s flagship model, delivering strong performance in general agentic capabilities, complex software engineering, and long-horizon tasks, w">Xiaomi: MiMo-V2.5-Pro</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.435" data-priceval="0.435"><span class="price-main">$0.43</span><span class="cache-price">cache: $0.004</span></td>
           <td class="model-price price-cell" data-priceval="0.87">$0.87</td>
-          <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="1050000" title="Max output: 131,072 tokens">1.1M</td>
         </tr></tbody>
       </table>
         <details class="provider-more">
@@ -7493,7 +7529,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/XiaomiMiMo/MiMo-V2.5" title="MiMo-V2.5 is a native omnimodal model by Xiaomi. It delivers Pro-level agentic performance at roughly half the inference cost, while surpassing MiMo-V2-Omni in ">Xiaomi: MiMo-V2.5</a><span class="modality-badge">aud</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span><span class="cache-price">cache: $0.003</span></td>
           <td class="model-price price-cell" data-priceval="0.28">$0.28</td>
-          <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
+          <td class="model-ctx" data-sort="1050000" title="Max output: 131,072 tokens">1.1M</td>
         </tr></tbody>
           </table>
         </details>
@@ -7565,19 +7601,19 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct" title="Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion parameters out of a total of 109B. It sup">Meta: Llama 4 Scout</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span></td>
           <td class="model-price price-cell" data-priceval="0.3">$0.30</td>
-          <td class="model-ctx" data-sort="10000000" title="Max output: 16,384 tokens">10.0M</td>
+          <td class="model-ctx" data-sort="1310720" title="Max output: 16,384 tokens">1.3M</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="0.201" data-input="0.027" data-cache="" data-provider="meta-llama" data-label="meta: llama 3.2 1b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct" title="Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual">Meta: Llama 3.2 1B Instruct</a></td>
           <td class="model-price price-cell" data-sort="0.027" data-priceval="0.027"><span class="price-main">$0.03</span></td>
           <td class="model-price price-cell" data-priceval="0.201">$0.20</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 60,000 tokens">131k</td>
+          <td class="model-ctx" data-sort="60000" title="Max output: 60,000 tokens">60k</td>
         </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="0.18" data-input="0.18" data-cache="" data-provider="meta-llama" data-label="meta: llama guard 4 12b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Llama-Guard-4-12B" title="Llama Guard 4 is a Llama 4 Scout-derived multimodal pretrained model, fine-tuned for content safety classification. Similar to previous versions, it can be used">Meta: Llama Guard 4 12B</a><span class="modality-badge">img</span></td>
           <td class="model-price price-cell" data-sort="0.18" data-priceval="0.18"><span class="price-main">$0.18</span></td>
           <td class="model-price price-cell" data-priceval="0.18">$0.18</td>
-          <td class="model-ctx" data-sort="163840" title="Max output: 16,384 tokens">164k</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 16,384 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.08" data-input="0.049999999999999996" data-cache="0.024999999999999998" data-provider="meta-llama" data-label="meta: llama 3.1 8b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct" title="Meta&#39;s latest class of model (Llama 3.1) launched with a variety of sizes &amp; flavors. This 8B instruct-tuned version is fast and efficient. It has demonstrated s">Meta: Llama 3.1 8B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -7658,7 +7694,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Undi95/ReMM-SLERP-L2-13B" title="A recreation trial of the original MythoMax-L2-B13 but with updated models. #merge">ReMM SLERP 13B</a></td>
           <td class="model-price price-cell" data-sort="0.44999999999999996" data-priceval="0.44999999999999996"><span class="price-main">$0.45</span></td>
           <td class="model-price price-cell" data-priceval="0.65">$0.65</td>
-          <td class="model-ctx" data-sort="6144" title="Max output: 4,096 tokens">6k</td>
+          <td class="model-ctx" data-sort="6144" title="Max output: 2,048 tokens">6k</td>
         </tr></tbody>
       </table>
         
@@ -7701,7 +7737,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/microsoft/WizardLM-2-8x22B" title="WizardLM-2 8x22B is Microsoft AI&#39;s most advanced Wizard model. It demonstrates highly competitive performance compared to leading proprietary models, and it con">WizardLM-2 8x22B</a></td>
           <td class="model-price price-cell" data-sort="0.62" data-priceval="0.62"><span class="price-main">$0.62</span></td>
           <td class="model-price price-cell" data-priceval="0.62">$0.62</td>
-          <td class="model-ctx" data-sort="65536" title="Max output: 8,000 tokens">66k</td>
+          <td class="model-ctx" data-sort="65535" title="Max output: 8,000 tokens">66k</td>
         </tr></tbody>
       </table>
         <details class="provider-more">
@@ -7785,10 +7821,16 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr></tbody>
       </table>
         <details class="provider-more">
-          <summary>1 more model</summary>
+          <summary>2 more models</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.12" data-input="0.06" data-cache="0.03" data-provider="poolside" data-label="poolside: laguna xs 2.1">
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.19999999999999998" data-input="0.09999999999999999" data-cache="0.01" data-provider="poolside" data-label="poolside: laguna s 2.1">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/poolside/Laguna-S-2.1" title="Laguna S 2.1 is the latest coding agent model from [Poolside](&lt;https://poolside.ai/&gt;). Laguna S 2.1 is a 118B total parameter model with 8B active parameters, s">Poolside: Laguna S 2.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span><span class="cache-price">cache: $0.01</span></td>
+          <td class="model-price price-cell" data-priceval="0.19999999999999998">$0.20</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.12" data-input="0.06" data-cache="0.03" data-provider="poolside" data-label="poolside: laguna xs 2.1">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/poolside/Laguna-XS-2.1" title="Laguna XS 2.1 is the latest coding agent model in the 33B-A3B category from [Poolside](https://poolside.ai/) and a step forward from their Laguna XS.2 model (re">Poolside: Laguna XS 2.1</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.06" data-priceval="0.06"><span class="price-main">$0.06</span><span class="cache-price">cache: $0.03</span></td>
           <td class="model-price price-cell" data-priceval="0.12">$0.12</td>
@@ -7866,7 +7908,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Gryphe/MythoMax-L2-13b" title="One of the highest performing and most popular fine-tunes of Llama 2 13B, with rich descriptions and roleplay. #merge">MythoMax 13B</a></td>
           <td class="model-price price-cell" data-sort="0.06" data-priceval="0.06"><span class="price-main">$0.06</span></td>
           <td class="model-price price-cell" data-priceval="0.06">$0.06</td>
-          <td class="model-ctx" data-sort="4096" title="Max output: 4,096 tokens">4k</td>
+          <td class="model-ctx" data-sort="8192" title="Max output: 4,096 tokens">8k</td>
         </tr></tbody>
       </table>
         

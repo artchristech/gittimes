@@ -572,16 +572,18 @@ body {
 
 /* === HYBRID ARTICLES === */
 
+/* Every story gets the front-page treatment: big story headline, italic deck,
+   one byline, the lede. Uniform from the lead down to the last deep cut. */
 .hybrid-article {
   background-color: var(--paper);
-  padding: 16px 20px;
+  padding: 32px 0 28px;
   contain: content;
   isolation: isolate;
   border-bottom: 1px solid var(--rule-light);
 }
 
 .hybrid-lead {
-  padding: 32px 24px;
+  padding: 36px 28px 32px;
   border: 1px solid var(--rule-light);
   border-bottom: 2px solid var(--rule);
   margin-bottom: 32px;
@@ -589,18 +591,20 @@ body {
 
 .hybrid-headline {
   font-family: var(--font-headline);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 4px;
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.3px;
+  max-width: 24em;
+  margin-bottom: 8px;
 }
 
 .hybrid-headline-lead {
-  font-size: 42px;
+  font-size: clamp(34px, 4.5vw, 46px);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.08;
   letter-spacing: -0.5px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .hybrid-share {
@@ -622,24 +626,25 @@ body {
 .hybrid-subheadline {
   font-family: var(--font-headline);
   font-style: italic;
-  font-size: 15px;
+  font-size: 18px;
   color: var(--ink-light);
   line-height: 1.4;
-  margin-bottom: 8px;
+  max-width: 44em;
+  margin-bottom: 10px;
 }
 
 .hybrid-lead .hybrid-subheadline {
-  font-size: 20px;
+  font-size: 21px;
   margin-bottom: 12px;
 }
 
 .hybrid-meta {
   font-family: var(--font-meta);
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .hybrid-meta a {
@@ -1095,8 +1100,9 @@ body {
 }
 
 .hybrid-preview {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 70ch;
   max-height: 500px;
   opacity: 1;
   overflow: hidden;
@@ -1108,12 +1114,16 @@ body {
 }
 
 .hybrid-full {
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 70ch;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.35s ease, opacity 0.25s ease;
+  /* visibility keeps the collapsed fold's links (source, prior coverage) out
+     of the tab order and accessibility tree — max-height alone doesn't. */
+  visibility: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease, visibility 0s 0.35s;
 }
 
 .hybrid-full p {
@@ -1121,8 +1131,9 @@ body {
 }
 
 /* Expanded keeps the preview (the lede) visible and reveals the remainder
-   beneath it. The full block holds only the text past the preview, so the
-   body is never duplicated in the markup. */
+   beneath it. The full block holds the text past the preview PLUS all the
+   secondary furniture (use cases, source line, sentiment, prior coverage),
+   so the collapsed card stays pure front page. */
 .hybrid-article.expanded .hybrid-preview {
   max-height: 1000px;
   opacity: 1;
@@ -1131,15 +1142,20 @@ body {
 .hybrid-article.expanded .hybrid-full {
   max-height: 5000px;
   opacity: 1;
+  visibility: visible;
+  transition: max-height 0.35s ease, opacity 0.25s ease, visibility 0s;
   margin-top: 8px;
 }
 
 .hybrid-lead .hybrid-preview {
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .hybrid-lead .hybrid-full {
-  font-size: 15px;
+  font-size: 17px;
+  /* The lead's expanded remainder runs newspaper columns — let it fill the
+     bordered card instead of inheriting the single-column 70ch cap. */
+  max-width: none;
   text-align: justify;
   hyphens: auto;
 }
@@ -1151,8 +1167,14 @@ body {
   column-rule: 1px solid var(--rule-light);
 }
 
-.hybrid-lead .article-insights {
+/* Extras must span the lead's columns, never split across them. */
+.hybrid-lead .article-insights,
+.hybrid-lead .article-source,
+.hybrid-lead .hybrid-prior,
+.hybrid-lead .lead-rationale,
+.hybrid-lead .x-sentiment {
   column-span: all;
+  break-inside: avoid;
 }
 
 .hybrid-article .article-insights {
@@ -1249,15 +1271,20 @@ body.chat-on .hybrid-ask {
   color: var(--accent);
 }
 
+/* Single column: every story runs full-width, front-page style, separated by
+   a hairline rule — no cramped multi-column card grid. */
 .hybrid-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: 1fr;
   gap: 0;
 }
 
 .hybrid-grid > .hybrid-article {
-  border-right: 1px solid var(--rule-light);
   border-bottom: 1px solid var(--rule-light);
+}
+
+.hybrid-grid > .hybrid-article:last-child {
+  border-bottom: none;
 }
 
 /* === TREND ARTICLES === */
@@ -1374,7 +1401,7 @@ body.chat-on .hybrid-ask {
 .quick-hit-name {
   font-family: var(--font-meta);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   white-space: nowrap;
 }
 
@@ -1388,7 +1415,7 @@ body.chat-on .hybrid-ask {
 }
 
 .quick-hit-summary {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-light);
   flex: 1;
 }
@@ -1869,16 +1896,16 @@ body.chat-on .hybrid-ask {
 [data-size="small"] .secondary-headline { font-size: 19px; }
 [data-size="small"] .featured-headline { font-size: 19px; }
 [data-size="small"] .compact-headline { font-size: 16px; }
-[data-size="small"] .hybrid-headline { font-size: 17px; }
-[data-size="small"] .hybrid-headline-lead { font-size: 36px; }
+[data-size="small"] .hybrid-headline { font-size: clamp(22px, 2.8vw, 28px); }
+[data-size="small"] .hybrid-headline-lead { font-size: clamp(28px, 4vw, 38px); }
 
 [data-size="large"] body { font-size: 18px; }
 [data-size="large"] .lead-headline { font-size: 56px; }
 [data-size="large"] .secondary-headline { font-size: 26px; }
 [data-size="large"] .featured-headline { font-size: 26px; }
 [data-size="large"] .compact-headline { font-size: 20px; }
-[data-size="large"] .hybrid-headline { font-size: 24px; }
-[data-size="large"] .hybrid-headline-lead { font-size: 52px; }
+[data-size="large"] .hybrid-headline { font-size: clamp(30px, 3.6vw, 38px); }
+[data-size="large"] .hybrid-headline-lead { font-size: clamp(38px, 5vw, 52px); }
 
 /* === WIDTH === */
 
@@ -2682,9 +2709,6 @@ body.chat-on .hybrid-ask {
     column-count: 1;
   }
 
-  .hybrid-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {
@@ -3825,6 +3849,17 @@ body.gt-searching .gt-fold {
   <section class="promos-list">
     <h2 class="section-header">Edition Reel</h2>
     <div class="promos-grid">
+    <figure class="promo-card">
+      <video class="promo-video" controls preload="none" playsinline poster="/promos/2026-07-22.jpg">
+        <source src="/promos/2026-07-22.mp4" type="video/mp4">
+        <track kind="captions" srclang="en" label="English" src="/promos/2026-07-22.vtt" default>
+      </video>
+      <figcaption class="promo-meta">
+        <span class="promo-date">Wednesday, July 22, 2026</span>
+        <a href="/editions/2026-07-22/" class="promo-headline">MovieBox-Tui Brings Streaming to the Terminal with Rust Speed</a>
+      </figcaption>
+    </figure>
+
     <figure class="promo-card">
       <video class="promo-video" controls preload="none" playsinline poster="/promos/2026-07-21.jpg">
         <source src="/promos/2026-07-21.mp4" type="video/mp4">
