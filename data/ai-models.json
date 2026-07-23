@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-22T07:33:21.701Z",
+  "syncedAt": "2026-07-23T07:32:14.543Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
@@ -4193,26 +4193,28 @@
       "hugging_face_id": "moonshotai/Kimi-K2.7-Code"
     },
     {
-      "id": "nvidia/nemotron-3-ultra-550b-a55b",
-      "name": "NVIDIA: Nemotron 3 Ultra",
-      "context_length": 512288,
+      "id": "qwen/qwen3.6-27b",
+      "name": "Qwen: Qwen3.6 27B",
+      "context_length": 262144,
       "input": 0.6,
       "output": 3.5999999999999996,
-      "cache_read_price": 0.19999999999999998,
-      "max_completion_tokens": null,
-      "modality": "text->text",
+      "cache_read_price": 0.12,
+      "max_completion_tokens": 262144,
+      "modality": "text+image+video->text",
       "input_modalities": [
-        "text"
+        "text",
+        "image",
+        "video"
       ],
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
         "logit_bias",
+        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
         "reasoning",
-        "reasoning_effort",
         "repetition_penalty",
         "response_format",
         "seed",
@@ -4222,11 +4224,12 @@
         "tool_choice",
         "tools",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
-      "created": 1780551208,
-      "description": "NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid",
-      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
+      "created": 1777255064,
+      "description": "Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a",
+      "hugging_face_id": "Qwen/Qwen3.6-27B"
     },
     {
       "id": "moonshotai/kimi-k2.6",
@@ -4320,6 +4323,43 @@
       "created": 1733436303,
       "description": "Amazon Nova Pro 1.0 is a capable multimodal model from Amazon focused on providing a combination of accuracy, speed, and cost for a wide range of tasks. As of D",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5",
+      "name": "Z.ai: GLM 5",
+      "context_length": 204800,
+      "input": 0.95,
+      "output": 3.15,
+      "cache_read_price": 0.19,
+      "max_completion_tokens": 202752,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1770829182,
+      "description": "GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it de",
+      "hugging_face_id": "zai-org/GLM-5"
     },
     {
       "id": "z-ai/glm-5.1",
@@ -4607,45 +4647,6 @@
       "hugging_face_id": "moonshotai/Kimi-K2.5"
     },
     {
-      "id": "qwen/qwen3.6-27b",
-      "name": "Qwen: Qwen3.6 27B",
-      "context_length": 262144,
-      "input": 0.44999999999999996,
-      "output": 2.7,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777255064,
-      "description": "Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a",
-      "hugging_face_id": "Qwen/Qwen3.6-27B"
-    },
-    {
       "id": "qwen/qwen3.5-27b",
       "name": "Qwen: Qwen3.5-27B",
       "context_length": 262144,
@@ -4721,49 +4722,12 @@
       "hugging_face_id": "Qwen/Qwen3-VL-235B-A22B-Thinking"
     },
     {
-      "id": "z-ai/glm-5",
-      "name": "Z.ai: GLM 5",
-      "context_length": 204800,
-      "input": 0.95,
-      "output": 2.5500000000000003,
-      "cache_read_price": 0.19999999999999998,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1770829182,
-      "description": "GLM-5 is Z.ai’s flagship open-source foundation model engineered for complex systems design and long-horizon agent workflows. Built for expert developers, it de",
-      "hugging_face_id": "zai-org/GLM-5"
-    },
-    {
       "id": "z-ai/glm-5.2",
       "name": "Z.ai: GLM 5.2",
       "context_length": 1048576,
-      "input": 0.805,
-      "output": 2.53,
-      "cache_read_price": 0.14950000000000002,
+      "input": 0.812,
+      "output": 2.552,
+      "cache_read_price": 0.1508,
       "max_completion_tokens": 131072,
       "modality": "text->text",
       "input_modalities": [
@@ -4798,7 +4762,7 @@
     },
     {
       "id": "google/gemini-3.5-flash-lite",
-      "name": "Google: Gemini 3.5 Flash-Lite",
+      "name": "Google: Gemini 3.5 Flash Lite",
       "context_length": 1048576,
       "input": 0.3,
       "output": 2.5,
@@ -4827,7 +4791,7 @@
         "top_p"
       ],
       "created": 1784646726,
-      "description": "Gemini 3.5 Flash-Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subagents that execute focused tasks within co",
+      "description": "Gemini 3.5 Flash Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subagents that execute focused tasks within co",
       "hugging_face_id": null
     },
     {
@@ -5218,6 +5182,42 @@
       "created": 1752263252,
       "description": "Kimi K2 Instruct is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active",
       "hugging_face_id": "moonshotai/Kimi-K2-Instruct"
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "NVIDIA: Nemotron 3 Ultra",
+      "context_length": 512288,
+      "input": 0.5,
+      "output": 2.2,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1780551208,
+      "description": "NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid",
+      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
     },
     {
       "id": "z-ai/glm-4.5",
@@ -6136,7 +6136,7 @@
       "input": 0.25,
       "output": 1.5,
       "cache_read_price": null,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 66000,
       "modality": "text+image->text+image",
       "input_modalities": [
         "image",
@@ -6740,6 +6740,41 @@
       "hugging_face_id": "MiniMaxAI/MiniMax-M2"
     },
     {
+      "id": "qwen/qwen3-next-80b-a3b-instruct",
+      "name": "Qwen: Qwen3 Next 80B A3B Instruct",
+      "context_length": 262144,
+      "input": 0.15,
+      "output": 1.2,
+      "cache_read_price": null,
+      "max_completion_tokens": 262144,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1757612213,
+      "description": "Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targe",
+      "hugging_face_id": "Qwen/Qwen3-Next-80B-A3B-Instruct"
+    },
+    {
       "id": "morph/morph-v3-fast",
       "name": "Morph: Morph V3 Fast",
       "context_length": 81920,
@@ -6895,41 +6930,6 @@
       "created": 1742824755,
       "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [Deep",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3-0324"
-    },
-    {
-      "id": "qwen/qwen3-next-80b-a3b-instruct",
-      "name": "Qwen: Qwen3 Next 80B A3B Instruct",
-      "context_length": 262144,
-      "input": 0.09999999999999999,
-      "output": 1.1,
-      "cache_read_price": 0.07,
-      "max_completion_tokens": 262144,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1757612213,
-      "description": "Qwen3-Next-80B-A3B-Instruct is an instruction-tuned chat model in the Qwen3-Next series optimized for fast, stable responses without “thinking” traces. It targe",
-      "hugging_face_id": "Qwen/Qwen3-Next-80B-A3B-Instruct"
     },
     {
       "id": "minimax/minimax-01",
@@ -7351,6 +7351,43 @@
       "created": 1755779628,
       "description": "DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinking modes via prompt templates. It extend",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1"
+    },
+    {
+      "id": "qwen/qwen3-14b",
+      "name": "Qwen: Qwen3 14B",
+      "context_length": 131072,
+      "input": 0.22749999999999998,
+      "output": 0.9099999999999999,
+      "cache_read_price": null,
+      "max_completion_tokens": 8192,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1745876478,
+      "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
+      "hugging_face_id": "Qwen/Qwen3-14B"
     },
     {
       "id": "minimax/minimax-m2.5",
@@ -8312,6 +8349,42 @@
       "hugging_face_id": null
     },
     {
+      "id": "qwen/qwen3-vl-30b-a3b-instruct",
+      "name": "Qwen: Qwen3 VL 30B A3B Instruct",
+      "context_length": 262144,
+      "input": 0.15,
+      "output": 0.6,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1759794476,
+      "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimi",
+      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
+    },
+    {
       "id": "openai/gpt-4o-mini-search-preview",
       "name": "OpenAI: GPT-4o-mini Search Preview",
       "context_length": 128000,
@@ -8596,42 +8669,6 @@
       "created": 1753119555,
       "description": "Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-235B architecture, with 22B active param",
       "hugging_face_id": "Qwen/Qwen3-235B-A22B-Instruct-2507"
-    },
-    {
-      "id": "qwen/qwen3-vl-30b-a3b-instruct",
-      "name": "Qwen: Qwen3 VL 30B A3B Instruct",
-      "context_length": 262144,
-      "input": 0.13,
-      "output": 0.52,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1759794476,
-      "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimi",
-      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
     },
     {
       "id": "qwen/qwen3-30b-a3b",
@@ -8994,10 +9031,10 @@
       "id": "z-ai/glm-4.7-flash",
       "name": "Z.ai: GLM 4.7 Flash",
       "context_length": 202752,
-      "input": 0.060500000000000005,
+      "input": 0.06,
       "output": 0.39999999999999997,
-      "cache_read_price": null,
-      "max_completion_tokens": 131072,
+      "cache_read_price": 0.01,
+      "max_completion_tokens": 16384,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9320,13 +9357,52 @@
       "hugging_face_id": "meta-llama/Meta-Llama-3.1-70B-Instruct"
     },
     {
+      "id": "google/gemma-4-26b-a4b-it",
+      "name": "Google: Gemma 4 26B A4B ",
+      "context_length": 262144,
+      "input": 0.12,
+      "output": 0.35,
+      "cache_read_price": 0.049999999999999996,
+      "max_completion_tokens": 262144,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "image",
+        "text",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1775227989,
+      "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur",
+      "hugging_face_id": "google/gemma-4-26B-A4B-it"
+    },
+    {
       "id": "google/gemma-4-31b-it",
       "name": "Google: Gemma 4 31B",
       "context_length": 262144,
       "input": 0.12,
-      "output": 0.37,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
+      "output": 0.35,
+      "cache_read_price": 0.09,
+      "max_completion_tokens": 262144,
       "modality": "text+image+video->text",
       "input_modalities": [
         "image",
@@ -9360,52 +9436,13 @@
       "hugging_face_id": "google/gemma-4-31B-it"
     },
     {
-      "id": "google/gemma-4-26b-a4b-it",
-      "name": "Google: Gemma 4 26B A4B ",
-      "context_length": 262144,
-      "input": 0.07,
-      "output": 0.33999999999999997,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "image",
-        "text",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1775227989,
-      "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur",
-      "hugging_face_id": "google/gemma-4-26B-A4B-it"
-    },
-    {
       "id": "meta-llama/llama-3.2-3b-instruct",
       "name": "Meta: Llama 3.2 3B Instruct",
       "context_length": 131072,
-      "input": 0.0509,
-      "output": 0.335,
+      "input": 0.049999999999999996,
+      "output": 0.33,
       "cache_read_price": null,
-      "max_completion_tokens": 80000,
+      "max_completion_tokens": 131072,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9829,43 +9866,6 @@
       "created": 1772053776,
       "description": "The Qwen3.5 native vision-language Flash models are built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-experts",
       "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3-14b",
-      "name": "Qwen: Qwen3 14B",
-      "context_length": 131072,
-      "input": 0.12,
-      "output": 0.24,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1745876478,
-      "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
-      "hugging_face_id": "Qwen/Qwen3-14B"
     },
     {
       "id": "amazon/nova-lite-v1",
