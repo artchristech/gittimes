@@ -16,7 +16,13 @@ const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
 const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
-const { closeDb, recordEditionMeta, resolveDataDir } = require("./src/db");
+const {
+  closeDb,
+  recordEditionMeta,
+  recordFeaturedReleases,
+  getRecentFeaturedReleaseRepos,
+  resolveDataDir,
+} = require("./src/db");
 const { resetMetrics, getMetrics } = require("./src/xai");
 
 /**
@@ -107,11 +113,22 @@ async function main() {
   // GT_DISABLE_GH_RELEASES=1 kill them individually.
   const modelDropsOff = process.env.GT_DISABLE_MODEL_DROPS === "1";
   const ghReleasesOff = process.env.GT_DISABLE_GH_RELEASES === "1";
+  // Cooldown: repos featured in recent Just Shipped bands sit out this run so
+  // the band rotates. Wrapped — the releases band is a bonus block, and a db
+  // hiccup must never take the edition down with it.
+  let releaseCooldown = new Set();
+  try {
+    releaseCooldown = getRecentFeaturedReleaseRepos(resolveDataDir(outDir));
+  } catch (e) {
+    console.warn(`Just Shipped cooldown unavailable (non-fatal): ${e.message}`);
+  }
   const [aiHeadlines, arxivPapers, modelDrops, ghReleases] = await Promise.all([
     fetchAIHeadlines({ limit: 5 }),
     fetchArxiv({ limit: 3 }),
     modelDropsOff ? Promise.resolve([]) : fetchModelDrops({ limit: 6 }),
-    ghReleasesOff ? Promise.resolve([]) : fetchGitHubReleases({ limit: 5, token: githubToken }),
+    ghReleasesOff
+      ? Promise.resolve([])
+      : fetchGitHubReleases({ limit: 5, token: githubToken, suppressRepos: releaseCooldown }),
   ]);
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
@@ -155,6 +172,8 @@ async function main() {
   try {
     const publishedDate = (readManifest(outDir)[0] || {}).date;
     if (publishedDate) {
+      // Feed the Just Shipped cooldown ledger so tomorrow's run rotates.
+      recordFeaturedReleases(resolveDataDir(outDir), publishedDate, ghReleases);
       const m = getMetrics();
       const elapsedMs = Date.now() - _genStartMs;
       recordEditionMeta(resolveDataDir(outDir), {

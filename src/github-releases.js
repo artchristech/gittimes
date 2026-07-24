@@ -9,8 +9,11 @@
  * Strategy: one bounded API call per watched repo (never a global release
  * firehose — no clean API lane exists for that and it's rate-limit suicide),
  * then a pure noise gate: drafts/prereleases out, patch-bump spam out unless
- * it earned real reactions, ranked by freshness-decayed traction — never raw
- * stars.
+ * it earned real reactions — measured against the REPO'S OWN baseline, so a
+ * mega-repo whose every routine patch clears an absolute bar can't buy a slot
+ * with audience size — ranked by freshness-decayed traction, never raw stars.
+ * Repos featured in recent editions sit out a cooldown (suppressRepos) so the
+ * band rotates instead of re-showing the same five daily shippers.
  */
 
 const { ageDays } = require("./recency");
@@ -99,12 +102,22 @@ function isPatchNoise(tag) {
 }
 
 /**
+ * Median of a numeric array; 0 when empty.
+ */
+function median(nums) {
+  if (!nums.length) return 0;
+  const s = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+}
+
+/**
  * Rank + filter raw GitHub release records into clean release objects. Pure
  * (no I/O) so it's unit-testable. Input records are the REST /releases shape
  * plus a `repo` field ("owner/name") the fetcher annotates. Keeps genuinely
  * recent, stable, non-spam releases; one per repo; caps at `limit`.
  * @param {Array} items - release records (need repo, tag_name, published_at, draft, prerelease, html_url, reactions)
- * @param {object} [opts] - { limit, windowDays, minPatchReactions, nowMs }
+ * @param {object} [opts] - { limit, windowDays, minPatchReactions, baselineMultiplier, suppressRepos, nowMs }
  * @returns {Array<{repo,owner,name,tag,title,reactions,publishedAt,ageDays,url}>}
  */
 function selectReleases(items, opts = {}) {
@@ -112,11 +125,36 @@ function selectReleases(items, opts = {}) {
     limit = 5,
     windowDays = 14,
     minPatchReactions = 25,
+    // A patch release must beat this multiple of its repo's typical release
+    // reactions to count as news — "unusually noticed for THIS repo", not
+    // "from a repo with a big audience".
+    baselineMultiplier = 3,
+    // Repos featured in recent editions (cooldown). They already had their
+    // slot; suppressing them is what makes the band rotate day to day.
+    suppressRepos = new Set(),
     nowMs = Date.now(),
     gravity = 1.3,
   } = opts;
   if (!Array.isArray(items)) return [];
   const seen = new Set();
+
+  // Per-repo reaction baseline: median reactions across the repo's OTHER
+  // fetched releases. High-cadence repos define their own "routine" level, so
+  // a patch bump only clears the gate when it's an outlier for that repo.
+  // Repos with a single fetched release have no baseline (0) and fall back to
+  // the absolute minPatchReactions bar.
+  const reactionsByRepo = new Map();
+  for (const r of items) {
+    if (!r || typeof r.repo !== "string") continue;
+    if (!reactionsByRepo.has(r.repo)) reactionsByRepo.set(r.repo, []);
+    reactionsByRepo.get(r.repo).push((r.reactions && r.reactions.total_count) || 0);
+  }
+  const patchBar = (repo, ownReactions) => {
+    const others = (reactionsByRepo.get(repo) || []).slice();
+    const i = others.indexOf(ownReactions);
+    if (i !== -1) others.splice(i, 1);
+    return Math.max(minPatchReactions, baselineMultiplier * median(others));
+  };
   // Freshness-decayed traction, same curve as Model Drops: what JUST shipped
   // and is getting picked up, not whichever release accreted the most
   // reactions across the window. Raw stars never enter the score — the
@@ -144,8 +182,11 @@ function selectReleases(items, opts = {}) {
     .filter((x) => !x.r.draft && !x.r.prerelease && !PRERELEASE_TAG_RE.test(x.r.tag_name))
     // A release is only news while it's fresh — inside the window, not just latest.
     .filter((x) => x.age <= windowDays)
-    // Patch-bump / build-tag spam must earn its slot with real reactions.
-    .filter((x) => !isPatchNoise(x.r.tag_name) || x.reactions >= minPatchReactions)
+    // Featured recently → cooling down. The band is a rotation, not a leaderboard.
+    .filter((x) => !suppressRepos.has(x.r.repo))
+    // Patch-bump / build-tag spam must earn its slot with reactions unusual
+    // FOR THAT REPO (repo-relative bar), never just an absolute count.
+    .filter((x) => !isPatchNoise(x.r.tag_name) || x.reactions >= patchBar(x.r.repo, x.reactions))
     // Freshest, most-picked-up first; newer breaks ties.
     .sort((a, b) => releaseScore(b) - releaseScore(a) || a.age - b.age)
     // One slot per repo — dedupe AFTER ranking so the best release survives.
@@ -184,6 +225,8 @@ async function fetchGitHubReleases(options = {}) {
     limit = 5,
     windowDays = 14,
     minPatchReactions = 25,
+    baselineMultiplier = 3,
+    suppressRepos = new Set(),
     token = process.env.GITHUB_TOKEN,
     fetchImpl = globalThis.fetch,
     nowMs = Date.now(),
@@ -209,7 +252,9 @@ async function fetchGitHubReleases(options = {}) {
     const controller = typeof AbortCtor === "function" ? new AbortCtor() : null;
     const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
     try {
-      const url = `https://api.github.com/repos/${repo}/releases?per_page=3`;
+      // per_page=5: the extra records beyond the freshest exist to give the
+      // repo-relative patch gate a reaction baseline to compare against.
+      const url = `https://api.github.com/repos/${repo}/releases?per_page=5`;
       const res = await fetchImpl(url, {
         headers,
         ...(controller ? { signal: controller.signal } : {}),
@@ -242,7 +287,14 @@ async function fetchGitHubReleases(options = {}) {
     );
   }
 
-  const releases = selectReleases(all, { limit, windowDays, minPatchReactions, nowMs });
+  const releases = selectReleases(all, {
+    limit,
+    windowDays,
+    minPatchReactions,
+    baselineMultiplier,
+    suppressRepos,
+    nowMs,
+  });
   console.log(
     `GitHub Releases: ${releases.length} notable release(s) from ${watched.length} watched repos`
   );

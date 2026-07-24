@@ -96,6 +96,16 @@ function _initSchema(db) {
 
     -- Generation telemetry, captured once per edition. Purely observational:
     -- nothing in the generation/publish path reads this back.
+    -- Just Shipped cooldown ledger: which repo's release ran in which edition.
+    -- Read back at generation time to suppress recently-featured repos so the
+    -- band rotates instead of re-showing the same high-cadence shippers daily.
+    CREATE TABLE IF NOT EXISTS featured_releases (
+      edition_date TEXT NOT NULL,
+      repo         TEXT NOT NULL,
+      tag          TEXT NOT NULL DEFAULT '',
+      PRIMARY KEY (edition_date, repo)
+    );
+
     CREATE TABLE IF NOT EXISTS edition_meta (
       date              TEXT PRIMARY KEY,
       model             TEXT    NOT NULL DEFAULT '',
@@ -338,6 +348,48 @@ function getUsedTaglines(dataDir) {
   return new Set(rows.map((r) => `\u201C${r.quote_text}\u201D \u2014 ${r.author}`));
 }
 
+// --- Just Shipped release cooldown ---
+
+/**
+ * Record which releases ran in the Just Shipped band for an edition.
+ * @param {string} dataDir
+ * @param {string} editionDate
+ * @param {Array<{repo: string, tag?: string}>} releases
+ */
+function recordFeaturedReleases(dataDir, editionDate, releases) {
+  if (!editionDate || !Array.isArray(releases) || releases.length === 0) return;
+  const db = getDb(dataDir);
+  const stmt = db.prepare(
+    "INSERT OR REPLACE INTO featured_releases (edition_date, repo, tag) VALUES (?, ?, ?)"
+  );
+  const insertAll = db.transaction((rows) => {
+    for (const r of rows) {
+      if (r && typeof r.repo === "string") stmt.run(editionDate, r.repo, r.tag || "");
+    }
+  });
+  insertAll(releases);
+}
+
+/**
+ * Repos whose releases were featured in the last N editions' Just Shipped
+ * bands — the cooldown set passed to fetchGitHubReleases as suppressRepos.
+ * @param {string} dataDir
+ * @param {number} [lookback=4] - editions, not days
+ * @returns {Set<string>}
+ */
+function getRecentFeaturedReleaseRepos(dataDir, lookback = 4) {
+  const db = getDb(dataDir);
+  const rows = db.prepare(`
+    SELECT DISTINCT fr.repo
+    FROM featured_releases fr
+    INNER JOIN (
+      SELECT DISTINCT edition_date FROM featured_releases
+      ORDER BY edition_date DESC LIMIT ?
+    ) recent ON fr.edition_date = recent.edition_date
+  `).all(lookback);
+  return new Set(rows.map((r) => r.repo));
+}
+
 // --- Repo snapshots (history) ---
 
 /**
@@ -487,6 +539,8 @@ module.exports = {
   getEditionMeta,
   getRecentRepoNames,
   getRecentRepoCoverage,
+  recordFeaturedReleases,
+  getRecentFeaturedReleaseRepos,
   recordQuoteUsage,
   getUsedTaglines,
   loadSnapshots,
