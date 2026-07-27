@@ -38,6 +38,11 @@
           <button class="panel-pill" data-value="cyberpunk">Cyberpunk</button>
           <button class="panel-pill" data-value="business">Business</button>
           <button class="panel-pill" data-value="whitepaper">Whitepaper</button>
+          <button class="panel-pill" data-value="terminal">Terminal</button>
+          <button class="panel-pill" data-value="tabloid">Tabloid</button>
+          <button class="panel-pill" data-value="zine">Zine</button>
+          <button class="panel-pill" data-value="noir">Noir</button>
+          <button class="panel-pill" data-value="brutalist">Brutalist</button>
         </div>
       </div>
       <div class="panel-group panel-group-color">
@@ -148,7 +153,10 @@
       // Full design identities — typography + palette + chrome, applied via
       // [data-design] blocks in the stylesheet. Unknown values collapse to the
       // default so a stale cache or synced junk can never wedge the page.
-      var DESIGNS = ['newspaper', 'cyberpunk', 'business', 'whitepaper'];
+      var DESIGNS = ['newspaper', 'cyberpunk', 'business', 'whitepaper', 'terminal', 'tabloid', 'zine', 'noir', 'brutalist'];
+      // Designs whose CSS scratches entry animations entirely — armReveals
+      // must match, so a mid-session switch needs no re-arm.
+      var NO_MOTION_DESIGNS = ['whitepaper', 'brutalist'];
 
       // Theme preset color maps (H, S, L for bg and text)
       var presets = {
@@ -472,9 +480,9 @@
       function armReveals(root) {
         var els = [].slice.call((root || document).querySelectorAll('[data-reveal]:not(.in)'));
         if (!els.length) return;
-        // The Whitepaper design scratches entry animations entirely (its CSS
+        // The no-motion designs scratch entry animations entirely (their CSS
         // also force-reveals, so a mid-session switch needs no re-arm here).
-        if (reduceMotion || state.design === 'whitepaper' || !('IntersectionObserver' in window)) {
+        if (reduceMotion || NO_MOTION_DESIGNS.indexOf(state.design) !== -1 || !('IntersectionObserver' in window)) {
           els.forEach(function(el) { el.classList.add('in'); });
           return;
         }

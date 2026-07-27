@@ -482,6 +482,44 @@ function cleanReadmeExcerpt(raw) {
   return text.slice(0, 2000);
 }
 
+// First N sentences of a cleaned excerpt, hard-capped for hovercard use.
+function firstSentences(text, n = 2, maxLen = 240) {
+  if (!text) return "";
+  const matches = text.match(/[^.!?]+[.!?]+(?:\s|$)/g);
+  const joined = matches ? matches.slice(0, n).join(" ").replace(/\s+/g, " ").trim() : text;
+  if (joined.length <= maxLen) return joined;
+  return joined.slice(0, maxLen - 1).trimEnd() + "…";
+}
+
+/**
+ * Attach a short README excerpt (`_pillReadme`) to the repos that will render
+ * as trend pills — the first `perTrend` of each cluster. Powers the build-time
+ * hovercard, so the published page needs no client-side GitHub calls. Fetch
+ * failures degrade to no excerpt; the card falls back to the description.
+ * Mutates the repo objects in place.
+ */
+async function enrichTrendRepos(trends, token, perTrend = 5) {
+  const { default: pLimit } = await pLimitP;
+  const limit = pLimit(5);
+  const seen = new Set();
+  const jobs = [];
+  for (const trend of trends || []) {
+    for (const repo of (trend.repos || []).slice(0, perTrend)) {
+      const name = repo.full_name || repo.name;
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      jobs.push(limit(async () => {
+        const data = await request(`${GITHUB_API}/repos/${name}/readme`, token).catch(() => null);
+        if (data && data.content) {
+          const decoded = Buffer.from(data.content, "base64").toString("utf-8");
+          repo._pillReadme = firstSentences(cleanReadmeExcerpt(decoded));
+        }
+      }));
+    }
+  }
+  await Promise.all(jobs);
+}
+
 async function enrichRepo(repo, token) {
   const [readmeData, releaseData] = await Promise.all([
     request(
@@ -750,4 +788,4 @@ async function fetchAndEnrich(token, options = {}) {
   };
 }
 
-module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, graphqlRequest };
+module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, enrichTrendRepos, firstSentences, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, graphqlRequest };

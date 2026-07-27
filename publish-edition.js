@@ -11,6 +11,7 @@ const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = r
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
 const { fetchModelDrops } = require("./src/model-drops");
 const { fetchGitHubReleases } = require("./src/github-releases");
+const { fetchPushups, collectFeaturedRepos } = require("./src/pushups");
 const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
@@ -132,6 +133,14 @@ async function main() {
   ]);
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
+  // Step 2d: The Pushup Report (the sports desk) — how many commits today's
+  // featured repos pushed this week, ranked. Pure fun, fully fail-soft.
+  // GT_DISABLE_PUSHUPS=1 kills it.
+  const pushups =
+    process.env.GT_DISABLE_PUSHUPS === "1"
+      ? []
+      : await fetchPushups({ repos: collectFeaturedRepos(content), token: githubToken, limit: 5 });
+
   // Step 3: Validate content
   const dryRun = process.argv.includes("--dry-run");
   const validation = validateContent(content);
@@ -165,6 +174,7 @@ async function main() {
     aiWire: { headlines: aiHeadlines, research: arxivPapers },
     modelDrops,
     ghReleases,
+    pushups,
   });
 
   // Step 4b: Record generation telemetry. Observational only and fully wrapped —

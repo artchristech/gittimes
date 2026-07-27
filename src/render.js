@@ -176,11 +176,28 @@ function renderCompactArticle(article) {
       </article>`;
 }
 
+// GitHub-style hovercard baked into the pill at build time: description,
+// README opening, language, stars. Empty when there's nothing to show, so
+// pills from old editions or failed fetches stay plain links.
+function renderRepoHovercard(r) {
+  const clamp = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
+  const desc = clamp((r.description || "").trim(), 160);
+  const readme = (r.readme || "").trim();
+  if (!desc && !readme) return "";
+  const meta = [r.language, r.stars ? `${formatStars(r.stars)} stars` : ""].filter(Boolean).join(" · ");
+  return `<span class="repo-hovercard" aria-hidden="true">
+        <span class="repo-hovercard-name">${escapeHtml(r.name)}</span>
+        ${desc ? `<span class="repo-hovercard-desc">${escapeHtml(desc)}</span>` : ""}
+        ${readme && readme !== desc ? `<span class="repo-hovercard-readme">${escapeHtml(readme)}</span>` : ""}
+        ${meta ? `<span class="repo-hovercard-meta">${escapeHtml(meta)}</span>` : ""}
+      </span>`;
+}
+
 function renderTrendMeta(article) {
   const repos = article._trendRepos || [];
   const theme = article.repo.shortName || "trend";
   const pills = repos.slice(0, 5).map(r =>
-    `<a class="trend-repo-pill" href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.name)}</a>`
+    `<a class="trend-repo-pill" href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.name)}${renderRepoHovercard(r)}</a>`
   ).join("");
   const overflow = repos.length > 5 ? `<span class="trend-repo-overflow">+${repos.length - 5} more</span>` : "";
   return `<div class="trend-meta">
@@ -545,6 +562,40 @@ function renderGitHubReleases(releases) {
 }
 
 /**
+ * The Pushup Report — the sports desk band. Reps = commits pushed in the last
+ * seven days by the repos featured in today's edition, graded like a gym
+ * leaderboard. Shares the drops band chrome so it reads as part of the same
+ * system. Returns "" when empty (band disappears cleanly).
+ * @param {Array<{repo,owner,name,reps,repsLabel,form,url}>} board
+ */
+function renderPushups(board) {
+  if (!Array.isArray(board) || board.length === 0) return "";
+  const items = board
+    .map((p, i) => {
+      const form = p.form ? `<span class="drop-task">${escapeHtml(p.form)}</span>` : "";
+      return `
+        <li class="drop-item">
+          <a class="drop-link" href="${escapeHtml(p.url)}" target="_blank" rel="noopener">
+            <span class="drop-name">${i + 1}. ${escapeHtml(p.name)}</span>
+            <span class="drop-author">${escapeHtml(p.owner)}</span>
+          </a>
+          <span class="drop-meta">${form}<span class="drop-likes">${escapeHtml(p.repsLabel)} reps</span></span>
+        </li>`;
+    })
+    .join("");
+  return `
+    <section class="model-drops pushup-report" aria-label="The Pushup Report" data-reveal>
+      <div class="model-drops-head">
+        <span class="section-kicker">The Sports Desk</span>
+        <h2 class="model-drops-header">The Pushup Report</h2>
+        <span class="model-drops-sub">How many pushups can this week's repos do? Reps counted over the last seven days, form graded.</span>
+      </div>
+      <ul class="model-drops-list">${items}
+      </ul>
+    </section>`;
+}
+
+/**
  * "Across the Desk" — the front-page rail. Today's lead headline from every
  * other section (AI, Robotics, Cyber, …), so the front page leads with editorial
  * signal across the whole paper instead of a flat link list. Each item jumps to
@@ -598,6 +649,7 @@ function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
   // Empty (no items / fetch failed) renders nothing.
   let html = renderModelDrops(opts.modelDrops);
   html += renderGitHubReleases(opts.ghReleases);
+  html += renderPushups(opts.pushups);
 
   html += `<div class="front-hero">
       <div class="front-lead-col" data-reveal>${renderHybridArticle(fp.lead, { isLead: true })}</div>
@@ -730,6 +782,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
       panelContent = renderFrontPagePanel(content.sections, SECTIONS, navOrder, {
         modelDrops: options.modelDrops || (content.modelDrops || []),
         ghReleases: options.ghReleases || (content.ghReleases || []),
+        pushups: options.pushups || (content.pushups || []),
       });
     } else {
       panelContent = renderSectionContent(content.sections[id], SECTIONS[id]);
@@ -959,4 +1012,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderDeskRail, renderFrontPagePanel, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderPushups, renderDeskRail, renderFrontPagePanel, renderSourceLine };
