@@ -1,8 +1,9 @@
-// Design presets — the reader toolbar's four full design identities
-// (Newspaper default / Cyberpunk / Business / Whitepaper). These tests pin
-// the static contract across the template, stylesheet, and worker: the pills
-// exist and come first, the setting syncs, each design owns typography +
-// palette (not a color swap), and `newspaper` stays the untouched default.
+// Design presets — the reader toolbar's full design identities
+// (Newspaper default / Cyberpunk / Business / Whitepaper / Terminal /
+// Tabloid / Zine / Noir / Brutalist). These tests pin the static contract
+// across the template, stylesheet, and worker: the pills exist and come
+// first, the setting syncs, each design owns typography + palette (not a
+// color swap), and `newspaper` stays the untouched default.
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("fs");
@@ -12,11 +13,14 @@ const template = fs.readFileSync(path.join(__dirname, "..", "templates", "newspa
 const css = fs.readFileSync(path.join(__dirname, "..", "styles", "newspaper.css"), "utf8");
 const workerSrc = fs.readFileSync(path.join(__dirname, "..", "worker", "index.js"), "utf8");
 
-const DESIGNS = ["newspaper", "cyberpunk", "business", "whitepaper"];
+const DESIGNS = ["newspaper", "cyberpunk", "business", "whitepaper", "terminal", "tabloid", "zine", "noir", "brutalist"];
 const NEW_DESIGNS = DESIGNS.filter((d) => d !== "newspaper");
+// Designs whose CSS scratches entry/scroll animations; the template's
+// armReveals gate must list exactly these.
+const NO_MOTION_DESIGNS = ["whitepaper", "brutalist"];
 
 describe("design presets — toolbar markup", () => {
-  it("has a Design group with exactly the four preset pills", () => {
+  it("has a Design group with exactly the preset pills, in order", () => {
     const group = template.match(/<div class="panel-options panel-options-grid" data-setting="design">([\s\S]*?)<\/div>/);
     assert.ok(group, "design pill group missing");
     const values = [...group[1].matchAll(/data-value="([^"]+)"/g)].map((m) => m[1]);
@@ -44,6 +48,10 @@ describe("design presets — toolbar markup", () => {
 
   it("sanitizes unknown design values back to the default", () => {
     assert.match(template, /DESIGNS\.indexOf\(state\.design\) === -1/, "client-side design sanitizer missing");
+    const designs = template.match(/var DESIGNS = \[([^\]]*)\]/);
+    assert.ok(designs, "client-side DESIGNS whitelist missing");
+    const values = [...designs[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+    assert.deepEqual(values, DESIGNS, "template DESIGNS must match the pills");
   });
 });
 
@@ -65,7 +73,7 @@ describe("design presets — stylesheet", () => {
     }
   });
 
-  it("the three designs use pairwise-distinct backgrounds and body fonts", () => {
+  it("the non-default designs use pairwise-distinct backgrounds and body fonts", () => {
     const papers = new Set();
     const bodies = new Set();
     for (const design of NEW_DESIGNS) {
@@ -75,8 +83,8 @@ describe("design presets — stylesheet", () => {
     // Plus the :root newspaper defaults
     papers.add(css.match(/:root \{[^}]*--paper:\s*([^;]+);/)[1].trim());
     bodies.add(css.match(/:root \{[^}]*--font-body:\s*([^;]+);/)[1].trim());
-    assert.equal(papers.size, 4, "all four designs need distinct --paper values");
-    assert.equal(bodies.size, 4, "all four designs need distinct --font-body stacks");
+    assert.equal(papers.size, DESIGNS.length, "all designs need distinct --paper values");
+    assert.equal(bodies.size, DESIGNS.length, "all designs need distinct --font-body stacks");
   });
 
   it("designs hide the color preset and slider groups", () => {
@@ -85,12 +93,22 @@ describe("design presets — stylesheet", () => {
     }
   });
 
-  it("whitepaper scratches entry/scroll animations", () => {
-    const reveal = css.match(/\[data-design="whitepaper"\] \[data-reveal\] \{([^}]*)\}/);
-    assert.ok(reveal, "whitepaper [data-reveal] override missing");
-    assert.match(reveal[1], /opacity:\s*1\s*!important/);
-    assert.match(reveal[1], /transition:\s*none\s*!important/);
-    assert.ok(css.includes('[data-design="whitepaper"] .scroll-progress'), "whitepaper must hide the scroll progress bar");
+  it("no-motion designs scratch entry/scroll animations", () => {
+    for (const design of NO_MOTION_DESIGNS) {
+      const reveal = css.match(new RegExp(`\\[data-design="${design}"\\] \\[data-reveal\\] \\{([^}]*)\\}`));
+      assert.ok(reveal, `${design}: [data-reveal] override missing`);
+      assert.match(reveal[1], /opacity:\s*1\s*!important/);
+      assert.match(reveal[1], /transition:\s*none\s*!important/);
+      assert.ok(css.includes(`[data-design="${design}"] .scroll-progress`), `${design}: must hide the scroll progress bar`);
+    }
+  });
+
+  it("the template's armReveals gate lists exactly the no-motion designs", () => {
+    const noMotion = template.match(/var NO_MOTION_DESIGNS = \[([^\]]*)\]/);
+    assert.ok(noMotion, "NO_MOTION_DESIGNS missing from the template");
+    const values = [...noMotion[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+    assert.deepEqual(values, NO_MOTION_DESIGNS);
+    assert.match(template, /NO_MOTION_DESIGNS\.indexOf\(state\.design\) !== -1/, "armReveals must gate on NO_MOTION_DESIGNS");
   });
 });
 

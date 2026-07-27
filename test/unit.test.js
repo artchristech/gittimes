@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
 const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge } = require("../src/render");
-const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection } = require("../src/github");
+const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, firstSentences } = require("../src/github");
 const { parseArticle, parseQuickHits, sanitizePrompt } = require("../src/xai");
 const { parseXSentiment } = require("../src/x-sentiment");
 const { SECTIONS, SECTION_ORDER } = require("../src/sections");
@@ -821,6 +821,85 @@ describe("renderHybridArticle", () => {
       priorCoverage: [{ date: "2026-06-12", headline: "X" }],
     };
     assert.ok(!renderHybridArticle(trend).includes("hybrid-prior"));
+  });
+
+  describe("trend pill hovercard", () => {
+    const trendWith = (repos) => ({
+      ...baseArticle,
+      _isTrend: true,
+      _trendRepos: repos,
+      repo: { ...baseArticle.repo, shortName: "trendy" },
+    });
+
+    it("renders description, readme, and meta inside the pill", () => {
+      const html = renderHybridArticle(trendWith([{
+        url: "https://github.com/a/one",
+        name: "a/one",
+        language: "Python",
+        stars: 12400,
+        description: "An opinionated linter.",
+        readme: "Welcome to the strictest linter ever. It teaches your LLM idiomatic code.",
+      }]));
+      assert.ok(html.includes("repo-hovercard"));
+      assert.ok(html.includes("An opinionated linter."));
+      assert.ok(html.includes("strictest linter ever"));
+      assert.ok(html.includes("Python · 12.4k stars"));
+    });
+
+    it("omits the card when the repo has no description or readme", () => {
+      const html = renderHybridArticle(trendWith([
+        { url: "https://github.com/c/three", name: "c/three" },
+      ]));
+      assert.ok(html.includes("trend-repo-pill"));
+      assert.ok(!html.includes("repo-hovercard"));
+    });
+
+    it("skips the readme line when it duplicates the description", () => {
+      const html = renderHybridArticle(trendWith([{
+        url: "https://github.com/a/one",
+        name: "a/one",
+        description: "Same text.",
+        readme: "Same text.",
+      }]));
+      assert.ok(html.includes("repo-hovercard-desc"));
+      assert.ok(!html.includes("repo-hovercard-readme"));
+    });
+
+    it("escapes hostile description content", () => {
+      const html = renderHybridArticle(trendWith([{
+        url: "https://github.com/a/one",
+        name: "a/one",
+        description: '<img src=x onerror=alert(1)> "quoted"',
+      }]));
+      assert.ok(!html.includes("<img src=x"));
+      assert.ok(html.includes("&lt;img"));
+    });
+  });
+});
+
+// --------------- firstSentences ---------------
+
+describe("firstSentences", () => {
+  it("keeps the first two sentences", () => {
+    assert.equal(
+      firstSentences("One here. Two here. Three here."),
+      "One here. Two here."
+    );
+  });
+
+  it("caps length with an ellipsis", () => {
+    const long = "word ".repeat(100) + "end.";
+    const out = firstSentences(long, 2, 50);
+    assert.ok(out.length <= 50);
+    assert.ok(out.endsWith("…"));
+  });
+
+  it("falls back to raw text when there is no sentence punctuation", () => {
+    assert.equal(firstSentences("no punctuation at all"), "no punctuation at all");
+  });
+
+  it("returns empty string for empty input", () => {
+    assert.equal(firstSentences(""), "");
   });
 });
 

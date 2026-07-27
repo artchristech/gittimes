@@ -81,8 +81,22 @@ const SECONDARY = [
     repo: { url: "#", name: "trend", shortName: "agent-primitives", language: "", stars: 0 },
     _isTrend: true,
     _trendRepos: [
-      { url: "https://github.com/a/one", name: "a/one" },
-      { url: "https://github.com/b/two", name: "b/two" },
+      {
+        url: "https://github.com/a/one",
+        name: "a/one",
+        language: "Python",
+        stars: 12400,
+        description: "The strictest and most opinionated agent framework ever.",
+        readme: "Welcome to the strictest and most opinionated agent framework ever. The best tool to teach your LLM how to plan, call tools, and remember.",
+      },
+      {
+        url: "https://github.com/b/two",
+        name: "b/two",
+        language: "TypeScript",
+        stars: 890,
+        description: "Typed tool registry with pluggable memory stores for agent runtimes.",
+      },
+      // No description/readme: pill must render as a plain link, no card.
       { url: "https://github.com/c/three", name: "c/three" },
     ],
   },

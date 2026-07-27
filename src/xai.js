@@ -761,6 +761,9 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
           name: r.full_name || r.name,
           url: `https://github.com/${r.full_name || r.name}`,
           language: r.language || null,
+          description: r.description || "",
+          stars: r.stargazers_count || 0,
+          readme: r._pillReadme || "",
         })),
       };
 

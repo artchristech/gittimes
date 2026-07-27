@@ -373,3 +373,49 @@ describe("validateContent", () => {
     assert.equal(result.summary.emptyCount, 1);
   });
 });
+
+// --------------- featured_releases cooldown ledger ---------------
+
+describe("featured releases cooldown", () => {
+  const db = require("../src/db");
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "gittimes-featured-"));
+  });
+
+  afterEach(() => {
+    db.closeDb();
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("returns an empty set with no history", () => {
+    const result = db.getRecentFeaturedReleaseRepos(tmpDir);
+    assert.ok(result instanceof Set);
+    assert.equal(result.size, 0);
+  });
+
+  it("records featured releases and suppresses only the last N editions", () => {
+    db.recordFeaturedReleases(tmpDir, "2026-07-17", [{ repo: "ollama/ollama", tag: "v0.32.0" }]);
+    db.recordFeaturedReleases(tmpDir, "2026-07-18", [{ repo: "astral-sh/uv", tag: "0.11.29" }]);
+    db.recordFeaturedReleases(tmpDir, "2026-07-19", [{ repo: "astral-sh/ruff", tag: "0.15.22" }]);
+    db.recordFeaturedReleases(tmpDir, "2026-07-20", [
+      { repo: "anthropics/claude-code", tag: "v2.1.215" },
+      { repo: "openai/codex" }, // tag optional
+    ]);
+
+    const cooldown = db.getRecentFeaturedReleaseRepos(tmpDir, 3);
+    assert.ok(cooldown.has("anthropics/claude-code"));
+    assert.ok(cooldown.has("openai/codex"));
+    assert.ok(cooldown.has("astral-sh/ruff"));
+    assert.ok(cooldown.has("astral-sh/uv"));
+    assert.ok(!cooldown.has("ollama/ollama")); // outside lookback=3
+  });
+
+  it("ignores empty or malformed input without throwing", () => {
+    db.recordFeaturedReleases(tmpDir, "2026-07-20", []);
+    db.recordFeaturedReleases(tmpDir, "", [{ repo: "a/b" }]);
+    db.recordFeaturedReleases(tmpDir, "2026-07-20", [null, { notRepo: true }]);
+    assert.equal(db.getRecentFeaturedReleaseRepos(tmpDir).size, 0);
+  });
+});

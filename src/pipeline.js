@@ -2,7 +2,7 @@
  * Shared generation pipeline used by both generate.js and publish-edition.js.
  * Encapsulates: fetch → editorial → generate → dedup.
  */
-const { fetchAllSections } = require("./github");
+const { fetchAllSections, enrichTrendRepos } = require("./github");
 const { generateAllContent, generateEditorialContent, deduplicateContent } = require("./xai");
 const { loadHistory, computeDeltas } = require("./history");
 const { makeEditorialPlan } = require("./editorial");
@@ -57,6 +57,12 @@ async function runPipeline(githubToken, xaiKey, options = {}) {
       if (editorialPlan.breakout) console.log(`  Breakout: ${editorialPlan.breakout.repo.full_name}`);
       if (editorialPlan.trends.length > 0) console.log(`  Trends: ${editorialPlan.trends.map((t) => t.theme).join(", ")}`);
       if (editorialPlan.sleepers.length > 0) console.log(`  Sleepers: ${editorialPlan.sleepers.map((s) => s.repo.full_name).join(", ")}`);
+    }
+
+    if (editorialPlan.trends.length > 0) {
+      await enrichTrendRepos(editorialPlan.trends, githubToken).catch((err) =>
+        console.warn(`Trend pill README enrichment failed: ${err.message}`)
+      );
     }
 
     const editorialOpts = { githubToken, coverage, fetchXSentimentForRepo };

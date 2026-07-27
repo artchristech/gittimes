@@ -75,6 +75,59 @@ describe("selectReleases", () => {
     assert.deepEqual(out.map((r) => r.repo), ["vllm-project/vllm"]);
   });
 
+  it("raises the patch bar to the repo's own baseline — routine mega-repo patches lose", () => {
+    // claude-code-shaped: every patch clears the absolute 25-reaction bar just
+    // from audience size. The repo's own median (~35) sets the real bar (3x),
+    // so a routine 37-reaction patch is noise while a 120-reaction outlier
+    // patch from the same repo is news.
+    const routine = [
+      R("anthropics/claude-code", "v2.1.215", 1, { reactions: 37 }),
+      R("anthropics/claude-code", "v2.1.214", 2, { reactions: 35 }),
+      R("anthropics/claude-code", "v2.1.213", 3, { reactions: 33 }),
+    ];
+    assert.equal(selectReleases(routine, { nowMs: NOW }).length, 0);
+
+    const outlier = [
+      R("anthropics/claude-code", "v2.1.215", 1, { reactions: 120 }),
+      R("anthropics/claude-code", "v2.1.214", 2, { reactions: 35 }),
+      R("anthropics/claude-code", "v2.1.213", 3, { reactions: 33 }),
+    ];
+    assert.deepEqual(selectReleases(outlier, { nowMs: NOW }).map((r) => r.tag), ["v2.1.215"]);
+  });
+
+  it("falls back to the absolute patch bar when a repo has no baseline", () => {
+    // Single fetched release → no sibling baseline → old behavior.
+    const out = selectReleases([R("pgvector/pgvector", "v0.8.1", 1, { reactions: 30 })], {
+      nowMs: NOW,
+      minPatchReactions: 25,
+    });
+    assert.deepEqual(out.map((r) => r.tag), ["v0.8.1"]);
+  });
+
+  it("never applies the repo-relative bar to minor/major releases", () => {
+    // A vX.Y.0 with modest reactions from a high-baseline repo is still news.
+    const out = selectReleases(
+      [
+        R("astral-sh/uv", "0.12.0", 1, { reactions: 5 }),
+        R("astral-sh/uv", "0.11.29", 2, { reactions: 52 }),
+        R("astral-sh/uv", "0.11.28", 4, { reactions: 50 }),
+      ],
+      { nowMs: NOW }
+    );
+    assert.deepEqual(out.map((r) => r.tag), ["0.12.0"]);
+  });
+
+  it("suppresses repos on cooldown so the band rotates", () => {
+    const out = selectReleases(
+      [
+        R("ollama/ollama", "v0.32.0", 1, { reactions: 80 }),
+        R("qdrant/qdrant", "v1.15.0", 2, { reactions: 10 }),
+      ],
+      { nowMs: NOW, suppressRepos: new Set(["ollama/ollama"]) }
+    );
+    assert.deepEqual(out.map((r) => r.repo), ["qdrant/qdrant"]);
+  });
+
   it("ranks a fresh modest release above a stale hot one (velocity, not stock)", () => {
     // The level-thinking trap: a 12d-old release with 100 reactions from a huge
     // repo must NOT outrank a 1d-old release with 30 from a smaller one.
@@ -184,7 +237,7 @@ describe("fetchGitHubReleases", () => {
       token: null,
     });
     assert.equal(fetchImpl.calls.length, 2);
-    assert.ok(fetchImpl.calls[0].includes("/repos/vllm-project/vllm/releases?per_page=3"));
+    assert.ok(fetchImpl.calls[0].includes("/repos/vllm-project/vllm/releases?per_page=5"));
     assert.deepEqual(out.map((r) => r.repo).sort(), ["astral-sh/uv", "vllm-project/vllm"]);
   });
 
