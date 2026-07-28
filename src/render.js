@@ -644,17 +644,20 @@ function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
     return `<div class="section-empty">No stories on the front page today. Check back tomorrow!</div>`;
   }
 
-  // The flow bands sit at the very top — the day's freshest AI events, above
-  // the lead: Model Drops (Hugging Face) then Just Shipped (GitHub releases).
-  // Empty (no items / fetch failed) renders nothing.
-  let html = renderModelDrops(opts.modelDrops);
-  html += renderGitHubReleases(opts.ghReleases);
-  html += renderPushups(opts.pushups);
-
-  html += `<div class="front-hero">
+  // The lead runs first, hard against the nav — a front page opens with the
+  // day's story, not with shoulder furniture. Two full-width card rails ahead of
+  // it pushed the hero past 1000px and off the fold on any laptop.
+  let html = `<div class="front-hero">
       <div class="front-lead-col" data-reveal>${renderHybridArticle(fp.lead, { isLead: true })}</div>
       ${renderDeskRail(sections, sectionConfigs, order)}
     </div>`;
+
+  // The flow bands follow the lead — the day's freshest AI events as shoulder
+  // content: Model Drops (Hugging Face) then Just Shipped (GitHub releases).
+  // Empty (no items / fetch failed) renders nothing.
+  html += renderModelDrops(opts.modelDrops);
+  html += renderGitHubReleases(opts.ghReleases);
+  html += renderPushups(opts.pushups);
 
   if (fp.secondary && fp.secondary.length > 0) {
     html += `<section class="secondary-section" data-reveal>`;
