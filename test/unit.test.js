@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
 const { escapeHtml, formatStars, bodyToHtml, sanitizeArticleHtml, buildNavHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, previewBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge } = require("../src/render");
-const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, firstSentences } = require("../src/github");
+const { daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, firstSentences, cleanReadmeExcerpt } = require("../src/github");
 const { parseArticle, parseQuickHits, sanitizePrompt } = require("../src/xai");
 const { parseXSentiment } = require("../src/x-sentiment");
 const { SECTIONS, SECTION_ORDER } = require("../src/sections");
@@ -900,6 +900,120 @@ describe("firstSentences", () => {
 
   it("returns empty string for empty input", () => {
     assert.equal(firstSentences(""), "");
+  });
+
+  it("does not split on version numbers, and keeps the text around them", () => {
+    assert.equal(
+      firstSentences("A runtime for Agent graphs. It is a pilot for DeerFlow 3.0, also known as DeerWork. Third here."),
+      "A runtime for Agent graphs. It is a pilot for DeerFlow 3.0, also known as DeerWork."
+    );
+  });
+
+  it("keeps the leading clause when the first period is a decimal point", () => {
+    assert.equal(
+      firstSentences("Tool v1.0 is here. Second sentence follows. Third one."),
+      "Tool v1.0 is here. Second sentence follows."
+    );
+  });
+});
+
+// --------------- cleanReadmeExcerpt ---------------
+
+describe("cleanReadmeExcerpt", () => {
+  it("drops heading lines, horizontal rules, and emphasis markers", () => {
+    const readme = [
+      "AgentENV (AENV) is a platform for scaling agents.",
+      "",
+      "---",
+      "",
+      "## 🚀 Why AgentENV",
+      "",
+      "- **Scale across diverse environments**: run anywhere.",
+    ].join("\n");
+    const out = cleanReadmeExcerpt(readme);
+    assert.ok(!out.includes("##"));
+    assert.ok(!out.includes("---"));
+    assert.ok(!out.includes("**"));
+    assert.ok(!out.includes("- Scale"));
+    assert.equal(
+      out,
+      "AgentENV (AENV) is a platform for scaling agents. Scale across diverse environments: run anywhere."
+    );
+  });
+
+  it("decodes common HTML entities instead of leaving them literal", () => {
+    const out = cleanReadmeExcerpt("app &nbsp;&middot;&nbsp; Download\n\nCindy is a voice assistant. It runs locally.");
+    assert.ok(!out.includes("&nbsp;"));
+    assert.ok(!out.includes("&middot;"));
+    assert.equal(out, "Cindy is a voice assistant. It runs locally.");
+  });
+
+  it("starts at the first prose paragraph, skipping badge and link debris", () => {
+    const readme = [
+      "📖 [Full documentation](https://docs.example.com)",
+      "",
+      "[![CI](https://img.shields.io/badge/ci.svg)](https://ci.example.com)",
+      "",
+      "AgentENV (AENV) is a platform for training agents at scale.",
+    ].join("\n");
+    assert.equal(
+      cleanReadmeExcerpt(readme),
+      "AgentENV (AENV) is a platform for training agents at scale."
+    );
+  });
+
+  it("drops fenced code blocks and table rows", () => {
+    const readme = [
+      "Tool that formats everything.",
+      "",
+      "```bash",
+      "npm install tool",
+      "```",
+      "",
+      "| flag | effect |",
+      "|------|--------|",
+      "| -w   | write  |",
+      "",
+      "Works offline too.",
+    ].join("\n");
+    const out = cleanReadmeExcerpt(readme);
+    assert.ok(!out.includes("npm install"));
+    assert.ok(!out.includes("|"));
+    assert.equal(out, "Tool that formats everything. Works offline too.");
+  });
+
+  it("keeps blockquote and numbered-list text without their markers", () => {
+    const out = cleanReadmeExcerpt("> The fastest bundler around.\n\n1. Install it.\n2. Run it.");
+    assert.equal(out, "The fastest bundler around. Install it. Run it.");
+  });
+
+  it("keeps everything when no paragraph looks like prose", () => {
+    assert.equal(cleanReadmeExcerpt("just a bare tagline\n\nanother short line"), "just a bare tagline another short line");
+  });
+
+  it("keeps escaped HTML examples as text after decoding", () => {
+    const out = cleanReadmeExcerpt("Use the &lt;Widget&gt; component to render. It is fast.");
+    assert.equal(out, "Use the <Widget> component to render. It is fast.");
+  });
+
+  it("composes with firstSentences into a clean hovercard excerpt", () => {
+    const readme = [
+      "<div align=\"center\"><img src=\"logo.png\" /></div>",
+      "",
+      "📖 [Full documentation](https://docs.example.com)",
+      "",
+      "AgentENV (AENV) is a platform for RL environments. It scales to thousands of nodes.",
+      "",
+      "---",
+      "",
+      "## 🚀 Why AgentENV",
+      "",
+      "- **Diverse environments**: browsers, games, terminals.",
+    ].join("\n");
+    assert.equal(
+      firstSentences(cleanReadmeExcerpt(readme)),
+      "AgentENV (AENV) is a platform for RL environments. It scales to thousands of nodes."
+    );
   });
 });
 

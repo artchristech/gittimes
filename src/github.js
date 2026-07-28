@@ -468,8 +468,32 @@ async function fetchTrending(token, options = {}) {
   return categorizeDiverse(reScored, { recentLeadRepos });
 }
 
+const HTML_ENTITY_MAP = {
+  nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
+  middot: "·", bull: "•", hellip: "…", mdash: "—", ndash: "–",
+  copy: "©", reg: "®", trade: "™", laquo: "«", raquo: "»",
+  larr: "←", rarr: "→", darr: "↓", uarr: "↑",
+};
+
+function decodeHtmlEntities(text) {
+  return text
+    .replace(/&#x([0-9a-f]{1,6});/gi, (_, hex) => {
+      const code = parseInt(hex, 16);
+      return code >= 32 && code <= 0x10ffff ? String.fromCodePoint(code) : " ";
+    })
+    .replace(/&#(\d{1,7});/g, (_, dec) => {
+      const code = parseInt(dec, 10);
+      return code >= 32 && code <= 0x10ffff ? String.fromCodePoint(code) : " ";
+    })
+    // Unknown named entities are badge/HTML debris — a space beats a literal "&nbsp;"
+    .replace(/&([a-z]{2,10});/gi, (_, name) => HTML_ENTITY_MAP[name.toLowerCase()] ?? " ");
+}
+
 function cleanReadmeExcerpt(raw) {
   let text = raw;
+  // Strip HTML comments and fenced code blocks before any line-level work
+  text = text.replace(/<!--[\s\S]*?-->/g, " ");
+  text = text.replace(/(```|~~~)[\s\S]*?\1/g, " ");
   // Strip HTML tags (badge images, divs, tables used for language switchers)
   text = text.replace(/<[^>]+>/g, " ");
   // Strip markdown image/badge syntax: ![alt](url)
@@ -477,16 +501,62 @@ function cleanReadmeExcerpt(raw) {
   // Strip markdown links that are just bare URLs or badge links: [text](url)
   // Keep the link text, remove the URL
   text = text.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1");
-  // Collapse whitespace
-  text = text.replace(/\s+/g, " ").trim();
-  return text.slice(0, 2000);
+  // Decode after tag-stripping so escaped examples like &lt;Component&gt;
+  // stay as text instead of becoming strippable tags
+  text = decodeHtmlEntities(text);
+
+  // Line pass: drop structural markdown, keep the text it wraps.
+  // null = dropped line (breaks a paragraph), "" = blank line (also a break)
+  const lines = text.split(/\r?\n/).map((line) => {
+    const t = line.trim();
+    if (!t) return "";
+    if (/^#{1,6}(\s|$)/.test(t)) return null; // ATX heading
+    if (/^(-{3,}|_{3,}|\*{3,}|={3,})$/.test(t.replace(/\s+/g, ""))) return null; // hr / setext underline
+    if (/^\|/.test(t)) return null; // table row
+    if (/^(```|~~~)/.test(t)) return null; // stray unpaired fence
+    return t
+      .replace(/^(>\s?)+/, "") // blockquote marker, keep the quote text
+      .replace(/^([-*+]|\d{1,3}[.)])\s+/, ""); // list marker, keep the item text
+  });
+
+  // Group into paragraphs
+  const paragraphs = [];
+  let current = [];
+  for (const line of lines) {
+    if (line) current.push(line);
+    else if (current.length) { paragraphs.push(current.join(" ")); current = []; }
+  }
+  if (current.length) paragraphs.push(current.join(" "));
+
+  // Strip inline emphasis/code markers, collapse whitespace
+  const cleaned = paragraphs.map((p) =>
+    p.replace(/`+/g, "").replace(/\*{1,3}/g, "").replace(/__|~~/g, "").replace(/\s+/g, " ").trim()
+  ).filter(Boolean);
+
+  // Prefer the first real prose paragraph — skip short badge/link/title debris
+  // like "📖 Full documentation" that survives tag-stripping
+  const isProse = (p) => /[.!?](\s|$)/.test(p) || (p.length >= 60 && p.includes(" "));
+  const start = cleaned.findIndex(isProse);
+  const kept = start >= 0 ? cleaned.slice(start) : cleaned;
+  return kept.join(" ").slice(0, 2000).trim();
 }
 
 // First N sentences of a cleaned excerpt, hard-capped for hovercard use.
+// A boundary is .!? followed by whitespace, so version numbers ("DeerFlow 3.0")
+// don't end a sentence. Slices run from the previous boundary rather than from
+// each match, so a non-boundary period never drops the text around it.
 function firstSentences(text, n = 2, maxLen = 240) {
   if (!text) return "";
-  const matches = text.match(/[^.!?]+[.!?]+(?:\s|$)/g);
-  const joined = matches ? matches.slice(0, n).join(" ").replace(/\s+/g, " ").trim() : text;
+  const boundary = /[.!?]+(?=\s|$)/g;
+  const sentences = [];
+  let start = 0;
+  let m;
+  while (sentences.length < n && (m = boundary.exec(text)) !== null) {
+    const end = m.index + m[0].length;
+    sentences.push(text.slice(start, end));
+    start = end;
+  }
+  const joined = (sentences.length ? sentences.join(" ") : text).replace(/\s+/g, " ").trim();
   if (joined.length <= maxLen) return joined;
   return joined.slice(0, maxLen - 1).trimEnd() + "…";
 }
@@ -788,4 +858,4 @@ async function fetchAndEnrich(token, options = {}) {
   };
 }
 
-module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, enrichTrendRepos, firstSentences, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, graphqlRequest };
+module.exports = { fetchAndEnrich, fetchAllSections, fetchSectionRepos, fetchAndEnrichSection, enrichRepo, enrichTrendRepos, firstSentences, cleanReadmeExcerpt, daysAgo, scoreRepo, categorizeDiverse, categorizeDiverseForSection, graphqlRequest };
