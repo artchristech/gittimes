@@ -13,7 +13,7 @@
   <link rel="alternate" type="application/json" href="/docs/openapi.json" title="OpenAPI specification">
 
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Anton&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Permanent+Marker&family=Special+Elite&display=swap');
 
 *,
 *::before,
@@ -1342,6 +1342,76 @@ body.chat-on .hybrid-ask {
 .trend-repo-pill:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/* Repo hovercard: shipped inside the pill markup at publish time, so the
+   static page previews repos with zero client-side API calls. The delayed
+   reveal is hover intent — no flashing while the mouse sweeps the row. */
+.trend-repo-pill {
+  position: relative;
+}
+
+.repo-hovercard {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  width: 280px;
+  max-width: min(280px, 78vw);
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  padding: 10px 12px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.12s ease, visibility 0s linear 0.3s;
+  cursor: default;
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  text-align: left;
+}
+
+.repo-hovercard > span {
+  display: block;
+}
+
+.repo-hovercard-name {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.repo-hovercard-desc,
+.repo-hovercard-readme {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-light);
+}
+
+.repo-hovercard-readme {
+  margin-top: 4px;
+}
+
+.repo-hovercard-meta {
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+.trend-repo-pill:focus-visible .repo-hovercard {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0.35s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trend-repo-pill:hover .repo-hovercard {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0.35s;
+  }
 }
 
 .trend-repo-overflow {
@@ -3227,7 +3297,12 @@ body.account {
 
 [data-design="cyberpunk"] .panel-group-color,
 [data-design="business"] .panel-group-color,
-[data-design="whitepaper"] .panel-group-color {
+[data-design="whitepaper"] .panel-group-color,
+[data-design="terminal"] .panel-group-color,
+[data-design="tabloid"] .panel-group-color,
+[data-design="zine"] .panel-group-color,
+[data-design="noir"] .panel-group-color,
+[data-design="brutalist"] .panel-group-color {
   display: none;
 }
 
@@ -3552,6 +3627,688 @@ body.account {
 }
 
 [data-design="whitepaper"] .scroll-progress {
+  display: none;
+}
+
+/* --- Terminal: green phosphor on a dead CRT, everything monospace --- */
+
+[data-design="terminal"] {
+  --paper: #060a06;
+  --ink: #9dffb0;
+  --ink-light: #63cc7a;
+  --ink-faint: #3d7a4c;
+  --rule: #2eff6a;
+  --rule-light: #12351d;
+  --accent: #ffb000;
+}
+
+[data-design="terminal"][data-font="serif"] {
+  --font-headline: 'JetBrains Mono', 'Courier New', monospace;
+  --font-body: 'JetBrains Mono', 'Courier New', monospace;
+  --font-meta: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Tube vignette — dark corners, a breath of phosphor at center */
+[data-design="terminal"] body {
+  background-image: radial-gradient(130% 100% at 50% 0%, rgba(46, 255, 106, 0.05), transparent 55%), radial-gradient(160% 140% at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.5));
+  background-attachment: fixed;
+}
+
+/* A prompt, not a nameplate */
+[data-design="terminal"] .masthead {
+  border-top: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="terminal"] .masthead-title {
+  font-family: var(--font-meta);
+  font-weight: 700;
+  font-size: clamp(16px, 3.6vw, 26px);
+  letter-spacing: 0.14em;
+  color: #c9ffd6;
+  text-shadow: 0 0 8px rgba(46, 255, 106, 0.35);
+}
+
+[data-design="terminal"] .masthead-title::before {
+  content: '> ';
+  color: var(--ink-faint);
+}
+
+/* Block cursor parked after the title; blinks only when motion is welcome */
+[data-design="terminal"] .masthead-title::after {
+  content: '\258C';
+  color: var(--accent);
+  margin-left: 4px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-design="terminal"] .masthead-title::after {
+    animation: gt-term-blink 1.1s steps(2, jump-none) infinite;
+  }
+}
+
+@keyframes gt-term-blink {
+  50% { opacity: 0; }
+}
+
+[data-design="terminal"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--accent);
+}
+
+/* Hard phosphor grid: no curves, no soft shadows */
+[data-design="terminal"] .toolbar-trigger,
+[data-design="terminal"] .toolbar-panel,
+[data-design="terminal"] .panel-pill,
+[data-design="terminal"] .panel-reset,
+[data-design="terminal"] .panel-slider,
+[data-design="terminal"] .panel-slider-mini,
+[data-design="terminal"] .article-insights,
+[data-design="terminal"] .hybrid-toggle,
+[data-design="terminal"] .hybrid-ask,
+[data-design="terminal"] .quick-hits-toggle,
+[data-design="terminal"] .trend-repo-pill,
+[data-design="terminal"] .x-sentiment-badge,
+[data-design="terminal"] .repo-age,
+[data-design="terminal"] .ticker-grade {
+  border-radius: 0;
+}
+
+[data-design="terminal"] .toolbar-panel {
+  box-shadow: 0 0 0 1px rgba(46, 255, 106, 0.25), 0 10px 32px rgba(0, 0, 0, 0.7);
+}
+
+[data-design="terminal"] .panel-pill.active {
+  background: var(--rule);
+  border-color: var(--rule);
+  color: #041307;
+}
+
+/* Mono maxes out at 700 — pin headline weight so nothing faux-bolds */
+[data-design="terminal"] .lead-headline,
+[data-design="terminal"] .hybrid-headline,
+[data-design="terminal"] .hybrid-headline-lead,
+[data-design="terminal"] .secondary-headline,
+[data-design="terminal"] .featured-headline,
+[data-design="terminal"] .model-drops-header,
+[data-design="terminal"] .masthead-title {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Deck lines read as comments, upright and dimmed */
+[data-design="terminal"] .lead-subheadline,
+[data-design="terminal"] .hybrid-subheadline,
+[data-design="terminal"] .secondary-subheadline,
+[data-design="terminal"] .featured-subheadline {
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+/* Section headers speak markdown */
+[data-design="terminal"] .section-header {
+  color: var(--rule);
+  border-bottom: 1px dashed var(--rule-light);
+}
+
+[data-design="terminal"] .section-header::before {
+  content: '## ';
+  color: var(--ink-faint);
+}
+
+[data-design="terminal"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="terminal"] .section-tab.active {
+  color: var(--rule);
+  border-bottom-color: var(--rule);
+}
+
+[data-design="terminal"] .lead-story {
+  border: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="terminal"] .secondary-section {
+  border-top: 1px solid var(--rule);
+}
+
+[data-design="terminal"] .article-insights {
+  background: transparent;
+  border: 1px dashed var(--rule-light);
+  border-left: 2px solid var(--accent);
+}
+
+[data-design="terminal"] .footer {
+  border-top: 1px solid var(--rule);
+}
+
+/* Signal colors re-tuned for the dark tube (down = cheaper = good) */
+[data-design="terminal"] .ticker-delta.down { color: #5eff8a; }
+[data-design="terminal"] .ticker-delta.up { color: #ff7a66; }
+
+[data-design="terminal"] .x-sentiment-badge,
+[data-design="terminal"] .repo-age {
+  background: rgba(46, 255, 106, 0.12);
+  color: #8affa8;
+}
+
+/* --- Tabloid: red-top scandal sheet, condensed caps, thick black rules --- */
+
+[data-design="tabloid"] {
+  --paper: #fdfdfd;
+  --ink: #0b0b0b;
+  --ink-light: #333333;
+  --ink-faint: #6b6b6b;
+  --rule: #111111;
+  --rule-light: #d8d8d8;
+  --accent: #d40000;
+}
+
+[data-design="tabloid"][data-font="serif"] {
+  --font-headline: 'Anton', Impact, 'Arial Narrow', sans-serif;
+  --font-body: 'Source Sans 3', -apple-system, sans-serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+/* The nameplate is a solid red block — white type on masthead red */
+[data-design="tabloid"] .masthead {
+  background: var(--accent);
+  border-top: none;
+  border-bottom: 4px solid var(--ink);
+  padding: 18px 12px 14px;
+}
+
+[data-design="tabloid"] .masthead-title {
+  font-weight: 400;
+  font-size: clamp(30px, 6vw, 46px);
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+[data-design="tabloid"] .masthead-date {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-design="tabloid"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-design="tabloid"] .masthead-account,
+[data-design="tabloid"] .masthead-pricing {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-design="tabloid"] .masthead-account:hover,
+[data-design="tabloid"] .masthead-pricing:hover {
+  color: #ffffff;
+}
+
+/* SHOUTED headlines: Anton ships one weight, so pin 400 against faux-bold */
+[data-design="tabloid"] .lead-headline,
+[data-design="tabloid"] .hybrid-headline,
+[data-design="tabloid"] .hybrid-headline-lead,
+[data-design="tabloid"] .secondary-headline,
+[data-design="tabloid"] .featured-headline,
+[data-design="tabloid"] .model-drops-header {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.04;
+}
+
+/* Deck lines drop to bold sans — the classic standfirst under a shout */
+[data-design="tabloid"] .lead-subheadline,
+[data-design="tabloid"] .hybrid-subheadline,
+[data-design="tabloid"] .secondary-subheadline,
+[data-design="tabloid"] .featured-subheadline {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink-light);
+}
+
+/* Kickers become white-on-black bars */
+[data-design="tabloid"] .section-header {
+  display: inline-block;
+  background: var(--ink);
+  color: #ffffff;
+  border-bottom: none;
+  padding: 4px 12px 3px;
+}
+
+[data-design="tabloid"] .section-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+[data-design="tabloid"] .lead-story {
+  border: none;
+  border-top: 4px solid var(--accent);
+  border-bottom: 4px solid var(--ink);
+}
+
+[data-design="tabloid"] .secondary-section {
+  border-top: 4px solid var(--ink);
+}
+
+[data-design="tabloid"] .toolbar-trigger,
+[data-design="tabloid"] .toolbar-panel,
+[data-design="tabloid"] .panel-pill,
+[data-design="tabloid"] .panel-reset,
+[data-design="tabloid"] .article-insights,
+[data-design="tabloid"] .hybrid-toggle,
+[data-design="tabloid"] .hybrid-ask,
+[data-design="tabloid"] .quick-hits-toggle,
+[data-design="tabloid"] .trend-repo-pill {
+  border-radius: 0;
+}
+
+[data-design="tabloid"] .toolbar-panel {
+  border: 2px solid var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+[data-design="tabloid"] .panel-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-design="tabloid"] .article-insights {
+  background: #f4f4f4;
+  border: 1px solid var(--rule-light);
+  border-left: 4px solid var(--accent);
+}
+
+[data-design="tabloid"] .footer {
+  border-top: 4px solid var(--ink);
+}
+
+/* --- Zine: photocopied cut-and-paste, typewriter body, marker headlines --- */
+
+[data-design="zine"] {
+  --paper: #f4f2ec;
+  --ink: #141414;
+  --ink-light: #3a3a3a;
+  --ink-faint: #707070;
+  --rule: #141414;
+  --rule-light: #c9c5ba;
+  --accent: #e5228d;
+}
+
+[data-design="zine"][data-font="serif"] {
+  --font-headline: 'Permanent Marker', 'Comic Sans MS', cursive;
+  --font-body: 'Special Elite', 'Courier New', monospace;
+  --font-meta: 'Special Elite', 'Courier New', monospace;
+}
+
+/* Photocopy dither — a faint dot grid over the toner-grey stock */
+[data-design="zine"] body {
+  background-image: radial-gradient(rgba(20, 20, 20, 0.045) 1px, transparent 1.4px);
+  background-size: 4px 4px;
+}
+
+/* Masthead as a pasted-on scrap: dashed cut line, hand-scrawled title */
+[data-design="zine"] .masthead {
+  border: 2px dashed var(--ink);
+  padding: 14px 8px 12px;
+}
+
+[data-design="zine"] .masthead-title {
+  font-weight: 400;
+  font-size: clamp(24px, 5vw, 36px);
+  letter-spacing: 1px;
+  text-transform: none;
+  transform: rotate(-1.5deg);
+}
+
+[data-design="zine"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 12px;
+}
+
+/* Marker ships one weight — pin 400 so headlines don't smear to faux-bold */
+[data-design="zine"] .lead-headline,
+[data-design="zine"] .hybrid-headline,
+[data-design="zine"] .hybrid-headline-lead,
+[data-design="zine"] .secondary-headline,
+[data-design="zine"] .featured-headline,
+[data-design="zine"] .model-drops-header {
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+/* Special Elite has no italics — decks stay upright typewriter */
+[data-design="zine"] .lead-subheadline,
+[data-design="zine"] .hybrid-subheadline,
+[data-design="zine"] .secondary-subheadline,
+[data-design="zine"] .featured-subheadline {
+  font-family: var(--font-body);
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+/* Hand-labeled section dividers */
+[data-design="zine"] .section-header {
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+
+[data-design="zine"] .section-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Stapled-together chrome: hard black borders, offset paper shadows */
+[data-design="zine"] .toolbar-trigger,
+[data-design="zine"] .toolbar-panel,
+[data-design="zine"] .panel-pill,
+[data-design="zine"] .panel-reset,
+[data-design="zine"] .article-insights,
+[data-design="zine"] .hybrid-toggle,
+[data-design="zine"] .hybrid-ask,
+[data-design="zine"] .quick-hits-toggle,
+[data-design="zine"] .trend-repo-pill {
+  border-radius: 0;
+}
+
+[data-design="zine"] .toolbar-panel {
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+[data-design="zine"] .panel-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-design="zine"] .lead-story {
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 rgba(20, 20, 20, 0.85);
+}
+
+[data-design="zine"] .secondary-section {
+  background: transparent;
+  border: 2px solid var(--ink);
+  border-top-width: 2px;
+}
+
+[data-design="zine"] .article-insights {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  border-left: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(20, 20, 20, 0.85);
+  transform: rotate(-0.3deg);
+}
+
+[data-design="zine"] .footer {
+  border-top: 2px solid var(--ink);
+}
+
+/* Riso-pink link affordance */
+[data-design="zine"] .lead-meta a,
+[data-design="zine"] .hybrid-meta a,
+[data-design="zine"] .secondary-meta a,
+[data-design="zine"] .featured-meta a,
+[data-design="zine"] .compact-meta a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--accent);
+}
+
+/* --- Noir: the evening edition — garamonds and gold on lamplit black --- */
+
+[data-design="noir"] {
+  --paper: #16130f;
+  --ink: #ece4d4;
+  --ink-light: #b8ad97;
+  --ink-faint: #7d7460;
+  --rule: #c9a961;
+  --rule-light: #3a3427;
+  --accent: #d4af6a;
+}
+
+[data-design="noir"][data-font="serif"] {
+  --font-headline: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+/* One lamp above the page — a warm pool of light fading into the dark */
+[data-design="noir"] body {
+  background-image: radial-gradient(900px 420px at 50% -60px, rgba(212, 175, 106, 0.08), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Gold hairlines replace the heavy double rules */
+[data-design="noir"] .masthead {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="noir"] .masthead-title {
+  font-weight: 600;
+  font-size: clamp(20px, 4.2vw, 31px);
+  letter-spacing: 0.32em;
+  color: #f0e8d8;
+}
+
+[data-design="noir"] .masthead-tagline {
+  color: var(--accent);
+}
+
+/* Display garamond needs presence at text sizes — 600, never faux-900 */
+[data-design="noir"] .lead-headline,
+[data-design="noir"] .hybrid-headline,
+[data-design="noir"] .hybrid-headline-lead,
+[data-design="noir"] .secondary-headline,
+[data-design="noir"] .featured-headline,
+[data-design="noir"] .model-drops-header {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+[data-design="noir"] .section-header {
+  color: var(--accent);
+  letter-spacing: 3px;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="noir"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="noir"] .section-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--rule);
+}
+
+[data-design="noir"] .lead-story {
+  border: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="noir"] .secondary-section {
+  border-top: 1px solid var(--rule);
+}
+
+[data-design="noir"] .toolbar-panel {
+  box-shadow: 0 0 0 1px rgba(212, 175, 106, 0.25), 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+[data-design="noir"] .panel-pill.active {
+  background: var(--rule);
+  border-color: var(--rule);
+  color: #16130f;
+}
+
+[data-design="noir"] .article-insights {
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  border-left: 2px solid var(--accent);
+}
+
+[data-design="noir"] .footer {
+  border-top: 3px double var(--rule);
+}
+
+/* Candlelight-legible signals (down = cheaper = good) */
+[data-design="noir"] .ticker-delta.down { color: #86d98c; }
+[data-design="noir"] .ticker-delta.up { color: #e88477; }
+
+[data-design="noir"] .x-sentiment-badge,
+[data-design="noir"] .repo-age {
+  background: rgba(212, 175, 106, 0.14);
+  color: #d9c69a;
+}
+
+/* --- Brutalist: raw web — system fonts, hard black borders, no motion.
+   The whole design costs zero webfont bytes by construction. --- */
+
+[data-design="brutalist"] {
+  --paper: #fefefe;
+  --ink: #000000;
+  --ink-light: #222222;
+  --ink-faint: #555555;
+  --rule: #000000;
+  --rule-light: #000000;
+  --accent: #0000ee;
+}
+
+[data-design="brutalist"][data-font="serif"] {
+  --font-headline: Arial, Helvetica, sans-serif;
+  --font-body: 'Times New Roman', Times, serif;
+  --font-meta: 'Courier New', Courier, monospace;
+}
+
+[data-design="brutalist"] ::selection {
+  background: #ffff00;
+  color: #000000;
+}
+
+/* A box is a box */
+[data-design="brutalist"] .masthead {
+  border: 3px solid var(--ink);
+  padding: 14px 8px 12px;
+}
+
+[data-design="brutalist"] .masthead-title {
+  font-weight: 900;
+  font-size: clamp(26px, 5.4vw, 40px);
+  letter-spacing: 0;
+}
+
+[data-design="brutalist"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 12px;
+}
+
+[data-design="brutalist"] .toolbar-trigger,
+[data-design="brutalist"] .toolbar-panel,
+[data-design="brutalist"] .panel-pill,
+[data-design="brutalist"] .panel-reset,
+[data-design="brutalist"] .panel-slider,
+[data-design="brutalist"] .panel-slider-mini,
+[data-design="brutalist"] .article-insights,
+[data-design="brutalist"] .hybrid-toggle,
+[data-design="brutalist"] .hybrid-ask,
+[data-design="brutalist"] .quick-hits-toggle,
+[data-design="brutalist"] .trend-repo-pill,
+[data-design="brutalist"] .x-sentiment-badge,
+[data-design="brutalist"] .repo-age,
+[data-design="brutalist"] .ticker-grade {
+  border-radius: 0;
+}
+
+[data-design="brutalist"] .toolbar-panel {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  box-shadow: none;
+}
+
+[data-design="brutalist"] .toolbar-trigger:hover,
+[data-design="brutalist"] .toolbar-trigger.active {
+  box-shadow: none;
+}
+
+[data-design="brutalist"] .lead-story {
+  border: 2px solid var(--ink);
+}
+
+[data-design="brutalist"] .secondary-section {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+}
+
+[data-design="brutalist"] .section-header {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom: 4px solid var(--ink);
+}
+
+[data-design="brutalist"] .article-insights {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  border-left: 2px solid var(--ink);
+}
+
+/* Deck lines in Times italic — the browser-default voice */
+[data-design="brutalist"] .lead-subheadline,
+[data-design="brutalist"] .hybrid-subheadline,
+[data-design="brutalist"] .secondary-subheadline,
+[data-design="brutalist"] .featured-subheadline {
+  font-family: var(--font-body);
+}
+
+/* Links look like links again */
+[data-design="brutalist"] .lead-meta a,
+[data-design="brutalist"] .hybrid-meta a,
+[data-design="brutalist"] .secondary-meta a,
+[data-design="brutalist"] .featured-meta a,
+[data-design="brutalist"] .compact-meta a {
+  text-decoration: underline;
+}
+
+[data-design="brutalist"] .x-sentiment-badge,
+[data-design="brutalist"] .repo-age {
+  background: #eeeeee;
+  color: #000000;
+}
+
+[data-design="brutalist"] .footer {
+  border-top: 3px solid var(--ink);
+}
+
+/* Animations scratched, same contract as whitepaper: reveals render settled
+   even if the observer never runs, and the scroll bar goes. */
+[data-design="brutalist"] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-design="brutalist"] .scroll-progress {
   display: none;
 }
 

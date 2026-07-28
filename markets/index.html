@@ -12,7 +12,7 @@
   <meta name="description" content="AI model pricing, inference speed, and market data — updated daily">
 
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Slab:wght@400;600;700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Anton&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Permanent+Marker&family=Special+Elite&display=swap');
 
 *,
 *::before,
@@ -1341,6 +1341,76 @@ body.chat-on .hybrid-ask {
 .trend-repo-pill:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/* Repo hovercard: shipped inside the pill markup at publish time, so the
+   static page previews repos with zero client-side API calls. The delayed
+   reveal is hover intent — no flashing while the mouse sweeps the row. */
+.trend-repo-pill {
+  position: relative;
+}
+
+.repo-hovercard {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  width: 280px;
+  max-width: min(280px, 78vw);
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  padding: 10px 12px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.12s ease, visibility 0s linear 0.3s;
+  cursor: default;
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  text-align: left;
+}
+
+.repo-hovercard > span {
+  display: block;
+}
+
+.repo-hovercard-name {
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.repo-hovercard-desc,
+.repo-hovercard-readme {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-light);
+}
+
+.repo-hovercard-readme {
+  margin-top: 4px;
+}
+
+.repo-hovercard-meta {
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-top: 6px;
+}
+
+.trend-repo-pill:focus-visible .repo-hovercard {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0.35s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trend-repo-pill:hover .repo-hovercard {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0.35s;
+  }
 }
 
 .trend-repo-overflow {
@@ -3226,7 +3296,12 @@ body.account {
 
 [data-design="cyberpunk"] .panel-group-color,
 [data-design="business"] .panel-group-color,
-[data-design="whitepaper"] .panel-group-color {
+[data-design="whitepaper"] .panel-group-color,
+[data-design="terminal"] .panel-group-color,
+[data-design="tabloid"] .panel-group-color,
+[data-design="zine"] .panel-group-color,
+[data-design="noir"] .panel-group-color,
+[data-design="brutalist"] .panel-group-color {
   display: none;
 }
 
@@ -3551,6 +3626,688 @@ body.account {
 }
 
 [data-design="whitepaper"] .scroll-progress {
+  display: none;
+}
+
+/* --- Terminal: green phosphor on a dead CRT, everything monospace --- */
+
+[data-design="terminal"] {
+  --paper: #060a06;
+  --ink: #9dffb0;
+  --ink-light: #63cc7a;
+  --ink-faint: #3d7a4c;
+  --rule: #2eff6a;
+  --rule-light: #12351d;
+  --accent: #ffb000;
+}
+
+[data-design="terminal"][data-font="serif"] {
+  --font-headline: 'JetBrains Mono', 'Courier New', monospace;
+  --font-body: 'JetBrains Mono', 'Courier New', monospace;
+  --font-meta: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Tube vignette — dark corners, a breath of phosphor at center */
+[data-design="terminal"] body {
+  background-image: radial-gradient(130% 100% at 50% 0%, rgba(46, 255, 106, 0.05), transparent 55%), radial-gradient(160% 140% at 50% 50%, transparent 60%, rgba(0, 0, 0, 0.5));
+  background-attachment: fixed;
+}
+
+/* A prompt, not a nameplate */
+[data-design="terminal"] .masthead {
+  border-top: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="terminal"] .masthead-title {
+  font-family: var(--font-meta);
+  font-weight: 700;
+  font-size: clamp(16px, 3.6vw, 26px);
+  letter-spacing: 0.14em;
+  color: #c9ffd6;
+  text-shadow: 0 0 8px rgba(46, 255, 106, 0.35);
+}
+
+[data-design="terminal"] .masthead-title::before {
+  content: '> ';
+  color: var(--ink-faint);
+}
+
+/* Block cursor parked after the title; blinks only when motion is welcome */
+[data-design="terminal"] .masthead-title::after {
+  content: '\258C';
+  color: var(--accent);
+  margin-left: 4px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-design="terminal"] .masthead-title::after {
+    animation: gt-term-blink 1.1s steps(2, jump-none) infinite;
+  }
+}
+
+@keyframes gt-term-blink {
+  50% { opacity: 0; }
+}
+
+[data-design="terminal"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--accent);
+}
+
+/* Hard phosphor grid: no curves, no soft shadows */
+[data-design="terminal"] .toolbar-trigger,
+[data-design="terminal"] .toolbar-panel,
+[data-design="terminal"] .panel-pill,
+[data-design="terminal"] .panel-reset,
+[data-design="terminal"] .panel-slider,
+[data-design="terminal"] .panel-slider-mini,
+[data-design="terminal"] .article-insights,
+[data-design="terminal"] .hybrid-toggle,
+[data-design="terminal"] .hybrid-ask,
+[data-design="terminal"] .quick-hits-toggle,
+[data-design="terminal"] .trend-repo-pill,
+[data-design="terminal"] .x-sentiment-badge,
+[data-design="terminal"] .repo-age,
+[data-design="terminal"] .ticker-grade {
+  border-radius: 0;
+}
+
+[data-design="terminal"] .toolbar-panel {
+  box-shadow: 0 0 0 1px rgba(46, 255, 106, 0.25), 0 10px 32px rgba(0, 0, 0, 0.7);
+}
+
+[data-design="terminal"] .panel-pill.active {
+  background: var(--rule);
+  border-color: var(--rule);
+  color: #041307;
+}
+
+/* Mono maxes out at 700 — pin headline weight so nothing faux-bolds */
+[data-design="terminal"] .lead-headline,
+[data-design="terminal"] .hybrid-headline,
+[data-design="terminal"] .hybrid-headline-lead,
+[data-design="terminal"] .secondary-headline,
+[data-design="terminal"] .featured-headline,
+[data-design="terminal"] .model-drops-header,
+[data-design="terminal"] .masthead-title {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Deck lines read as comments, upright and dimmed */
+[data-design="terminal"] .lead-subheadline,
+[data-design="terminal"] .hybrid-subheadline,
+[data-design="terminal"] .secondary-subheadline,
+[data-design="terminal"] .featured-subheadline {
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+/* Section headers speak markdown */
+[data-design="terminal"] .section-header {
+  color: var(--rule);
+  border-bottom: 1px dashed var(--rule-light);
+}
+
+[data-design="terminal"] .section-header::before {
+  content: '## ';
+  color: var(--ink-faint);
+}
+
+[data-design="terminal"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="terminal"] .section-tab.active {
+  color: var(--rule);
+  border-bottom-color: var(--rule);
+}
+
+[data-design="terminal"] .lead-story {
+  border: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="terminal"] .secondary-section {
+  border-top: 1px solid var(--rule);
+}
+
+[data-design="terminal"] .article-insights {
+  background: transparent;
+  border: 1px dashed var(--rule-light);
+  border-left: 2px solid var(--accent);
+}
+
+[data-design="terminal"] .footer {
+  border-top: 1px solid var(--rule);
+}
+
+/* Signal colors re-tuned for the dark tube (down = cheaper = good) */
+[data-design="terminal"] .ticker-delta.down { color: #5eff8a; }
+[data-design="terminal"] .ticker-delta.up { color: #ff7a66; }
+
+[data-design="terminal"] .x-sentiment-badge,
+[data-design="terminal"] .repo-age {
+  background: rgba(46, 255, 106, 0.12);
+  color: #8affa8;
+}
+
+/* --- Tabloid: red-top scandal sheet, condensed caps, thick black rules --- */
+
+[data-design="tabloid"] {
+  --paper: #fdfdfd;
+  --ink: #0b0b0b;
+  --ink-light: #333333;
+  --ink-faint: #6b6b6b;
+  --rule: #111111;
+  --rule-light: #d8d8d8;
+  --accent: #d40000;
+}
+
+[data-design="tabloid"][data-font="serif"] {
+  --font-headline: 'Anton', Impact, 'Arial Narrow', sans-serif;
+  --font-body: 'Source Sans 3', -apple-system, sans-serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+/* The nameplate is a solid red block — white type on masthead red */
+[data-design="tabloid"] .masthead {
+  background: var(--accent);
+  border-top: none;
+  border-bottom: 4px solid var(--ink);
+  padding: 18px 12px 14px;
+}
+
+[data-design="tabloid"] .masthead-title {
+  font-weight: 400;
+  font-size: clamp(30px, 6vw, 46px);
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+[data-design="tabloid"] .masthead-date {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-design="tabloid"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-design="tabloid"] .masthead-account,
+[data-design="tabloid"] .masthead-pricing {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+[data-design="tabloid"] .masthead-account:hover,
+[data-design="tabloid"] .masthead-pricing:hover {
+  color: #ffffff;
+}
+
+/* SHOUTED headlines: Anton ships one weight, so pin 400 against faux-bold */
+[data-design="tabloid"] .lead-headline,
+[data-design="tabloid"] .hybrid-headline,
+[data-design="tabloid"] .hybrid-headline-lead,
+[data-design="tabloid"] .secondary-headline,
+[data-design="tabloid"] .featured-headline,
+[data-design="tabloid"] .model-drops-header {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.04;
+}
+
+/* Deck lines drop to bold sans — the classic standfirst under a shout */
+[data-design="tabloid"] .lead-subheadline,
+[data-design="tabloid"] .hybrid-subheadline,
+[data-design="tabloid"] .secondary-subheadline,
+[data-design="tabloid"] .featured-subheadline {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink-light);
+}
+
+/* Kickers become white-on-black bars */
+[data-design="tabloid"] .section-header {
+  display: inline-block;
+  background: var(--ink);
+  color: #ffffff;
+  border-bottom: none;
+  padding: 4px 12px 3px;
+}
+
+[data-design="tabloid"] .section-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+[data-design="tabloid"] .lead-story {
+  border: none;
+  border-top: 4px solid var(--accent);
+  border-bottom: 4px solid var(--ink);
+}
+
+[data-design="tabloid"] .secondary-section {
+  border-top: 4px solid var(--ink);
+}
+
+[data-design="tabloid"] .toolbar-trigger,
+[data-design="tabloid"] .toolbar-panel,
+[data-design="tabloid"] .panel-pill,
+[data-design="tabloid"] .panel-reset,
+[data-design="tabloid"] .article-insights,
+[data-design="tabloid"] .hybrid-toggle,
+[data-design="tabloid"] .hybrid-ask,
+[data-design="tabloid"] .quick-hits-toggle,
+[data-design="tabloid"] .trend-repo-pill {
+  border-radius: 0;
+}
+
+[data-design="tabloid"] .toolbar-panel {
+  border: 2px solid var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+[data-design="tabloid"] .panel-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-design="tabloid"] .article-insights {
+  background: #f4f4f4;
+  border: 1px solid var(--rule-light);
+  border-left: 4px solid var(--accent);
+}
+
+[data-design="tabloid"] .footer {
+  border-top: 4px solid var(--ink);
+}
+
+/* --- Zine: photocopied cut-and-paste, typewriter body, marker headlines --- */
+
+[data-design="zine"] {
+  --paper: #f4f2ec;
+  --ink: #141414;
+  --ink-light: #3a3a3a;
+  --ink-faint: #707070;
+  --rule: #141414;
+  --rule-light: #c9c5ba;
+  --accent: #e5228d;
+}
+
+[data-design="zine"][data-font="serif"] {
+  --font-headline: 'Permanent Marker', 'Comic Sans MS', cursive;
+  --font-body: 'Special Elite', 'Courier New', monospace;
+  --font-meta: 'Special Elite', 'Courier New', monospace;
+}
+
+/* Photocopy dither — a faint dot grid over the toner-grey stock */
+[data-design="zine"] body {
+  background-image: radial-gradient(rgba(20, 20, 20, 0.045) 1px, transparent 1.4px);
+  background-size: 4px 4px;
+}
+
+/* Masthead as a pasted-on scrap: dashed cut line, hand-scrawled title */
+[data-design="zine"] .masthead {
+  border: 2px dashed var(--ink);
+  padding: 14px 8px 12px;
+}
+
+[data-design="zine"] .masthead-title {
+  font-weight: 400;
+  font-size: clamp(24px, 5vw, 36px);
+  letter-spacing: 1px;
+  text-transform: none;
+  transform: rotate(-1.5deg);
+}
+
+[data-design="zine"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 12px;
+}
+
+/* Marker ships one weight — pin 400 so headlines don't smear to faux-bold */
+[data-design="zine"] .lead-headline,
+[data-design="zine"] .hybrid-headline,
+[data-design="zine"] .hybrid-headline-lead,
+[data-design="zine"] .secondary-headline,
+[data-design="zine"] .featured-headline,
+[data-design="zine"] .model-drops-header {
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+/* Special Elite has no italics — decks stay upright typewriter */
+[data-design="zine"] .lead-subheadline,
+[data-design="zine"] .hybrid-subheadline,
+[data-design="zine"] .secondary-subheadline,
+[data-design="zine"] .featured-subheadline {
+  font-family: var(--font-body);
+  font-style: normal;
+  color: var(--ink-light);
+}
+
+/* Hand-labeled section dividers */
+[data-design="zine"] .section-header {
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+
+[data-design="zine"] .section-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Stapled-together chrome: hard black borders, offset paper shadows */
+[data-design="zine"] .toolbar-trigger,
+[data-design="zine"] .toolbar-panel,
+[data-design="zine"] .panel-pill,
+[data-design="zine"] .panel-reset,
+[data-design="zine"] .article-insights,
+[data-design="zine"] .hybrid-toggle,
+[data-design="zine"] .hybrid-ask,
+[data-design="zine"] .quick-hits-toggle,
+[data-design="zine"] .trend-repo-pill {
+  border-radius: 0;
+}
+
+[data-design="zine"] .toolbar-panel {
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+[data-design="zine"] .panel-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+[data-design="zine"] .lead-story {
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 rgba(20, 20, 20, 0.85);
+}
+
+[data-design="zine"] .secondary-section {
+  background: transparent;
+  border: 2px solid var(--ink);
+  border-top-width: 2px;
+}
+
+[data-design="zine"] .article-insights {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  border-left: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(20, 20, 20, 0.85);
+  transform: rotate(-0.3deg);
+}
+
+[data-design="zine"] .footer {
+  border-top: 2px solid var(--ink);
+}
+
+/* Riso-pink link affordance */
+[data-design="zine"] .lead-meta a,
+[data-design="zine"] .hybrid-meta a,
+[data-design="zine"] .secondary-meta a,
+[data-design="zine"] .featured-meta a,
+[data-design="zine"] .compact-meta a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--accent);
+}
+
+/* --- Noir: the evening edition — garamonds and gold on lamplit black --- */
+
+[data-design="noir"] {
+  --paper: #16130f;
+  --ink: #ece4d4;
+  --ink-light: #b8ad97;
+  --ink-faint: #7d7460;
+  --rule: #c9a961;
+  --rule-light: #3a3427;
+  --accent: #d4af6a;
+}
+
+[data-design="noir"][data-font="serif"] {
+  --font-headline: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+  --font-meta: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+/* One lamp above the page — a warm pool of light fading into the dark */
+[data-design="noir"] body {
+  background-image: radial-gradient(900px 420px at 50% -60px, rgba(212, 175, 106, 0.08), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Gold hairlines replace the heavy double rules */
+[data-design="noir"] .masthead {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="noir"] .masthead-title {
+  font-weight: 600;
+  font-size: clamp(20px, 4.2vw, 31px);
+  letter-spacing: 0.32em;
+  color: #f0e8d8;
+}
+
+[data-design="noir"] .masthead-tagline {
+  color: var(--accent);
+}
+
+/* Display garamond needs presence at text sizes — 600, never faux-900 */
+[data-design="noir"] .lead-headline,
+[data-design="noir"] .hybrid-headline,
+[data-design="noir"] .hybrid-headline-lead,
+[data-design="noir"] .secondary-headline,
+[data-design="noir"] .featured-headline,
+[data-design="noir"] .model-drops-header {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+[data-design="noir"] .section-header {
+  color: var(--accent);
+  letter-spacing: 3px;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="noir"] .section-nav {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+[data-design="noir"] .section-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--rule);
+}
+
+[data-design="noir"] .lead-story {
+  border: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-design="noir"] .secondary-section {
+  border-top: 1px solid var(--rule);
+}
+
+[data-design="noir"] .toolbar-panel {
+  box-shadow: 0 0 0 1px rgba(212, 175, 106, 0.25), 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+[data-design="noir"] .panel-pill.active {
+  background: var(--rule);
+  border-color: var(--rule);
+  color: #16130f;
+}
+
+[data-design="noir"] .article-insights {
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  border-left: 2px solid var(--accent);
+}
+
+[data-design="noir"] .footer {
+  border-top: 3px double var(--rule);
+}
+
+/* Candlelight-legible signals (down = cheaper = good) */
+[data-design="noir"] .ticker-delta.down { color: #86d98c; }
+[data-design="noir"] .ticker-delta.up { color: #e88477; }
+
+[data-design="noir"] .x-sentiment-badge,
+[data-design="noir"] .repo-age {
+  background: rgba(212, 175, 106, 0.14);
+  color: #d9c69a;
+}
+
+/* --- Brutalist: raw web — system fonts, hard black borders, no motion.
+   The whole design costs zero webfont bytes by construction. --- */
+
+[data-design="brutalist"] {
+  --paper: #fefefe;
+  --ink: #000000;
+  --ink-light: #222222;
+  --ink-faint: #555555;
+  --rule: #000000;
+  --rule-light: #000000;
+  --accent: #0000ee;
+}
+
+[data-design="brutalist"][data-font="serif"] {
+  --font-headline: Arial, Helvetica, sans-serif;
+  --font-body: 'Times New Roman', Times, serif;
+  --font-meta: 'Courier New', Courier, monospace;
+}
+
+[data-design="brutalist"] ::selection {
+  background: #ffff00;
+  color: #000000;
+}
+
+/* A box is a box */
+[data-design="brutalist"] .masthead {
+  border: 3px solid var(--ink);
+  padding: 14px 8px 12px;
+}
+
+[data-design="brutalist"] .masthead-title {
+  font-weight: 900;
+  font-size: clamp(26px, 5.4vw, 40px);
+  letter-spacing: 0;
+}
+
+[data-design="brutalist"] .masthead-tagline {
+  font-style: normal;
+  font-family: var(--font-meta);
+  font-size: 12px;
+}
+
+[data-design="brutalist"] .toolbar-trigger,
+[data-design="brutalist"] .toolbar-panel,
+[data-design="brutalist"] .panel-pill,
+[data-design="brutalist"] .panel-reset,
+[data-design="brutalist"] .panel-slider,
+[data-design="brutalist"] .panel-slider-mini,
+[data-design="brutalist"] .article-insights,
+[data-design="brutalist"] .hybrid-toggle,
+[data-design="brutalist"] .hybrid-ask,
+[data-design="brutalist"] .quick-hits-toggle,
+[data-design="brutalist"] .trend-repo-pill,
+[data-design="brutalist"] .x-sentiment-badge,
+[data-design="brutalist"] .repo-age,
+[data-design="brutalist"] .ticker-grade {
+  border-radius: 0;
+}
+
+[data-design="brutalist"] .toolbar-panel {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  box-shadow: none;
+}
+
+[data-design="brutalist"] .toolbar-trigger:hover,
+[data-design="brutalist"] .toolbar-trigger.active {
+  box-shadow: none;
+}
+
+[data-design="brutalist"] .lead-story {
+  border: 2px solid var(--ink);
+}
+
+[data-design="brutalist"] .secondary-section {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+}
+
+[data-design="brutalist"] .section-header {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom: 4px solid var(--ink);
+}
+
+[data-design="brutalist"] .article-insights {
+  background: #ffffff;
+  border: 2px solid var(--ink);
+  border-left: 2px solid var(--ink);
+}
+
+/* Deck lines in Times italic — the browser-default voice */
+[data-design="brutalist"] .lead-subheadline,
+[data-design="brutalist"] .hybrid-subheadline,
+[data-design="brutalist"] .secondary-subheadline,
+[data-design="brutalist"] .featured-subheadline {
+  font-family: var(--font-body);
+}
+
+/* Links look like links again */
+[data-design="brutalist"] .lead-meta a,
+[data-design="brutalist"] .hybrid-meta a,
+[data-design="brutalist"] .secondary-meta a,
+[data-design="brutalist"] .featured-meta a,
+[data-design="brutalist"] .compact-meta a {
+  text-decoration: underline;
+}
+
+[data-design="brutalist"] .x-sentiment-badge,
+[data-design="brutalist"] .repo-age {
+  background: #eeeeee;
+  color: #000000;
+}
+
+[data-design="brutalist"] .footer {
+  border-top: 3px solid var(--ink);
+}
+
+/* Animations scratched, same contract as whitepaper: reveals render settled
+   even if the observer never runs, and the scroll bar goes. */
+[data-design="brutalist"] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-design="brutalist"] .scroll-progress {
   display: none;
 }
 
@@ -4610,7 +5367,7 @@ body.gt-searching .gt-fold {
     <p class="markets-standfirst">The daily price of intelligence — what every frontier model costs, how fast it runs, and how good it actually is.</p>
     <div class="markets-freshness"><span class="fresh-chip live" data-pulse>
       <span class="fresh-dot"></span>
-      <span class="fresh-text"><strong>Pricing live</strong> · synced 4 min ago · <span class="fresh-abs">Jul 27, 6:48 AM EDT</span></span>
+      <span class="fresh-text"><strong>Pricing live</strong> · synced 7 min ago · <span class="fresh-abs">Jul 28, 5:39 AM EDT</span></span>
     </span><span class="fresh-chip curated"><span class="fresh-dot"></span><span class="fresh-text"><strong>Evals curated</strong> · as of 2026-07-09</span></span></div>
   </div>
 
@@ -4625,8 +5382,8 @@ body.gt-searching .gt-fold {
       <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
     </linearGradient></defs>
-    <path class="area-fill" d="M0.0 6.0 L22.1 6.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 6.0 L264.8 144.0 L286.9 144.0 L309.0 144.0 L331.0 144.0 L353.1 144.0 L375.2 144.0 L397.2 144.0 L419.3 134.5 L441.4 134.5 L463.4 134.5 L485.5 138.9 L507.6 131.5 L529.7 131.5 L551.7 131.5 L573.8 131.5 L595.9 131.5 L617.9 136.4 L640.0 136.4 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
-    <path class="area-line" d="M0.0 6.0 L22.1 6.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 6.0 L264.8 144.0 L286.9 144.0 L309.0 144.0 L331.0 144.0 L353.1 144.0 L375.2 144.0 L397.2 144.0 L419.3 134.5 L441.4 134.5 L463.4 134.5 L485.5 138.9 L507.6 131.5 L529.7 131.5 L551.7 131.5 L573.8 131.5 L595.9 131.5 L617.9 136.4 L640.0 136.4" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="area-fill" d="M0.0 6.0 L22.1 6.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 144.0 L264.8 144.0 L286.9 144.0 L309.0 144.0 L331.0 144.0 L353.1 144.0 L375.2 144.0 L397.2 134.5 L419.3 134.5 L441.4 134.5 L463.4 138.9 L485.5 131.5 L507.6 131.5 L529.7 131.5 L551.7 131.5 L573.8 131.5 L595.9 136.4 L617.9 136.4 L640.0 136.4 L640 150 L0 150 Z" fill="url(#coi-fill)"/>
+    <path class="area-line" d="M0.0 6.0 L22.1 6.0 L44.1 6.0 L66.2 6.0 L88.3 6.0 L110.3 6.0 L132.4 6.0 L154.5 6.0 L176.6 6.0 L198.6 6.0 L220.7 6.0 L242.8 144.0 L264.8 144.0 L286.9 144.0 L309.0 144.0 L331.0 144.0 L353.1 144.0 L375.2 144.0 L397.2 134.5 L419.3 134.5 L441.4 134.5 L463.4 138.9 L485.5 131.5 L507.6 131.5 L529.7 131.5 L551.7 131.5 L573.8 131.5 L595.9 136.4 L617.9 136.4 L640.0 136.4" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle class="area-dot" cx="640.0" cy="136.4" r="3.5" fill="var(--accent)"/>
   </svg></div>
     </div>
@@ -4990,7 +5747,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="50" data-priceval="50">$50</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.9,2.0 11.8,2.0 17.6,2.0 23.5,2.0 29.4,2.0 35.3,2.0 41.2,2.0 47.1,2.0 52.9,2.0 58.8,2.0 64.7,2.0 70.6,2.0 76.5,2.0 82.4,2.0 88.2,2.0 94.1,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.6,2.0 11.1,2.0 16.7,2.0 22.2,2.0 27.8,2.0 33.3,2.0 38.9,2.0 44.4,2.0 50.0,2.0 55.6,2.0 61.1,2.0 66.7,2.0 72.2,2.0 77.8,2.0 83.3,2.0 88.9,2.0 94.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="25" data-input="5" data-cache="0.5" data-provider="Anthropic" data-label="Claude Opus 4.8">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="claude-opus-4.8" aria-label="Compare Claude Opus 4.8"></td>
@@ -5012,7 +5769,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="10" data-priceval="10">$10</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 128,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.9,2.0 11.8,2.0 17.6,2.0 23.5,2.0 29.4,2.0 35.3,2.0 41.2,2.0 47.1,2.0 52.9,2.0 58.8,2.0 64.7,2.0 70.6,2.0 76.5,2.0 82.4,2.0 88.2,2.0 94.1,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.6,2.0 11.1,2.0 16.7,2.0 22.2,2.0 27.8,2.0 33.3,2.0 38.9,2.0 44.4,2.0 50.0,2.0 55.6,2.0 61.1,2.0 66.7,2.0 72.2,2.0 77.8,2.0 83.3,2.0 88.9,2.0 94.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="30" data-input="5" data-cache="0.5" data-provider="OpenAI" data-label="GPT-5.5">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="gpt-5.5" aria-label="Compare GPT-5.5"></td>
@@ -5067,7 +5824,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="6" data-priceval="6">$6</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="500000">500k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.9,2.0 11.8,2.0 17.6,2.0 23.5,2.0 29.4,2.0 35.3,2.0 41.2,2.0 47.1,2.0 52.9,2.0 58.8,2.0 64.7,2.0 70.6,2.0 76.5,2.0 82.4,2.0 88.2,2.0 94.1,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.6,2.0 11.1,2.0 16.7,2.0 22.2,2.0 27.8,2.0 33.3,2.0 38.9,2.0 44.4,2.0 50.0,2.0 55.6,2.0 61.1,2.0 66.7,2.0 72.2,2.0 77.8,2.0 83.3,2.0 88.9,2.0 94.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="0.87" data-input="0.435" data-cache="0.003625" data-provider="DeepSeek" data-label="DeepSeek V4 Pro">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="deepseek-v4-pro" aria-label="Compare DeepSeek V4 Pro"></td>
@@ -5078,7 +5835,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="0.87" data-priceval="0.87">$0.87</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576" title="Max output: 384,000 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.9,2.0 11.8,2.0 17.6,2.0 23.5,2.0 29.4,2.0 35.3,2.0 41.2,2.0 47.1,2.0 52.9,2.0 58.8,2.0 64.7,2.0 70.6,2.0 76.5,2.0 82.4,2.0 88.2,2.0 94.1,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 5.6,2.0 11.1,2.0 16.7,2.0 22.2,2.0 27.8,2.0 33.3,2.0 38.9,2.0 44.4,2.0 50.0,2.0 55.6,2.0 61.1,2.0 66.7,2.0 72.2,2.0 77.8,2.0 83.3,2.0 88.9,2.0 94.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="4.425" data-input="1.475" data-cache="0.295" data-provider="Alibaba" data-label="Qwen3.7 Max">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="qwen3.7-max" aria-label="Compare Qwen3.7 Max"></td>
@@ -5089,18 +5846,18 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="4.425" data-priceval="4.425">$4.42</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1000000" title="Max output: 65,536 tokens">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 5.9,22.0 11.8,22.0 17.6,22.0 23.5,22.0 29.4,22.0 35.3,22.0 41.2,2.0 47.1,2.0 52.9,2.0 58.8,2.0 64.7,2.0 70.6,2.0 76.5,2.0 82.4,2.0 88.2,2.0 94.1,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,22.0 5.6,22.0 11.1,22.0 16.7,22.0 22.2,22.0 27.8,22.0 33.3,22.0 38.9,2.0 44.4,2.0 50.0,2.0 55.6,2.0 61.1,2.0 66.7,2.0 72.2,2.0 77.8,2.0 83.3,2.0 88.9,2.0 94.4,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="3" data-cache="0.3" data-provider="Moonshot" data-label="Kimi K3">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="kimi-k3" aria-label="Compare Kimi K3"></td>
-      <td class="model-name" data-sort="kimi k3"><span title="Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic workflows, and is particularly strong at...">Kimi K3</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+      <td class="model-name" data-sort="kimi k3"><a class="model-hf-link" href="https://huggingface.co/moonshotai/Kimi-K3" title="Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic workflows, and is particularly strong at...">Kimi K3</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
       <td class="model-provider" data-sort="moonshot">Moonshot</td>
       <td class="model-quality" data-sort="-1"><span class="model-ctx">—</span></td>
       <td class="model-price price-cell" data-sort="3" data-priceval="3"><span class="price-main">$3</span><span class="cache-price">cache: $0.30</span></td>
       <td class="model-price price-cell" data-sort="15" data-priceval="15">$15</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="1048576">1.0M</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 16.7,2.0 33.3,2.0 50.0,2.0 66.7,2.0 83.3,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,2.0 14.3,2.0 28.6,2.0 42.9,2.0 57.1,2.0 71.4,2.0 85.7,2.0 100.0,2.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="1" data-output="2.7199999999999998" data-input="0.646" data-cache="0.1088" data-provider="Moonshot" data-label="Kimi K2.6">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="kimi-k2.6" aria-label="Compare Kimi K2.6"></td>
@@ -5111,7 +5868,7 @@ body.gt-searching .gt-fold {
       <td class="model-price price-cell" data-sort="2.7199999999999998" data-priceval="2.7199999999999998">$2.72</td>
       <td class="model-delta" data-sort="0"><span class="markets-delta flat">&mdash;</span></td>
       <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
-      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,11.2 5.9,11.2 11.8,11.2 17.6,11.2 23.5,11.2 29.4,11.2 35.3,11.2 41.2,2.0 47.1,2.0 52.9,2.0 58.8,11.1 64.7,11.1 70.6,11.1 76.5,11.1 82.4,11.1 88.2,11.1 94.1,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+      <td class="model-spark"><svg class="sparkline" width="100" height="24" viewBox="0 0 100 24"><polyline points="0.0,11.2 5.6,11.2 11.1,11.2 16.7,11.2 22.2,11.2 27.8,11.2 33.3,11.2 38.9,2.0 44.4,2.0 50.0,2.0 55.6,11.1 61.1,11.1 66.7,11.1 72.2,11.1 77.8,11.1 83.3,11.1 88.9,22.0 94.4,22.0 100.0,22.0" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
     </tr>
 <tr data-reveal data-tools="1" data-structured="0" data-reasoning="0" data-output="1.5" data-input="0.5" data-cache="0.049999999999999996" data-provider="Mistral" data-label="Mistral Large">
       <td class="compare-col"><input type="checkbox" class="compare-checkbox" data-cmp="mistral-large" aria-label="Compare Mistral Large"></td>
@@ -5254,51 +6011,51 @@ body.gt-searching .gt-fold {
       <table class="markets-table">
         <thead><tr><th>Model</th><th>Provider</th><th>Output</th><th>Added</th></tr></thead>
         <tbody><tr>
+    <td class="model-name">Qwen: Qwen3.7 Flash</td>
+    <td class="model-provider">qwen</td>
+    <td class="model-price">$0.13</td>
+    <td class="model-added">today</td>
+  </tr>
+<tr>
     <td class="model-name">Claude Opus 5 (Fast)</td>
     <td class="model-provider">anthropic</td>
     <td class="model-price">$50</td>
-    <td class="model-added">2d ago</td>
+    <td class="model-added">3d ago</td>
   </tr>
 <tr>
     <td class="model-name">Claude Opus 5</td>
     <td class="model-provider">anthropic</td>
     <td class="model-price">$25</td>
-    <td class="model-added">2d ago</td>
+    <td class="model-added">3d ago</td>
   </tr>
 <tr>
     <td class="model-name">Poolside: Laguna S 2.1</td>
     <td class="model-provider">poolside</td>
     <td class="model-price">$0.20</td>
-    <td class="model-added">5d ago</td>
+    <td class="model-added">6d ago</td>
   </tr>
 <tr>
     <td class="model-name">Google: Gemini 3.6 Flash</td>
     <td class="model-provider">google</td>
     <td class="model-price">$7.50</td>
-    <td class="model-added">5d ago</td>
+    <td class="model-added">6d ago</td>
   </tr>
 <tr>
     <td class="model-name">Google: Gemini 3.5 Flash Lite</td>
     <td class="model-provider">google</td>
     <td class="model-price">$2.50</td>
-    <td class="model-added">5d ago</td>
+    <td class="model-added">6d ago</td>
   </tr>
 <tr>
     <td class="model-name">Meituan: LongCat 2.0</td>
     <td class="model-provider">meituan</td>
     <td class="model-price">$1.20</td>
-    <td class="model-added">6d ago</td>
+    <td class="model-added">1w ago</td>
   </tr>
 <tr>
     <td class="model-name">Thinking Machines: Inkling</td>
     <td class="model-provider">thinkingmachines</td>
     <td class="model-price">$4.05</td>
-    <td class="model-added">1w ago</td>
-  </tr>
-<tr>
-    <td class="model-name">Kimi K3</td>
-    <td class="model-provider">Moonshot</td>
-    <td class="model-price">$15</td>
     <td class="model-added">1w ago</td>
   </tr></tbody>
       </table>
@@ -5317,42 +6074,42 @@ body.gt-searching .gt-fold {
       <td class="model-name">Claude Opus 5 (Fast)</td>
       <td class="model-provider">anthropic</td>
       <td class="model-price">$50</td>
-      <td class="model-added">2d ago</td>
+      <td class="model-added">3d ago</td>
     </tr>
 <tr>
       <td class="model-name">Claude Opus 5</td>
       <td class="model-provider">anthropic</td>
       <td class="model-price">$25</td>
-      <td class="model-added">2d ago</td>
+      <td class="model-added">3d ago</td>
     </tr>
 <tr>
       <td class="model-name">Google: Gemini 3.6 Flash</td>
       <td class="model-provider">google</td>
       <td class="model-price">$7.50</td>
-      <td class="model-added">5d ago</td>
+      <td class="model-added">6d ago</td>
     </tr>
 <tr>
       <td class="model-name">OpenAI: GPT-5.6 Luna Pro</td>
       <td class="model-provider">openai</td>
-      <td class="model-price">$6</td>
+      <td class="model-price">$3</td>
       <td class="model-added">2w ago</td>
     </tr>
 <tr>
       <td class="model-name">OpenAI: GPT-5.6 Luna</td>
       <td class="model-provider">openai</td>
-      <td class="model-price">$6</td>
+      <td class="model-price">$3</td>
       <td class="model-added">2w ago</td>
     </tr>
 <tr>
       <td class="model-name">OpenAI: GPT-5.6 Terra Pro</td>
       <td class="model-provider">openai</td>
-      <td class="model-price">$15</td>
+      <td class="model-price">$7.50</td>
       <td class="model-added">2w ago</td>
     </tr>
 <tr>
       <td class="model-name">OpenAI: GPT-5.6 Terra</td>
       <td class="model-provider">openai</td>
-      <td class="model-price">$15</td>
+      <td class="model-price">$7.50</td>
       <td class="model-added">2w ago</td>
     </tr>
 <tr>
@@ -5366,7 +6123,7 @@ body.gt-searching .gt-fold {
   </div></div>
         </details>
 <details class="desk-details">
-          <summary>All Models by Provider — 322 across 57 providers</summary>
+          <summary>All Models by Provider — 318 across 56 providers</summary>
           <div class="desk-details-body"><div class="markets-filterbar" data-filter-scope="catalog">
     <div class="filter-field">
         <label for="catalog-search">Search</label>
@@ -5374,7 +6131,7 @@ body.gt-searching .gt-fold {
       </div>
     <div class="filter-field">
       <label for="catalog-provider">Provider</label>
-      <select id="catalog-provider" class="filter-provider"><option value="">All providers</option><option value="ai21">ai21</option><option value="aion-labs">aion-labs</option><option value="allenai">allenai</option><option value="amazon">amazon</option><option value="anthracite-org">anthracite-org</option><option value="anthropic">anthropic</option><option value="arcee-ai">arcee-ai</option><option value="baidu">baidu</option><option value="bytedance">bytedance</option><option value="bytedance-seed">bytedance-seed</option><option value="cognitivecomputations">cognitivecomputations</option><option value="cohere">cohere</option><option value="deepcogito">deepcogito</option><option value="deepseek">deepseek</option><option value="google">google</option><option value="gryphe">gryphe</option><option value="ibm-granite">ibm-granite</option><option value="inception">inception</option><option value="inclusionai">inclusionai</option><option value="inflection">inflection</option><option value="kwaipilot">kwaipilot</option><option value="mancer">mancer</option><option value="meituan">meituan</option><option value="meta">meta</option><option value="meta-llama">meta-llama</option><option value="microsoft">microsoft</option><option value="minimax">minimax</option><option value="mistralai">mistralai</option><option value="moonshotai">moonshotai</option><option value="morph">morph</option><option value="nex-agi">nex-agi</option><option value="nousresearch">nousresearch</option><option value="nvidia">nvidia</option><option value="openai">openai</option><option value="perceptron">perceptron</option><option value="perplexity">perplexity</option><option value="poolside">poolside</option><option value="qwen">qwen</option><option value="rekaai">rekaai</option><option value="relace">relace</option><option value="sakana">sakana</option><option value="sao10k">sao10k</option><option value="stepfun">stepfun</option><option value="tencent">tencent</option><option value="thedrummer">thedrummer</option><option value="thinkingmachines">thinkingmachines</option><option value="undi95">undi95</option><option value="upstage">upstage</option><option value="writer">writer</option><option value="x-ai">x-ai</option><option value="xiaomi">xiaomi</option><option value="z-ai">z-ai</option><option value="~anthropic">~anthropic</option><option value="~google">~google</option><option value="~moonshotai">~moonshotai</option><option value="~openai">~openai</option><option value="~x-ai">~x-ai</option></select>
+      <select id="catalog-provider" class="filter-provider"><option value="">All providers</option><option value="ai21">ai21</option><option value="aion-labs">aion-labs</option><option value="allenai">allenai</option><option value="amazon">amazon</option><option value="anthracite-org">anthracite-org</option><option value="anthropic">anthropic</option><option value="arcee-ai">arcee-ai</option><option value="baidu">baidu</option><option value="bytedance">bytedance</option><option value="bytedance-seed">bytedance-seed</option><option value="cognitivecomputations">cognitivecomputations</option><option value="cohere">cohere</option><option value="deepcogito">deepcogito</option><option value="deepseek">deepseek</option><option value="google">google</option><option value="gryphe">gryphe</option><option value="ibm-granite">ibm-granite</option><option value="inception">inception</option><option value="inclusionai">inclusionai</option><option value="kwaipilot">kwaipilot</option><option value="mancer">mancer</option><option value="meituan">meituan</option><option value="meta">meta</option><option value="meta-llama">meta-llama</option><option value="microsoft">microsoft</option><option value="minimax">minimax</option><option value="mistralai">mistralai</option><option value="moonshotai">moonshotai</option><option value="morph">morph</option><option value="nex-agi">nex-agi</option><option value="nousresearch">nousresearch</option><option value="nvidia">nvidia</option><option value="openai">openai</option><option value="perceptron">perceptron</option><option value="perplexity">perplexity</option><option value="poolside">poolside</option><option value="qwen">qwen</option><option value="rekaai">rekaai</option><option value="relace">relace</option><option value="sakana">sakana</option><option value="sao10k">sao10k</option><option value="stepfun">stepfun</option><option value="tencent">tencent</option><option value="thedrummer">thedrummer</option><option value="thinkingmachines">thinkingmachines</option><option value="undi95">undi95</option><option value="upstage">upstage</option><option value="writer">writer</option><option value="x-ai">x-ai</option><option value="xiaomi">xiaomi</option><option value="z-ai">z-ai</option><option value="~anthropic">~anthropic</option><option value="~google">~google</option><option value="~moonshotai">~moonshotai</option><option value="~openai">~openai</option><option value="~x-ai">~x-ai</option></select>
     </div>
     <div class="filter-field">
       <label for="catalog-maxout">Max output $/M · <span class="filter-range-val" id="catalog-maxout-val">any</span></label>
@@ -5404,7 +6161,7 @@ body.gt-searching .gt-fold {
         </tr></tbody>
       </table>
         <details class="provider-more">
-          <summary>65 more models</summary>
+          <summary>62 more models</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
             <tbody><tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="600" data-input="150" data-cache="" data-provider="openai" data-label="openai: o1-pro">
@@ -5495,18 +6252,6 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="model-price price-cell" data-priceval="30">$30</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 4,096 tokens">128k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="2.5" data-cache="0.25" data-provider="openai" data-label="openai: gpt-5.6 terra pro">
-          <td class="catalog-name"><span title="GPT-5.6 Terra Pro is the same underlying model as [GPT-5.6 Terra](https://openrouter.ai/openai/gpt-5.6-terra), served with `reasoning.mode` set to `pro` for hig">OpenAI: GPT-5.6 Terra Pro</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span><span class="cache-price">cache: $0.25</span></td>
-          <td class="model-price price-cell" data-priceval="15">$15</td>
-          <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
-        </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="2.5" data-cache="0.25" data-provider="openai" data-label="openai: gpt-5.6 terra">
-          <td class="catalog-name"><span title="GPT-5.6 Terra is a balanced model in OpenAI&#39;s GPT-5.6 series, positioned between the flagship Sol tier and the cost-efficient Luna tier. It is suited for everyd">OpenAI: GPT-5.6 Terra</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span><span class="cache-price">cache: $0.25</span></td>
-          <td class="model-price price-cell" data-priceval="15">$15</td>
-          <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
-        </tr>
 <tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="1" data-output="15" data-input="8" data-cache="2" data-provider="openai" data-label="openai: gpt-5.4 image 2">
           <td class="catalog-name"><span title="[GPT-5.4](https://openrouter.ai/openai/gpt-5.4) Image 2 combines OpenAI&#39;s GPT-5.4 model with state-of-the-art image generation capabilities from GPT Image 2. It">OpenAI: GPT-5.4 Image 2</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="8" data-priceval="8"><span class="price-main">$8</span><span class="cache-price">cache: $2</span></td>
@@ -5573,11 +6318,11 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="1.25" data-cache="0.125" data-provider="openai" data-label="openai: gpt-5.1 chat">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="1.25" data-cache="0.13" data-provider="openai" data-label="openai: gpt-5.1 chat">
           <td class="catalog-name"><span title="GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retaining strong general intelligence. It uses">OpenAI: GPT-5.1 Chat</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
           <td class="model-price price-cell" data-sort="1.25" data-priceval="1.25"><span class="price-main">$1.25</span><span class="cache-price">cache: $0.13</span></td>
           <td class="model-price price-cell" data-priceval="10">$10</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
+          <td class="model-ctx" data-sort="128000" title="Max output: 32,000 tokens">128k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="10" data-input="1.25" data-cache="0.13" data-provider="openai" data-label="openai: gpt-5.1-codex">
           <td class="catalog-name"><span title="GPT-5.1-Codex is a specialized version of GPT-5.1 optimized for software engineering and coding workflows. It is designed for both interactive development sessi">OpenAI: GPT-5.1-Codex</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -5597,23 +6342,11 @@ Training data: up to December 2023.">OpenAI: GPT-4 Turbo</span><span class="moda
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
         </tr>
-<tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="1.25" data-cache="0.125" data-provider="openai" data-label="openai: gpt-5 chat">
-          <td class="catalog-name"><span title="GPT-5 Chat is designed for advanced, natural, multimodal, and context-aware conversations for enterprise applications.">OpenAI: GPT-5 Chat</span><span class="modality-badge">img</span></td>
-          <td class="model-price price-cell" data-sort="1.25" data-priceval="1.25"><span class="price-main">$1.25</span><span class="cache-price">cache: $0.13</span></td>
-          <td class="model-price price-cell" data-priceval="10">$10</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
-        </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="10" data-input="1.25" data-cache="0.125" data-provider="openai" data-label="openai: gpt-5">
           <td class="catalog-name"><span title="GPT-5 is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. It is optimized for complex tasks that requi">OpenAI: GPT-5</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="1.25" data-priceval="1.25"><span class="price-main">$1.25</span><span class="cache-price">cache: $0.13</span></td>
           <td class="model-price price-cell" data-priceval="10">$10</td>
           <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
-        </tr>
-<tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="openai" data-label="openai: gpt-4o search preview">
-          <td class="catalog-name"><span title="GPT-4o Search Previewis a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.">OpenAI: GPT-4o Search Preview</span></td>
-          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span></td>
-          <td class="model-price price-cell" data-priceval="10">$10</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="1.25" data-provider="openai" data-label="openai: gpt-4o (2024-11-20)">
           <td class="catalog-name"><span title="The 2024-11-20 version of GPT-4o offers a leveled-up creative writing ability with more natural, engaging, and tailored writing to improve relevance &amp; readabili">OpenAI: GPT-4o (2024-11-20)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -5653,16 +6386,16 @@ Note: This model always us">OpenAI: o4 Mini Deep Research</span><span class="mod
           <td class="model-price price-cell" data-priceval="8">$8</td>
           <td class="model-ctx" data-sort="1047576" title="Max output: 32,768 tokens">1.0M</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="6" data-input="1" data-cache="0.09999999999999999" data-provider="openai" data-label="openai: gpt-5.6 luna pro">
-          <td class="catalog-name"><span title="GPT-5.6 Luna Pro is the same underlying model as [GPT-5.6 Luna](https://openrouter.ai/openai/gpt-5.6-luna), served with `reasoning.mode` set to `pro` for higher">OpenAI: GPT-5.6 Luna Pro</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="1" data-priceval="1"><span class="price-main">$1</span><span class="cache-price">cache: $0.10</span></td>
-          <td class="model-price price-cell" data-priceval="6">$6</td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="7.5" data-input="1.25" data-cache="0.125" data-provider="openai" data-label="openai: gpt-5.6 terra pro">
+          <td class="catalog-name"><span title="GPT-5.6 Terra Pro is the same underlying model as [GPT-5.6 Terra](https://openrouter.ai/openai/gpt-5.6-terra), served with `reasoning.mode` set to `pro` for hig">OpenAI: GPT-5.6 Terra Pro</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="1.25" data-priceval="1.25"><span class="price-main">$1.25</span><span class="cache-price">cache: $0.13</span></td>
+          <td class="model-price price-cell" data-priceval="7.5">$7.50</td>
           <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="6" data-input="1" data-cache="0.09999999999999999" data-provider="openai" data-label="openai: gpt-5.6 luna">
-          <td class="catalog-name"><span title="GPT-5.6 Luna is a fast, cost-efficient model in OpenAI&#39;s GPT-5.6 series. It is suited for high-volume, latency-sensitive tasks such as chat, classification, and">OpenAI: GPT-5.6 Luna</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="1" data-priceval="1"><span class="price-main">$1</span><span class="cache-price">cache: $0.10</span></td>
-          <td class="model-price price-cell" data-priceval="6">$6</td>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="7.5" data-input="1.25" data-cache="0.125" data-provider="openai" data-label="openai: gpt-5.6 terra">
+          <td class="catalog-name"><span title="GPT-5.6 Terra is a balanced model in OpenAI&#39;s GPT-5.6 series, positioned between the flagship Sol tier and the cost-efficient Luna tier. It is suited for everyd">OpenAI: GPT-5.6 Terra</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="1.25" data-priceval="1.25"><span class="price-main">$1.25</span><span class="cache-price">cache: $0.13</span></td>
+          <td class="model-price price-cell" data-priceval="7.5">$7.50</td>
           <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="4.5" data-input="0.75" data-cache="0.075" data-provider="openai" data-label="openai: gpt-5.4 mini">
@@ -5700,6 +6433,18 @@ Note: This model always us">OpenAI: o4 Mini Deep Research</span><span class="mod
           <td class="model-price price-cell" data-sort="3" data-priceval="3"><span class="price-main">$3</span></td>
           <td class="model-price price-cell" data-priceval="4">$4</td>
           <td class="model-ctx" data-sort="16385" title="Max output: 4,096 tokens">16k</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="0.049999999999999996" data-provider="openai" data-label="openai: gpt-5.6 luna pro">
+          <td class="catalog-name"><span title="GPT-5.6 Luna Pro is the same underlying model as [GPT-5.6 Luna](https://openrouter.ai/openai/gpt-5.6-luna), served with `reasoning.mode` set to `pro` for higher">OpenAI: GPT-5.6 Luna Pro</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span><span class="cache-price">cache: $0.05</span></td>
+          <td class="model-price price-cell" data-priceval="3">$3</td>
+          <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="0.049999999999999996" data-provider="openai" data-label="openai: gpt-5.6 luna">
+          <td class="catalog-name"><span title="GPT-5.6 Luna is a fast, cost-efficient model in OpenAI&#39;s GPT-5.6 series. It is suited for high-volume, latency-sensitive tasks such as chat, classification, and">OpenAI: GPT-5.6 Luna</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span><span class="cache-price">cache: $0.05</span></td>
+          <td class="model-price price-cell" data-priceval="3">$3</td>
+          <td class="model-ctx" data-sort="1050000" title="Max output: 128,000 tokens">1.1M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="2.4" data-input="0.6" data-cache="" data-provider="openai" data-label="openai: gpt audio mini">
           <td class="catalog-name"><span title="A cost-efficient version of GPT Audio. The new snapshot features an upgraded decoder for more natural sounding voices and maintains better voice consistency. In">OpenAI: GPT Audio Mini</span><span class="modality-badge">aud</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -5758,12 +6503,6 @@ T">OpenAI: GPT-3.5 Turbo</span><span class="feature-badges"><span class="feature
           <td class="model-price price-cell" data-sort="0.19999999999999998" data-priceval="0.19999999999999998"><span class="price-main">$0.20</span><span class="cache-price">cache: $0.02</span></td>
           <td class="model-price price-cell" data-priceval="1.25">$1.25</td>
           <td class="model-ctx" data-sort="400000" title="Max output: 128,000 tokens">400k</td>
-        </tr>
-<tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="" data-provider="openai" data-label="openai: gpt-4o-mini search preview">
-          <td class="catalog-name"><span title="GPT-4o mini Search Preview is a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.">OpenAI: GPT-4o-mini Search Preview</span></td>
-          <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span></td>
-          <td class="model-price price-cell" data-priceval="0.6">$0.60</td>
-          <td class="model-ctx" data-sort="128000" title="Max output: 16,384 tokens">128k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.6" data-input="0.15" data-cache="0.075" data-provider="openai" data-label="openai: gpt-4o-mini">
           <td class="catalog-name"><span title="GPT-4o mini is OpenAI&#39;s newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ">OpenAI: GPT-4o-mini</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6011,7 +6750,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         <table class="markets-table">
         <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
         <tbody><tr class="provider-flagship catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="15" data-input="3" data-cache="0.3" data-provider="moonshotai" data-label="moonshotai: kimi k3">
-          <td class="catalog-name"><span title="Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic w">MoonshotAI: Kimi K3</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/moonshotai/Kimi-K3" title="Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic w">MoonshotAI: Kimi K3</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="3" data-priceval="3"><span class="price-main">$3</span><span class="cache-price">cache: $0.30</span></td>
           <td class="model-price price-cell" data-priceval="15">$15</td>
           <td class="model-ctx" data-sort="1048576">1.0M</td>
@@ -6021,9 +6760,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <summary>6 more models</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3.5" data-input="0.78" data-cache="0.15" data-provider="moonshotai" data-label="moonshotai: kimi k2.7 code">
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3.5" data-input="0.73" data-cache="0.15" data-provider="moonshotai" data-label="moonshotai: kimi k2.7 code">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/moonshotai/Kimi-K2.7-Code" title="MoonshotAI: Kimi K2.7 Code is a coding-focused model in Moonshot AI&#39;s Kimi K2 family, built to complete end-to-end programming tasks reliably over long contexts">MoonshotAI: Kimi K2.7 Code</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.78" data-priceval="0.78"><span class="price-main">$0.78</span><span class="cache-price">cache: $0.15</span></td>
+          <td class="model-price price-cell" data-sort="0.73" data-priceval="0.73"><span class="price-main">$0.73</span><span class="cache-price">cache: $0.15</span></td>
           <td class="model-price price-cell" data-priceval="3.5">$3.50</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
@@ -6068,7 +6807,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="This model always redirects to the latest model in the MoonshotAI Kimi family.">MoonshotAI Kimi Latest</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="3" data-priceval="3"><span class="price-main">$3</span><span class="cache-price">cache: $0.30</span></td>
           <td class="model-price price-cell" data-priceval="15">$15</td>
-          <td class="model-ctx" data-sort="1048576">1.0M</td>
+          <td class="model-ctx" data-sort="1048576" title="Max output: 262,144 tokens">1.0M</td>
         </tr></tbody>
       </table>
         
@@ -6230,7 +6969,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="catalog-name"><span title="Gemini 3.1 Flash Image Preview, a.k.a. &quot;Nano Banana 2,&quot; is Google’s latest state of the art image generation and editing model, delivering Pro-level visual qual">Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)</span><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span></td>
           <td class="model-price price-cell" data-priceval="3">$3</td>
-          <td class="model-ctx" data-sort="131072" title="Max output: 65,536 tokens">131k</td>
+          <td class="model-ctx" data-sort="65536" title="Max output: 65,536 tokens">66k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3" data-input="0.5" data-cache="0.049999999999999996" data-provider="google" data-label="google: gemini 3 flash preview">
           <td class="catalog-name"><span title="Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and coding assistance. It delivers near Pro l">Google: Gemini 3 Flash Preview</span><span class="modality-badge">img</span><span class="modality-badge">aud</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
@@ -6286,6 +7025,12 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="0.44999999999999996">$0.45</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 131,072 tokens">262k</td>
         </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.42" data-input="0.14" data-cache="0.049999999999999996" data-provider="google" data-label="google: gemma 4 26b a4b ">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/google/gemma-4-26B-A4B-it" title="Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur">Google: Gemma 4 26B A4B </a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span><span class="cache-price">cache: $0.05</span></td>
+          <td class="model-price price-cell" data-priceval="0.42">$0.42</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
+        </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.39999999999999997" data-input="0.14" data-cache="" data-provider="google" data-label="google: gemma 4 31b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/google/gemma-4-31B-it" title="Gemma 4 31B Instruct is Google DeepMind&#39;s 30.7B dense multimodal model supporting text and image input with text output. Features a 256K token context window, c">Google: Gemma 4 31B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
           <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span></td>
@@ -6297,12 +7042,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span><span class="cache-price">cache: $0.01</span></td>
           <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
           <td class="model-ctx" data-sort="1048576" title="Max output: 65,535 tokens">1.0M</td>
-        </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.35" data-input="0.12" data-cache="0.049999999999999996" data-provider="google" data-label="google: gemma 4 26b a4b ">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/google/gemma-4-26B-A4B-it" title="Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur">Google: Gemma 4 26B A4B </a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.12" data-priceval="0.12"><span class="price-main">$0.12</span><span class="cache-price">cache: $0.05</span></td>
-          <td class="model-price price-cell" data-priceval="0.35">$0.35</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.15" data-input="0.049999999999999996" data-cache="" data-provider="google" data-label="google: gemma 3 12b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/google/gemma-3-12b-it" title="Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language">Google: Gemma 3 12B</a><span class="modality-badge">img</span><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -6381,30 +7120,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.0375" data-priceval="0.0375"><span class="price-main">$0.04</span></td>
           <td class="model-price price-cell" data-priceval="0.15">$0.15</td>
           <td class="model-ctx" data-sort="128000" title="Max output: 4,000 tokens">128k</td>
-        </tr></tbody>
-          </table>
-        </details>
-      </div>
-<div class="provider-group">
-        <h3 class="provider-name">inflection</h3>
-        <table class="markets-table">
-        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-        <tbody><tr class="provider-flagship catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="inflection" data-label="inflection: inflection 3 pi">
-          <td class="catalog-name"><span title="Inflection 3 Pi powers Inflection&#39;s [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent ">Inflection: Inflection 3 Pi</span></td>
-          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span></td>
-          <td class="model-price price-cell" data-priceval="10">$10</td>
-          <td class="model-ctx" data-sort="8000" title="Max output: 1,024 tokens">8k</td>
-        </tr></tbody>
-      </table>
-        <details class="provider-more">
-          <summary>1 more model</summary>
-          <table class="markets-table markets-table-compact">
-            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="0" data-structured="0" data-reasoning="0" data-output="10" data-input="2.5" data-cache="" data-provider="inflection" data-label="inflection: inflection 3 productivity">
-          <td class="catalog-name"><span title="Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It ">Inflection: Inflection 3 Productivity</span></td>
-          <td class="model-price price-cell" data-sort="2.5" data-priceval="2.5"><span class="price-main">$2.50</span></td>
-          <td class="model-price price-cell" data-priceval="10">$10</td>
-          <td class="model-ctx" data-sort="8000" title="Max output: 1,024 tokens">8k</td>
         </tr></tbody>
           </table>
         </details>
@@ -6560,7 +7275,7 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
         </tr></tbody>
       </table>
         <details class="provider-more">
-          <summary>46 more models</summary>
+          <summary>47 more models</summary>
           <table class="markets-table markets-table-compact">
             <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
             <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="6.24" data-input="1.04" data-cache="" data-provider="qwen" data-label="qwen: qwen3.6 max preview">
@@ -6695,9 +7410,9 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="1">$1</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1" data-input="0.15" data-cache="0.049999999999999996" data-provider="qwen" data-label="qwen: qwen3.5-35b-a3b">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="1" data-input="0.14" data-cache="" data-provider="qwen" data-label="qwen: qwen3.5-35b-a3b">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen3.5-35B-A3B" title="The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixtur">Qwen: Qwen3.5-35B-A3B</a><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.15" data-priceval="0.15"><span class="price-main">$0.15</span><span class="cache-price">cache: $0.05</span></td>
+          <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span></td>
           <td class="model-price price-cell" data-priceval="1">$1</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
         </tr>
@@ -6832,6 +7547,12 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.09999999999999999" data-priceval="0.09999999999999999"><span class="price-main">$0.10</span></td>
           <td class="model-price price-cell" data-priceval="0.15">$0.15</td>
           <td class="model-ctx" data-sort="262144" title="Max output: 262,144 tokens">262k</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.13" data-input="0.03" data-cache="0.006" data-provider="qwen" data-label="qwen: qwen3.7 flash">
+          <td class="catalog-name"><span title="Qwen3.7 Flash is a vision-language reasoning model from Alibaba. It is suited for multimodal agents, visual coding, search, and computer interaction, with stren">Qwen: Qwen3.7 Flash</span><span class="modality-badge">img</span><span class="modality-badge">vid</span><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.03" data-priceval="0.03"><span class="price-main">$0.03</span><span class="cache-price">cache: $0.006</span></td>
+          <td class="model-price price-cell" data-priceval="0.13">$0.13</td>
+          <td class="model-ctx" data-sort="1000000" title="Max output: 65,536 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="0" data-output="0.09999999999999999" data-input="0.04" data-cache="" data-provider="qwen" data-label="qwen: qwen2.5 7b instruct">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct" title="Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has grea">Qwen: Qwen2.5 7B Instruct</a><span class="feature-badges"><span class="feature-badge">tools</span></span></td>
@@ -7018,10 +7739,10 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-priceval="2.5500000000000003">$2.55</td>
           <td class="model-ctx" data-sort="204800" title="Max output: 131,072 tokens">205k</td>
         </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.3935999999999997" data-input="0.7616" data-cache="0.14144" data-provider="z-ai" data-label="z.ai: glm 5.2">
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.4156" data-input="0.7686000000000001" data-cache="0.14274" data-provider="z-ai" data-label="z.ai: glm 5.2">
           <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/zai-org/GLM-5.2" title="GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf">Z.ai: GLM 5.2</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.7616" data-priceval="0.7616"><span class="price-main">$0.76</span><span class="cache-price">cache: $0.14</span></td>
-          <td class="model-price price-cell" data-priceval="2.3935999999999997">$2.39</td>
+          <td class="model-price price-cell" data-sort="0.7686000000000001" data-priceval="0.7686000000000001"><span class="price-main">$0.77</span><span class="cache-price">cache: $0.14</span></td>
+          <td class="model-price price-cell" data-priceval="2.4156">$2.42</td>
           <td class="model-ctx" data-sort="1048576" title="Max output: 131,072 tokens">1.0M</td>
         </tr>
 <tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.2" data-input="0.6" data-cache="0.11" data-provider="z-ai" data-label="z.ai: glm 4.5">
@@ -7065,6 +7786,36 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.06" data-priceval="0.06"><span class="price-main">$0.06</span><span class="cache-price">cache: $0.01</span></td>
           <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
           <td class="model-ctx" data-sort="202752" title="Max output: 16,384 tokens">203k</td>
+        </tr></tbody>
+          </table>
+        </details>
+      </div>
+<div class="provider-group">
+        <h3 class="provider-name">nvidia</h3>
+        <table class="markets-table">
+        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+        <tbody><tr class="provider-flagship catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="3.5999999999999996" data-input="0.6" data-cache="0.19999999999999998" data-provider="nvidia" data-label="nvidia: nemotron 3 ultra">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16" title="NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid">NVIDIA: Nemotron 3 Ultra</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.6" data-priceval="0.6"><span class="price-main">$0.60</span><span class="cache-price">cache: $0.20</span></td>
+          <td class="model-price price-cell" data-priceval="3.5999999999999996">$3.60</td>
+          <td class="model-ctx" data-sort="512288">512k</td>
+        </tr></tbody>
+      </table>
+        <details class="provider-more">
+          <summary>2 more models</summary>
+          <table class="markets-table markets-table-compact">
+            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
+            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.39999999999999997" data-input="0.08499999999999999" data-cache="" data-provider="nvidia" data-label="nvidia: nemotron 3 super">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8" title="NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-a">NVIDIA: Nemotron 3 Super</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.08499999999999999" data-priceval="0.08499999999999999"><span class="price-main">$0.08</span></td>
+          <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
+          <td class="model-ctx" data-sort="1000000" title="Max output: 16,384 tokens">1.0M</td>
+        </tr>
+<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.19999999999999998" data-input="0.049999999999999996" data-cache="" data-provider="nvidia" data-label="nvidia: nemotron 3 nano 30b a3b">
+          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16" title="NVIDIA Nemotron 3 Nano 30B A3B is a small language MoE model with highest compute efficiency and accuracy for developers to build specialized agentic AI systems">NVIDIA: Nemotron 3 Nano 30B A3B</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
+          <td class="model-price price-cell" data-sort="0.049999999999999996" data-priceval="0.049999999999999996"><span class="price-main">$0.05</span></td>
+          <td class="model-price price-cell" data-priceval="0.19999999999999998">$0.20</td>
+          <td class="model-ctx" data-sort="262144" title="Max output: 228,000 tokens">262k</td>
         </tr></tbody>
           </table>
         </details>
@@ -7233,36 +7984,6 @@ See the launch announcem">Anthropic: Claude 3 Haiku</span><span class="modality-
           <td class="model-price price-cell" data-sort="0.14" data-priceval="0.14"><span class="price-main">$0.14</span><span class="cache-price">cache: $0.03</span></td>
           <td class="model-price price-cell" data-priceval="0.28">$0.28</td>
           <td class="model-ctx" data-sort="1048576" title="Max output: 393,216 tokens">1.0M</td>
-        </tr></tbody>
-          </table>
-        </details>
-      </div>
-<div class="provider-group">
-        <h3 class="provider-name">nvidia</h3>
-        <table class="markets-table">
-        <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-        <tbody><tr class="provider-flagship catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="2.2" data-input="0.5" data-cache="0.09999999999999999" data-provider="nvidia" data-label="nvidia: nemotron 3 ultra">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16" title="NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid">NVIDIA: Nemotron 3 Ultra</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.5" data-priceval="0.5"><span class="price-main">$0.50</span><span class="cache-price">cache: $0.10</span></td>
-          <td class="model-price price-cell" data-priceval="2.2">$2.20</td>
-          <td class="model-ctx" data-sort="512288" title="Max output: 16,384 tokens">512k</td>
-        </tr></tbody>
-      </table>
-        <details class="provider-more">
-          <summary>2 more models</summary>
-          <table class="markets-table markets-table-compact">
-            <thead><tr><th>Model</th><th>Input</th><th>Output</th><th>Context</th></tr></thead>
-            <tbody><tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.39999999999999997" data-input="0.08499999999999999" data-cache="" data-provider="nvidia" data-label="nvidia: nemotron 3 super">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8" title="NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-a">NVIDIA: Nemotron 3 Super</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.08499999999999999" data-priceval="0.08499999999999999"><span class="price-main">$0.08</span></td>
-          <td class="model-price price-cell" data-priceval="0.39999999999999997">$0.40</td>
-          <td class="model-ctx" data-sort="1000000" title="Max output: 16,384 tokens">1.0M</td>
-        </tr>
-<tr class="catalog-row" data-tools="1" data-structured="0" data-reasoning="1" data-output="0.19999999999999998" data-input="0.049999999999999996" data-cache="" data-provider="nvidia" data-label="nvidia: nemotron 3 nano 30b a3b">
-          <td class="catalog-name"><a class="model-hf-link" href="https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16" title="NVIDIA Nemotron 3 Nano 30B A3B is a small language MoE model with highest compute efficiency and accuracy for developers to build specialized agentic AI systems">NVIDIA: Nemotron 3 Nano 30B A3B</a><span class="feature-badges"><span class="feature-badge">tools</span><span class="feature-badge">reasoning</span></span></td>
-          <td class="model-price price-cell" data-sort="0.049999999999999996" data-priceval="0.049999999999999996"><span class="price-main">$0.05</span></td>
-          <td class="model-price price-cell" data-priceval="0.19999999999999998">$0.20</td>
-          <td class="model-ctx" data-sort="262144" title="Max output: 228,000 tokens">262k</td>
         </tr></tbody>
           </table>
         </details>
