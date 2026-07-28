@@ -3,6 +3,9 @@
   "version": "1.0.1",
   "description": "AI-generated newspaper for builders — trending GitHub projects as rich, readable stories",
   "main": "generate.js",
+  "bin": {
+    "gittimes": "bin/gittimes.js"
+  },
   "homepage": "https://gittimes.com",
   "repository": {
     "type": "git",
@@ -16,7 +19,7 @@
     "promo": "node run-promo.js",
     "promo:gate": "node src/promo-gate.js",
     "test": "node --test test/*.test.js",
-    "lint": "npx eslint src/ worker/ test/ generate.js publish-edition.js run-promo.js record-promo.js generate-promo.js",
+    "lint": "npx eslint bin/ src/ worker/ test/ generate.js publish-edition.js run-promo.js record-promo.js generate-promo.js",
     "mcp": "node mcp-server.js",
     "api": "node api-server.js"
   },
