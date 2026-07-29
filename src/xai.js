@@ -162,6 +162,55 @@ function parseNumberedList(block) {
     .filter(Boolean);
 }
 
+// Raw tokenizer artifacts that should never reach a page. A single hit is
+// enough — real prose has no reason to carry these.
+const JUNK_TOKEN_RE = /<unk>|<pad>|<\|endoftext\|>|<\|im_(?:start|end)\|>|�/i;
+
+/**
+ * Detect degenerate model output — the free-tier failure mode where sampling
+ * collapses into `<unk>` runs or repeated/hallucinated token salad. Parseable
+ * gibberish still fills HEADLINE/BODY, so the format check alone lets it
+ * through to print. Deliberately conservative: a false positive only costs one
+ * retry, but the heuristics stay loose enough that ordinary prose (and prose
+ * with code in it) never trips them.
+ * @param {string} text
+ * @returns {boolean}
+ */
+function isGibberish(text) {
+  if (!text) return false;
+  if (JUNK_TOKEN_RE.test(text)) return true;
+
+  const words = text.toLowerCase().match(/[a-z0-9''-]+/g);
+  if (!words || words.length < 40) return false; // too short to judge by frequency
+
+  // A word hammered over and over — the classic repetition loop.
+  let run = 1;
+  for (let i = 1; i < words.length; i++) {
+    run = words[i] === words[i - 1] ? run + 1 : 1;
+    if (run >= 6) return true;
+  }
+
+  // Or the same word dominating overall. English tops out near 7% ("the"), so
+  // a quarter of the text being one word means the sampler is stuck.
+  const freq = new Map();
+  let top = 0;
+  for (const w of words) {
+    const n = (freq.get(w) || 0) + 1;
+    freq.set(w, n);
+    if (n > top) top = n;
+  }
+  if (top / words.length > 0.25) return true;
+
+  // Vowel-less long "words" — the shape of hallucinated token fragments.
+  const longWords = words.filter((w) => w.length >= 4);
+  if (longWords.length >= 20) {
+    const noVowel = longWords.filter((w) => !/[aeiouy]/.test(w)).length;
+    if (noVowel / longWords.length > 0.2) return true;
+  }
+
+  return false;
+}
+
 function parseArticle(text, repo) {
   // Use LAST occurrence of each marker — reasoning models echo the format
   // instructions early in their thinking, then produce the real output later.
@@ -202,17 +251,21 @@ function parseArticle(text, repo) {
   const headline = headlineMatch?.[1]?.trim() || null;
   const subheadline = subheadlineMatch?.[1]?.trim() || "";
 
-  const failed = !headline || !body;
+  // Gibberish is a generation failure, not a parse failure, but it takes the
+  // same exit: retry once, then fall back to the repo description.
+  const garbled = isGibberish(headline) || isGibberish(body);
+  const failed = !headline || !body || garbled;
   if (failed && repo) {
-    console.warn(`Warning: Failed to parse structured output for ${repo.name}, using fallback`);
+    const why = garbled ? "Degenerate output detected" : "Failed to parse structured output";
+    console.warn(`Warning: ${why} for ${repo.name}, using fallback`);
   }
 
   return {
-    headline: headline || (repo ? `${repo.shortName}: ${repo.description}`.slice(0, 80) : "Untitled"),
-    subheadline: subheadline || (repo ? repo.description : ""),
-    body: body || (repo ? repo.description : text),
-    useCases,
-    similarProjects,
+    headline: (garbled ? null : headline) || (repo ? `${repo.shortName}: ${repo.description}`.slice(0, 80) : "Untitled"),
+    subheadline: (garbled || isGibberish(subheadline) ? "" : subheadline) || (repo ? repo.description : ""),
+    body: (garbled ? null : body) || (repo ? repo.description : text),
+    useCases: garbled ? [] : useCases,
+    similarProjects: garbled ? [] : similarProjects,
     _isFallback: failed,
   };
 }
@@ -224,7 +277,9 @@ function parseQuickHits(text, repos) {
     const summary = line
       ? line.replace(/^\d+\.\s*/, "").trim()
       : repo.description;
-    return { ...repo, summary };
+    // One-liners are too short for the frequency heuristics, but a junk-token
+    // run still shows up here — fall back to the description when it does.
+    return { ...repo, summary: isGibberish(summary) ? repo.description : summary };
   });
 }
 
@@ -911,4 +966,4 @@ function deduplicateContent(content) {
   return removed;
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, sanitizePrompt, lastMatch, chat, MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote };

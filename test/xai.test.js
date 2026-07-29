@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { generateSectionContent, generateEditorialContent, parseArticle, chat, _attachSentiment } = require("../src/xai");
+const { generateSectionContent, generateEditorialContent, parseArticle, isGibberish, chat, _attachSentiment } = require("../src/xai");
 const { fetchXSentimentForRepo } = require("../src/x-sentiment");
 
 // --------------- Mock helpers ---------------
@@ -627,5 +627,74 @@ describe("generateEditorialContent — sentiment", () => {
         process.env.X_SENTIMENT = origEnv;
       }
     }
+  });
+});
+
+describe("isGibberish", () => {
+  const prose = [
+    "ReScript is a robustly typed language that compiles to efficient and human-readable JavaScript.",
+    "It ships a fast compiler toolchain that scales to any codebase size, with a builtin pretty printer",
+    "and editor plugins for VSCode and Vim. Teams adopt it gradually and keep the clean JavaScript output",
+    "if they ever decide to leave. The catch: the ecosystem is smaller than TypeScript's, so bindings",
+    "for niche npm packages are often something you write yourself before you can ship anything real.",
+  ].join(" ");
+
+  it("passes ordinary article prose", () => {
+    assert.equal(isGibberish(prose), false);
+  });
+
+  it("passes prose containing code and tool names", () => {
+    const withCode = prose + " Install with `npm i rescript`, then run `npx rescript build -w` in CI.";
+    assert.equal(isGibberish(withCode), false);
+  });
+
+  it("passes empty and short strings", () => {
+    assert.equal(isGibberish(""), false);
+    assert.equal(isGibberish(null), false);
+    assert.equal(isGibberish("A short but perfectly fine headline about a parser."), false);
+  });
+
+  it("catches tokenizer junk", () => {
+    assert.equal(isGibberish("Edit<unk><unk><unk> the compiler"), true);
+    assert.equal(isGibberish("output <|endoftext|> here"), true);
+  });
+
+  it("catches a repetition loop", () => {
+    assert.equal(isGibberish(("the ".repeat(8) + prose)), true);
+  });
+
+  it("catches one word dominating the text", () => {
+    assert.equal(isGibberish(Array.from({ length: 60 }, (_, i) => (i % 2 ? "build" : "x" + i)).join(" ")), true);
+  });
+
+  it("catches vowel-less token salad", () => {
+    const salad = Array.from({ length: 45 }, (_, i) => (i % 3 ? "wxyz" + (i % 7) : "compiler")).join(" ");
+    assert.equal(isGibberish(salad), true);
+  });
+});
+
+describe("parseArticle gibberish gate", () => {
+  const repo = { name: "rescript-lang/rescript", shortName: "rescript", description: "Fully typed JavaScript from the future." };
+
+  it("falls back when the body is degenerate", () => {
+    const raw = `HEADLINE: A perfectly normal headline\nBODY: Edit<unk><unk><unk> ${"<unk>".repeat(40)} dpTech PkSitlov\nUSE_CASES:\n1. one\n`;
+    const article = parseArticle(raw, repo);
+    assert.equal(article._isFallback, true);
+    assert.equal(article.body, repo.description);
+    assert.equal(article.useCases.length, 0);
+  });
+
+  it("falls back when the headline is degenerate", () => {
+    const raw = "HEADLINE: Edit<unk><unk><unk>\nBODY: A clean body paragraph about the compiler release.\n";
+    const article = parseArticle(raw, repo);
+    assert.equal(article._isFallback, true);
+    assert.ok(!article.headline.includes("<unk>"));
+  });
+
+  it("leaves a clean article alone", () => {
+    const raw = "HEADLINE: ReScript ships a faster compiler\nSUBHEADLINE: Builds get quicker\nBODY: The release trims build times across large codebases.\n";
+    const article = parseArticle(raw, repo);
+    assert.equal(article._isFallback, false);
+    assert.equal(article.headline, "ReScript ships a faster compiler");
   });
 });
