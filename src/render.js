@@ -135,7 +135,7 @@ function renderLeadStory(article) {
       <span><a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a></span>
       <span>${escapeHtml(repo.language)}</span>
       ${repo.releaseName ? `<span>Latest: ${escapeHtml(repo.releaseName)}</span>` : ""}
-      <span>${formatStars(repo.stars)} stars</span>
+      <span>${renderStarFigure(repo)}</span>
       ${renderAgeBadge(repo)}
     </div>
     <div class="lead-body">
@@ -153,7 +153,7 @@ function renderFeaturedArticle(article) {
         <h3 class="featured-headline">${escapeHtml(headline)}</h3>
         <p class="featured-subheadline">${escapeHtml(subheadline)}</p>
         <div class="featured-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${renderStarFigure(repo)} ${renderAgeBadge(repo)}
         </div>
         <div class="featured-body">
           ${bodyToHtml(body)}
@@ -171,7 +171,7 @@ function renderCompactArticle(article) {
         <h3 class="compact-headline">${escapeHtml(headline)}</h3>
         <p class="compact-subheadline">${escapeHtml(subheadline)}</p>
         <div class="compact-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${renderStarFigure(repo)} ${renderAgeBadge(repo)}
         </div>
       </article>`;
 }
@@ -226,7 +226,7 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "", expande
   const metaHtml = isTrend
     ? renderTrendMeta(article)
     : `<div class="hybrid-meta">
-          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${formatStars(repo.stars)} stars ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
+          <a href="${escapeHtml(repo.url)}" target="_blank">${escapeHtml(repo.name)}</a> · ${escapeHtml(repo.language)} · ${renderStarFigure(repo)} ${renderAgeBadge(repo)}${isLead && repo.releaseName ? ` · Latest: ${escapeHtml(repo.releaseName)}` : ""}
         </div>`;
 
   // Continuity line: the paper has memory, so show it. Links to the edition
@@ -298,6 +298,27 @@ function renderQuickHit(hit) {
         <span class="quick-hit-stars">${formatStars(hit.stars)}</span>
         <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
       </div>`;
+}
+
+/**
+ * The star figure for a credit line. Growth over the last week when we have a
+ * baseline for it, the lifetime total otherwise — never both. A total tells you
+ * a repo is popular, which is not news; a week's growth is the reason it ran.
+ * @param {object} repo
+ * @returns {string} HTML
+ */
+function renderStarFigure(repo) {
+  if (!repo) return "";
+  const delta = repo.starDelta;
+  const days = repo.starDeltaDays;
+
+  if (typeof delta === "number" && delta > 0 && typeof days === "number" && days >= 1) {
+    const window = days >= 6 ? "this week" : `in ${days}d`;
+    return `<span class="star-velocity">&#9650; ${formatStars(delta)} ${escapeHtml(window)}</span>`;
+  }
+
+  if (typeof repo.stars !== "number") return "";
+  return `${formatStars(repo.stars)} stars`;
 }
 
 function renderAgeBadge(repo) {
@@ -616,7 +637,8 @@ function renderDeskRail(sections, sectionConfigs, order) {
       const a = data.lead;
       const repo = a.repo || {};
       const repoName = repo.name ? `<span class="ritem-repo">${escapeHtml(repo.name)}</span>` : "";
-      const stars = repo.stars != null ? `<span class="ritem-stars">${formatStars(repo.stars)} stars</span>` : "";
+      const figure = renderStarFigure(repo);
+      const stars = figure ? `<span class="ritem-stars">${figure}</span>` : "";
       return `
         <a class="ritem section-jump" href="#" data-section="${escapeHtml(id)}" data-reveal>
           <span class="ritem-sec">${escapeHtml(config.label)}</span>
@@ -1018,4 +1040,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderPushups, renderDeskRail, renderFrontPagePanel, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, renderStarFigure, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderPushups, renderDeskRail, renderFrontPagePanel, renderSourceLine };
