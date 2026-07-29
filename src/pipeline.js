@@ -4,7 +4,7 @@
  */
 const { fetchAllSections, enrichTrendRepos } = require("./github");
 const { generateAllContent, generateEditorialContent, deduplicateContent } = require("./xai");
-const { loadHistory, computeDeltas } = require("./history");
+const { loadHistory, computeDeltas, computeWindowDeltas } = require("./history");
 const { makeEditorialPlan } = require("./editorial");
 const { fetchXSentimentForRepo } = require("./x-sentiment");
 
@@ -78,7 +78,52 @@ async function runPipeline(githubToken, xaiKey, options = {}) {
   // Step 3: Dedup
   deduplicateContent(content);
 
+  // Step 4: Star velocity. A lifetime total says a repo is popular, which isn't
+  // news; growth over the last week is. Attached after generation so it decorates
+  // every article regardless of which branch above produced it.
+  attachStarVelocity(content, rawCandidates, outDir);
+
   return { content, rawCandidates };
+}
+
+/**
+ * Walk every article in the content tree and hang { delta, days } on its repo.
+ * Non-fatal throughout: no history, no snapshots, or a repo we've never seen
+ * before all just leave the repo undecorated, and the renderer falls back to
+ * the star total.
+ */
+function attachStarVelocity(content, rawCandidates, outDir) {
+  let velocity;
+  try {
+    velocity = computeWindowDeltas(rawCandidates, loadHistory(outDir));
+  } catch (err) {
+    console.warn(`Star velocity unavailable (non-fatal): ${err.message}`);
+    return;
+  }
+  if (velocity.size === 0) return;
+
+  let decorated = 0;
+  for (const article of walkArticles(content)) {
+    const repo = article.repo;
+    if (!repo || !repo.name) continue;
+    const v = velocity.get(repo.name);
+    if (!v) continue;
+    repo.starDelta = v.delta;
+    repo.starDeltaDays = v.days;
+    decorated++;
+  }
+  console.log(`Star velocity: ${decorated} articles carry a growth figure`);
+}
+
+/** Every article-shaped object in a content tree, whatever section it sits in. */
+function* walkArticles(content) {
+  for (const section of Object.values(content?.sections || {})) {
+    if (!section || typeof section !== "object") continue;
+    if (section.lead) yield section.lead;
+    for (const key of ["secondary", "deepCuts", "articles"]) {
+      if (Array.isArray(section[key])) yield* section[key];
+    }
+  }
 }
 
 module.exports = { runPipeline };
