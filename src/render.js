@@ -652,11 +652,14 @@ function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
       ${renderDeskRail(sections, sectionConfigs, order)}
     </div>`;
 
-  // The flow bands follow the lead — the day's freshest AI events as shoulder
-  // content: Model Drops (Hugging Face) then Just Shipped (GitHub releases).
-  // Empty (no items / fetch failed) renders nothing.
+  // Model Drops follows the lead as shoulder content. Empty (no items / fetch
+  // failed) renders nothing.
+  //
+  // Just Shipped (renderGitHubReleases) used to sit here too. It was a grid of
+  // version bumps — open-webui v0.11.0, ruff 0.16.0 — which is changelog, not
+  // news: no story, no reason to care, and a second card band competing with
+  // the lead. The renderer stays exported for the release data we still track.
   html += renderModelDrops(opts.modelDrops);
-  html += renderGitHubReleases(opts.ghReleases);
   html += renderPushups(opts.pushups);
 
   if (fp.secondary && fp.secondary.length > 0) {
