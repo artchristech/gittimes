@@ -212,9 +212,10 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "", expande
   const isTrend = article._isTrend;
   let articleClass = isLead ? "hybrid-article hybrid-lead" : isTrend ? "hybrid-article hybrid-trend" : "hybrid-article";
   if (expanded) articleClass += " expanded";
-  // Tight ledes: the collapsed card carries only the story's opening — the
-  // lead gets three sentences, everything else two. The rest is behind the fold.
-  const ledeLen = isLead ? 3 : 2;
+  // Tight ledes: two sentences on every card, lead included. Three sentences of
+  // a short body left nothing behind "Read more" but a source line, so the
+  // control promised a read it couldn't deliver.
+  const ledeLen = 2;
   const preview = previewBody(body, ledeLen);
   const rest = remainderBody(body, ledeLen);
   const slug = slugify(headline);
@@ -264,6 +265,14 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "", expande
   const fullHtml = `${rest ? bodyToHtml(rest) : ""}${extras ? `\n        ${extras}` : ""}`;
   const expandable = fullHtml.trim().length > 0;
 
+  // Name the control after what's behind it. Short stories run out of body but
+  // still carry a source line and use cases, and "Read more" over nothing but
+  // furniture is a promise the card can't keep.
+  const hasMoreStory = rest.trim().length > 0;
+  const toggleLabel = expanded
+    ? (hasMoreStory ? "Read less" : "Hide notes")
+    : (hasMoreStory ? "Read more" : "Notes");
+
   return `
       <article class="${articleClass}" ${dataAttrs}>
         <h3 class="${headlineClass}">${escapeHtml(headline)} ${shareLink}</h3>
@@ -276,7 +285,7 @@ function renderHybridArticle(article, { isLead = false, articleUrl = "", expande
           ${fullHtml}
         </div>` : ""}
         <div class="hybrid-actions">
-          ${expandable ? `<button class="hybrid-toggle" aria-expanded="${expanded ? "true" : "false"}">${expanded ? "Read less" : "Read more"}</button>` : ""}
+          ${expandable ? `<button class="hybrid-toggle" aria-expanded="${expanded ? "true" : "false"}" data-label-more="${escapeHtml(hasMoreStory ? "Read more" : "Notes")}" data-label-less="${escapeHtml(hasMoreStory ? "Read less" : "Hide notes")}">${escapeHtml(toggleLabel)}</button>` : ""}
           <button class="hybrid-ask" type="button" aria-label="Ask the AI about this story">Ask about this</button>
         </div>
       </article>`;
