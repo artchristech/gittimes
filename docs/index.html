@@ -2124,25 +2124,41 @@ body.chat-on .hybrid-ask {
   vertical-align: middle;
 }
 
+/* Only "fresh" earns emphasis. Green on a three-month-old repo read as a success
+   badge pinned to the worst fact about the story, and amber on a veteran read as
+   a warning about nothing. Past a week, age is neutral context, not a verdict. */
 .repo-age-fresh { background: #dbeafe; color: #1e40af; }
-.repo-age-young { background: #d1fae5; color: #065f46; }
-.repo-age-mature { background: #e5e7eb; color: #374151; }
-.repo-age-veteran { background: #fef3c7; color: #92400e; }
+.repo-age-young,
+.repo-age-mature,
+.repo-age-veteran { background: #e5e7eb; color: #374151; }
 
-[data-theme="dark"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
-[data-theme="dark"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
-[data-theme="dark"] .repo-age-mature { background: #374151; color: #d1d5db; }
-[data-theme="dark"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+[data-theme="dark"] .repo-age-fresh,
+[data-theme="ember"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .repo-age-young,
+[data-theme="dark"] .repo-age-mature,
+[data-theme="dark"] .repo-age-veteran,
+[data-theme="ember"] .repo-age-young,
+[data-theme="ember"] .repo-age-mature,
+[data-theme="ember"] .repo-age-veteran { background: #374151; color: #d1d5db; }
 
 [data-theme="sepia"] .repo-age-fresh { background: #c4b5a0; color: #3e3226; }
-[data-theme="sepia"] .repo-age-young { background: #a7c4a0; color: #1a3a1a; }
-[data-theme="sepia"] .repo-age-mature { background: #d4c9b5; color: #3e3226; }
-[data-theme="sepia"] .repo-age-veteran { background: #d4a844; color: #3e3226; }
+[data-theme="sepia"] .repo-age-young,
+[data-theme="sepia"] .repo-age-mature,
+[data-theme="sepia"] .repo-age-veteran { background: #d4c9b5; color: #3e3226; }
 
 [data-theme="midnight"] .repo-age-fresh { background: #1e3a5f; color: #93c5fd; }
-[data-theme="midnight"] .repo-age-young { background: #064e3b; color: #6ee7b7; }
-[data-theme="midnight"] .repo-age-mature { background: #21262d; color: #8b949e; }
-[data-theme="midnight"] .repo-age-veteran { background: #78350f; color: #fde68a; }
+[data-theme="midnight"] .repo-age-young,
+[data-theme="midnight"] .repo-age-mature,
+[data-theme="midnight"] .repo-age-veteran { background: #21262d; color: #8b949e; }
+
+/* Star growth replaces the lifetime total in credit lines — it's the reason the
+   story ran, so it carries the meta row's only emphasis. */
+.star-velocity {
+  color: var(--ink-light);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 
 /* === CHAT === */
 
