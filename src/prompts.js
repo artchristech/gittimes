@@ -12,6 +12,8 @@ function sanitizeRepoField(text) {
 // paper reads front-page: active sentences, not labels; tight bodies, no filler.
 const STORY_STYLE_GUIDELINE = `- The headline must BE the story: a complete active-voice sentence with a subject, a verb, and stakes (e.g. "Tiny Rust Runtime Puts Agents on the Edge for Pennies") — never a label, a colon-description ("X: A Framework for Y"), or a question.
 - The subheadline advances the story with the second-most-important fact; it never restates the headline.
+- The subheadline must ADD news, never subtract it. Never write a deck whose content is that nothing much happened — "Latest update polishes UI without changing core routing", "Release contains only minor fixes", "No breaking changes in this version", "Mostly documentation and cleanup". A deck that tells the reader the story doesn't matter contradicts the headline that just told them it does. If the only honest second fact is that little changed, choose a different second fact: the scale it operates at, what it costs, a constraint it removes, what it now makes possible, or who it displaces.
+- Never let a recent-but-trivial commit displace the real story. If the repo's significance is what it does and the latest release is cosmetic, the deck belongs to the significance, not the release notes.
 - Write TIGHT. Every sentence must earn its place. No throat-clearing, no restating the headline in the lede, no filler transitions, no "in the world of" scene-setting. Short declarative sentences beat long ones.
 - The first two sentences must carry the whole story — what happened and why a builder cares — because most readers see only those.
 `;
@@ -142,7 +144,7 @@ Write entirely in English. Do not reference multilingual documentation, language
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling newspaper headline about what this project does or why it matters, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline, 12-20 words]
+SUBHEADLINE: [A subheadline carrying the second-most-important fact, 12-20 words]
 BODY: [180-250 word article body. Write in short, punchy paragraphs. Include concrete details from the readme and release notes. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, missing capability, or open question a builder should weigh.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
@@ -179,7 +181,7 @@ Write entirely in English. Do not reference multilingual documentation, language
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [Newspaper headline about what this project does, 6-10 words]
-SUBHEADLINE: [Clarifying subheadline, 10-16 words]
+SUBHEADLINE: [Subheadline carrying the second-most-important fact, 10-16 words]
 BODY: [90-130 word article. Short paragraphs, concrete details. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with one sentence beginning **The catch:** naming an honest limitation or open question.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
@@ -237,7 +239,7 @@ Write entirely in English. Do not reference multilingual documentation, language
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling newspaper headline about what this project does or changes, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline about its capabilities or significance, 12-20 words]
+SUBHEADLINE: [A subheadline carrying the second-most-important fact about its capabilities or significance, 12-20 words]
 BODY: [220-300 word article body. Lead with what the project does. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End the body with a separate short paragraph beginning **The catch:** that states one honest limitation, trade-off, or open question.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
@@ -270,7 +272,7 @@ Write entirely in English.
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [A compelling headline about the trend pattern, 8-12 words]
-SUBHEADLINE: [A clarifying subheadline, 12-20 words]
+SUBHEADLINE: [A subheadline carrying the second-most-important fact, 12-20 words]
 BODY: [150-220 word article. Focus on the pattern. Reference repos as evidence. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names, and bullet lists where appropriate. End with a **The catch:** paragraph as instructed above.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]
@@ -297,13 +299,13 @@ WHY SELECTED: ${sleeper.reason}
 
 Frame this as a discovery — what does this project do and why should builders pay attention? Focus on its capabilities and potential, not its popularity metrics.
 - Stay honest: end with one sentence beginning **The catch:** naming why it's still under the radar — early, niche, rough edges, or unproven.
-Do not include a word count anywhere in the output.
+${STORY_STYLE_GUIDELINE}Do not include a word count anywhere in the output.
 Write entirely in English.
 
 Output EXACTLY in this format (include the markers):
 
 HEADLINE: [An intriguing headline about what this project does, 6-10 words]
-SUBHEADLINE: [A clarifying subheadline, 10-16 words]
+SUBHEADLINE: [A subheadline carrying the second-most-important fact, 10-16 words]
 BODY: [90-130 word feature. Short paragraphs. Use markdown formatting: **bold** for emphasis, \`backticks\` for code/tool names. End with a **The catch:** sentence as instructed above.]
 USE_CASES:
 1. [8-12 word use case — who + what, no narrative]

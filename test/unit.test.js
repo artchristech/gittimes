@@ -714,14 +714,34 @@ describe("renderHybridArticle", () => {
     assert.ok(!html.includes("hybrid-headline-lead"));
   });
 
-  it("gives leads a 3-sentence lede and secondaries a 2-sentence lede", () => {
+  it("gives every card a 2-sentence lede, leads included", () => {
     const splitAt = (html) => html.indexOf("hybrid-full");
     const leadHtml = renderHybridArticle(baseArticle, { isLead: true });
     const secHtml = renderHybridArticle(baseArticle);
-    // Lead preview carries sentence 3; secondary pushes it behind the fold.
-    assert.ok(leadHtml.slice(0, splitAt(leadHtml)).includes("Third sentence here"));
-    assert.ok(!secHtml.slice(0, splitAt(secHtml)).includes("Third sentence here"));
-    assert.ok(secHtml.slice(splitAt(secHtml)).includes("Third sentence here"));
+    // Sentence 3 sits behind the fold on both. A lead that showed three
+    // sentences of a short body left "Read more" with nothing but furniture.
+    for (const html of [leadHtml, secHtml]) {
+      assert.ok(!html.slice(0, splitAt(html)).includes("Third sentence here"));
+      assert.ok(html.slice(splitAt(html)).includes("Third sentence here"));
+    }
+  });
+
+  it("labels the toggle 'Read more' when body text remains", () => {
+    const html = renderHybridArticle(baseArticle);
+    assert.match(html, /class="hybrid-toggle"[^>]*>Read more</);
+    assert.match(html, /data-label-more="Read more"/);
+    assert.match(html, /data-label-less="Read less"/);
+  });
+
+  it("labels the toggle 'Notes' when only supporting material remains", () => {
+    // Two sentences of body: nothing left to read, but a source line and use
+    // cases still sit behind the fold. Promising a read here would be a lie.
+    const short = { ...baseArticle, body: "One sentence. Two sentences." };
+    const html = renderHybridArticle(short);
+    assert.match(html, /class="hybrid-toggle"[^>]*>Notes</);
+    assert.match(html, /data-label-more="Notes"/);
+    assert.match(html, /data-label-less="Hide notes"/);
+    assert.ok(!html.includes(">Read more<"), "must not promise more story");
   });
 
   it("keeps all extras inside the hybrid-full fold, not the collapsed card", () => {

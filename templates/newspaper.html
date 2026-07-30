@@ -458,7 +458,11 @@
         var article = toggle.closest('.hybrid-article');
         if (!article) return;
         var expanded = article.classList.toggle('expanded');
-        toggle.textContent = expanded ? 'Read less' : 'Read more';
+        // Labels come from the card: a story with body left says "Read more",
+        // one carrying only a source line and use cases says "Notes".
+        var more = toggle.getAttribute('data-label-more') || 'Read more';
+        var less = toggle.getAttribute('data-label-less') || 'Read less';
+        toggle.textContent = expanded ? less : more;
         toggle.setAttribute('aria-expanded', expanded);
       });
 
