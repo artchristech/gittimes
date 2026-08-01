@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-07-31T07:49:30.699Z",
+  "syncedAt": "2026-08-01T07:26:55.578Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
     "matched": 13,
     "missed": 0,
-    "catalog": 342,
+    "catalog": 314,
     "bannerSlots": 7
   },
   "models": [
@@ -350,7 +350,7 @@
       "output": 4.425,
       "context_length": 1000000,
       "cache_read_price": 0.295,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 131072,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -427,10 +427,10 @@
       "openrouterId": "moonshotai/kimi-k2.6",
       "label": "Kimi K2.6",
       "provider": "Moonshot",
-      "input": 0.95,
-      "output": 4,
+      "input": 0.6,
+      "output": 3.41,
       "context_length": 262144,
-      "cache_read_price": 0.16,
+      "cache_read_price": 0.19999999999999998,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -790,12 +790,6 @@
       "created": 1784646733
     },
     {
-      "id": "google/gemini-3.6-flash:batch",
-      "name": "Google: Gemini 3.6 Flash (batch)",
-      "outputPrice": 3.75,
-      "created": 1784646733
-    },
-    {
       "id": "openai/gpt-5.6-terra-pro",
       "name": "OpenAI: GPT-5.6 Terra Pro",
       "outputPrice": 6,
@@ -830,6 +824,12 @@
       "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image)",
       "outputPrice": 3,
       "created": 1781754065
+    },
+    {
+      "id": "google/gemini-3-pro-image",
+      "name": "Google: Nano Banana Pro (Gemini 3 Pro Image)",
+      "outputPrice": 12,
+      "created": 1781754054
     }
   ],
   "catalog": [
@@ -1278,35 +1278,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "anthropic/claude-opus-4.1:batch",
-      "name": "Anthropic: Claude Opus 4.1 (batch)",
-      "context_length": 200000,
-      "input": 7.5,
-      "output": 37.5,
-      "cache_read_price": 0.75,
-      "max_completion_tokens": 32000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "image",
-        "text",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1754411591,
-      "description": "Claude Opus 4.1 is an updated version of Anthropic’s flagship model, offering improved performance in coding, reasoning, and agentic tasks. It achieves 74.5% on",
-      "hugging_face_id": null
-    },
-    {
       "id": "openai/gpt-5.6-sol-pro",
       "name": "OpenAI: GPT-5.6 Sol Pro",
       "context_length": 1050000,
@@ -1576,36 +1547,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "anthropic/claude-fable-5:batch",
-      "name": "Anthropic: Claude Fable 5 (batch)",
-      "context_length": 1000000,
-      "input": 5,
-      "output": 25,
-      "cache_read_price": 0.5,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools",
-        "verbosity"
-      ],
-      "created": 1781007515,
-      "description": "Claude Fable 5 is a Mythos-class model from Anthropic, built for autonomous knowledge work and coding. It supports text, image, and file inputs with text output",
-      "hugging_face_id": null
-    },
-    {
       "id": "anthropic/claude-opus-4.8",
       "name": "Anthropic: Claude Opus 4.8",
       "context_length": 1000000,
@@ -1804,35 +1745,6 @@
       "created": 1784215858,
       "description": "Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic w",
       "hugging_face_id": "moonshotai/Kimi-K3"
-    },
-    {
-      "id": "openai/gpt-5.5:batch",
-      "name": "OpenAI: GPT-5.5 (batch)",
-      "context_length": 1050000,
-      "input": 2.5,
-      "output": 15,
-      "cache_read_price": 0.25,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1777051893,
-      "description": "GPT-5.5 is OpenAI’s frontier model designed for complex professional workloads, building on GPT-5.4 with stronger reasoning, higher reliability, and improved to",
-      "hugging_face_id": null
     },
     {
       "id": "openai/gpt-5.4-image-2",
@@ -2266,128 +2178,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "anthropic/claude-opus-4.8:batch",
-      "name": "Anthropic: Claude Opus 4.8 (batch)",
-      "context_length": 1000000,
-      "input": 2.5,
-      "output": 12.5,
-      "cache_read_price": 0.25,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools",
-        "verbosity"
-      ],
-      "created": 1779905091,
-      "description": "Claude Opus 4.8 is Anthropic's most capable generally available model in the Opus family. It supports text, image, and file inputs with text output, with reason",
-      "hugging_face_id": null
-    },
-    {
-      "id": "anthropic/claude-opus-4.7:batch",
-      "name": "Anthropic: Claude Opus 4.7 (batch)",
-      "context_length": 1000000,
-      "input": 2.5,
-      "output": 12.5,
-      "cache_read_price": 0.25,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools",
-        "verbosity"
-      ],
-      "created": 1776351100,
-      "description": "Opus 4.7 is the next generation of Anthropic's Opus family, built for long-running, asynchronous agents. Building on the coding and agentic strengths of Opus 4.",
-      "hugging_face_id": null
-    },
-    {
-      "id": "anthropic/claude-opus-4.6:batch",
-      "name": "Anthropic: Claude Opus 4.6 (batch)",
-      "context_length": 1000000,
-      "input": 2.5,
-      "output": 12.5,
-      "cache_read_price": 0.25,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p",
-        "verbosity"
-      ],
-      "created": 1770219050,
-      "description": "Opus 4.6 is Anthropic’s strongest model for coding and long-running professional tasks. It is built for agents that operate across entire workflows rather than ",
-      "hugging_face_id": null
-    },
-    {
-      "id": "anthropic/claude-opus-4.5:batch",
-      "name": "Anthropic: Claude Opus 4.5 (batch)",
-      "context_length": 200000,
-      "input": 2.5,
-      "output": 12.5,
-      "cache_read_price": 0.25,
-      "max_completion_tokens": 64000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "verbosity"
-      ],
-      "created": 1764010580,
-      "description": "Claude Opus 4.5 is Anthropic’s frontier reasoning model optimized for complex software engineering, agentic workflows, and long-horizon computer use. It offers ",
-      "hugging_face_id": null
-    },
-    {
       "id": "amazon/nova-premier-v1",
       "name": "Amazon: Nova Premier 1.0",
       "context_length": 1000000,
@@ -2722,32 +2512,6 @@
       ],
       "created": 1763060305,
       "description": "GPT-5.1 is the latest frontier-grade model in the GPT-5 series, offering stronger general-purpose reasoning, improved instruction adherence, and a more natural ",
-      "hugging_face_id": null
-    },
-    {
-      "id": "openai/gpt-5.1-chat",
-      "name": "OpenAI: GPT-5.1 Chat",
-      "context_length": 128000,
-      "input": 1.25,
-      "output": 10,
-      "cache_read_price": 0.13,
-      "max_completion_tokens": 32000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "max_completion_tokens",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1763060302,
-      "description": "GPT-5.1 Chat (AKA Instant is the fast, lightweight member of the 5.1 family, optimized for low-latency chat while retaining strong general intelligence. It uses",
       "hugging_face_id": null
     },
     {
@@ -3382,95 +3146,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "openai/gpt-5.4:batch",
-      "name": "OpenAI: GPT-5.4 (batch)",
-      "context_length": 1050000,
-      "input": 1.25,
-      "output": 7.5,
-      "cache_read_price": 0.125,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1772734352,
-      "description": "GPT-5.4 is OpenAI’s latest frontier model, unifying the Codex and GPT lines into a single system. It features a 1M+ token context window (922K input, 128K outpu",
-      "hugging_face_id": null
-    },
-    {
-      "id": "anthropic/claude-sonnet-4.5:batch",
-      "name": "Anthropic: Claude Sonnet 4.5 (batch)",
-      "context_length": 1000000,
-      "input": 1.5,
-      "output": 7.5,
-      "cache_read_price": 0.15,
-      "max_completion_tokens": 64000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1759161676,
-      "description": "Claude Sonnet 4.5 is Anthropic’s most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performa",
-      "hugging_face_id": null
-    },
-    {
-      "id": "openai/gpt-5.2:batch",
-      "name": "OpenAI: GPT-5.2 (batch)",
-      "context_length": 400000,
-      "input": 0.875,
-      "output": 7,
-      "cache_read_price": 0.0875,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1765389775,
-      "description": "GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reas",
-      "hugging_face_id": null
-    },
-    {
       "id": "qwen/qwen3.6-max-preview",
       "name": "Qwen: Qwen3.6 Max Preview",
       "context_length": 262144,
@@ -3663,40 +3338,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemini-3.1-pro-preview:batch",
-      "name": "Google: Gemini 3.1 Pro Preview (batch)",
-      "context_length": 1048576,
-      "input": 1,
-      "output": 6,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "audio",
-        "file",
-        "image",
-        "text",
-        "video"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1771509627,
-      "description": "Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, improved agentic reliability, and more effici",
-      "hugging_face_id": null
-    },
-    {
       "id": "writer/palmyra-x5",
       "name": "Writer: Palmyra X5",
       "context_length": 1040000,
@@ -3810,36 +3451,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "anthropic/claude-sonnet-5:batch",
-      "name": "Anthropic: Claude Sonnet 5 (batch)",
-      "context_length": 1000000,
-      "input": 1,
-      "output": 5,
-      "cache_read_price": 0.09999999999999999,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools",
-        "verbosity"
-      ],
-      "created": 1782843083,
-      "description": "Sonnet 5 is Anthropic's most capable Sonnet-class model, with frontier performance across coding, agents, and professional work. It supports adaptive thinking w",
-      "hugging_face_id": null
-    },
-    {
       "id": "~anthropic/claude-haiku-latest",
       "name": "Anthropic Claude Haiku Latest",
       "context_length": 200000,
@@ -3869,35 +3480,6 @@
       ],
       "created": 1777318492,
       "description": "This model always redirects to the latest model in the Anthropic Claude Haiku family.",
-      "hugging_face_id": null
-    },
-    {
-      "id": "openai/gpt-5.1:batch",
-      "name": "OpenAI: GPT-5.1 (batch)",
-      "context_length": 400000,
-      "input": 0.625,
-      "output": 5,
-      "cache_read_price": 0.0625,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "image",
-        "text",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1763060305,
-      "description": "GPT-5.1 is the latest frontier-grade model in the GPT-5 series, offering stronger general-purpose reasoning, improved instruction adherence, and a more natural ",
       "hugging_face_id": null
     },
     {
@@ -3933,68 +3515,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "openai/gpt-5:batch",
-      "name": "OpenAI: GPT-5 (batch)",
-      "context_length": 400000,
-      "input": 0.625,
-      "output": 5,
-      "cache_read_price": 0.0625,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1754587413,
-      "description": "GPT-5 is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. It is optimized for complex tasks that requi",
-      "hugging_face_id": null
-    },
-    {
-      "id": "google/gemini-2.5-pro:batch",
-      "name": "Google: Gemini 2.5 Pro (batch)",
-      "context_length": 1048576,
-      "input": 0.625,
-      "output": 5,
-      "cache_read_price": 0.125,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file",
-        "audio",
-        "video"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1750169544,
-      "description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilit",
-      "hugging_face_id": null
-    },
-    {
       "id": "anthracite-org/magnum-v4-72b",
       "name": "Magnum v4 72B",
       "context_length": 16384,
@@ -4027,40 +3547,6 @@
       "created": 1729555200,
       "description": "This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet",
       "hugging_face_id": "anthracite-org/magnum-v4-72b"
-    },
-    {
-      "id": "google/gemini-3.5-flash:batch",
-      "name": "Google: Gemini 3.5 Flash (batch)",
-      "context_length": 1048576,
-      "input": 0.75,
-      "output": 4.5,
-      "cache_read_price": 0.075,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1779193800,
-      "description": "Gemini 3.5 Flash is Google's high-efficiency multimodal model, bringing near-Pro level coding and reasoning at Flash-tier cost and speed. It is highly optimized",
-      "hugging_face_id": null
     },
     {
       "id": "~openai/gpt-mini-latest",
@@ -4129,7 +3615,7 @@
       "input": 1.475,
       "output": 4.425,
       "cache_read_price": 0.295,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 131072,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -4340,45 +3826,6 @@
       "hugging_face_id": "thinkingmachines/Inkling"
     },
     {
-      "id": "moonshotai/kimi-k2.6",
-      "name": "MoonshotAI: Kimi K2.6",
-      "context_length": 262144,
-      "input": 0.95,
-      "output": 4,
-      "cache_read_price": 0.16,
-      "max_completion_tokens": 262144,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1776699402,
-      "description": "Kimi K2.6 is Moonshot AI's next-generation multimodal model, designed for long-horizon coding, coding-driven UI/UX generation, and multi-agent orchestration. It",
-      "hugging_face_id": "moonshotai/Kimi-K2.6"
-    },
-    {
       "id": "z-ai/glm-5v-turbo",
       "name": "Z.ai: GLM 5V Turbo",
       "context_length": 202752,
@@ -4570,77 +4017,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemini-3.6-flash:batch",
-      "name": "Google: Gemini 3.6 Flash (batch)",
-      "context_length": 1048576,
-      "input": 0.75,
-      "output": 3.75,
-      "cache_read_price": 0.075,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1784646733,
-      "description": "Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It is designed to produce polished outputs w",
-      "hugging_face_id": null
-    },
-    {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 1.19,
-      "output": 3.74,
-      "cache_read_price": 0.221,
-      "max_completion_tokens": 128000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "nvidia/nemotron-3-ultra-550b-a55b",
       "name": "NVIDIA: Nemotron 3 Ultra",
       "context_length": 512288,
@@ -4714,6 +4090,45 @@
       "created": 1781266361,
       "description": "MoonshotAI: Kimi K2.7 Code is a coding-focused model in Moonshot AI's Kimi K2 family, built to complete end-to-end programming tasks reliably over long contexts",
       "hugging_face_id": "moonshotai/Kimi-K2.7-Code"
+    },
+    {
+      "id": "moonshotai/kimi-k2.6",
+      "name": "MoonshotAI: Kimi K2.6",
+      "context_length": 262144,
+      "input": 0.6,
+      "output": 3.41,
+      "cache_read_price": 0.19999999999999998,
+      "max_completion_tokens": 262144,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1776699402,
+      "description": "Kimi K2.6 is Moonshot AI's next-generation multimodal model, designed for long-horizon coding, coding-driven UI/UX generation, and multi-agent orchestration. It",
+      "hugging_face_id": "moonshotai/Kimi-K2.6"
     },
     {
       "id": "qwen/qwen3-coder-plus",
@@ -5257,37 +4672,6 @@
       "hugging_face_id": "moonshotai/Kimi-K2-Thinking"
     },
     {
-      "id": "anthropic/claude-haiku-4.5:batch",
-      "name": "Anthropic: Claude Haiku 4.5 (batch)",
-      "context_length": 200000,
-      "input": 0.5,
-      "output": 2.5,
-      "cache_read_price": 0.049999999999999996,
-      "max_completion_tokens": 64000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1760547638,
-      "description": "Claude Haiku 4.5 is Anthropic’s fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude m",
-      "hugging_face_id": null
-    },
-    {
       "id": "google/gemini-2.5-flash-image",
       "name": "Google: Nano Banana (Gemini 2.5 Flash Image)",
       "context_length": 32768,
@@ -5511,6 +4895,45 @@
       "hugging_face_id": "Qwen/Qwen3-30B-A3B-Thinking-2507"
     },
     {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.76006,
+      "output": 2.38876,
+      "cache_read_price": 0.141154,
+      "max_completion_tokens": 128000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
+    },
+    {
       "id": "qwen/qwen3.5-397b-a17b",
       "name": "Qwen: Qwen3.5 397B A17B",
       "context_length": 262144,
@@ -5613,35 +5036,6 @@
       "created": 1752263252,
       "description": "Kimi K2 Instruct is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI, featuring 1 trillion total parameters with 32 billion active",
       "hugging_face_id": "moonshotai/Kimi-K2-Instruct"
-    },
-    {
-      "id": "openai/gpt-5.4-mini:batch",
-      "name": "OpenAI: GPT-5.4 Mini (batch)",
-      "context_length": 400000,
-      "input": 0.375,
-      "output": 2.25,
-      "cache_read_price": 0.0375,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1773748178,
-      "description": "GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput workloads. It supports text and image input",
-      "hugging_face_id": null
     },
     {
       "id": "z-ai/glm-4.5",
@@ -5948,36 +5342,6 @@
       "created": 1766504997,
       "description": "Seed 1.6 is a general-purpose model released by the ByteDance Seed team. It incorporates multimodal capabilities and adaptive deep thinking with a 256K context ",
       "hugging_face_id": null
-    },
-    {
-      "id": "mistralai/devstral-2512",
-      "name": "Mistral: Devstral 2 2512",
-      "context_length": 262144,
-      "input": 0.39999999999999997,
-      "output": 2,
-      "cache_read_price": 0.04,
-      "max_completion_tokens": null,
-      "modality": "text+file->text",
-      "input_modalities": [
-        "text",
-        "file"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1765285419,
-      "description": "Devstral 2 is a state-of-the-art open-source model by Mistral AI specializing in agentic coding. It is a 123B-parameter dense transformer model supporting a 256",
-      "hugging_face_id": "mistralai/Devstral-2-123B-Instruct-2512"
     },
     {
       "id": "openai/gpt-5.1-codex-mini",
@@ -6739,40 +6103,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemini-3-flash-preview:batch",
-      "name": "Google: Gemini 3 Flash Preview (batch)",
-      "context_length": 1048576,
-      "input": 0.25,
-      "output": 1.5,
-      "cache_read_price": null,
-      "max_completion_tokens": 65535,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file",
-        "audio",
-        "video"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1765987078,
-      "description": "Gemini 3 Flash Preview is a high speed, high value thinking model designed for agentic workflows, multi turn chat, and coding assistance. It delivers near Pro l",
-      "hugging_face_id": null
-    },
-    {
       "id": "mistralai/mistral-large-2512",
       "name": "Mistral: Mistral Large 3 2512",
       "context_length": 262144,
@@ -6868,7 +6198,7 @@
       "input": 0.32,
       "output": 1.28,
       "cache_read_price": 0.064,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 131072,
       "modality": "text+image->text",
       "input_modalities": [
         "text",
@@ -6894,38 +6224,6 @@
       ],
       "created": 1780491783,
       "description": "Qwen3.7-Plus is a cost-effective model in Alibaba's Qwen3.7 series. It supports text and image input with text output, building on the series' text capabilities",
-      "hugging_face_id": null
-    },
-    {
-      "id": "google/gemini-3.5-flash-lite:batch",
-      "name": "Google: Gemini 3.5 Flash Lite (batch)",
-      "context_length": 1048576,
-      "input": 0.15,
-      "output": 1.25,
-      "cache_read_price": 0.015,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1784646726,
-      "description": "Gemini 3.5 Flash Lite is a high-efficiency model from Google with upgraded agentic capabilities. It is suited for subagents that execute focused tasks within co",
       "hugging_face_id": null
     },
     {
@@ -7042,39 +6340,6 @@
       "hugging_face_id": "baidu/ERNIE-4.5-VL-424B-A47B-PT"
     },
     {
-      "id": "google/gemini-2.5-flash:batch",
-      "name": "Google: Gemini 2.5 Flash (batch)",
-      "context_length": 1048576,
-      "input": 0.15,
-      "output": 1.25,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": 65535,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text",
-        "audio",
-        "video"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1750172488,
-      "description": "Gemini 2.5 Flash is Google's state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mathematics, and scientific tasks. It inclu",
-      "hugging_face_id": null
-    },
-    {
       "id": "anthropic/claude-3-haiku",
       "name": "Anthropic: Claude 3 Haiku",
       "context_length": 200000,
@@ -7099,6 +6364,44 @@
       "created": 1710288000,
       "description": "Claude 3 Haiku is Anthropic's fastest and most compact model for\nnear-instant responsiveness. Quick and accurate targeted performance.\n\nSee the launch announcem",
       "hugging_face_id": null
+    },
+    {
+      "id": "thinkingmachines/inkling-small",
+      "name": "Thinking Machines: Inkling Small",
+      "context_length": 524288,
+      "input": 0.5,
+      "output": 1.2,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": null,
+      "modality": "text+image+audio->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "audio"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1785443117,
+      "description": "Inkling Small is an open-weight multimodal mixture-of-experts model from Thinking Machines Lab, with 12B active parameters out of 276B total. It is positioned a",
+      "hugging_face_id": "thinkingmachines/Inkling-Small"
     },
     {
       "id": "meituan/longcat-2.0",
@@ -7794,35 +7097,6 @@
       "created": 1758548275,
       "description": "DeepSeek-V3.1 Terminus is an update to [DeepSeek V3.1](/deepseek/deepseek-chat-v3.1) that maintains the model's original capabilities while addressing issues re",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1-Terminus"
-    },
-    {
-      "id": "openai/gpt-5-mini:batch",
-      "name": "OpenAI: GPT-5 Mini (batch)",
-      "context_length": 400000,
-      "input": 0.125,
-      "output": 1,
-      "cache_read_price": 0.012499999999999999,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1754587407,
-      "description": "GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instruction-following and safety-tuning benefi",
-      "hugging_face_id": null
     },
     {
       "id": "qwen/qwen3-coder",
@@ -8583,40 +7857,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemini-3.1-flash-lite:batch",
-      "name": "Google: Gemini 3.1 Flash Lite (batch)",
-      "context_length": 1048576,
-      "input": 0.125,
-      "output": 0.75,
-      "cache_read_price": 0.012499999999999999,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1778168828,
-      "description": "Gemini 3.1 Flash Lite is Google’s GA high-efficiency multimodal model optimized for low-latency, high-volume workloads. It supports text, image, video, audio, a",
-      "hugging_face_id": null
-    },
-    {
       "id": "inception/mercury-2",
       "name": "Inception: Mercury 2",
       "context_length": 128000,
@@ -8868,35 +8108,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "openai/gpt-5.4-nano:batch",
-      "name": "OpenAI: GPT-5.4 Nano (batch)",
-      "context_length": 400000,
-      "input": 0.09999999999999999,
-      "output": 0.625,
-      "cache_read_price": 0.01,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "file",
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1773748187,
-      "description": "GPT-5.4 nano is the most lightweight and cost-efficient variant of the GPT-5.4 family, optimized for speed-critical and high-volume tasks. It supports text and ",
-      "hugging_face_id": null
-    },
-    {
       "id": "microsoft/wizardlm-2-8x22b",
       "name": "WizardLM-2 8x22B",
       "context_length": 65535,
@@ -9015,42 +8226,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "minimax/minimax-m3:batch",
-      "name": "MiniMax: MiniMax M3 (batch)",
-      "context_length": 524288,
-      "input": 0.15,
-      "output": 0.6,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": null,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1780245374,
-      "description": "MiniMax-M3 is a multimodal foundation model from MiniMax. It supports text, image, and video inputs with text output, a 1M-token context window, and is suited f",
-      "hugging_face_id": "MiniMaxAI/Minimax-M3"
-    },
-    {
       "id": "mistralai/mistral-small-2603",
       "name": "Mistral: Mistral Small 4",
       "context_length": 262144,
@@ -9109,42 +8284,6 @@
       "created": 1769481200,
       "description": "Solar Pro 3 is Upstage's powerful Mixture-of-Experts (MoE) language model. With 102B total parameters and 12B active parameters per forward pass, it delivers ex",
       "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3-vl-30b-a3b-instruct",
-      "name": "Qwen: Qwen3 VL 30B A3B Instruct",
-      "context_length": 262144,
-      "input": 0.15,
-      "output": 0.6,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1759794476,
-      "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimi",
-      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
     },
     {
       "id": "mistralai/mistral-saba",
@@ -9409,6 +8548,42 @@
       "created": 1783344048,
       "description": "Hy3 is a 295B-parameter Mixture-of-Experts model from Tencent (21B active, 192 experts with top-8 routing) built for reasoning, agentic workflows, and real-worl",
       "hugging_face_id": "tencent/Hy3"
+    },
+    {
+      "id": "qwen/qwen3-vl-30b-a3b-instruct",
+      "name": "Qwen: Qwen3 VL 30B A3B Instruct",
+      "context_length": 262144,
+      "input": 0.13,
+      "output": 0.52,
+      "cache_read_price": null,
+      "max_completion_tokens": 32768,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1759794476,
+      "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimi",
+      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
     },
     {
       "id": "allenai/olmo-3-32b-think",
@@ -10343,42 +9518,6 @@
       "hugging_face_id": "openai/gpt-oss-safeguard-20b"
     },
     {
-      "id": "mistralai/mistral-small-3.2-24b-instruct",
-      "name": "Mistral: Mistral Small 3.2 24B",
-      "context_length": 256000,
-      "input": 0.09999999999999999,
-      "output": 0.3,
-      "cache_read_price": 0.01,
-      "max_completion_tokens": null,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1750443016,
-      "description": "Mistral-Small-3.2-24B-Instruct-2506 is an updated 24B parameter model from Mistral optimized for instruction following, repetition reduction, and improved funct",
-      "hugging_face_id": "mistralai/Mistral-Small-3.2-24B-Instruct-2506"
-    },
-    {
       "id": "meta-llama/llama-4-scout",
       "name": "Meta: Llama 4 Scout",
       "context_length": 1310720,
@@ -10411,6 +9550,44 @@
       "created": 1743881519,
       "description": "Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion parameters out of a total of 109B. It sup",
       "hugging_face_id": "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-0731",
+      "name": "DeepSeek: DeepSeek V4 Flash 0731",
+      "context_length": 1048576,
+      "input": 0.14,
+      "output": 0.28,
+      "cache_read_price": 0.0028,
+      "max_completion_tokens": 384000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1785478908,
+      "description": "DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total. This re-post-trained revision is suited",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-0731"
     },
     {
       "id": "deepseek/deepseek-v4-flash",
@@ -10492,6 +9669,39 @@
       "hugging_face_id": "XiaomiMiMo/MiMo-V2.5"
     },
     {
+      "id": "qwen/qwen3-coder-30b-a3b-instruct",
+      "name": "Qwen: Qwen3 Coder 30B A3B Instruct",
+      "context_length": 262144,
+      "input": 0.07,
+      "output": 0.28,
+      "cache_read_price": null,
+      "max_completion_tokens": 262144,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1753972379,
+      "description": "Qwen3-Coder-30B-A3B-Instruct is a 30.5B parameter Mixture-of-Experts (MoE) model with 128 experts (8 active per forward pass), designed for advanced code genera",
+      "hugging_face_id": "Qwen/Qwen3-Coder-30B-A3B-Instruct"
+    },
+    {
       "id": "qwen/qwen3-32b",
       "name": "Qwen: Qwen3 32B",
       "context_length": 131072,
@@ -10527,39 +9737,6 @@
       "created": 1745875945,
       "description": "Qwen3-32B is a dense 32.8B parameter causal language model from the Qwen3 series, optimized for both complex reasoning and efficient dialogue. It supports seaml",
       "hugging_face_id": "Qwen/Qwen3-32B"
-    },
-    {
-      "id": "qwen/qwen3-coder-30b-a3b-instruct",
-      "name": "Qwen: Qwen3 Coder 30B A3B Instruct",
-      "context_length": 262144,
-      "input": 0.07,
-      "output": 0.27,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1753972379,
-      "description": "Qwen3-Coder-30B-A3B-Instruct is a 30.5B parameter Mixture-of-Experts (MoE) model with 128 experts (8 active per forward pass), designed for advanced code genera",
-      "hugging_face_id": "Qwen/Qwen3-Coder-30B-A3B-Instruct"
     },
     {
       "id": "qwen/qwen3.5-flash-02-23",
@@ -10744,35 +9921,6 @@
       "hugging_face_id": "mistralai/Ministral-3-14B-Instruct-2512"
     },
     {
-      "id": "openai/gpt-5-nano:batch",
-      "name": "OpenAI: GPT-5 Nano (batch)",
-      "context_length": 400000,
-      "input": 0.024999999999999998,
-      "output": 0.19999999999999998,
-      "cache_read_price": 0.0025,
-      "max_completion_tokens": 128000,
-      "modality": "text+image+file->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "file"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1754587402,
-      "description": "GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, and ultra-low latency environments. While",
-      "hugging_face_id": null
-    },
-    {
       "id": "bytedance/ui-tars-1.5-7b",
       "name": "ByteDance: UI-TARS 7B ",
       "context_length": 128000,
@@ -10805,25 +9953,26 @@
       "hugging_face_id": "ByteDance-Seed/UI-TARS-1.5-7B"
     },
     {
-      "id": "google/gemini-2.5-flash-lite:batch",
-      "name": "Google: Gemini 2.5 Flash Lite (batch)",
-      "context_length": 1048576,
-      "input": 0.049999999999999996,
+      "id": "mistralai/mistral-small-3.2-24b-instruct",
+      "name": "Mistral: Mistral Small 3.2 24B",
+      "context_length": 256000,
+      "input": 0.075,
       "output": 0.19999999999999998,
-      "cache_read_price": 0.01,
-      "max_completion_tokens": 65535,
-      "modality": "text+image+file+audio+video->text",
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
       "input_modalities": [
-        "text",
         "image",
-        "file",
-        "audio",
-        "video"
+        "text"
       ],
       "supported_parameters": [
-        "include_reasoning",
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
         "max_tokens",
-        "reasoning",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
         "response_format",
         "seed",
         "stop",
@@ -10831,11 +9980,13 @@
         "temperature",
         "tool_choice",
         "tools",
+        "top_k",
+        "top_logprobs",
         "top_p"
       ],
-      "created": 1753200276,
-      "description": "Gemini 2.5 Flash-Lite is a lightweight reasoning model in the Gemini 2.5 family, optimized for ultra-low latency and cost efficiency. It offers improved through",
-      "hugging_face_id": null
+      "created": 1750443016,
+      "description": "Mistral-Small-3.2-24B-Instruct-2506 is an updated 24B parameter model from Mistral optimized for instruction following, repetition reduction, and improved funct",
+      "hugging_face_id": "mistralai/Mistral-Small-3.2-24B-Instruct-2506"
     },
     {
       "id": "rekaai/reka-flash-3",
@@ -10951,7 +10102,6 @@
         "include_reasoning",
         "max_tokens",
         "reasoning",
-        "stop",
         "temperature",
         "tool_choice",
         "tools"
@@ -11646,6 +10796,7 @@
       "supported_parameters": [
         "frequency_penalty",
         "logit_bias",
+        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -11656,6 +10807,7 @@
         "structured_outputs",
         "temperature",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "created": 1723507200,
