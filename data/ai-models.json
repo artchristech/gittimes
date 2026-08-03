@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-02T07:31:05.780Z",
+  "syncedAt": "2026-08-03T08:27:24.161Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
@@ -519,7 +519,7 @@
       "openrouterId": "openai/gpt-5.6-luna",
       "provider": "OpenAI",
       "input": 0.09999999999999999,
-      "output": 0.6000000000000001,
+      "output": 0.6,
       "context_length": 1050000,
       "created": 1783590864,
       "source": "banner-slot"
@@ -3183,7 +3183,7 @@
       "id": "openai/gpt-5.6-terra-pro",
       "name": "OpenAI: GPT-5.6 Terra Pro",
       "context_length": 1050000,
-      "input": 1.0000000000000002,
+      "input": 1,
       "output": 6,
       "cache_read_price": 0.09999999999999999,
       "max_completion_tokens": 128000,
@@ -3213,7 +3213,7 @@
       "id": "openai/gpt-5.6-terra",
       "name": "OpenAI: GPT-5.6 Terra",
       "context_length": 1050000,
-      "input": 1.0000000000000002,
+      "input": 1,
       "output": 6,
       "cache_read_price": 0.09999999999999999,
       "max_completion_tokens": 128000,
@@ -3882,42 +3882,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3-vl-235b-a22b-thinking",
-      "name": "Qwen: Qwen3 VL 235B A22B Thinking",
-      "context_length": 131072,
-      "input": 0.39999999999999997,
-      "output": 4,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1758668690,
-      "description": "Qwen3-VL-235B-A22B Thinking is a multimodal model that unifies strong text generation with visual understanding across images and video. The Thinking model is o",
-      "hugging_face_id": "Qwen/Qwen3-VL-235B-A22B-Thinking"
-    },
-    {
       "id": "openai/gpt-3.5-turbo-16k",
       "name": "OpenAI: GPT-3.5 Turbo 16k",
       "context_length": 16385,
@@ -3949,6 +3913,42 @@
       "created": 1693180800,
       "description": "This model offers four times the context length of gpt-3.5-turbo, allowing it to support approximately 20 pages of text in a single request at a higher cost. Tr",
       "hugging_face_id": null
+    },
+    {
+      "id": "qwen/qwen3-vl-235b-a22b-thinking",
+      "name": "Qwen: Qwen3 VL 235B A22B Thinking",
+      "context_length": 131072,
+      "input": 0.98,
+      "output": 3.95,
+      "cache_read_price": null,
+      "max_completion_tokens": 32768,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1758668690,
+      "description": "Qwen3-VL-235B-A22B Thinking is a multimodal model that unifies strong text generation with visual understanding across images and video. The Thinking model is o",
+      "hugging_face_id": "Qwen/Qwen3-VL-235B-A22B-Thinking"
     },
     {
       "id": "qwen/qwen3-max-thinking",
@@ -4015,6 +4015,45 @@
       "created": 1758662808,
       "description": "Qwen3-Max is an updated release built on the Qwen3 series, offering major improvements in reasoning, instruction following, multilingual support, and long-tail ",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 1.19,
+      "output": 3.74,
+      "cache_read_price": 0.221,
+      "max_completion_tokens": 262144,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -4161,6 +4200,45 @@
       "created": 1758662707,
       "description": "Qwen3 Coder Plus is Alibaba's proprietary version of the Open Source Qwen3 Coder 480B A35B. It is a powerful coding agent model specializing in autonomous progr",
       "hugging_face_id": null
+    },
+    {
+      "id": "qwen/qwen3.5-122b-a10b",
+      "name": "Qwen: Qwen3.5-122B-A10B",
+      "context_length": 262144,
+      "input": 0.39999999999999997,
+      "output": 3.1999999999999997,
+      "cache_read_price": null,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1772053789,
+      "description": "The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-exper",
+      "hugging_face_id": "Qwen/Qwen3.5-122B-A10B"
     },
     {
       "id": "amazon/nova-pro-v1",
@@ -5127,45 +5205,6 @@
       "created": 1760463746,
       "description": "Qwen3-VL-8B-Thinking is the reasoning-optimized variant of the Qwen3-VL-8B multimodal model, designed for advanced visual and textual reasoning across complex s",
       "hugging_face_id": "Qwen/Qwen3-VL-8B-Thinking"
-    },
-    {
-      "id": "qwen/qwen3.5-122b-a10b",
-      "name": "Qwen: Qwen3.5-122B-A10B",
-      "context_length": 262144,
-      "input": 0.26,
-      "output": 2.08,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1772053789,
-      "description": "The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-exper",
-      "hugging_face_id": "Qwen/Qwen3.5-122B-A10B"
     },
     {
       "id": "x-ai/grok-build-0.1",
@@ -6812,45 +6851,6 @@
       "hugging_face_id": "MiniMaxAI/MiniMax-Text-01"
     },
     {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.3346,
-      "output": 1.0516,
-      "cache_read_price": 0.06214,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "deepseek/deepseek-chat",
       "name": "DeepSeek: DeepSeek V3",
       "context_length": 163840,
@@ -8136,11 +8136,41 @@
       "hugging_face_id": "microsoft/WizardLM-2-8x22B"
     },
     {
+      "id": "kwaipilot/kat-coder-air-v2.5",
+      "name": "Kwaipilot: KAT-Coder-Air V2.5",
+      "context_length": 256000,
+      "input": 0.15,
+      "output": 0.6,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 80000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1783714590,
+      "description": "KAT-Coder-Air V2.5 is a flagship-level Agentic Coding model that can directly hand over an entire issue or an entire business workflow to it, allowing it to aut",
+      "hugging_face_id": null
+    },
+    {
       "id": "openai/gpt-5.6-luna-pro",
       "name": "OpenAI: GPT-5.6 Luna Pro",
       "context_length": 1050000,
       "input": 0.09999999999999999,
-      "output": 0.6000000000000001,
+      "output": 0.6,
       "cache_read_price": 0.01,
       "max_completion_tokens": 128000,
       "modality": "text+image+file->text",
@@ -8170,7 +8200,7 @@
       "name": "OpenAI: GPT-5.6 Luna",
       "context_length": 1050000,
       "input": 0.09999999999999999,
-      "output": 0.6000000000000001,
+      "output": 0.6,
       "cache_read_price": 0.01,
       "max_completion_tokens": 128000,
       "modality": "text+image+file->text",
@@ -8193,36 +8223,6 @@
       ],
       "created": 1783590864,
       "description": "GPT-5.6 Luna is a fast, cost-efficient model in OpenAI's GPT-5.6 series. It is suited for high-volume, latency-sensitive tasks such as chat, classification, and",
-      "hugging_face_id": null
-    },
-    {
-      "id": "kwaipilot/kat-coder-air-v2.5",
-      "name": "Kwaipilot: KAT-Coder-Air V2.5",
-      "context_length": 256000,
-      "input": 0.15,
-      "output": 0.6,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": 80000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1783714590,
-      "description": "KAT-Coder-Air V2.5 is a flagship-level Agentic Coding model that can directly hand over an entire issue or an entire business workflow to it, allowing it to aut",
       "hugging_face_id": null
     },
     {
@@ -8419,6 +8419,41 @@
       "hugging_face_id": null
     },
     {
+      "id": "qwen/qwen3-235b-a22b-2507",
+      "name": "Qwen: Qwen3 235B A22B Instruct 2507",
+      "context_length": 262144,
+      "input": 0.14950000000000002,
+      "output": 0.5980000000000001,
+      "cache_read_price": null,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1753119555,
+      "description": "Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-235B architecture, with 22B active param",
+      "hugging_face_id": "Qwen/Qwen3-235B-A22B-Instruct-2507"
+    },
+    {
       "id": "tencent/hunyuan-a13b-instruct",
       "name": "Tencent: Hunyuan A13B Instruct",
       "context_length": 131072,
@@ -8476,41 +8511,6 @@
       "created": 1742238937,
       "description": "Mistral Small 3.1 24B Instruct is an upgraded variant of Mistral Small 3 (2501), featuring 24 billion parameters with advanced multimodal capabilities. It provi",
       "hugging_face_id": "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
-    },
-    {
-      "id": "qwen/qwen3-235b-a22b-2507",
-      "name": "Qwen: Qwen3 235B A22B Instruct 2507",
-      "context_length": 262144,
-      "input": 0.09,
-      "output": 0.55,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1753119555,
-      "description": "Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-235B architecture, with 22B active param",
-      "hugging_face_id": "Qwen/Qwen3-235B-A22B-Instruct-2507"
     },
     {
       "id": "tencent/hy3",
@@ -9193,7 +9193,7 @@
       "input": 0.39999999999999997,
       "output": 0.39999999999999997,
       "cache_read_price": null,
-      "max_completion_tokens": 32768,
+      "max_completion_tokens": 1024000,
       "modality": "text->text",
       "input_modalities": [
         "text"
