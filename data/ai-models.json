@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-07T06:08:56.093Z",
+  "syncedAt": "2026-08-08T05:42:02.087Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
@@ -427,10 +427,10 @@
       "openrouterId": "moonshotai/kimi-k2.6",
       "label": "Kimi K2.6",
       "provider": "Moonshot",
-      "input": 0.589,
-      "output": 2.48,
+      "input": 0.5795,
+      "output": 2.44,
       "context_length": 262144,
-      "cache_read_price": 0.0992,
+      "cache_read_price": 0.0976,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -2424,7 +2424,6 @@
         "file"
       ],
       "supported_parameters": [
-        "max_completion_tokens",
         "max_tokens",
         "response_format",
         "seed",
@@ -4820,10 +4819,10 @@
       "id": "thinkingmachines/inkling",
       "name": "Thinking Machines: Inkling",
       "context_length": 1048576,
-      "input": 1,
+      "input": 0.95,
       "output": 4.05,
-      "cache_read_price": 0.16999999999999998,
-      "max_completion_tokens": null,
+      "cache_read_price": 0.16,
+      "max_completion_tokens": 262144,
       "modality": "text+image+audio->text",
       "input_modalities": [
         "text",
@@ -5946,9 +5945,9 @@
       "id": "moonshotai/kimi-k2.6",
       "name": "MoonshotAI: Kimi K2.6",
       "context_length": 262144,
-      "input": 0.589,
-      "output": 2.48,
-      "cache_read_price": 0.0992,
+      "input": 0.5795,
+      "output": 2.44,
+      "cache_read_price": 0.0976,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -6456,45 +6455,6 @@
       "created": 1738351721,
       "description": "OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. This model sup",
       "hugging_face_id": null
-    },
-    {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.6901999999999999,
-      "output": 2.1692,
-      "cache_read_price": 0.12818,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "deepseek/deepseek-r1-0528",
@@ -7897,10 +7857,10 @@
       "id": "thinkingmachines/inkling-small",
       "name": "Thinking Machines: Inkling Small",
       "context_length": 524288,
-      "input": 0.5,
+      "input": 0.44999999999999996,
       "output": 1.2,
       "cache_read_price": 0.09999999999999999,
-      "max_completion_tokens": null,
+      "max_completion_tokens": 262144,
       "modality": "text+image+audio->text",
       "input_modalities": [
         "text",
@@ -8098,7 +8058,7 @@
       "input": 0.15,
       "output": 1.2,
       "cache_read_price": null,
-      "max_completion_tokens": null,
+      "max_completion_tokens": 262144,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -8777,6 +8737,45 @@
       "hugging_face_id": "NousResearch/Hermes-3-Llama-3.1-405B"
     },
     {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.3178,
+      "output": 0.9988,
+      "cache_read_price": 0.05902,
+      "max_completion_tokens": 128000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
+    },
+    {
       "id": "qwen/qwen3-coder-flash",
       "name": "Qwen: Qwen3 Coder Flash",
       "context_length": 1000000,
@@ -8880,44 +8879,6 @@
       "created": 1745876478,
       "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
       "hugging_face_id": "Qwen/Qwen3-14B"
-    },
-    {
-      "id": "nvidia/nemotron-3-super-120b-a12b",
-      "name": "NVIDIA: Nemotron 3 Super",
-      "context_length": 1000000,
-      "input": 0.3,
-      "output": 0.8999999999999999,
-      "cache_read_price": null,
-      "max_completion_tokens": null,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1773245239,
-      "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-a",
-      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8"
     },
     {
       "id": "minimax/minimax-m2.5",
@@ -9578,7 +9539,7 @@
       "input": 0.5,
       "output": 0.75,
       "cache_read_price": null,
-      "max_completion_tokens": 2000,
+      "max_completion_tokens": 6000,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9703,7 +9664,7 @@
       "input": 0.44999999999999996,
       "output": 0.65,
       "cache_read_price": null,
-      "max_completion_tokens": 2048,
+      "max_completion_tokens": 6144,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -10703,6 +10664,44 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.2-Exp"
     },
     {
+      "id": "nvidia/nemotron-3-super-120b-a12b",
+      "name": "NVIDIA: Nemotron 3 Super",
+      "context_length": 1000000,
+      "input": 0.08499999999999999,
+      "output": 0.39999999999999997,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1773245239,
+      "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-a",
+      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8"
+    },
+    {
       "id": "bytedance-seed/seed-2.0-mini",
       "name": "ByteDance Seed: Seed-2.0-Mini",
       "context_length": 262144,
@@ -10770,43 +10769,6 @@
       "created": 1768833913,
       "description": "As a 30B-class SOTA model, GLM-4.7-Flash offers a new option that balances performance and efficiency. It is further optimized for agentic coding use cases, str",
       "hugging_face_id": "zai-org/GLM-4.7-Flash"
-    },
-    {
-      "id": "deepseek/deepseek-v3.2",
-      "name": "DeepSeek: DeepSeek V3.2",
-      "context_length": 163840,
-      "input": 0.26899999999999996,
-      "output": 0.39999999999999997,
-      "cache_read_price": 0.13449999999999998,
-      "max_completion_tokens": 65536,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1764594642,
-      "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
     },
     {
       "id": "nousresearch/hermes-4-70b",
@@ -11029,6 +10991,43 @@
       "created": 1721692800,
       "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 70B instruct-tuned version is optimized for high quality dialogue usec",
       "hugging_face_id": "meta-llama/Meta-Llama-3.1-70B-Instruct"
+    },
+    {
+      "id": "deepseek/deepseek-v3.2",
+      "name": "DeepSeek: DeepSeek V3.2",
+      "context_length": 163840,
+      "input": 0.26,
+      "output": 0.38,
+      "cache_read_price": 0.13,
+      "max_completion_tokens": 163840,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1764594642,
+      "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
     },
     {
       "id": "google/gemma-4-26b-a4b-it",
@@ -11363,6 +11362,45 @@
       "created": 1721260800,
       "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced ",
       "hugging_face_id": null
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek: DeepSeek V4 Flash 0423",
+      "context_length": 1048576,
+      "input": 0.14,
+      "output": 0.28,
+      "cache_read_price": 0.028,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000666,
+      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "xiaomi/mimo-v2.5",
@@ -11919,7 +11957,7 @@
       "input": 0.09,
       "output": 0.18,
       "cache_read_price": 0.018,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 384000,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -11958,7 +11996,7 @@
       "input": 0.09,
       "output": 0.18,
       "cache_read_price": 0.018,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 384000,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -12044,45 +12082,6 @@
       "created": 1745975193,
       "description": "Llama Guard 4 is a Llama 4 Scout-derived multimodal pretrained model, fine-tuned for content safety classification. Similar to previous versions, it can be used",
       "hugging_face_id": "meta-llama/Llama-Guard-4-12B"
-    },
-    {
-      "id": "deepseek/deepseek-v4-flash",
-      "name": "DeepSeek: DeepSeek V4 Flash 0423",
-      "context_length": 1048576,
-      "input": 0.0882,
-      "output": 0.1764,
-      "cache_read_price": 0.01764,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777000666,
-      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "openai/gpt-oss-120b",
