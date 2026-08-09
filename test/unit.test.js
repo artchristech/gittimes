@@ -895,6 +895,47 @@ describe("renderHybridArticle", () => {
       assert.ok(html.includes("&lt;img"));
     });
   });
+
+  describe("trend pill overflow toggle", () => {
+    const repos = (n) => Array.from({ length: n }, (_, i) => ({
+      url: `https://github.com/r/${i}`,
+      name: `r/${i}`,
+      description: `Repo number ${i}.`,
+    }));
+    const trendWith = (list) => ({
+      ...baseArticle,
+      _isTrend: true,
+      _trendRepos: list,
+      repo: { ...baseArticle.repo, shortName: "trendy" },
+    });
+
+    it("ships every repo as a pill, marking the ones past the fold", () => {
+      const html = renderHybridArticle(trendWith(repos(8)));
+      assert.equal(html.match(/class="trend-repo-pill/g).length, 8);
+      assert.equal(html.match(/trend-repo-extra/g).length, 3);
+      assert.ok(html.includes("r/7"), "overflow repo should be in the markup");
+    });
+
+    it("renders the count as a real button carrying its collapsed label", () => {
+      const html = renderHybridArticle(trendWith(repos(22)));
+      assert.ok(html.includes('<button class="trend-repos-toggle"'));
+      assert.ok(html.includes('aria-expanded="false"'));
+      assert.ok(html.includes('data-more="+17 more"'));
+      assert.ok(html.includes(">+17 more</button>"));
+    });
+
+    it("omits the toggle when nothing overflows", () => {
+      const html = renderHybridArticle(trendWith(repos(5)));
+      assert.ok(!html.includes("trend-repos-toggle"));
+      assert.ok(!html.includes("trend-repo-extra"));
+      assert.equal(html.match(/class="trend-repo-pill/g).length, 5);
+    });
+
+    it("no longer emits the dead overflow span", () => {
+      const html = renderHybridArticle(trendWith(repos(9)));
+      assert.ok(!html.includes("trend-repo-overflow"));
+    });
+  });
 });
 
 // --------------- firstSentences ---------------

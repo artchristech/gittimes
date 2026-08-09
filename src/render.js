@@ -193,16 +193,27 @@ function renderRepoHovercard(r) {
       </span>`;
 }
 
+const TREND_PILLS_VISIBLE = 5;
+
 function renderTrendMeta(article) {
   const repos = article._trendRepos || [];
   const theme = article.repo.shortName || "trend";
-  const pills = repos.slice(0, 5).map(r =>
-    `<a class="trend-repo-pill" href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.name)}${renderRepoHovercard(r)}</a>`
-  ).join("");
-  const overflow = repos.length > 5 ? `<span class="trend-repo-overflow">+${repos.length - 5} more</span>` : "";
+  // Every repo in the cluster ships as a pill; the ones past the fold are
+  // hidden by CSS rather than dropped, so expanding costs no request. Only the
+  // visible five carry README excerpts (see enrichTrendRepos) — the rest still
+  // get description + stars cards from data we already hold.
+  const pills = repos.map((r, i) => {
+    const cls = i < TREND_PILLS_VISIBLE ? "trend-repo-pill" : "trend-repo-pill trend-repo-extra";
+    return `<a class="${cls}" href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.name)}${renderRepoHovercard(r)}</a>`;
+  }).join("");
+  // "+N more" used to be dead text that looked clickable. It's a real control now.
+  const hidden = repos.length - TREND_PILLS_VISIBLE;
+  const toggle = hidden > 0
+    ? `<button class="trend-repos-toggle" type="button" aria-expanded="false" data-more="+${hidden} more">+${hidden} more</button>`
+    : "";
   return `<div class="trend-meta">
           <span class="trend-label">Trend</span><span class="trend-theme">${escapeHtml(theme)}</span>
-          <div class="trend-repos">${pills}${overflow}</div>
+          <div class="trend-repos">${pills}${toggle}</div>
         </div>`;
 }
 
@@ -397,6 +408,48 @@ function buildNavHtml(nav) {
   return `<nav class="edition-nav">${links.join(" · ")}</nav>`;
 }
 
+/* The lens row — who shipped it, one level above what it is. The topic tabs
+ * below answer "what kind of thing is this"; these answer "who made it", which
+ * is the question a reader actually arrives with.
+ *
+ * This row sat here dead for months, marked "not wired up yet", because wiring
+ * it meant classifying a repo's owner — selection logic, not a label. The
+ * company registry is that logic, so the three actor lenses now resolve to the
+ * Business desk pages and only Sectors remains a tab.
+ *
+ * That split is deliberate and is why these are ANCHORS, not buttons: Sectors
+ * switches a panel inside this edition (today's stories, by topic), while the
+ * desks are standing pages that outlive the edition (a company's record, by
+ * actor). Making them look identical while behaving differently would be the
+ * lie; an anchor navigates and announces itself as navigation to a screen
+ * reader, a button doesn't.
+ *
+ * Labels track the shipped desk names — a lens reading "Indie Builder" that
+ * lands on a page titled "Startups" is a seam the reader has to absorb. */
+const LENSES = [
+  { id: "unicorns", label: "Unicorns", slug: "unicorns" },
+  { id: "startups", label: "Startups", slug: "startups" },
+  { id: "labs", label: "Big Labs", slug: "big-labs" },
+  { id: "sectors", label: "Sectors", slug: null },
+];
+
+/**
+ * Render the top-level lens bar that sits above the section tabs.
+ * @param {object} [options] - { basePath }
+ * @returns {string} HTML string
+ */
+function renderLensNav(options = {}) {
+  const basePath = options.basePath || "";
+  const tabs = LENSES.map((lens) => {
+    // Sectors is this edition's topic tabs — a panel switch, already active.
+    if (!lens.slug) {
+      return `<button class="lens-tab active" data-lens="${escapeHtml(lens.id)}">${escapeHtml(lens.label)}</button>`;
+    }
+    return `<a class="lens-tab lens-link" href="${escapeHtml(`${basePath}/${lens.slug}/`)}" data-lens="${escapeHtml(lens.id)}">${escapeHtml(lens.label)}</a>`;
+  });
+  return `<nav class="lens-nav" aria-label="Story lens">${tabs.join("")}</nav>`;
+}
+
 /**
  * Render the section navigation tab bar.
  * @param {string[]} sectionOrder - Array of section IDs
@@ -526,10 +579,18 @@ function renderModelDrops(drops) {
         d.ageDays != null
           ? `<span class="drop-age">${d.ageDays <= 0 ? "today" : d.ageDays + "d ago"}</span>`
           : "";
+      // The headline carries the card when it exists; the model name drops to a
+      // kicker above it, the way a story's slug sits above its hed. With no
+      // headline (LLM unavailable, output rejected) the name stays the hed and
+      // the card renders exactly as it did before.
+      const headline = d.headline
+        ? `<span class="drop-slug">${escapeHtml(d.name)}</span>
+            <span class="drop-headline">${escapeHtml(d.headline)}</span>`
+        : `<span class="drop-name">${escapeHtml(d.name)}</span>`;
       return `
         <li class="drop-item">
           <a class="drop-link" href="${escapeHtml(d.url)}" target="_blank" rel="noopener">
-            <span class="drop-name">${escapeHtml(d.name)}</span>
+            ${headline}
             <span class="drop-author">${escapeHtml(d.author)}</span>
           </a>
           <span class="drop-meta">${task}<span class="drop-likes">&#9829; ${compactCount(d.likes)}</span>${age}</span>
@@ -544,6 +605,54 @@ function renderModelDrops(drops) {
         <span class="model-drops-sub">The newest model releases builders are picking up right now.</span>
       </div>
       <ul class="model-drops-list">${items}
+      </ul>
+    </section>`;
+}
+
+/**
+ * The Business strip — one line each from Big Labs, Startups and Unicorns.
+ *
+ * Deliberately a strip and not three more sections in the nav: the desks sit on
+ * the ACTOR axis (who shipped it) while the sections sit on the TOPIC axis (what
+ * the code does), and making them compete for the same slots double-files every
+ * artifact. One row per desk carries all three without that collision — the same
+ * placement logic that worked for Model Drops.
+ *
+ * A dark desk prints its reason instead of being hidden. That's the point of the
+ * cadence rule: unicorn-tier movement is monthly at best, and a strip that only
+ * ever shows activity teaches the generator that silence is a hole to fill.
+ * @param {Array<{deskId,label,slug,line,signal,url}>} strip - buildBusinessStrip() output
+ */
+function renderBusinessStrip(strip, options = {}) {
+  if (!Array.isArray(strip) || strip.length === 0) return "";
+  const basePath = options.basePath || "";
+  const signalMark = { up: "&#9650;", flat: "&ndash;", quiet: "&#9679;" };
+  const rows = strip
+    .map((s) => {
+      const line = s.line ? escapeHtml(s.line) : "";
+      const body = s.url
+        ? `<a class="biz-line" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${line}</a>`
+        : `<span class="biz-line biz-line-quiet">${line}</span>`;
+      // The desk label is the way in: the strip is the trailer, the desk page is
+      // the reporting. Without this link the strip is a dead end.
+      const desk = s.slug
+        ? `<a class="biz-desk" href="${escapeHtml(`${basePath}/${s.slug}/`)}">${escapeHtml(s.label)}</a>`
+        : `<span class="biz-desk">${escapeHtml(s.label)}</span>`;
+      return `
+        <li class="biz-row biz-${escapeHtml(s.signal || "flat")}">
+          ${desk}
+          ${body}
+          <span class="biz-signal" aria-hidden="true">${signalMark[s.signal] || signalMark.flat}</span>
+        </li>`;
+    })
+    .join("");
+  return `
+    <section class="business-strip" aria-label="Business desks" data-reveal>
+      <div class="business-strip-head">
+        <span class="section-kicker">Who shipped it</span>
+        <h2 class="business-strip-header">The Business Desks</h2>
+      </div>
+      <ul class="business-strip-list">${rows}
       </ul>
     </section>`;
 }
@@ -683,16 +792,6 @@ function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
       ${renderDeskRail(sections, sectionConfigs, order)}
     </div>`;
 
-  // Model Drops follows the lead as shoulder content. Empty (no items / fetch
-  // failed) renders nothing.
-  //
-  // Just Shipped (renderGitHubReleases) used to sit here too. It was a grid of
-  // version bumps — open-webui v0.11.0, ruff 0.16.0 — which is changelog, not
-  // news: no story, no reason to care, and a second card band competing with
-  // the lead. The renderer stays exported for the release data we still track.
-  html += renderModelDrops(opts.modelDrops);
-  html += renderPushups(opts.pushups);
-
   if (fp.secondary && fp.secondary.length > 0) {
     html += `<section class="secondary-section" data-reveal>`;
     html += `<h2 class="section-header">More on the Front Page</h2>`;
@@ -711,6 +810,20 @@ function renderFrontPagePanel(sections, sectionConfigs, order, opts = {}) {
     html += `<button class="quick-hits-toggle">Show more</button>`;
     html += `</section>`;
   }
+
+  // The card bands close the paper rather than interrupt it. Model Drops used
+  // to sit directly under the lead, which put a rail of chrome between the
+  // day's story and the rest of the front page; it belongs with everything
+  // that comes after the front page, not inside it. Empty (no items / fetch
+  // failed) renders nothing.
+  //
+  // Just Shipped (renderGitHubReleases) used to sit up top too. It was a grid
+  // of version bumps — open-webui v0.11.0, ruff 0.16.0 — which is changelog,
+  // not news: no story, no reason to care. The renderer stays exported for the
+  // release data we still track.
+  html += renderBusinessStrip(opts.businessStrip, { basePath: opts.basePath });
+  html += renderModelDrops(opts.modelDrops);
+  html += renderPushups(opts.pushups);
 
   return html;
 }
@@ -820,6 +933,8 @@ async function assembleMultiSectionHtml(content, options = {}) {
         modelDrops: options.modelDrops || (content.modelDrops || []),
         ghReleases: options.ghReleases || (content.ghReleases || []),
         pushups: options.pushups || (content.pushups || []),
+        businessStrip: options.businessStrip || (content.businessStrip || []),
+        basePath: options.basePath || "",
       });
     } else {
       panelContent = renderSectionContent(content.sections[id], SECTIONS[id]);
@@ -849,6 +964,7 @@ async function assembleMultiSectionHtml(content, options = {}) {
     .replace("{{EDITION_TAGLINE}}", escapeHtml(content.tagline))
     .replace("{{AI_TICKER}}", options.tickerHtml || "")
     .replace("{{AI_WIRE}}", "")
+    .replace("{{LENS_NAV}}", renderLensNav({ basePath: options.basePath || "" }))
     .replace("{{SECTION_NAV}}", sectionNavHtml)
     .replace("{{SECTION_PANELS}}", panelsHtml)
     // Clear legacy placeholders that are unused in multi-section mode
@@ -952,6 +1068,7 @@ async function assembleHtml(content, options = {}) {
     // Clear multi-section placeholders unused in legacy mode
     .replace("{{AI_TICKER}}", options.tickerHtml || "")
     .replace("{{AI_WIRE}}", options.aiWireHtml || "")
+    .replace("{{LENS_NAV}}", "")
     .replace("{{SECTION_NAV}}", "")
     .replace("{{SECTION_PANELS}}", "")
     .replace("{{CHAT_UI}}", chatWorkerUrl ? renderChatUi() : "")
@@ -1049,4 +1166,4 @@ async function assembleArticlePage(article, options = {}) {
   return { html, slug };
 }
 
-module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, renderStarFigure, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderPushups, renderDeskRail, renderFrontPagePanel, renderSourceLine };
+module.exports = { render, assembleHtml, assembleMultiSectionHtml, assembleArticlePage, buildNavHtml, escapeHtml, formatStars, slugify, bodyToHtml, sanitizeArticleHtml, initMarked, renderLeadStory, renderFeaturedArticle, renderCompactArticle, renderHybridArticle, renderQuickHit, renderStarFigure, previewBody, remainderBody, renderSectionNav, renderSectionContent, renderDeepCuts, renderSentimentBadge, renderAgeBadge, renderAIWire, renderModelDrops, renderGitHubReleases, renderBusinessStrip, renderLensNav, renderPushups, renderDeskRail, renderFrontPagePanel, renderSourceLine };

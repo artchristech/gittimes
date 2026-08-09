@@ -98,6 +98,13 @@ const SECONDARY = [
       },
       // No description/readme: pill must render as a plain link, no card.
       { url: "https://github.com/c/three", name: "c/three" },
+      { url: "https://github.com/d/four", name: "d/four", language: "Rust", stars: 3300, description: "Planner loop with checkpointed state." },
+      { url: "https://github.com/e/five", name: "e/five", language: "Go", stars: 640, description: "Memory store backed by SQLite." },
+      // Past the fold: hidden until "+3 more" is pressed. No README (only the
+      // first five are enriched), so these render description-only cards.
+      { url: "https://github.com/f/six", name: "f/six", language: "Python", stars: 210, description: "Guardrail middleware for tool calls." },
+      { url: "https://github.com/g/seven", name: "g/seven", language: "Zig", stars: 88, description: "Cost accounting for agent runs." },
+      { url: "https://github.com/h/eight", name: "h/eight" },
     ],
   },
 ];
@@ -142,12 +149,19 @@ const CONTENT = {
     gamedev: EMPTY,
   },
   modelDrops: [
-    { id: "1", author: "nvidia", name: "Nemotron-3-Embed", task: "sentence-similarity", likes: 72, downloads: 100, ageDays: 2, url: "https://huggingface.co/x" },
-    { id: "2", author: "unsloth", name: "inkling-GGUF", task: "image-text-to-text", likes: 106, downloads: 100, ageDays: 1, url: "https://huggingface.co/y" },
+    { id: "1", author: "nvidia", name: "Nemotron-3-Embed", headline: "Nvidia targets retrieval with a compact embedder", task: "sentence-similarity", likes: 72, downloads: 100, ageDays: 2, url: "https://huggingface.co/x" },
+    { id: "2", author: "unsloth", name: "inkling-GGUF", headline: "A vision-language model small enough to run local", task: "image-text-to-text", likes: 106, downloads: 100, ageDays: 1, url: "https://huggingface.co/y" },
     { id: "3", author: "internlm", name: "Intern-S2-Preview", task: "image-text-to-text", likes: 48, downloads: 100, ageDays: 3, url: "https://huggingface.co/z" },
   ],
   ghReleases: [
     { repo: "ggml-org/llama.cpp", owner: "ggml-org", name: "llama.cpp", tag: "b4600", title: "b4600", reactions: 82, ageDays: 1, url: "https://github.com/ggml-org/llama.cpp" },
+  ],
+  // The Business strip, including a deliberately dark desk — the empty state is
+  // a design requirement, not an edge case, so the mock has to show it.
+  businessStrip: [
+    { deskId: "bigLabs", label: "Big Labs", slug: "big-labs", line: "Qwen shipped Qwen-Agent v1.2.0", signal: "up", url: "https://github.com/QwenLM/Qwen-Agent" },
+    { deskId: "startups", label: "Startups", slug: "startups", line: "tiny-team: pgvectorlite", signal: "up", url: "https://github.com/tiny-team/pgvectorlite" },
+    { deskId: "unicorns", label: "Unicorns", slug: "unicorns", line: "No unicorns movement inside the 30d window.", signal: "quiet", url: null },
   ],
 };
 
