@@ -12,10 +12,13 @@
 
 /**
  * @param {string} [basePath] - path prefix the API is mounted under ("" by default)
+ * @param {{accountEnabled?: boolean, tokenEnabled?: boolean}} [opts]
  * @returns {string} a complete HTML document
  */
-function renderAdminPage(basePath = "") {
+function renderAdminPage(basePath = "", opts = {}) {
   const api = `${basePath}/api/admin`;
+  const accountEnabled = opts.accountEnabled !== false;
+  const tokenEnabled = opts.tokenEnabled !== false;
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,6 +58,10 @@ function renderAdminPage(basePath = "") {
   .status { font-size:.8rem; color:var(--muted); }
   .empty { color:var(--muted); font-style:italic; }
   .err { color:var(--accent); }
+  .signin { display:inline-block; border:1px solid var(--rule); padding:.4rem .9rem;
+            text-decoration:none; color:var(--ink); background:#fff; }
+  .signin:hover { background:var(--ink); color:var(--paper); }
+  details summary { cursor:pointer; margin-top:.5rem; }
 </style>
 </head>
 <body>
@@ -64,28 +71,53 @@ function renderAdminPage(basePath = "") {
 </header>
 <main>
   <div class="gate" id="gate">
-    <label for="tok">Admin token</label>
-    <div class="row">
-      <input id="tok" type="password" autocomplete="off" placeholder="GT_ADMIN_TOKEN">
-      <button id="save-tok">Unlock</button>
-      <span class="status" id="gate-status"></span>
+    <div id="whoami" class="status"></div>
+    <div class="row" id="signin-row" hidden>
+      <a class="signin" href="https://gittimes.com/desk/">Sign in with your Git Times account</a>
     </div>
+    <details id="tok-fallback"${tokenEnabled ? "" : " hidden"}>
+      <summary class="status">Use the shared admin token instead</summary>
+      <div class="row">
+        <input id="tok" type="password" autocomplete="off" placeholder="GT_ADMIN_TOKEN">
+        <button id="save-tok">Unlock</button>
+      </div>
+    </details>
+    <span class="status" id="gate-status"></span>
   </div>
   <div id="list"></div>
 </main>
 <script>
 (function () {
   var API = ${JSON.stringify(api)};
+  var ACCOUNT_ENABLED = ${JSON.stringify(accountEnabled)};
   var KEY = "gittimes.admin.token";
+  var SKEY = "gittimes-session";
+
+  // The site lives on gittimes.com and this page on api.gittimes.com — separate
+  // origins, so the account session cannot simply be read from localStorage. The
+  // /desk/ bridge on the site forwards it here in the URL fragment, which the
+  // browser never sends to a server. Consume it once, then scrub the address bar.
+  (function adoptSessionFromHash() {
+    var m = (location.hash || "").match(/[#&]s=([A-Za-z0-9._-]+)/);
+    if (!m) return;
+    try { localStorage.setItem(SKEY, m[1]); } catch (e) { /* private mode */ }
+    history.replaceState(null, "", location.pathname + location.search);
+  })();
   var list = document.getElementById("list");
   var gateStatus = document.getElementById("gate-status");
   var tokInput = document.getElementById("tok");
 
   function token() { return localStorage.getItem(KEY) || ""; }
+  function session() { return localStorage.getItem(SKEY) || ""; }
+  function haveCredential() { return !!(token() || session()); }
 
   function api_(path, opts) {
     opts = opts || {};
-    opts.headers = Object.assign({ "X-Admin-Token": token(), "Content-Type": "application/json" }, opts.headers || {});
+    opts.headers = Object.assign({
+      "X-Admin-Token": token(),
+      "X-Gittimes-Session": session(),
+      "Content-Type": "application/json",
+    }, opts.headers || {});
     return fetch(API + path, opts).then(function (r) {
       return r.json().then(function (b) {
         if (!r.ok) throw new Error(b.error || ("HTTP " + r.status));
@@ -180,12 +212,84 @@ function renderAdminPage(basePath = "") {
     load();
   });
 
-  if (token()) { gateStatus.textContent = "Token stored."; load(); }
-  else { list.innerHTML = '<p class="empty">Enter the admin token to begin.</p>'; }
+  var signinRow = document.getElementById("signin-row");
+  var whoami = document.getElementById("whoami");
+
+  if (haveCredential()) {
+    whoami.textContent = session() ? "Signed in with your Git Times account." : "Unlocked with the shared token.";
+    load();
+  } else if (ACCOUNT_ENABLED) {
+    signinRow.hidden = false;
+    whoami.textContent = "Not signed in.";
+    list.innerHTML = '<p class="empty">Sign in with your Git Times account to rule on front pages.</p>';
+  } else {
+    list.innerHTML = '<p class="empty">Enter the admin token to begin.</p>';
+  }
 })();
 </script>
 </body>
 </html>`;
 }
 
-module.exports = { renderAdminPage };
+
+/**
+ * The /desk/ bridge, published on the SITE origin (gittimes.com).
+ *
+ * The desk itself is served by the API on api.gittimes.com, which cannot read the
+ * account session because localStorage is per-origin. This page runs where the
+ * session actually lives, and forwards it in the URL fragment — fragments are
+ * never sent to a server, so the token stays out of access logs, Referer headers,
+ * and the CDN. If there is no session it just points at the sign-in page.
+ *
+ * It reveals nothing on its own: to a signed-out visitor it is a link to /account/.
+ *
+ * @param {string} apiBase - origin the desk is served from (e.g. https://api.gittimes.com)
+ * @param {string} [basePath] - site path prefix
+ * @returns {string} a complete HTML document
+ */
+function renderDeskBridgePage(apiBase, basePath = "") {
+  const api = String(apiBase || "https://api.gittimes.com").replace(/\/$/, "");
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Editor's Desk — The Git Times</title>
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+         background:#f6f3ec; color:#111; font-family:Georgia,"Times New Roman",serif; text-align:center; }
+  .box { max-width:28rem; padding:2rem; }
+  h1 { font-size:1.5rem; letter-spacing:.04em; text-transform:uppercase; margin:0 0 .5rem; }
+  p { color:#6b6459; font-size:.9rem; }
+  a { display:inline-block; margin-top:1rem; border:1px solid #111; padding:.45rem 1rem;
+      text-decoration:none; color:#111; background:#fff; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>The Editor's Desk</h1>
+  <p id="msg">Checking your session&hellip;</p>
+  <a id="go" href="${basePath}/account/" hidden>Sign in</a>
+</div>
+<script>
+(function () {
+  var API = ${JSON.stringify(api)};
+  var msg = document.getElementById("msg");
+  var go = document.getElementById("go");
+  var s = "";
+  try { s = localStorage.getItem("gittimes-session") || ""; } catch (e) { /* private mode */ }
+  if (s) {
+    msg.textContent = "Signed in. Opening the desk\u2026";
+    location.replace(API + "/admin#s=" + encodeURIComponent(s));
+  } else {
+    msg.textContent = "You need to be signed in to your Git Times account to rule on front pages.";
+    go.hidden = false;
+  }
+})();
+</script>
+</body>
+</html>`;
+}
+
+module.exports = { renderAdminPage, renderDeskBridgePage };

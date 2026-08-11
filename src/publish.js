@@ -6,6 +6,7 @@ const { assembleHtml, assembleArticlePage, buildNavHtml } = require("./render");
 const { renderArchivePage } = require("./archive");
 const { renderLandingPage } = require("./landing");
 const { renderAccountPage } = require("./account");
+const { renderDeskBridgePage } = require("./admin-page");
 const { renderPricingPage } = require("./pricing");
 const { renderMarketsPage } = require("./markets");
 const { renderApiDocsPage, generateOpenApiSpec } = require("./api-docs");
@@ -383,6 +384,17 @@ async function publish(content, outDir, options = {}) {
   const accountDir = path.join(outDir, "account");
   if (!fs.existsSync(accountDir)) fs.mkdirSync(accountDir, { recursive: true });
   fs.writeFileSync(path.join(accountDir, "index.html"), renderAccountPage({ basePath, siteUrl }));
+
+  // 13a. The editor's desk bridge. The desk lives on the API origin, which can't
+  // read the account session (localStorage is per-origin); this page runs where
+  // the session does and hands it over in the fragment. Signed-out visitors see
+  // only a sign-in link, so publishing it discloses nothing.
+  const deskDir = path.join(outDir, "desk");
+  if (!fs.existsSync(deskDir)) fs.mkdirSync(deskDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(deskDir, "index.html"),
+    renderDeskBridgePage(process.env.GT_API_URL || "https://api.gittimes.com", basePath)
+  );
 
   // 13b. Generate pricing page (plans + AI Desk features + honest economics)
   const pricingDir = path.join(outDir, "pricing");

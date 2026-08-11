@@ -25,16 +25,41 @@ what they were before the desk existed.
 
 ## Turning it on
 
-The desk is off unless a token is set. No token, no admin surface at all — the page
-and every `/api/admin/*` route 404 as if they were never written.
+Two ways in. The desk is off — page and every `/api/admin/*` route 404 — unless at
+least one is configured.
 
-```bash
-openssl rand -hex 32   # put the result in GT_ADMIN_TOKEN (deploy/api.env)
+**Your account (preferred).** In `deploy/api.env`:
+
+```
+GT_ADMIN_EMAIL=you@example.com
+GT_WORKER_URL=https://<your-worker>.workers.dev
 ```
 
-Then restart the API and open `/admin`. Paste the token once; the browser keeps it
-in `localStorage`. Serve it behind the same nginx TLS as the rest of the API — the
-token is the only thing guarding the ruling log.
+Sign in normally at `gittimes.com/account/`, then visit `gittimes.com/desk/`. The API
+asks the Worker who the session belongs to and admits you only if the address matches
+`GT_ADMIN_EMAIL`. Nothing to paste, nothing to remember, and revoking your session
+revokes the desk. Any other signed-in reader gets a 403 naming their address.
+
+**Shared token (bootstrap / fallback).** `GT_ADMIN_TOKEN=$(openssl rand -hex 32)` in
+the same file, pasted once into the page. Kept so the desk doesn't become
+un-enterable if the account service is down.
+
+Restart the API after either change. Serve it behind the same nginx TLS as the rest
+of the API.
+
+### The cross-origin hand-off
+
+The site is `gittimes.com`; the API — and therefore `/admin` — is `api.gittimes.com`.
+`localStorage` is per-origin, so the desk cannot read your session directly. The
+published `gittimes.com/desk/` page runs where the session lives and forwards it in
+the URL **fragment**, which browsers never send to a server — so the token stays out
+of access logs, `Referer` headers, and any CDN in between. The desk consumes it once
+and scrubs the address bar.
+
+To a signed-out visitor `/desk/` is nothing but a link to `/account/`.
+
+**Fails closed.** If the Worker is unreachable, session auth denies rather than
+admits. An outage locks the desk; it never opens it.
 
 ## Ruling
 
@@ -87,11 +112,13 @@ admin list — there's nothing to rule between.
 
 ## Endpoints
 
-All require `X-Admin-Token` (or `Authorization: Bearer …`).
+All require either `X-Gittimes-Session` (your account session) or `X-Admin-Token`
+(the shared secret). `Authorization: Bearer …` is accepted for either.
 
 | Route | Purpose |
 | --- | --- |
 | `GET /admin` | The page itself (carries no secret) |
+| `GET /desk/` | Sign-in bridge, published on the site origin |
 | `GET /api/admin/desk?limit=30` | Recent editions + slates + existing rulings |
 | `POST /api/admin/pick` | `{date, preferred, why}` |
 | `DELETE /api/admin/pick/:date` | Withdraw a ruling |

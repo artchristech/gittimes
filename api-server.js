@@ -35,9 +35,18 @@ const { SECTIONS, SECTION_ORDER } = require("./src/sections");
 const DATA_DIR = path.resolve(__dirname, "data");
 const SITE_DIR = path.resolve(__dirname, "site");
 const PORT = parseInt(process.env.PORT || "3717", 10);
-// The editor's desk is off unless a token is configured. No token, no admin
-// surface at all — the routes 404 exactly as if they had never been written.
+// The editor's desk. Two ways in, and it is off unless at least one is set:
+//   1. GT_ADMIN_EMAIL — sign in with your own Git Times account. The session
+//      token is minted by the Worker, so this box never sees a password; it
+//      just asks the Worker who the bearer is and checks the address.
+//   2. GT_ADMIN_TOKEN — a shared secret, for bootstrap or when the Worker is
+//      unreachable. Kept because the desk must not become un-enterable if the
+//      account service is down.
+// Neither set means the routes 404 exactly as if they had never been written.
 const ADMIN_TOKEN = process.env.GT_ADMIN_TOKEN || "";
+const ADMIN_EMAIL = (process.env.GT_ADMIN_EMAIL || "").trim().toLowerCase();
+const WORKER_URL = (process.env.GT_WORKER_URL || process.env.CHAT_WORKER_URL || "").replace(/\/$/, "");
+const ADMIN_ENABLED = !!(ADMIN_TOKEN || (ADMIN_EMAIL && WORKER_URL));
 const HOST = process.env.HOST || "127.0.0.1";  // localhost-only by default
 
 // ---------------------------------------------------------------------------
@@ -109,18 +118,55 @@ function readJsonBody(req, limitBytes = 64 * 1024) {
   });
 }
 
+/** Length-safe constant-time compare. Returns false on any length mismatch. */
+function tokensMatch(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 /**
- * Constant-time-ish admin auth. Token may arrive as an X-Admin-Token header or a
- * Bearer authorization. Returns false (and writes 401) when it doesn't match.
+ * Ask the Worker who owns this session token. The Worker is the only thing that
+ * knows — sessions live in its KV, not here. Returns the email or null; any
+ * network trouble is a null, never a throw, so a Worker outage locks the desk
+ * rather than opening it.
  */
-function adminAuthed(req, res) {
-  const header = req.headers["x-admin-token"];
-  const auth = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-  const supplied = (header || auth || "").trim();
-  if (supplied && ADMIN_TOKEN && supplied.length === ADMIN_TOKEN.length) {
-    let diff = 0;
-    for (let i = 0; i < supplied.length; i++) diff |= supplied.charCodeAt(i) ^ ADMIN_TOKEN.charCodeAt(i);
-    if (diff === 0) return true;
+async function sessionEmail(token) {
+  if (!token || !WORKER_URL) return null;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    const r = await fetch(`${WORKER_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: ctrl.signal,
+    }).finally(() => clearTimeout(timer));
+    if (!r.ok) return null;
+    const body = await r.json();
+    return ((body.user && body.user.email) || "").trim().toLowerCase() || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Admin auth. Accepts either the shared token (X-Admin-Token) or a Git Times
+ * account session (X-Gittimes-Session) belonging to GT_ADMIN_EMAIL. Writes 401
+ * and returns false when neither checks out.
+ */
+async function adminAuthed(req, res) {
+  const headerToken = (req.headers["x-admin-token"] || "").trim();
+  const bearer = (req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
+  if (ADMIN_TOKEN && (tokensMatch(headerToken, ADMIN_TOKEN) || tokensMatch(bearer, ADMIN_TOKEN))) return true;
+
+  const session = (req.headers["x-gittimes-session"] || "").trim() || bearer;
+  if (session && ADMIN_EMAIL) {
+    const email = await sessionEmail(session);
+    if (email && email === ADMIN_EMAIL) return true;
+    if (email) {
+      json(res, { error: `${email} is not the editor of record` }, 403);
+      return false;
+    }
   }
   json(res, { error: "Unauthorized" }, 401);
   return false;
@@ -402,24 +448,24 @@ const server = http.createServer(async (req, res) => {
 
   // --- The editor's desk (private). Disabled entirely without GT_ADMIN_TOKEN. ---
   if (p === "/admin" || p.startsWith("/api/admin/")) {
-    if (!ADMIN_TOKEN) return notFound(res);
+    if (!ADMIN_ENABLED) return notFound(res);
     try {
       // The page itself carries no secret; the data routes below are what's gated.
       if (p === "/admin" && req.method === "GET") {
-        return html(res, renderAdminPage(""));
+        return html(res, renderAdminPage("", { accountEnabled: !!(ADMIN_EMAIL && WORKER_URL), tokenEnabled: !!ADMIN_TOKEN }));
       }
       if (p === "/api/admin/desk" && req.method === "GET") {
-        if (!adminAuthed(req, res)) return;
+        if (!(await adminAuthed(req, res))) return;
         return json(res, handleAdminDesk(query));
       }
       // The preference corpus, for distillation or export.
       if (p === "/api/admin/pairs" && req.method === "GET") {
-        if (!adminAuthed(req, res)) return;
+        if (!(await adminAuthed(req, res))) return;
         const limit = Math.min(500, Math.max(1, parseInt(query.limit || "200", 10)));
         return json(res, { pairs: desk.preferencePairs(DATA_DIR, limit) });
       }
       if (p === "/api/admin/pick" && req.method === "POST") {
-        if (!adminAuthed(req, res)) return;
+        if (!(await adminAuthed(req, res))) return;
         const body = await readJsonBody(req);
         const record = desk.recordPick(DATA_DIR, {
           editionDate: body.date,
@@ -430,7 +476,7 @@ const server = http.createServer(async (req, res) => {
       }
       const delMatch = p.match(/^\/api\/admin\/pick\/(\d{4}-\d{2}-\d{2})$/);
       if (delMatch && req.method === "DELETE") {
-        if (!adminAuthed(req, res)) return;
+        if (!(await adminAuthed(req, res))) return;
         const removed = desk.deletePick(DATA_DIR, delMatch[1]);
         return json(res, { deleted: removed }, removed ? 200 : 404);
       }
