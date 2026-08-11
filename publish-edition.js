@@ -17,14 +17,21 @@ const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
 const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
+const { buildRegistry } = require("./src/registry");
+const { buildBusinessDesks, buildBusinessStrip } = require("./src/desks");
+const { writeBusinessPages } = require("./src/business-pages");
 const {
   closeDb,
   recordEditionMeta,
   recordFeaturedReleases,
   getRecentFeaturedReleaseRepos,
+  recordRegistry,
+  getEntityHistory,
+  getEntityTimeline,
   resolveDataDir,
 } = require("./src/db");
-const { resetMetrics, getMetrics } = require("./src/xai");
+const { resetMetrics, getMetrics, createClient, attachModelDropHeadlines } = require("./src/xai");
+const { recordSlate } = require("./src/desk");
 
 /**
  * Sync site/ from gh-pages branch so local runs have full edition history.
@@ -133,6 +140,47 @@ async function main() {
   ]);
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
+  // Model Drops arrives as metadata — name, owner, task, likes. One LLM call
+  // gives each release a headline so the band reads as reporting rather than a
+  // product listing. Fail-soft by construction: on any error the drops render
+  // exactly as they did before.
+  const drops = modelDrops.length > 0 ? await attachModelDropHeadlines(createClient(), modelDrops) : modelDrops;
+
+  // Step 2c-bis: The company registry, and the three Business desks that are
+  // views over it. Every FLOW source above emits an ARTIFACT (a model, a tag, a
+  // repo); this resolves those onto the companies that shipped them, so the
+  // paper has recurring characters instead of strings that happen to reappear.
+  // Reads back its own coverage history (storyCount / firstSeen) to build the
+  // continuity that makes an entity page worth having. GT_DISABLE_BUSINESS=1
+  // kills it; fully fail-soft, like every other band.
+  let businessDesks = null;
+  let businessStrip = null;
+  let registryEntities = [];
+  if (process.env.GT_DISABLE_BUSINESS !== "1") {
+    try {
+      const dataDir = resolveDataDir(outDir);
+      let entityHistory = new Map();
+      try {
+        entityHistory = getEntityHistory(dataDir);
+      } catch (e) {
+        console.warn(`Entity history unavailable (non-fatal): ${e.message}`);
+      }
+      const registry = buildRegistry(
+        { modelDrops, releases: ghReleases, repos: rawCandidates },
+        { history: entityHistory }
+      );
+      registryEntities = registry.entities;
+      businessDesks = buildBusinessDesks(registryEntities);
+      businessStrip = buildBusinessStrip(businessDesks);
+      const shape = Object.values(businessDesks)
+        .map((d) => `${d.label} ${d.empty ? "dark" : d.items.length}`)
+        .join(", ");
+      console.log(`Business desks: ${registryEntities.length} companies tracked — ${shape}`);
+    } catch (e) {
+      console.warn(`Business desks skipped (non-fatal): ${e.message}`);
+    }
+  }
+
   // Step 2d: The Pushup Report (the sports desk) — how many commits today's
   // featured repos pushed this week, ranked. Pure fun, fully fail-soft.
   // GT_DISABLE_PUSHUPS=1 kills it.
@@ -172,9 +220,11 @@ async function main() {
     fullMarketData,
     aiWireHtml,
     aiWire: { headlines: aiHeadlines, research: arxivPapers },
-    modelDrops,
+    modelDrops: drops,
     ghReleases,
     pushups,
+    businessDesks,
+    businessStrip,
   });
 
   // Step 4b: Record generation telemetry. Observational only and fully wrapped —
@@ -184,6 +234,38 @@ async function main() {
     if (publishedDate) {
       // Feed the Just Shipped cooldown ledger so tomorrow's run rotates.
       recordFeaturedReleases(resolveDataDir(outDir), publishedDate, ghReleases);
+      // Close the continuity loop: what the registry saw today becomes the
+      // storyCount and "tracked since" it reads back tomorrow.
+      if (registryEntities.length > 0) {
+        const dataDir = resolveDataDir(outDir);
+        recordRegistry(dataDir, publishedDate, registryEntities);
+        console.log(`Registry: ${registryEntities.length} companies recorded for ${publishedDate}`);
+
+        // The desk pages and company files. ORDER IS LOAD-BEARING: company files
+        // render the cumulative timeline out of the DB, so they must be written
+        // AFTER recordRegistry — writing them first publishes files missing the
+        // very edition being published. Separately wrapped so a page-write
+        // failure can never take down an edition that is already on disk.
+        try {
+          const written = writeBusinessPages(outDir, {
+            desks: businessDesks || {},
+            entities: registryEntities,
+            getTimeline: (id) => getEntityTimeline(dataDir, id, 40),
+            basePath,
+          });
+          console.log(`Business pages: ${written.desks} desks + ${written.companies} company files`);
+        } catch (e) {
+          console.warn(`Business pages skipped (non-fatal): ${e.message}`);
+        }
+      }
+      // The editor's desk: remember the slate today's lead was chosen from, so a
+      // human ruling later has alternatives to rule between.
+      const leadSlate = content.editorialMeta && content.editorialMeta.leadSlate;
+      if (leadSlate && leadSlate.length > 0) {
+        recordSlate(resolveDataDir(outDir), publishedDate, leadSlate);
+        console.log(`Editor's desk: slate of ${leadSlate.length} recorded for ${publishedDate}`);
+      }
+
       const m = getMetrics();
       const elapsedMs = Date.now() - _genStartMs;
       recordEditionMeta(resolveDataDir(outDir), {

@@ -351,10 +351,11 @@ function candidateSummaryLines(candidates) {
  * surfaced (the filter); it is explicitly NOT the basis for the choice. The
  * editor picks the single most SIGNIFICANT story and returns a parseable choice.
  */
-function chooseLeadPrompt(candidates, threadBlock) {
+function chooseLeadPrompt(candidates, threadBlock, deskBlock) {
   const continuity = threadBlock ? `\n${threadBlock}\n` : "";
+  const desk = deskBlock ? `\n${deskBlock}\n` : "";
   return `You are the Editor-in-Chief of The Git Times, a daily newspaper for builders. These candidates all gained GitHub stars recently — that momentum is only why they crossed your desk. Your job is to choose which ONE leads the front page based on SIGNIFICANCE to builders: genuine impact, novelty, a real shift in what's possible, or consequence for how people build. Do NOT choose the one with the most stars for being popular; popularity is not significance. A quietly important release should beat a viral list or a meme repo.
-${continuity}
+${desk}${continuity}
 CANDIDATES:
 ${candidateSummaryLines(candidates)}
 
@@ -379,11 +380,13 @@ const EDITOR_LENSES = [
  * @param {Array} candidates
  * @param {string} lensDirective - the lens's judging criterion
  * @param {string} [threadBlock] - optional continuity context
+ * @param {string} [deskBlock] - optional human-editor rulings (see src/desk.js)
  */
-function lensLeadPrompt(candidates, lensDirective, threadBlock) {
+function lensLeadPrompt(candidates, lensDirective, threadBlock, deskBlock) {
   const continuity = threadBlock ? `\n${threadBlock}\n` : "";
+  const desk = deskBlock ? `\n${deskBlock}\n` : "";
   return `You are an editor on the front-page panel of The Git Times, a daily newspaper for builders. These candidates all gained GitHub stars recently — momentum is only why they crossed your desk, never the basis for your vote. For this vote you ${lensDirective} Popularity is not your criterion.
-${continuity}
+${desk}${continuity}
 CANDIDATES:
 ${candidateSummaryLines(candidates)}
 
@@ -409,6 +412,35 @@ ${notes}
 Write ONE sentence (max 35 words) for the byline "Why this leads today" — why this story leads, grounded in the notes, in plain newspaper voice. No hype, no adjectives-for-their-own-sake, no restating the headline. Output ONLY that sentence, nothing else.`;
 }
 
+/* Model Drops carried a name, an owner, and a like count — a catalog listing,
+ * not a newspaper. This asks for the one thing the metadata can't supply: what
+ * the release actually IS. The model card's own name and task tag are the only
+ * grounding available (HF gives no reliable prose), so the headline stays at
+ * the level those support and is told to say nothing it can't see. */
+function modelDropHeadlinesPrompt(drops) {
+  const list = drops
+    .map(
+      (d, i) =>
+        `${i + 1}. ${d.name} — released by ${d.author}${d.task ? `, task: ${String(d.task).replace(/-/g, " ")}` : ""}`
+    )
+    .join("\n");
+
+  return `You are a newspaper editor writing headlines for "Model Drops", a band reporting the newest AI model releases to an audience of working builders.
+
+Write ONE headline per release. Rules:
+- Max 8 words. Sentence case, no trailing period.
+- Say what the model DOES or what is notable about who shipped it. A builder should learn something from the headline alone.
+- Use ONLY the name, owner, and task given. Invent no benchmarks, parameter counts, licenses, or comparisons — you do not have that data.
+- No hype words (revolutionary, game-changing, powerful), no "introducing", no restating the model name verbatim as the whole headline.
+
+RELEASES:
+${list}
+
+Output EXACTLY one numbered line per release, numbered to match:
+
+${drops.map((_, i) => `${i + 1}. [headline]`).join("\n")}`;
+}
+
 module.exports = {
   sanitizeRepoField,
   editorialFramingDirective,
@@ -416,6 +448,7 @@ module.exports = {
   leadArticlePrompt,
   secondaryArticlePrompt,
   quickHitPrompt,
+  modelDropHeadlinesPrompt,
   breakoutArticlePrompt,
   trendArticlePrompt,
   sleeperArticlePrompt,

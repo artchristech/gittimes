@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https:; script-src 'self' 'unsafe-inline'{{CSP_SCRIPT_SRC}}; connect-src 'self'{{CSP_CONNECT_SRC}}">
+  <title>{{PAGE_TITLE}}</title>
+  {{ANALYTICS_SCRIPT}}
+  <meta name="description" content="{{PAGE_DESC}}">
+  <meta property="og:title" content="{{PAGE_TITLE}}">
+  <meta property="og:description" content="{{PAGE_DESC}}">
+  <meta property="og:site_name" content="The Git Times">
+
+  <style>
+{{STYLES}}
+  </style>
+  <script>
+    (function(){var r=document.documentElement;['theme','font','size','width'].forEach(function(k){var v=localStorage.getItem('gittimes-'+k);if(v)r.setAttribute('data-'+k,v);});})();
+  </script>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="{{BASE_PATH}}/account/" class="masthead-account">Account</a>
+    <a href="{{BASE_PATH}}/latest/" class="archive-back" aria-label="Back to latest edition">&larr;</a>
+    <h1 class="masthead-title"><a href="{{BASE_PATH}}/" style="color:inherit;text-decoration:none">The Git Times</a></h1>
+    <div class="masthead-meta">
+      <span>{{PAGE_KICKER}}</span>
+    </div>
+  </header>
+
+  <nav class="business-nav" aria-label="Business desks">
+    <a href="{{BASE_PATH}}/big-labs/">Big Labs</a>
+    <a href="{{BASE_PATH}}/startups/">Startups</a>
+    <a href="{{BASE_PATH}}/unicorns/">Unicorns</a>
+    <a href="{{BASE_PATH}}/companies/">All Companies</a>
+  </nav>
+
+  <main class="business-page">
+    <div class="business-page-head">
+      <h2 class="business-page-title">{{PAGE_HEADLINE}}</h2>
+      <p class="business-page-deck">{{PAGE_DECK}}</p>
+    </div>
+    {{PAGE_BODY}}
+  </main>
+
+  <footer class="footer">
+    <nav class="edition-nav">
+      <a href="{{BASE_PATH}}/latest/">Latest Edition</a>
+      <a href="{{BASE_PATH}}/archive/">Archive</a>
+      <a href="{{BASE_PATH}}/companies/">Companies</a>
+    </nav>
+    <p>The Git Times aims to provide information that inspires people to build.</p>
+  </footer>
+
+  <script defer src="{{BASE_PATH}}/search.js"></script>
+</body>
+</html>

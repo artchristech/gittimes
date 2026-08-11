@@ -27,12 +27,17 @@ const path = require("path");
 const fs = require("fs");
 
 const db = require("./src/db");
+const desk = require("./src/desk");
+const { renderAdminPage } = require("./src/admin-page");
 const x402 = require("./src/x402");
 const { SECTIONS, SECTION_ORDER } = require("./src/sections");
 
 const DATA_DIR = path.resolve(__dirname, "data");
 const SITE_DIR = path.resolve(__dirname, "site");
 const PORT = parseInt(process.env.PORT || "3717", 10);
+// The editor's desk is off unless a token is configured. No token, no admin
+// surface at all — the routes 404 exactly as if they had never been written.
+const ADMIN_TOKEN = process.env.GT_ADMIN_TOKEN || "";
 const HOST = process.env.HOST || "127.0.0.1";  // localhost-only by default
 
 // ---------------------------------------------------------------------------
@@ -75,6 +80,55 @@ function parseQuery(url) {
   const params = {};
   new URLSearchParams(url.slice(idx + 1)).forEach((v, k) => { params[k] = v; });
   return params;
+}
+
+/** Read and JSON-parse a request body (bounded). Rejects on malformed JSON. */
+function readJsonBody(req, limitBytes = 64 * 1024) {
+  return new Promise((resolve, reject) => {
+    let size = 0;
+    const chunks = [];
+    req.on("data", (c) => {
+      size += c.length;
+      if (size > limitBytes) {
+        reject(new Error("Body too large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(c);
+    });
+    req.on("error", reject);
+    req.on("end", () => {
+      const raw = Buffer.concat(chunks).toString("utf-8").trim();
+      if (!raw) return resolve({});
+      try {
+        resolve(JSON.parse(raw));
+      } catch {
+        reject(new Error("Invalid JSON body"));
+      }
+    });
+  });
+}
+
+/**
+ * Constant-time-ish admin auth. Token may arrive as an X-Admin-Token header or a
+ * Bearer authorization. Returns false (and writes 401) when it doesn't match.
+ */
+function adminAuthed(req, res) {
+  const header = req.headers["x-admin-token"];
+  const auth = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const supplied = (header || auth || "").trim();
+  if (supplied && ADMIN_TOKEN && supplied.length === ADMIN_TOKEN.length) {
+    let diff = 0;
+    for (let i = 0; i < supplied.length; i++) diff |= supplied.charCodeAt(i) ^ ADMIN_TOKEN.charCodeAt(i);
+    if (diff === 0) return true;
+  }
+  json(res, { error: "Unauthorized" }, 401);
+  return false;
+}
+
+function html(res, body, status = 200) {
+  res.writeHead(status, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+  res.end(body);
 }
 
 function getPath(url) {
@@ -308,6 +362,27 @@ function handleStats() {
   };
 }
 
+/**
+ * Recent editions with their candidate slate and any existing human ruling.
+ * Editions published before the desk existed carry no slate and are skipped —
+ * there is nothing to rule between.
+ */
+function handleAdminDesk(query) {
+  const limit = Math.min(90, Math.max(1, parseInt(query.limit || "30", 10)));
+  const editions = [];
+  for (const entry of getManifest().slice(0, limit)) {
+    const slate = desk.getSlate(DATA_DIR, entry.date);
+    if (slate.length === 0) continue;
+    editions.push({
+      date: entry.date,
+      headline: entry.headline,
+      slate,
+      pick: desk.getPick(DATA_DIR, entry.date),
+    });
+  }
+  return { editions, rubric: desk.getRubric(DATA_DIR) };
+}
+
 // ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
@@ -322,12 +397,52 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
+  const p = getPath(req.url);
+  const query = parseQuery(req.url);
+
+  // --- The editor's desk (private). Disabled entirely without GT_ADMIN_TOKEN. ---
+  if (p === "/admin" || p.startsWith("/api/admin/")) {
+    if (!ADMIN_TOKEN) return notFound(res);
+    try {
+      // The page itself carries no secret; the data routes below are what's gated.
+      if (p === "/admin" && req.method === "GET") {
+        return html(res, renderAdminPage(""));
+      }
+      if (p === "/api/admin/desk" && req.method === "GET") {
+        if (!adminAuthed(req, res)) return;
+        return json(res, handleAdminDesk(query));
+      }
+      // The preference corpus, for distillation or export.
+      if (p === "/api/admin/pairs" && req.method === "GET") {
+        if (!adminAuthed(req, res)) return;
+        const limit = Math.min(500, Math.max(1, parseInt(query.limit || "200", 10)));
+        return json(res, { pairs: desk.preferencePairs(DATA_DIR, limit) });
+      }
+      if (p === "/api/admin/pick" && req.method === "POST") {
+        if (!adminAuthed(req, res)) return;
+        const body = await readJsonBody(req);
+        const record = desk.recordPick(DATA_DIR, {
+          editionDate: body.date,
+          preferredRepo: body.preferred,
+          why: body.why,
+        });
+        return json(res, record, 201);
+      }
+      const delMatch = p.match(/^\/api\/admin\/pick\/(\d{4}-\d{2}-\d{2})$/);
+      if (delMatch && req.method === "DELETE") {
+        if (!adminAuthed(req, res)) return;
+        const removed = desk.deletePick(DATA_DIR, delMatch[1]);
+        return json(res, { deleted: removed }, removed ? 200 : 404);
+      }
+      return json(res, { error: "Method not allowed" }, 405);
+    } catch (err) {
+      return json(res, { error: err.message }, 400);
+    }
+  }
+
   if (req.method !== "GET") {
     return json(res, { error: "Method not allowed" }, 405);
   }
-
-  const p = getPath(req.url);
-  const query = parseQuery(req.url);
 
   try {
     // GET /v1/payment/info — x402 discovery (free)

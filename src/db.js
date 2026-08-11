@@ -117,6 +117,64 @@ function _initSchema(db) {
       generated_at      TEXT    NOT NULL DEFAULT ''
     );
 
+    -- Company registry. The entity layer the Business desks (Big Labs, Startups,
+    -- Unicorns) are three views over. Persisted rather than rebuilt per edition
+    -- because the whole point is CONTINUITY: first_seen and the story count are
+    -- what turn a company from a string that reappears into a recurring
+    -- character with a file.
+    CREATE TABLE IF NOT EXISTS entities (
+      id          TEXT PRIMARY KEY,
+      name        TEXT NOT NULL DEFAULT '',
+      tier        TEXT NOT NULL DEFAULT '',
+      country     TEXT NOT NULL DEFAULT '',
+      curated     INTEGER NOT NULL DEFAULT 0,
+      first_seen  TEXT NOT NULL DEFAULT '',
+      last_seen   TEXT NOT NULL DEFAULT '',
+      meta        TEXT NOT NULL DEFAULT '{}'
+    );
+
+    -- One row per dated thing a company did. The evidence column carries the source
+    -- receipt (which API, which ref, fetched when) so a claim with no fetch
+    -- behind it cannot be rendered.
+    CREATE TABLE IF NOT EXISTS entity_events (
+      entity_id    TEXT NOT NULL,
+      event_key    TEXT NOT NULL,
+      edition_date TEXT NOT NULL DEFAULT '',
+      type         TEXT NOT NULL DEFAULT '',
+      title        TEXT NOT NULL DEFAULT '',
+      url          TEXT NOT NULL DEFAULT '',
+      occurred_at  TEXT NOT NULL DEFAULT '',
+      metrics      TEXT NOT NULL DEFAULT '{}',
+      evidence     TEXT NOT NULL DEFAULT '{}',
+      PRIMARY KEY (entity_id, event_key)
+    );
+
+    -- Daily price tape for the model catalog. Same dated-PK shape as
+    -- repo_snapshots, deliberately without the prune: for prices the tail IS
+    -- the value, and a price series can't be backfilled after the fact.
+    --
+    -- is_promotional/list_* exist because a promo expiry looks identical to a
+    -- price hike from a single snapshot. Claude Sonnet 5's $2/$10 introductory
+    -- pricing reverts to $3/$15 on 2026-09-01 with no model change; without
+    -- these columns the paper would report that as Anthropic raising prices 50%.
+    CREATE TABLE IF NOT EXISTS model_prices (
+      date           TEXT NOT NULL,
+      model_id       TEXT NOT NULL,
+      provider       TEXT NOT NULL DEFAULT '',
+      input          REAL,
+      output         REAL,
+      context_length INTEGER NOT NULL DEFAULT 0,
+      is_promotional INTEGER NOT NULL DEFAULT 0,
+      promo_ends_on  TEXT NOT NULL DEFAULT '',
+      list_input     REAL,
+      list_output    REAL,
+      source_url     TEXT NOT NULL DEFAULT '',
+      PRIMARY KEY (date, model_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_model_prices_model ON model_prices(model_id, date DESC);
+    CREATE INDEX IF NOT EXISTS idx_entity_events_entity ON entity_events(entity_id, occurred_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_entity_events_edition ON entity_events(edition_date);
     CREATE INDEX IF NOT EXISTS idx_edition_repos_repo ON edition_repos(repo_name);
     CREATE INDEX IF NOT EXISTS idx_repo_snapshots_repo ON repo_snapshots(repo_name);
     CREATE INDEX IF NOT EXISTS idx_used_quotes_text ON used_quotes(quote_text, author);
@@ -126,6 +184,17 @@ function _initSchema(db) {
   const cols = db.pragma("table_info(edition_repos)").map((c) => c.name);
   if (!cols.includes("headline")) {
     db.exec("ALTER TABLE edition_repos ADD COLUMN headline TEXT DEFAULT ''");
+  }
+  // Idempotent migration: placement. Where a repo actually ran, so a story's
+  // provenance can say more than "it appeared". Written at publish time.
+  if (!cols.includes("section")) {
+    db.exec("ALTER TABLE edition_repos ADD COLUMN section TEXT DEFAULT ''");
+  }
+  if (!cols.includes("slot")) {
+    db.exec("ALTER TABLE edition_repos ADD COLUMN slot TEXT DEFAULT ''");
+  }
+  if (!cols.includes("slot_rank")) {
+    db.exec("ALTER TABLE edition_repos ADD COLUMN slot_rank INTEGER DEFAULT -1");
   }
 }
 
@@ -453,6 +522,70 @@ function saveSnapshot(dataDir, dateStr, repos) {
   save();
 }
 
+/**
+ * Record one day's model prices. Idempotent per date (a republish overwrites
+ * that day), never pruned — unlike repo_snapshots, the history is the product.
+ *
+ * A missing price is stored as NULL, never 0: "we don't know" and "it's free"
+ * are different claims and a price-delta query must not confuse them.
+ *
+ * @param {string} dataDir
+ * @param {string} dateStr - YYYY-MM-DD
+ * @param {Array<object>} models - buildCatalog() rows, optionally carrying
+ *   is_promotional / promo_ends_on / list_input / list_output / source_url.
+ * @returns {number} rows written
+ */
+function saveModelPrices(dataDir, dateStr, models) {
+  const db = getDb(dataDir);
+  const num = (v) => (typeof v === "number" && isFinite(v) ? v : null);
+
+  const save = db.transaction(() => {
+    db.prepare("DELETE FROM model_prices WHERE date = ?").run(dateStr);
+
+    const insert = db.prepare(`
+      INSERT INTO model_prices
+        (date, model_id, provider, input, output, context_length,
+         is_promotional, promo_ends_on, list_input, list_output, source_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    for (const m of models) {
+      if (!m || !m.id) continue;
+      insert.run(
+        dateStr,
+        m.id,
+        m.provider || String(m.id).split("/")[0] || "",
+        num(m.input),
+        num(m.output),
+        m.context_length || 0,
+        m.is_promotional ? 1 : 0,
+        m.promo_ends_on || "",
+        num(m.list_input),
+        num(m.list_output),
+        m.source_url || ""
+      );
+    }
+  });
+  save();
+  return models.filter((m) => m && m.id).length;
+}
+
+/**
+ * Load the price series for one model, oldest first.
+ * @param {string} dataDir
+ * @param {string} modelId
+ * @param {number} [limit=90]
+ * @returns {Array<object>}
+ */
+function loadModelPrices(dataDir, modelId, limit = 90) {
+  const db = getDb(dataDir);
+  return db
+    .prepare(
+      "SELECT * FROM model_prices WHERE model_id = ? ORDER BY date DESC LIMIT ?"
+    )
+    .all(modelId, limit)
+    .reverse();
+}
+
 // --- Migration ---
 
 /**
@@ -522,6 +655,193 @@ function migrateFromJson(outDir, dataDir) {
  * @param {string} outDir
  * @returns {string}
  */
+// --- Company registry (Business desks) ---
+
+/** Stable identity for an event so re-running a day is idempotent. */
+function _eventKey(ev) {
+  return `${ev.type}:${ev.url || ev.title}`;
+}
+
+/**
+ * Persist the registry for an edition. Entities upsert (first_seen is sticky —
+ * it's the "tracked since" line on the company page); events are keyed so a
+ * republish of the same day updates rather than duplicates.
+ * @param {string} dataDir
+ * @param {string} editionDate
+ * @param {Array} entities - buildRegistry() output
+ */
+function recordRegistry(dataDir, editionDate, entities) {
+  if (!Array.isArray(entities) || entities.length === 0) return;
+  const db = getDb(dataDir);
+  const date = editionDate || "";
+
+  const upsertEntity = db.prepare(`
+    INSERT INTO entities (id, name, tier, country, curated, first_seen, last_seen, meta)
+    VALUES (@id, @name, @tier, @country, @curated, @date, @date, @meta)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      tier = excluded.tier,
+      country = excluded.country,
+      curated = excluded.curated,
+      last_seen = excluded.last_seen,
+      meta = excluded.meta
+  `);
+  const upsertEvent = db.prepare(`
+    INSERT INTO entity_events
+      (entity_id, event_key, edition_date, type, title, url, occurred_at, metrics, evidence)
+    VALUES (@entity_id, @event_key, @edition_date, @type, @title, @url, @occurred_at, @metrics, @evidence)
+    ON CONFLICT(entity_id, event_key) DO UPDATE SET
+      edition_date = excluded.edition_date,
+      title = excluded.title,
+      metrics = excluded.metrics,
+      evidence = excluded.evidence
+  `);
+
+  const writeAll = db.transaction((rows) => {
+    for (const e of rows) {
+      if (!e || !e.id) continue;
+      upsertEntity.run({
+        id: e.id,
+        name: e.name || e.id,
+        tier: e.tier || "",
+        country: e.country || "",
+        curated: e.curated ? 1 : 0,
+        date,
+        meta: JSON.stringify({ github: e.github || [], hf: e.hf || [], badges: e.badges || [] }),
+      });
+      for (const ev of e.events || []) {
+        upsertEvent.run({
+          entity_id: e.id,
+          event_key: _eventKey(ev),
+          edition_date: date,
+          type: ev.type || "",
+          title: ev.title || "",
+          url: ev.url || "",
+          occurred_at: ev.occurredAt || "",
+          metrics: JSON.stringify(ev.metrics || {}),
+          evidence: JSON.stringify(ev.evidence || {}),
+        });
+      }
+    }
+  });
+  writeAll(entities);
+}
+
+/**
+ * Per-entity coverage history, fed back into the next registry build so stats
+ * carry `storyCount` / `firstSeen`. This is the continuity loop: the registry
+ * writes what it saw, and reads back how long it has been seeing it.
+ * @param {string} dataDir
+ * @returns {Map<string,{storyCount:number, firstSeen:string}>}
+ */
+function getEntityHistory(dataDir) {
+  const db = getDb(dataDir);
+  const rows = db.prepare(`
+    SELECT e.id, e.first_seen,
+           (SELECT COUNT(*) FROM entity_events ev WHERE ev.entity_id = e.id) AS story_count
+    FROM entities e
+  `).all();
+  return new Map(
+    rows.map((r) => [r.id, { storyCount: r.story_count || 0, firstSeen: r.first_seen || null }])
+  );
+}
+
+/**
+ * An entity's timeline, newest first — the company page body.
+ * @param {string} dataDir
+ * @param {string} entityId
+ * @param {number} [limit=20]
+ */
+function getEntityTimeline(dataDir, entityId, limit = 20) {
+  const db = getDb(dataDir);
+  const rows = db.prepare(`
+    SELECT type, title, url, occurred_at, edition_date, metrics, evidence
+    FROM entity_events
+    WHERE entity_id = ?
+    ORDER BY (occurred_at = '') ASC, occurred_at DESC
+    LIMIT ?
+  `).all(entityId, limit);
+  return rows.map((r) => ({
+    type: r.type,
+    title: r.title,
+    url: r.url,
+    occurredAt: r.occurred_at || null,
+    editionDate: r.edition_date || null,
+    metrics: _safeJson(r.metrics),
+    evidence: _safeJson(r.evidence),
+  }));
+}
+
+/**
+ * Record where each repo actually ran in one edition. Idempotent — a republish
+ * overwrites the day's placements rather than doubling them. Rows are UPDATEd,
+ * never inserted: upsertEdition owns membership, this only annotates it.
+ * @param {string} dataDir
+ * @param {string} editionDate
+ * @param {Array<{repo: string, section?: string, slot?: string, rank?: number, headline?: string}>} placements
+ * @returns {number} rows actually annotated
+ */
+function recordPlacements(dataDir, editionDate, placements) {
+  if (!editionDate || !Array.isArray(placements) || placements.length === 0) return 0;
+  const db = getDb(dataDir);
+  const upd = db.prepare(
+    `UPDATE edition_repos
+        SET headline  = CASE WHEN ? != '' THEN ? ELSE headline END,
+            section   = ?,
+            slot      = ?,
+            slot_rank = ?
+      WHERE edition_date = ? AND repo_name = ?`
+  );
+  let n = 0;
+  const tx = db.transaction((rows) => {
+    for (const p of rows) {
+      if (!p || !p.repo) continue;
+      const h = p.headline || "";
+      const r = upd.run(
+        h,
+        h,
+        p.section || "",
+        p.slot || "",
+        Number.isInteger(p.rank) ? p.rank : -1,
+        editionDate,
+        p.repo
+      );
+      n += r.changes;
+    }
+  });
+  tx(placements);
+  return n;
+}
+
+/**
+ * Every recorded placement for one edition, in page order.
+ * @returns {Array<{repo, headline, section, slot, rank}>}
+ */
+function getEditionPlacements(dataDir, editionDate) {
+  const db = getDb(dataDir);
+  return db
+    .prepare(
+      `SELECT repo_name, headline, section, slot, slot_rank
+         FROM edition_repos WHERE edition_date = ? ORDER BY section, slot, slot_rank`
+    )
+    .all(editionDate)
+    .map((r) => ({
+      repo: r.repo_name,
+      headline: r.headline || "",
+      section: r.section || "",
+      slot: r.slot || "",
+      rank: r.slot_rank,
+    }));
+}
+
+function _safeJson(s) {
+  try {
+    return JSON.parse(s || "{}");
+  } catch {
+    return {};
+  }
+}
+
 function resolveDataDir(outDir) {
   const resolved = path.resolve(outDir);
   if (resolved.includes(require("os").tmpdir())) return resolved;
@@ -545,5 +865,12 @@ module.exports = {
   getUsedTaglines,
   loadSnapshots,
   saveSnapshot,
+  saveModelPrices,
+  loadModelPrices,
   migrateFromJson,
+  recordPlacements,
+  getEditionPlacements,
+  recordRegistry,
+  getEntityHistory,
+  getEntityTimeline,
 };

@@ -7,6 +7,8 @@ const { generateAllContent, generateEditorialContent, deduplicateContent } = req
 const { loadHistory, computeDeltas, computeWindowDeltas } = require("./history");
 const { makeEditorialPlan } = require("./editorial");
 const { fetchXSentimentForRepo } = require("./x-sentiment");
+const { buildDeskBlock } = require("./desk");
+const { resolveDataDir } = require("./db");
 
 /**
  * Run the full content generation pipeline.
@@ -18,6 +20,8 @@ const { fetchXSentimentForRepo } = require("./x-sentiment");
  * @param {Set} [options.recentLeadRepos]
  * @param {Map} [options.recentRepoCoverage]
  * @param {string[]} [options.recentEditionDates]
+ * @param {string} [options.deskContext] - Human editor rulings block; built from
+ *   the desk automatically when omitted
  * @param {Map} [options.coverage] - Same as recentRepoCoverage, passed to xai
  * @param {function} [options.filterEditorialCandidates] - (rawCandidates) => filtered candidates
  * @param {function} [options.enrichRepo] - Injected to break circular dep
@@ -65,10 +69,24 @@ async function runPipeline(githubToken, xaiKey, options = {}) {
       );
     }
 
+    // The editor's desk: the human editor's retrospective rulings on past front
+    // pages, injected as standing policy for today's lead decision. Fail-soft and
+    // opt-out-able — with no rulings on file the lead prompts are unchanged.
+    let deskContext = options.deskContext || null;
+    if (!deskContext && process.env.GT_DISABLE_DESK !== "1") {
+      try {
+        deskContext = buildDeskBlock(resolveDataDir(outDir));
+      } catch (err) {
+        console.warn(`Editor's desk context skipped (non-fatal): ${err.message}`);
+      }
+    }
+    if (deskContext) console.log("Editor's desk: human rulings in play for the lead decision");
+
     const editorialOpts = { githubToken, coverage, fetchXSentimentForRepo };
     if (options.enrichRepo) editorialOpts.enrichRepo = options.enrichRepo;
     if (options.fetchStarTrajectory) editorialOpts.fetchStarTrajectory = options.fetchStarTrajectory;
     if (options.threadContext) editorialOpts.threadContext = options.threadContext;
+    if (deskContext) editorialOpts.deskContext = deskContext;
 
     content = await generateEditorialContent(sections, xaiKey, editorialPlan, editorialOpts);
   } else {

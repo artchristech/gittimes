@@ -80,6 +80,35 @@ function buildCatalog(catalog) {
 }
 
 /**
+ * Stamp curated promotional-pricing overrides onto catalog rows.
+ *
+ * OpenRouter reports the price being charged today; it does not say whether
+ * that price is introductory. From a single snapshot a promo expiry and a
+ * genuine price rise are indistinguishable, so the list price has to be on
+ * record before the promo lapses. There is no feed for this — `promos` in
+ * ai-models-curated.json is hand-maintained, same as the rest of that file.
+ *
+ * @param {object[]} catalogRows - buildCatalog() output
+ * @param {object} [promos] - keyed by OpenRouter id: {ends, list_input, list_output, source}
+ * @returns {object[]} new rows, promo fields applied
+ */
+function applyPromos(catalogRows, promos) {
+  if (!promos || typeof promos !== "object") return catalogRows;
+  return catalogRows.map((m) => {
+    const p = promos[m.id];
+    if (!p) return m;
+    return {
+      ...m,
+      is_promotional: 1,
+      promo_ends_on: p.ends || "",
+      list_input: typeof p.list_input === "number" ? p.list_input : null,
+      list_output: typeof p.list_output === "number" ? p.list_output : null,
+      source_url: p.source || "",
+    };
+  });
+}
+
+/**
  * Detect notable models in the catalog that aren't being tracked.
  * Filters for high-output-price models from major providers.
  */
@@ -467,7 +496,7 @@ async function main() {
   const untracked = detectUntracked(catalog, trackedIds);
 
   // Persist the full priced catalog so the markets page renders it every day
-  const fullCatalog = buildCatalog(catalog);
+  const fullCatalog = applyPromos(buildCatalog(catalog), curated.promos);
 
   // Build output
   const output = {
@@ -487,6 +516,20 @@ async function main() {
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2));
   console.log(`[sync-models] Wrote ${OUTPUT_PATH}`);
   console.log(`[sync-models] ${matched} matched, ${missed} missed, ${fullCatalog.length} in full catalog`);
+
+  // Append today's row to the price tape. ai-models.json is a full overwrite —
+  // it only ever knows today — so without this the series can never be
+  // reconstructed. Nothing renders it yet; it accrues from the day it ships.
+  // Non-fatal: a broken tape must never take down the daily sync.
+  try {
+    const { saveModelPrices } = require("./db");
+    const today = new Date().toISOString().slice(0, 10);
+    const n = saveModelPrices(DATA_DIR, today, fullCatalog);
+    const promoCount = fullCatalog.filter((m) => m.is_promotional).length;
+    console.log(`[sync-models] Price tape: ${n} rows for ${today} (${promoCount} promotional)`);
+  } catch (e) {
+    console.warn(`[sync-models] Price tape write failed (non-fatal): ${e.message}`);
+  }
 
   // --- Easy check: Banner Roster report + diffable data/banner-roster.json ------
   // Prints per-slot "label → id (date) $price [beat: runner-up]" so the desk can
@@ -512,4 +555,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { buildCatalog, detectUntracked, findModel, buildTrackedModels, resolveBannerSlots, applyBannerSlots, buildBannerRoster };
+module.exports = { buildCatalog, applyPromos, detectUntracked, findModel, buildTrackedModels, resolveBannerSlots, applyBannerSlots, buildBannerRoster };

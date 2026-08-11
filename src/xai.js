@@ -7,6 +7,7 @@ const {
   leadArticlePrompt,
   secondaryArticlePrompt,
   quickHitPrompt,
+  modelDropHeadlinesPrompt,
   breakoutArticlePrompt,
   trendArticlePrompt,
   sleeperArticlePrompt,
@@ -528,8 +529,9 @@ async function chooseEditorialLead(client, candidates, llmLimit, opts = {}) {
   if (!candidates || candidates.length <= 1) return fallback;
 
   const threadBlock = opts.threadBlock || null;
+  const deskBlock = opts.deskBlock || null;
   try {
-    const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates, threadBlock), 300));
+    const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates, threadBlock, deskBlock), 300));
     const whyMatch = lastMatch(raw, /WHY:\s*(.+)/);
     const why = whyMatch?.[1]?.trim() || null;
 
@@ -594,13 +596,14 @@ async function runEditorPanel(client, candidates, llmLimit, opts = {}) {
   if (process.env.GT_DISABLE_PANEL === "1") return null;
   if (!candidates || candidates.length <= 1) return null;
   const threadBlock = opts.threadBlock || null;
+  const deskBlock = opts.deskBlock || null;
   const model = process.env.EDITOR_MODEL || MODEL;
 
   try {
     // Run the lenses concurrently; each panelist is independently fail-soft.
     const votes = await Promise.all(
       EDITOR_LENSES.map((lens) =>
-        llmLimit(() => chat(client, model, lensLeadPrompt(candidates, lens.directive, threadBlock), 200))
+        llmLimit(() => chat(client, model, lensLeadPrompt(candidates, lens.directive, threadBlock, deskBlock), 200))
           .then((raw) => ({ lens: lens.key, ...parseLeadVote(raw, candidates) }))
           .catch(() => ({ lens: lens.key, idx: -1, why: null }))
       )
@@ -680,7 +683,11 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     } catch (e) {
       console.warn(`Candidate signal enrichment failed (non-fatal): ${e.message}`);
     }
-    const leadOpts = { threadBlock: options.threadContext || null };
+    const leadOpts = {
+      threadBlock: options.threadContext || null,
+      // The human editor's standing rulings on past front pages (src/desk.js).
+      deskBlock: options.deskContext || null,
+    };
     // Panel of lens-differentiated editors first; fail-soft to the single call.
     let decision = await runEditorPanel(client, candidates, llmLimit, leadOpts);
     if (!decision) {
@@ -694,6 +701,18 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
       viaPanel: !!decision.viaPanel,
       consideredCount: candidates.length,
     };
+    // The slate as it stood, for the editor's desk. Persisted at publish time so
+    // a human ruling weeks later still has the alternatives to rule between.
+    const chosenName = editorialMeta.leadEditor.chosen;
+    editorialMeta.leadSlate = candidates.map((c) => {
+      const name = c.repo.full_name || c.repo.name;
+      return {
+        repo: name,
+        description: c.repo.description || "",
+        reason: c.reason || "",
+        chosen: name === chosenName,
+      };
+    });
     if (decision.viaEditor) {
       console.log(`  Editor-in-chief lead${decision.viaPanel ? " (panel)" : ""}: ${editorialMeta.leadEditor.chosen}${decision.why ? ` — ${decision.why}` : ""}`);
     }
@@ -966,4 +985,41 @@ function deduplicateContent(content) {
   return removed;
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote };
+/**
+ * Write a newspaper headline for each model drop and attach it as `.headline`.
+ *
+ * One call for the whole band — six headlines are a few dozen tokens, and a
+ * per-model call would multiply latency for the cheapest copy in the paper.
+ * Fully fail-soft: a drop whose headline is missing, over-long, or gibberish
+ * keeps its metadata and simply renders without one. The band is a bonus block
+ * and must never be able to take an edition down.
+ *
+ * @param {object} client - OpenAI-compatible client from createClient()
+ * @param {Array} drops - selectModelDrops() output
+ * @param {object} [opts] - { model, maxWords }
+ * @returns {Promise<Array>} drops with `headline` attached where one survived
+ */
+async function attachModelDropHeadlines(client, drops, opts = {}) {
+  if (!Array.isArray(drops) || drops.length === 0) return drops || [];
+  const { model = MODEL, maxWords = 10 } = opts;
+
+  let lines = [];
+  try {
+    const text = await chat(client, model, modelDropHeadlinesPrompt(drops), 400);
+    lines = parseNumberedList(text);
+  } catch (e) {
+    console.warn(`Model Drops headlines unavailable (non-fatal): ${e.message}`);
+    return drops;
+  }
+
+  return drops.map((d, i) => {
+    const raw = (lines[i] || "").replace(/^["'“]|["'”]$/g, "").trim();
+    // The prompt caps at 8 words; allow a little slack, then reject. An
+    // over-long line is the model ignoring the format, not a good headline.
+    const tooLong = raw.split(/\s+/).filter(Boolean).length > maxWords;
+    if (!raw || tooLong || isGibberish(raw)) return d;
+    return Object.assign({}, d, { headline: raw.replace(/\.$/, "") });
+  });
+}
+
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote, attachModelDropHeadlines };

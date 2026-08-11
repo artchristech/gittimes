@@ -11,6 +11,43 @@ Debt mood: clean — 18 grade items still resolved, no new ones opened by today'
 
 ## Entries
 
+### 2026-08-07 — The Editor's Desk: rulings, not overrides
+**Did:** Built the human-in-the-loop for front-page selection. The tempting version —
+a button that forces a story into the lead slot — is a CMS, not an editor; it makes
+the paper obedient without making it better. Built the other version instead: you rule
+on editions *after* they print ("X led, but Y should have — because…"), and the ruling
+is injected into tomorrow's lead prompt as standing policy. The paper as printed is
+never touched. New `src/desk.js` owns three tables (`lead_slate`, `editor_picks`,
+`editor_rubric`) and its own idempotent schema, so the desk stays optional — db.js
+doesn't know it exists. Publish now records the slate the lead was chosen from;
+without it a ruling weeks later has no alternatives to rule between. `src/admin-page.js`
++ five `/api/admin/*` routes behind `GT_ADMIN_TOKEN` (unset = every admin route 404s,
+not 401s). `scripts/distill-rubric.js` compresses accumulated rulings into a short
+house rule — two hundred one-line corrections is not something a model attends to.
+
+**Felt:** Two design choices did the real work, and neither is about code. First, the
+unit is a *pair*, not a pick: "Y over X, on this slate" teaches; "I like Y" doesn't.
+The slate table exists entirely to make the pair well-formed. Second, the verdict is
+*derived* rather than asked for — choosing the story that already led records a
+CONFIRM. Without that, the corpus is 100% corrections and only ever teaches "avoid
+what the editor hates", never "find what the editor loves". Sample bias baked in on
+day one would have been invisible and unfixable later.
+
+Resisted building the reranker. Tier 1 (rulings verbatim in the prompt) and tier 2
+(distilled rubric) probably get most of it; a learned scorer needs volume that doesn't
+exist yet. The JSONL mirror is the hedge — every ruling lands in an append-only log
+with its slate attached, so if a preference-tuning run is ever worth it, the corpus is
+already sitting there in the right shape.
+
+The prompt-identity test is the one I'd keep: with an empty desk, the lead prompts are
+*byte-identical* to their pre-desk selves. A feedback loop that silently perturbs the
+baseline before it has anything to say is worse than no feedback loop.
+
+**Next:** Nothing until rulings accumulate. The interesting question is whether the
+picks cohere into a style at all — a month of hand-ruling answers that, and only then
+is a UI beyond this one, or a reranker, worth anything. `docs/editors-desk.md`.
+17 new tests, 831 green, lint clean.
+
 ### 2026-07-19 — Model Drops: per-trusted-org lane (the Kimi K3 miss)
 **Did:** Investigated why Kimi K3 never hit the Model Drops band. Diagnosis surprised: it
 wasn't the suspected likes7d-page miss — K3 has NO public Hugging Face repo at all

@@ -133,6 +133,8 @@ async function publish(content, outDir, options = {}) {
     modelDrops: options.modelDrops || [],
     ghReleases: options.ghReleases || [],
     pushups: options.pushups || [],
+    businessStrip: options.businessStrip || [],
+    businessDesks: options.businessDesks || null,
   });
 
   // 4. Write edition to outDir/editions/YYYY-MM-DD/index.html
@@ -260,27 +262,46 @@ async function publish(content, outDir, options = {}) {
   manifest.unshift(newEntry);
   writeManifest(outDir, manifest);
 
-  // 8b. Record article headlines in edition_repos for coverage tracking
+  // 8b. Record headline AND placement in edition_repos. Placement is the part a
+  // reader can be shown: not just that a repo appeared, but that it ran as the
+  // third quick hit in AI Agents rather than leading. Quick hits are included —
+  // they were the largest silent gap in the record.
   try {
-    const dataDir = resolveDataDir(outDir);
-    const dbConn = db.getDb(dataDir);
-    const updateHeadline = dbConn.prepare(
-      "UPDATE edition_repos SET headline = ? WHERE edition_date = ? AND repo_name = ?"
-    );
-    if (content.sections) {
-      for (const section of Object.values(content.sections)) {
-        if (section && section.lead && section.lead.headline && section.lead.repo) {
-          updateHeadline.run(section.lead.headline, dateStr, section.lead.repo.name);
-        }
-        if (section && section.secondary) {
-          for (const article of section.secondary) {
-            if (article.headline && article.repo) {
-              updateHeadline.run(article.headline, dateStr, article.repo.name);
-            }
-          }
-        }
+    const placements = [];
+    const collect = (sectionId, sec) => {
+      if (!sec) return;
+      if (sec.lead && sec.lead.repo && sec.lead.repo.name) {
+        placements.push({
+          repo: sec.lead.repo.name, section: sectionId, slot: "lead", rank: 0,
+          headline: sec.lead.headline || "",
+        });
       }
+      (sec.secondary || []).forEach((a, i) => {
+        if (a && a.repo && a.repo.name) {
+          placements.push({
+            repo: a.repo.name, section: sectionId, slot: "secondary", rank: i,
+            headline: a.headline || "",
+          });
+        }
+      });
+      (sec.quickHits || []).forEach((a, i) => {
+        if (a && a.name) {
+          placements.push({
+            repo: a.name, section: sectionId, slot: "quickHit", rank: i,
+            headline: a.headline || "",
+          });
+        }
+      });
+    };
+
+    if (content.sections) {
+      for (const [id, sec] of Object.entries(content.sections)) collect(id, sec);
+    } else {
+      collect("frontPage", content); // legacy shape
     }
+
+    const annotated = db.recordPlacements(resolveDataDir(outDir), dateStr, placements);
+    console.log(`Placements: ${annotated}/${placements.length} repos annotated for ${dateStr}`);
   } catch { /* non-fatal */ }
 
   // 8c. Record quote usage in DB
