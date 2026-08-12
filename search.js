@@ -1,6 +1,7 @@
 /* The Git Times — archive search ("the fold").
  *
- * A slim dateline bar under the masthead opens a full-page search surface.
+ * A full-width field under the nameplate — second in the page's order of
+ * dominance, ahead of the lead — opens a full-page search surface.
  * The edition never unloads: on open, everything on the page is wrapped once
  * into a #gt-fold container which is frozen in place (position:fixed at its
  * current box) and compressed with a transform — search mode is a layer, not

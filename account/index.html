@@ -52,15 +52,16 @@ body {
 
 /* === MASTHEAD === */
 
-/* Compact masthead — halved in height so the lead story clears the fold.
-   The point of a front page is to win the read, not to admire the nameplate. */
+/* The nameplate is the whole opening move: one line, set large, standing in
+   its own air. Everything else that used to crowd it — date, tagline — is gone.
+   The lead story pays for that space by starting lower; that is the trade. */
 .masthead {
   position: relative;
   text-align: center;
-  padding: 16px 0 13px;
+  padding: 96px 0 60px;
   border-top: 3px double var(--rule);
   border-bottom: 3px double var(--rule);
-  margin-bottom: 18px;
+  margin-bottom: 40px;
 }
 
 .masthead-date {
@@ -76,12 +77,12 @@ body {
 
 .masthead-title {
   font-family: var(--font-headline);
-  font-size: 38px;
+  font-size: clamp(48px, 10vw, 128px);
   font-weight: 900;
-  letter-spacing: 3px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  line-height: 1;
-  margin-bottom: 3px;
+  line-height: 0.95;
+  margin-bottom: 0;
 }
 
 .masthead-tagline {
@@ -723,6 +724,576 @@ body {
 
 /* The AI Wire — now a first-class section panel (non-repo headlines from the
    wider web), no longer a banner pinned above the front page. */
+/* The Business strip — Big Labs / Startups / Unicorns, one line each. Shares the
+   flow-band chrome so the actor axis reads as part of the same system as Model
+   Drops, but stays a strip rather than three nav sections: a company is not a
+   topic, and filing it as one double-files every artifact. */
+.business-strip {
+  margin: 0 0 32px;
+  padding: 16px 20px 18px;
+  border: 1px solid var(--rule-light);
+  border-top: 4px solid var(--rule);
+  background: var(--paper);
+}
+
+.business-strip-head {
+  border-bottom: 1px solid var(--rule-light);
+  padding-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+.business-strip .section-kicker {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.business-strip-header {
+  font-family: var(--font-headline);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.business-strip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.biz-row {
+  display: grid;
+  grid-template-columns: 108px 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.biz-row:last-child {
+  border-bottom: none;
+}
+
+.biz-desk {
+  font-family: var(--font-meta);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.biz-line {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+a.biz-line:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* A dark desk stays on the page and says why. Hiding it would teach the eye
+   that this strip is only ever activity. */
+.biz-line-quiet {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.biz-signal {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.biz-up .biz-signal {
+  color: #2f6b3a;
+}
+
+.biz-quiet .biz-signal {
+  color: var(--rule-light);
+}
+
+@media (max-width: 640px) {
+  .biz-row {
+    grid-template-columns: 1fr auto;
+    row-gap: 2px;
+  }
+
+  .biz-desk {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- Business desk pages & company files ------------------------------------
+   The strip is the trailer; these are the pages. Trade-publication chrome:
+   ledger tables, evidence receipts rendered inline, and empty states that are
+   designed rather than blank. */
+
+.business-nav {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.business-nav a {
+  font-family: var(--font-meta);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-decoration: none;
+}
+
+.business-nav a:hover {
+  color: var(--accent);
+}
+
+.business-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+.business-page-head {
+  border-bottom: 3px double var(--rule);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.business-page-title {
+  font-family: var(--font-headline);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  margin: 0 0 6px;
+}
+
+.business-page-deck {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+/* The ledger — Big Labs. */
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-meta);
+  font-size: 13.5px;
+}
+
+.ledger-caption {
+  caption-side: top;
+  text-align: left;
+  font-size: 12px;
+  color: var(--ink-faint);
+  padding-bottom: 10px;
+}
+
+.ledger-table th[scope="col"] {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 700;
+  padding: 0 10px 7px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ledger-table td,
+.ledger-table th[scope="row"] {
+  padding: 12px 10px 12px 0;
+  border-bottom: 1px solid var(--rule-light);
+  vertical-align: top;
+  text-align: left;
+}
+
+.ledger-org {
+  font-family: var(--font-headline);
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ledger-org a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ledger-org a:hover {
+  color: var(--accent);
+}
+
+.ledger-org small {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.ledger-ship a {
+  color: var(--ink);
+}
+
+.ledger-num {
+  text-align: right;
+  font-family: var(--font-mono, monospace);
+  white-space: nowrap;
+}
+
+.ledger-quiet {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.ledger-row-quiet {
+  background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
+}
+
+/* Cards — Startups / Unicorns. */
+.biz-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.biz-card {
+  padding: 18px 20px 20px;
+  border-bottom: 1px solid var(--rule-light);
+  border-right: 1px solid var(--rule-light);
+}
+
+.biz-card-name {
+  font-family: var(--font-headline);
+  font-size: 21px;
+  margin: 0 0 8px;
+}
+
+.biz-card-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.biz-card-name a:hover {
+  color: var(--accent);
+}
+
+.biz-card-head {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 10px 0;
+}
+
+.ent-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-bottom: 8px;
+}
+
+.ent-fact {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+}
+
+.ent-fact b {
+  color: var(--ink);
+}
+
+/* Receipts. A claim without one must LOOK different, not merely be different. */
+.ent-evidence {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+  word-break: break-word;
+}
+
+.ent-evidence-none {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.ent-notclaimed {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  border-top: 1px solid var(--rule-light);
+  margin-top: 28px;
+  padding-top: 12px;
+}
+
+.ent-notclaimed-k {
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.ent-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ent-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 9.5px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid var(--rule-light);
+  color: var(--ink-light);
+}
+
+.ent-badge-solid {
+  background: var(--rule);
+  color: var(--paper);
+  border-color: var(--rule);
+}
+
+.ent-badge-hot {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Empty desks — designed, not blank. */
+.biz-empty {
+  border: 1px dashed var(--rule-light);
+  padding: 34px 28px;
+  text-align: center;
+  font-family: var(--font-meta);
+  color: var(--ink-light);
+}
+
+.biz-empty-head {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.biz-empty-note {
+  font-size: 12px;
+  color: var(--ink-faint);
+  max-width: 46ch;
+  margin: 12px auto 0;
+}
+
+/* Company index. */
+.co-group {
+  margin-bottom: 30px;
+}
+
+.co-group-head {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 6px;
+  margin: 0 0 10px;
+}
+
+.co-group-head a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.co-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.co-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 2px 24px;
+}
+
+.co-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.co-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.co-name:hover {
+  color: var(--accent);
+}
+
+.co-meta {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* Company file. */
+.ent-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 40px;
+}
+
+.ent-tier {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 9.5px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 3px 8px;
+  margin-bottom: 12px;
+}
+
+.ent-stats {
+  margin: 10px 0 16px;
+}
+
+.ent-kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--rule-light);
+  padding: 7px 0;
+  font-family: var(--font-meta);
+}
+
+.ent-kv span:first-child {
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.ent-kv span:last-child {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+}
+
+.ent-deskback a,
+.ent-aliases {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-light);
+}
+
+.ent-body-head {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  margin: 0 0 16px;
+}
+
+.ent-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 20px;
+  border-left: 2px solid var(--rule-light);
+}
+
+.ent-tl {
+  position: relative;
+  padding: 0 0 22px;
+}
+
+.ent-tl::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 7px;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.ent-tl-when,
+.ent-tl-type,
+.ent-tl-metrics {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  margin-right: 10px;
+}
+
+.ent-tl-title {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  margin: 3px 0 4px;
+}
+
+.ent-tl-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ent-tl-title a:hover {
+  color: var(--accent);
+}
+
+.ent-timeline-empty {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+@media (max-width: 780px) {
+  .ent-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .business-page-title {
+    font-size: 30px;
+  }
+
+  .ledger-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
 /* Model Drops — the front-page flow band: freshest Hugging Face releases, the
    day's actual AI events, pinned above the lead. */
 .model-drops {
@@ -801,6 +1372,29 @@ body {
   font-weight: 700;
   line-height: 1.2;
   word-break: break-word;
+}
+
+/* With a headline present the card inverts: the model id becomes the slug line
+   and the written hed takes the weight, so the band reads as reporting. */
+.drop-slug {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.drop-headline {
+  display: block;
+  font-family: var(--font-headline);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.22;
+  margin-bottom: 2px;
 }
 
 .drop-author {
@@ -1412,11 +2006,32 @@ body.chat-on .hybrid-ask {
   }
 }
 
-.trend-repo-overflow {
+/* Overflow pills ship in the markup but stay hidden until the toggle is
+   pressed — no request, no layout shift beyond the row itself. */
+.trend-repo-extra {
+  display: none;
+}
+
+.trend-repos.expanded .trend-repo-extra {
   display: inline-block;
+}
+
+.trend-repos-toggle {
+  display: inline-block;
+  font-family: var(--font-meta);
   font-size: 10px;
   color: var(--ink-faint);
+  background: none;
+  border: none;
   padding: 2px 4px;
+  cursor: pointer;
+  letter-spacing: inherit;
+}
+
+.trend-repos-toggle:hover,
+.trend-repos-toggle:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 /* === QUICK HITS === */
@@ -1660,7 +2275,7 @@ body.chat-on .hybrid-ask {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 248px;
+  width: 288px;
   max-height: calc(100vh - 64px);
   overflow-y: auto;
   background: var(--paper);
@@ -1725,10 +2340,13 @@ body.chat-on .hybrid-ask {
   flex: 0 0 calc(33.33% - 3px);
 }
 
-/* Design row — four named presets on a 2x2 grid so the labels fit the panel */
+/* Design row — nine named identities on a 3x3 grid. Three columns is the
+   panel's one grid rhythm (Font already sits on it), and 3x3 leaves no orphan
+   tile the way a 2-col run of nine did. The panel widens to 288px to match:
+   at 248px a third-width cell can't hold "Whitepaper" at 11px. */
 .panel-options-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 /* Hairline separators keep the open panel reading as ordered groups
@@ -1983,6 +2601,69 @@ body.chat-on .hybrid-ask {
 [data-width="narrow"] body { max-width: 800px; }
 
 /* === SECTION NAV === */
+
+/* === LENS NAV ===
+   Sits above the topic tabs and outranks them: bigger, set in the headline
+   face, with air around it. The reader picks a vantage first (who shipped it),
+   then a subject. Only .active is wired; [aria-disabled] keeps full visual
+   weight on purpose so the row reads as designed while the classifier behind
+   VC / Indie Builder / Big Labs is still unbuilt. */
+
+.lens-nav {
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+  overflow-x: auto;
+  padding: 4px 12px 18px;
+  scrollbar-width: none;
+}
+
+.lens-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.lens-tab {
+  font-family: var(--font-headline);
+  font-size: clamp(15px, 1.5vw, 19px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 2px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-light);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.lens-tab:hover {
+  color: var(--ink);
+}
+
+.lens-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.lens-tab[aria-disabled="true"] {
+  cursor: default;
+}
+
+/* The three actor lenses are anchors to standing desk pages, not panel
+   switches. They must be visually indistinguishable from the Sectors tab —
+   the row is one row — while still behaving (and announcing) as navigation. */
+a.lens-tab {
+  display: inline-block;
+  text-decoration: none;
+  line-height: inherit;
+}
+
+a.lens-tab:hover {
+  color: var(--ink);
+  border-bottom-color: var(--rule-light);
+}
 
 .section-nav {
   display: flex;
@@ -2760,9 +3441,13 @@ body.chat-on .hybrid-ask {
 /* === RESPONSIVE === */
 
 @media (max-width: 680px) {
+  .masthead {
+    padding: 52px 0 32px;
+    margin-bottom: 28px;
+  }
+
   .masthead-title {
-    font-size: 40px;
-    letter-spacing: 2px;
+    letter-spacing: 0.03em;
   }
 
   .lead-headline {
@@ -2774,6 +3459,12 @@ body.chat-on .hybrid-ask {
     display: block;
     text-align: center;
     margin-bottom: 8px;
+  }
+
+  .lens-nav {
+    gap: 20px;
+    justify-content: flex-start;
+    padding: 2px 12px 14px;
   }
 
   .section-tab {
@@ -4327,42 +5018,52 @@ body.account {
 }
 
 /* === ARCHIVE SEARCH — THE FOLD ===
-   A slim dateline bar under the masthead; on open the whole edition (wrapped
-   into .gt-fold at runtime by search.js) compresses downward like a paper
-   being folded shut while the search surface unfolds over it. Transforms and
-   opacity only — the edition DOM stays mounted underneath. */
+   Second in the page's order of dominance, directly under the nameplate and
+   ahead of the day's lead: the archive is the thing you came to interrogate,
+   the edition is what you read while you decide what to ask. On open the whole
+   edition (wrapped into .gt-fold at runtime by search.js) compresses downward
+   like a paper being folded shut while the search surface unfolds over it.
+   Transforms and opacity only — the edition DOM stays mounted underneath. */
 
 .gt-search-bar {
-  margin: -12px 0 18px; /* tuck up against the masthead's bottom double rule */
-  border-bottom: 1px solid var(--rule-light);
+  margin: 0 0 56px;
+  padding: 0 12px;
+  border-bottom: 0;
 }
 
 .gt-search-bar-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
-  padding: 6px 12px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 22px 26px;
   background: none;
-  border: 0;
+  border: 1px solid var(--rule);
   cursor: text;
-  font-family: var(--font-meta);
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--ink-faint);
+  text-align: left;
+  font-family: var(--font-headline);
+  font-size: clamp(19px, 2.4vw, 28px);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-light);
+  transition: border-color 0.15s, color 0.15s;
 }
 
-.gt-search-bar-btn:hover .gt-search-bar-hint {
-  color: var(--ink-light);
+.gt-search-bar-btn:hover,
+.gt-search-bar-btn:focus-visible {
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .gt-search-bar-kbd {
+  flex: none;
   font-family: var(--font-meta);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1;
-  padding: 2px 5px;
+  padding: 5px 9px;
   border: 1px solid var(--rule-light);
   border-radius: 3px;
   color: var(--ink-faint);
@@ -4600,6 +5301,14 @@ body.gt-searching .gt-fold {
   }
   .gt-search-bar-kbd {
     display: none;
+  }
+  .gt-search-bar {
+    margin-bottom: 34px;
+    padding: 0;
+  }
+  .gt-search-bar-btn {
+    padding: 16px 18px;
+    justify-content: center;
   }
 }
 

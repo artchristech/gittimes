@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Editor's Desk — The Git Times</title>
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+         background:#f6f3ec; color:#111; font-family:Georgia,"Times New Roman",serif; text-align:center; }
+  .box { max-width:28rem; padding:2rem; }
+  h1 { font-size:1.5rem; letter-spacing:.04em; text-transform:uppercase; margin:0 0 .5rem; }
+  p { color:#6b6459; font-size:.9rem; }
+  a { display:inline-block; margin-top:1rem; border:1px solid #111; padding:.45rem 1rem;
+      text-decoration:none; color:#111; background:#fff; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>The Editor's Desk</h1>
+  <p id="msg">Checking your session&hellip;</p>
+  <a id="go" href="/account/" hidden>Sign in</a>
+</div>
+<script>
+(function () {
+  var API = "https://api.gittimes.com";
+  var msg = document.getElementById("msg");
+  var go = document.getElementById("go");
+  var s = "";
+  try { s = localStorage.getItem("gittimes-session") || ""; } catch (e) { /* private mode */ }
+  if (s) {
+    msg.textContent = "Signed in. Opening the desk…";
+    location.replace(API + "/admin#s=" + encodeURIComponent(s));
+  } else {
+    msg.textContent = "You need to be signed in to your Git Times account to rule on front pages.";
+    go.hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
