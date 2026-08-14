@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-08-13T06:16:03.703Z",
+  "syncedAt": "2026-08-14T06:12:49.840Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
     "matched": 13,
     "missed": 0,
-    "catalog": 386,
+    "catalog": 388,
     "bannerSlots": 7
   },
   "models": [
@@ -565,7 +565,7 @@
       "provider": "Alibaba",
       "input": 2,
       "output": 6,
-      "context_length": 1000000,
+      "context_length": 1010000,
       "created": 1786551702,
       "source": "banner-slot"
     },
@@ -773,6 +773,12 @@
   },
   "untracked": [
     {
+      "id": "google/gemini-3.7-flash",
+      "name": "Google: Gemini 3.7 Flash",
+      "outputPrice": 1.875,
+      "created": 1786640581
+    },
+    {
       "id": "x-ai/grok-4.6",
       "name": "SpaceXAI: Grok 4.6",
       "outputPrice": 6,
@@ -799,13 +805,13 @@
     {
       "id": "google/gemini-3.6-flash",
       "name": "Google: Gemini 3.6 Flash",
-      "outputPrice": 7.5,
+      "outputPrice": 3.75,
       "created": 1784646733
     },
     {
       "id": "google/gemini-3.6-flash:batch",
       "name": "Google: Gemini 3.6 Flash (batch)",
-      "outputPrice": 3.75,
+      "outputPrice": 1.875,
       "created": 1784646733
     },
     {
@@ -823,12 +829,6 @@
     {
       "id": "openai/gpt-5.6-terra",
       "name": "OpenAI: GPT-5.6 Terra",
-      "outputPrice": 6,
-      "created": 1783590857
-    },
-    {
-      "id": "openai/gpt-5.6-terra:batch",
-      "name": "OpenAI: GPT-5.6 Terra (batch)",
       "outputPrice": 6,
       "created": 1783590857
     }
@@ -3550,40 +3550,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemini-3.6-flash",
-      "name": "Google: Gemini 3.6 Flash",
-      "context_length": 1048576,
-      "input": 1.5,
-      "output": 7.5,
-      "cache_read_price": 0.15,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1784646733,
-      "description": "Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It is designed to produce polished outputs w",
-      "hugging_face_id": null
-    },
-    {
       "id": "mistralai/mistral-medium-3-5",
       "name": "Mistral: Mistral Medium 3.5",
       "context_length": 262144,
@@ -3615,40 +3581,6 @@
       ],
       "created": 1777570439,
       "description": "Mistral Medium 3.5 is a dense 128B instruction-following model from Mistral AI. It supports text and image inputs with text output, and is designed for agentic ",
-      "hugging_face_id": null
-    },
-    {
-      "id": "~google/gemini-flash-latest",
-      "name": "Google Gemini Flash Latest",
-      "context_length": 1048576,
-      "input": 1.5,
-      "output": 7.5,
-      "cache_read_price": 0.15,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1777318398,
-      "description": "This model always redirects to the latest model in the Google Gemini Flash family.",
       "hugging_face_id": null
     },
     {
@@ -3809,11 +3741,11 @@
     {
       "id": "qwen/qwen3.8-2.4t-a95b",
       "name": "Qwen: Qwen3.8 2.4T A95B",
-      "context_length": 1000000,
+      "context_length": 1010000,
       "input": 2,
       "output": 6,
-      "cache_read_price": 0.19999999999999998,
-      "max_completion_tokens": 52429,
+      "cache_read_price": 0.25,
+      "max_completion_tokens": 262144,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -4495,11 +4427,11 @@
     {
       "id": "anthracite-org/magnum-v4-72b",
       "name": "Magnum v4 72B",
-      "context_length": 16384,
+      "context_length": 32768,
       "input": 3,
       "output": 5,
       "cache_read_price": null,
-      "max_completion_tokens": 2048,
+      "max_completion_tokens": 4096,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -5258,8 +5190,8 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemini-3.6-flash:batch",
-      "name": "Google: Gemini 3.6 Flash (batch)",
+      "id": "google/gemini-3.6-flash",
+      "name": "Google: Gemini 3.6 Flash",
       "context_length": 1048576,
       "input": 0.75,
       "output": 3.75,
@@ -5282,8 +5214,10 @@
         "seed",
         "stop",
         "structured_outputs",
+        "temperature",
         "tool_choice",
-        "tools"
+        "tools",
+        "top_p"
       ],
       "created": 1784646733,
       "description": "Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It is designed to produce polished outputs w",
@@ -5500,45 +5434,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.5,
-      "output": 3.15,
-      "cache_read_price": 0.09999999999999999,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "bytedance-seed/seed-2.0-code",
       "name": "ByteDance Seed: Seed-2.0-Code",
       "context_length": 262144,
@@ -5727,7 +5622,6 @@
         "text"
       ],
       "supported_parameters": [
-        "frequency_penalty",
         "logprobs",
         "max_tokens",
         "presence_penalty",
@@ -6172,7 +6066,7 @@
     {
       "id": "deepseek/deepseek-r1",
       "name": "DeepSeek: R1",
-      "context_length": 163840,
+      "context_length": 64000,
       "input": 0.7,
       "output": 2.5,
       "cache_read_price": null,
@@ -6184,7 +6078,6 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "max_completion_tokens",
         "max_tokens",
         "presence_penalty",
         "reasoning",
@@ -7170,6 +7063,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.63,
+      "output": 1.9800000000000002,
+      "cache_read_price": 0.0945,
+      "max_completion_tokens": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
+    },
+    {
       "id": "qwen/qwen3.6-plus",
       "name": "Qwen: Qwen3.6 Plus",
       "context_length": 1000000,
@@ -7228,6 +7160,106 @@
       ],
       "created": 1751910858,
       "description": "Morph's high-accuracy apply model for complex code edits. ~4,500 tokens/sec with 98% accuracy for precise code transformations. The model requires the prompt to",
+      "hugging_face_id": null
+    },
+    {
+      "id": "google/gemini-3.7-flash",
+      "name": "Google: Gemini 3.7 Flash",
+      "context_length": 1048576,
+      "input": 0.375,
+      "output": 1.875,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1786640581,
+      "description": "Gemini 3.7 Flash is a multimodal model from Google for fast agentic workflows, coding, and complex multi-step reasoning. It is designed for tasks that require r",
+      "hugging_face_id": null
+    },
+    {
+      "id": "google/gemini-3.6-flash:batch",
+      "name": "Google: Gemini 3.6 Flash (batch)",
+      "context_length": 1048576,
+      "input": 0.375,
+      "output": 1.875,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1784646733,
+      "description": "Gemini 3.6 Flash is a high-efficiency model from Google for coding, agentic workflows, and web and app development. It is designed to produce polished outputs w",
+      "hugging_face_id": null
+    },
+    {
+      "id": "~google/gemini-flash-latest",
+      "name": "Google Gemini Flash Latest",
+      "context_length": 1048576,
+      "input": 0.375,
+      "output": 1.875,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1777318398,
+      "description": "This model always redirects to the latest model in the Google Gemini Flash family.",
       "hugging_face_id": null
     },
     {
@@ -7600,7 +7632,7 @@
       "input": 0.25,
       "output": 1.5,
       "cache_read_price": null,
-      "max_completion_tokens": 65536,
+      "max_completion_tokens": 66000,
       "modality": "text+image->text+image",
       "input_modalities": [
         "image",
@@ -8360,7 +8392,7 @@
       "input": 0.15,
       "output": 1.2,
       "cache_read_price": null,
-      "max_completion_tokens": 262144,
+      "max_completion_tokens": 32768,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -8587,10 +8619,10 @@
       "id": "qwen/qwen3-next-80b-a3b-instruct",
       "name": "Qwen: Qwen3 Next 80B A3B Instruct",
       "context_length": 262144,
-      "input": 0.09,
+      "input": 0.09999999999999999,
       "output": 1.1,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
+      "cache_read_price": 0.07,
+      "max_completion_tokens": 262144,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9067,6 +9099,38 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1"
     },
     {
+      "id": "google/gemini-3.7-flash:batch",
+      "name": "Google: Gemini 3.7 Flash (batch)",
+      "context_length": 1048576,
+      "input": 0.1875,
+      "output": 0.9375,
+      "cache_read_price": 0.01875,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1786640581,
+      "description": "Gemini 3.7 Flash is a multimodal model from Google for fast agentic workflows, coding, and complex multi-step reasoning. It is designed for tasks that require r",
+      "hugging_face_id": null
+    },
+    {
       "id": "minimax/minimax-m2.5",
       "name": "MiniMax: MiniMax M2.5",
       "context_length": 204800,
@@ -9210,22 +9274,28 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "logit_bias",
         "logprobs",
         "max_tokens",
+        "min_p",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
+        "repetition_penalty",
         "response_format",
+        "seed",
         "stop",
+        "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
+        "top_k",
         "top_logprobs",
         "top_p"
       ],
       "created": 1786549364,
       "description": "DeepSeek V4 Pro 0813 is a large-scale mixture-of-experts model from DeepSeek. This is the GA release of DeepSeek V4 Pro.",
-      "hugging_face_id": null
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro-0813"
     },
     {
       "id": "xiaomi/mimo-v2.5-pro",
@@ -10007,7 +10077,6 @@
         "text"
       ],
       "supported_parameters": [
-        "frequency_penalty",
         "logprobs",
         "max_tokens",
         "presence_penalty",
@@ -10240,42 +10309,6 @@
       "created": 1769481200,
       "description": "Solar Pro 3 is Upstage's powerful Mixture-of-Experts (MoE) language model. With 102B total parameters and 12B active parameters per forward pass, it delivers ex",
       "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3-vl-30b-a3b-instruct",
-      "name": "Qwen: Qwen3 VL 30B A3B Instruct",
-      "context_length": 262144,
-      "input": 0.15,
-      "output": 0.6,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1759794476,
-      "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimi",
-      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
     },
     {
       "id": "mistralai/mistral-saba",
@@ -10540,6 +10573,42 @@
       "created": 1783344048,
       "description": "Hy3 is a 295B-parameter Mixture-of-Experts model from Tencent (21B active, 192 experts with top-8 routing) built for reasoning, agentic workflows, and real-worl",
       "hugging_face_id": "tencent/Hy3"
+    },
+    {
+      "id": "qwen/qwen3-vl-30b-a3b-instruct",
+      "name": "Qwen: Qwen3 VL 30B A3B Instruct",
+      "context_length": 262144,
+      "input": 0.13,
+      "output": 0.52,
+      "cache_read_price": null,
+      "max_completion_tokens": 32768,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1759794476,
+      "description": "Qwen3-VL-30B-A3B-Instruct is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Instruct variant optimi",
+      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
     },
     {
       "id": "allenai/olmo-3-32b-think",
@@ -11544,6 +11613,46 @@
       "hugging_face_id": null
     },
     {
+      "id": "deepseek/deepseek-v4-flash-0731",
+      "name": "DeepSeek: DeepSeek V4 Flash 0731",
+      "context_length": 1048576,
+      "input": 0.14,
+      "output": 0.28,
+      "cache_read_price": 0.028,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1785478908,
+      "description": "DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total. This re-post-trained revision is suited",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-0731"
+    },
+    {
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash 0423",
       "context_length": 1048576,
@@ -11769,7 +11878,7 @@
     {
       "id": "nvidia/nemotron-3.5-lightning",
       "name": "NVIDIA: Nemotron 3.5 Lightning",
-      "context_length": 1048576,
+      "context_length": 1000000,
       "input": 0.09999999999999999,
       "output": 0.25,
       "cache_read_price": 0.049999999999999996,
@@ -12245,46 +12354,6 @@
       "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
     },
     {
-      "id": "deepseek/deepseek-v4-flash-0731",
-      "name": "DeepSeek: DeepSeek V4 Flash 0731",
-      "context_length": 1048576,
-      "input": 0.08,
-      "output": 0.18,
-      "cache_read_price": 0.016,
-      "max_completion_tokens": 384000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1785478908,
-      "description": "DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total. This re-post-trained revision is suited",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-0731"
-    },
-    {
       "id": "poolside/laguna-s-2.1",
       "name": "Poolside: Laguna S 2.1",
       "context_length": 1048576,
@@ -12660,7 +12729,7 @@
         "top_p"
       ],
       "created": 1786371636,
-      "description": "Solar Pro 4 is a large language model from Upstage. It is suited for agentic workflows, office productivity, document-intensive work, and coding.",
+      "description": "Solar Pro 4 is Upstage's cost-efficient large language model, featuring a 524K context window. It is built for long-horizon tasks and agentic workflows, with st",
       "hugging_face_id": null
     },
     {
