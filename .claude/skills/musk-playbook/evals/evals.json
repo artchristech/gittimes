@@ -1,0 +1,53 @@
+{
+  "skill_name": "musk-playbook",
+  "evals": [
+    {
+      "id": 0,
+      "name": "cost-floor-derivation",
+      "prompt": "Our video transcoding pipeline runs about 9,000 hours of source video a month and costs us roughly $47k/month on AWS MediaConvert. Finance has told us to get it under $20k by Q3. Every time I bring it up the platform team says that's just what transcoding costs at our volume and the only lever is a committed-use discount. I don't buy it but I don't know how to argue with them. Where do I even start?",
+      "expected_output": "Derives an irreducible cost floor (compute-seconds/CPU cost of the encode itself, e.g. self-hosted ffmpeg on spot instances), computes the multiple against the current $47k, attributes the gap to named factors (vendor margin, per-minute pricing model, redundant renditions, unwatched output), and orders the attack biggest-term-first rather than jumping to the committed-use discount.",
+      "files": [],
+      "expectations": [
+        "Derives an explicit irreducible cost floor for the transcoding work itself (e.g. raw compute cost of encoding 9,000 hours on self-managed/spot instances) and shows a concrete dollar figure or per-hour rate for it",
+        "States the multiple between the current $47k/month and the derived floor as an explicit ratio (e.g. 'about 6x')",
+        "Attributes the gap to specific named contributors (vendor margin, per-minute billing model, redundant renditions in the ABR ladder, transcoding assets nobody watches) rather than giving generic cost-cutting tips",
+        "Explicitly pushes back on the committed-use discount as the primary lever, on the grounds that a percentage off an unexamined number cannot reach a 2.4x reduction",
+        "Asks who specifically owns the requirement behind the current output spec (rendition ladder, codec, quality settings), by person rather than by team",
+        "Orders the recommended actions by size of cost contribution rather than by ease of implementation",
+        "Names which stage of the question/delete/simplify/accelerate/automate ordering each recommendation belongs to, instead of presenting one undifferentiated list"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "scope-cut-under-deadline",
+      "prompt": "We committed to shipping a rebuilt onboarding flow in 6 weeks. We're 3 weeks in and realistically about 30% done. The spec has 14 required profile fields, email + SMS verification, a manual document-review step for business accounts, and a 5-screen guided tour. My PM is asking me what we cut. I need to give her an answer tomorrow morning.",
+      "expected_output": "Questions each requirement and asks who owns it, proposes an explicit deletion list before any optimization, predicts what will need to be added back, flags the document-review/verification items as potentially irreversible-failure items outside the delete-and-add-back loop, and gives a calibrated schedule alongside the aggressive one.",
+      "files": [],
+      "expectations": [
+        "Produces an explicit deletion list of named spec items before proposing any optimization, parallelization, or 'ship it faster' suggestions",
+        "Asks for the named individual behind at least one requirement (who required 14 fields, who required the guided tour) and rejects department-level attribution such as 'product wants it'",
+        "Predicts which cut items are likely to be added back later, rather than presenting the cuts as permanent",
+        "Flags at least one item (business-account document review, or verification) as carrying irreversible or compliance/fraud-risk failure and treats it differently from the freely deletable items",
+        "Gives a calibrated schedule estimate derived from the observed throughput (30% in 3 weeks) alongside any aggressive target, rather than only asserting the 6-week date can be met",
+        "Does not recommend automating or optimizing any step it has not first tested for deletion",
+        "Names which stage of the question/delete/simplify/accelerate/automate ordering each recommendation belongs to, instead of presenting one undifferentiated list"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "build-vs-buy-bottleneck",
+      "prompt": "We pay a vendor $180k/yr for our product search API and their p99 is around 800ms, which is genuinely hurting conversion on our biggest page. A couple of the senior engineers keep floating building our own on OpenSearch. Honestly I can't tell if that's engineering ego or if they're right, and I have to take a recommendation to my VP next week.",
+      "expected_output": "Establishes whether search is actually the bottleneck, derives a latency floor for the query workload and computes the multiple against 800ms, separates the latency problem from the cost problem, applies own-the-bottleneck reasoning without defaulting to 'build it', and names the failure modes (schedule optimism on the build, ownership costs) with counter-checks.",
+      "files": [],
+      "expectations": [
+        "Questions whether search latency is actually the dominant contributor to the conversion problem before evaluating build-vs-buy",
+        "Derives a latency floor for this query workload (from index size, query type, or comparable achievable p99) and compares it to the observed 800ms as an explicit multiple or gap",
+        "Separates the $180k/yr cost question from the 800ms latency question and notes they may have different answers",
+        "Considers options between 'stay' and 'build' (caching, pushing the vendor on latency, narrowing what search is asked to do) rather than framing the decision as binary",
+        "Applies own-the-bottleneck reasoning explicitly: recommends in-housing only if search is confirmed to be the rate-limiting constraint, not because vendors are bad",
+        "Names schedule optimism on the build estimate as a risk and supplies a concrete counter-check, rather than only listing pros and cons",
+        "Names which stage of the question/delete/simplify/accelerate/automate ordering each recommendation belongs to, instead of presenting one undifferentiated list"
+      ]
+    }
+  ]
+}
