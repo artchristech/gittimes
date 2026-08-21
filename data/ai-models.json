@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-08-20T05:29:14.075Z",
+  "syncedAt": "2026-08-21T05:31:33.244Z",
   "source": "openrouter",
   "stats": {
     "total": 13,
     "matched": 13,
     "missed": 0,
-    "catalog": 389,
+    "catalog": 393,
     "bannerSlots": 7
   },
   "models": [
@@ -301,10 +301,10 @@
       "openrouterId": "deepseek/deepseek-v4-pro",
       "label": "DeepSeek V4 Pro",
       "provider": "DeepSeek",
-      "input": 1.44,
-      "output": 2.88,
+      "input": 1.5999999999999999,
+      "output": 3.1999999999999997,
       "context_length": 1048576,
-      "cache_read_price": 0.1215,
+      "cache_read_price": 0.135,
       "max_completion_tokens": 393216,
       "modality": "text->text",
       "input_modalities": [
@@ -4645,7 +4645,7 @@
     {
       "id": "z-ai/glm-5.2:batch",
       "name": "Z.ai: GLM 5.2 (batch)",
-      "context_length": 512000,
+      "context_length": 1048575,
       "input": 1.4,
       "output": 4.4,
       "cache_read_price": 0.26,
@@ -5463,9 +5463,9 @@
       "id": "moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "context_length": 262144,
-      "input": 0.71,
-      "output": 3.5,
-      "cache_read_price": 0.15,
+      "input": 0.67,
+      "output": 3.4,
+      "cache_read_price": 0.16999999999999998,
       "max_completion_tokens": 262144,
       "modality": "text+image->text",
       "input_modalities": [
@@ -5568,6 +5568,45 @@
       "created": 1786722910,
       "description": "Qwen3.8 27B is an open-weight dense vision-language model from Qwen. It is suited for coding, professional workflows, research, multimodal interaction, and long",
       "hugging_face_id": "Qwen/Qwen3.8-27B"
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "name": "DeepSeek: DeepSeek V4 Pro 0423",
+      "context_length": 1048576,
+      "input": 1.5999999999999999,
+      "output": 3.1999999999999997,
+      "cache_read_price": 0.135,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000679,
+      "description": "DeepSeek V4 Pro is a large-scale Mixture-of-Experts model from DeepSeek with 1.6T total parameters and 49B activated parameters, supporting a 1M-token context w",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro"
     },
     {
       "id": "amazon/nova-pro-v1",
@@ -5874,45 +5913,6 @@
       "created": 1783714589,
       "description": "KAT-Coder-Pro V2.5 is a flagship-level Agentic Coding model that can directly hand over an entire issue or an entire business workflow to it, allowing it to aut",
       "hugging_face_id": null
-    },
-    {
-      "id": "deepseek/deepseek-v4-pro",
-      "name": "DeepSeek: DeepSeek V4 Pro 0423",
-      "context_length": 1048576,
-      "input": 1.44,
-      "output": 2.88,
-      "cache_read_price": 0.1215,
-      "max_completion_tokens": 393216,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777000679,
-      "description": "DeepSeek V4 Pro is a large-scale Mixture-of-Experts model from DeepSeek with 1.6T total parameters and 49B activated parameters, supporting a 1M-token context w",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro"
     },
     {
       "id": "bytedance-seed/seed-2-1-turbo",
@@ -6813,7 +6813,7 @@
       "input": 0.26,
       "output": 2.08,
       "cache_read_price": null,
-      "max_completion_tokens": 262144,
+      "max_completion_tokens": 65536,
       "modality": "text+image+video->text",
       "input_modalities": [
         "text",
@@ -7715,45 +7715,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "meta/muse-glimmer-30b",
-      "name": "Meta: Muse Glimmer 30B",
-      "context_length": 131072,
-      "input": 0.35,
-      "output": 1.5,
-      "cache_read_price": 0.04,
-      "max_completion_tokens": null,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786302394,
-      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
-      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
-    },
-    {
       "id": "google/gemini-3.1-flash-lite-image",
       "name": "Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
       "context_length": 65536,
@@ -8280,7 +8241,7 @@
     {
       "id": "thinkingmachines/inkling-small",
       "name": "Thinking Machines: Inkling Small",
-      "context_length": 524288,
+      "context_length": 1048576,
       "input": 0.44999999999999996,
       "output": 1.2,
       "cache_read_price": 0.09999999999999999,
@@ -8773,6 +8734,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "meta/muse-glimmer-30b",
+      "name": "Meta: Muse Glimmer 30B",
+      "context_length": 131072,
+      "input": 0.3,
+      "output": 1.1,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 131072,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786302394,
+      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
+      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
+    },
+    {
       "id": "qwen/qwen3-next-80b-a3b-instruct",
       "name": "Qwen: Qwen3 Next 80B A3B Instruct",
       "context_length": 262144,
@@ -8972,8 +8972,8 @@
       "context_length": 163840,
       "input": 0.27,
       "output": 1,
-      "cache_read_price": null,
-      "max_completion_tokens": 163840,
+      "cache_read_price": 0.135,
+      "max_completion_tokens": 32768,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9251,6 +9251,43 @@
       "hugging_face_id": null
     },
     {
+      "id": "minimax/minimax-m2.5",
+      "name": "MiniMax: MiniMax M2.5",
+      "context_length": 204800,
+      "input": 0.27,
+      "output": 0.95,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1770908502,
+      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
+    },
+    {
       "id": "deepseek/deepseek-chat-v3.1",
       "name": "DeepSeek: DeepSeek V3.1",
       "context_length": 163840,
@@ -9320,13 +9357,13 @@
       "hugging_face_id": null
     },
     {
-      "id": "minimax/minimax-m2.5",
-      "name": "MiniMax: MiniMax M2.5",
-      "context_length": 204800,
-      "input": 0.22499999999999998,
-      "output": 0.8999999999999999,
-      "cache_read_price": 0.06,
-      "max_completion_tokens": null,
+      "id": "qwen/qwen3-14b",
+      "name": "Qwen: Qwen3 14B",
+      "context_length": 131072,
+      "input": 0.22749999999999998,
+      "output": 0.9099999999999999,
+      "cache_read_price": null,
+      "max_completion_tokens": 8192,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9352,9 +9389,9 @@
         "top_logprobs",
         "top_p"
       ],
-      "created": 1770908502,
-      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
+      "created": 1745876478,
+      "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
+      "hugging_face_id": "Qwen/Qwen3-14B"
     },
     {
       "id": "z-ai/glm-4.6v",
@@ -9932,6 +9969,39 @@
       "created": 1734535928,
       "description": "Euryale L3.3 70B is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.2](/models/sao10k/l3",
       "hugging_face_id": "Sao10K/L3.3-70B-Euryale-v2.3"
+    },
+    {
+      "id": "mancer/weaver",
+      "name": "Mancer: Weaver (alpha)",
+      "context_length": 8000,
+      "input": 0.5,
+      "output": 0.75,
+      "cache_read_price": null,
+      "max_completion_tokens": 6000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "temperature",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1690934400,
+      "description": "An attempt to recreate Claude-style verbosity, but don't expect the same level of coherence or memory. Meant for use in roleplay/narrative situations.",
+      "hugging_face_id": null
     },
     {
       "id": "openai/gpt-3.5-turbo:batch",
@@ -11369,10 +11439,10 @@
       "id": "google/gemma-4-31b-it",
       "name": "Google: Gemma 4 31B",
       "context_length": 262144,
-      "input": 0.09,
+      "input": 0.09999999999999999,
       "output": 0.33999999999999997,
-      "cache_read_price": 0.049999999999999996,
-      "max_completion_tokens": 16384,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": 262144,
       "modality": "text+image+video->text",
       "input_modalities": [
         "image",
@@ -11660,6 +11730,30 @@
       "hugging_face_id": null
     },
     {
+      "id": "tencent/hy-mt2-30b-a3b",
+      "name": "Tencent: Hy-MT2-30B-A3B",
+      "context_length": 8192,
+      "input": 0.074,
+      "output": 0.295,
+      "cache_read_price": null,
+      "max_completion_tokens": 4096,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "max_completion_tokens",
+        "max_tokens",
+        "response_format",
+        "stop",
+        "structured_outputs",
+        "temperature"
+      ],
+      "created": 1787231561,
+      "description": "Hy-MT2-30B-A3B is Tencent's flagship translation model in the Hy-MT2 family. It supports 33 language pairs and five Chinese dialect and minority-language pairs,",
+      "hugging_face_id": "tencent/Hy-MT2-30B-A3B"
+    },
+    {
       "id": "deepseek/deepseek-v4-flash-0731",
       "name": "DeepSeek: DeepSeek V4 Flash 0731",
       "context_length": 1310720,
@@ -11880,43 +11974,6 @@
       "hugging_face_id": "mistralai/Mistral-Small-3.2-24B-Instruct-2506"
     },
     {
-      "id": "qwen/qwen3-14b",
-      "name": "Qwen: Qwen3 14B",
-      "context_length": 131072,
-      "input": 0.12,
-      "output": 0.24,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1745876478,
-      "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
-      "hugging_face_id": "Qwen/Qwen3-14B"
-    },
-    {
       "id": "amazon/nova-lite-v1",
       "name": "Amazon: Nova Lite 1.0",
       "context_length": 300000,
@@ -11973,7 +12030,7 @@
     {
       "id": "nvidia/nemotron-3.5-lightning",
       "name": "NVIDIA: Nemotron 3.5 Lightning",
-      "context_length": 1000000,
+      "context_length": 262144,
       "input": 0.08,
       "output": 0.19999999999999998,
       "cache_read_price": 0.04,
@@ -12350,44 +12407,26 @@
       "hugging_face_id": "meta-llama/Llama-Guard-4-12B"
     },
     {
-      "id": "deepseek/deepseek-v4-flash",
-      "name": "DeepSeek: DeepSeek V4 Flash 0423",
-      "context_length": 1048576,
-      "input": 0.088606,
-      "output": 0.177212,
-      "cache_read_price": 0.017721200000000003,
-      "max_completion_tokens": 384000,
+      "id": "tencent/hy-mt2-1.8b",
+      "name": "Tencent: Hy-MT2-1.8B",
+      "context_length": 8192,
+      "input": 0.044,
+      "output": 0.17700000000000002,
+      "cache_read_price": null,
+      "max_completion_tokens": 4096,
       "modality": "text->text",
       "input_modalities": [
         "text"
       ],
       "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
         "max_completion_tokens",
         "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
         "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
+        "temperature"
       ],
-      "created": 1777000666,
-      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
+      "created": 1787231581,
+      "description": "Hy-MT2-1.8B is a compact 1.8B-parameter translation model from Tencent. It supports 33 language pairs and five Chinese dialect and minority-language pairs, with",
+      "hugging_face_id": "tencent/Hy-MT2-1.8B"
     },
     {
       "id": "openai/gpt-oss-120b",
@@ -12427,6 +12466,46 @@
       "created": 1754414231,
       "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose pro",
       "hugging_face_id": "openai/gpt-oss-120b"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek: DeepSeek V4 Flash 0423",
+      "context_length": 1048576,
+      "input": 0.08259999999999999,
+      "output": 0.16519999999999999,
+      "cache_read_price": 0.01652,
+      "max_completion_tokens": 384000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000666,
+      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "qwen/qwen3.5-9b",
@@ -12838,6 +12917,33 @@
       "created": 1760927695,
       "description": "Granite-4.0-H-Micro is a 3B parameter from the Granite 4 family of models. These models are the latest in a series of models released by IBM. They are fine-tune",
       "hugging_face_id": "ibm-granite/granite-4.0-h-micro"
+    },
+    {
+      "id": "mistralai/ministral-8b",
+      "name": "Mistral: Ministral 8B",
+      "context_length": 128000,
+      "input": 0.11,
+      "output": 0.11,
+      "cache_read_price": null,
+      "max_completion_tokens": null,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "top_p"
+      ],
+      "created": 1729123200,
+      "description": "Ministral 8B is an 8B parameter model featuring a unique interleaved sliding-window attention pattern for faster, memory-efficient inference. Designed for edge ",
+      "hugging_face_id": null
     },
     {
       "id": "nex-agi/nex-n2-mini",
