@@ -94,6 +94,18 @@ const CURATED_ENTITIES = [
   { id: "ollama", name: "Ollama", tier: TIER_UNICORN, country: "US", github: ["ollama"], hf: [], domains: ["ollama.com"] },
   { id: "modal", name: "Modal", tier: TIER_UNICORN, country: "US", github: ["modal-labs"], hf: [], domains: ["modal.com"] },
   { id: "fireworks", name: "Fireworks AI", tier: TIER_UNICORN, country: "US", github: ["fw-ai"], hf: ["fireworks-ai"], domains: ["fireworks.ai"] },
+  // Companies whose product repos this paper ALREADY watched without ever
+  // attributing them to a company. The Unicorns desk read thin — fourteen
+  // tracked, four shipping — not because these companies are quiet but because
+  // nothing in the registry knew qdrant/qdrant had an owner. Adding them costs
+  // no API budget: every repo below except three is already on the watchlist.
+  { id: "llamaindex", name: "LlamaIndex", tier: TIER_UNICORN, country: "US", github: ["run-llama"], hf: ["llamaindex"], domains: ["llamaindex.ai"] },
+  { id: "qdrant", name: "Qdrant", tier: TIER_UNICORN, country: "DE", github: ["qdrant"], hf: ["Qdrant"], domains: ["qdrant.tech"] },
+  { id: "weaviate", name: "Weaviate", tier: TIER_UNICORN, country: "NL", github: ["weaviate"], hf: [], domains: ["weaviate.io"] },
+  { id: "chroma", name: "Chroma", tier: TIER_UNICORN, country: "US", github: ["chroma-core"], hf: [], domains: ["trychroma.com"] },
+  { id: "unstructured", name: "Unstructured", tier: TIER_UNICORN, country: "US", github: ["Unstructured-IO"], hf: [], domains: ["unstructured.io"] },
+  { id: "wandb", name: "Weights & Biases", tier: TIER_UNICORN, country: "US", github: ["wandb"], hf: [], domains: ["wandb.ai"] },
+  { id: "n8n", name: "n8n", tier: TIER_UNICORN, country: "DE", github: ["n8n-io"], hf: [], domains: ["n8n.io"] },
 ];
 
 /**
@@ -159,6 +171,13 @@ const COMPANY_REPOS = {
   ollama: ["ollama/ollama"],
   langchain: ["langchain-ai/langchain", "langchain-ai/langgraph"],
   "meta-ai": ["pytorch/pytorch"],
+  llamaindex: ["run-llama/llama_index"],
+  qdrant: ["qdrant/qdrant"],
+  weaviate: ["weaviate/weaviate"],
+  chroma: ["chroma-core/chroma"],
+  unstructured: ["Unstructured-IO/unstructured"],
+  wandb: ["wandb/wandb"],
+  n8n: ["n8n-io/n8n"],
 };
 
 /** Attach `signals` + `repos` to a roster entry from the policy tables above. */

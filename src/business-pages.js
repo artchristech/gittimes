@@ -222,9 +222,17 @@ function renderCards(desk, basePath) {
       const facts = c.facts
         .map((f) => `<span class="ent-fact"><b>${escapeHtml(f.v)}</b> ${escapeHtml(f.k)}</span>`)
         .join("");
-      const headline = c.headline
-        ? `<a href="${escapeHtml(c.url || "#")}" target="_blank" rel="noopener">${escapeHtml(c.headline)}</a>`
-        : `<span class="ledger-quiet">no shipped artifact in this window</span>`;
+      // Three states, and the middle one is the one the ledger got wrong for
+      // months: shipped / seen moving / nothing. A trending sighting is real
+      // evidence and belongs on the card, but it is not a release, and putting
+      // a bare repo name in the slot a shipped artifact occupies reads as one.
+      const link = (label) =>
+        `<a href="${escapeHtml(c.url || "#")}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
+      const headline = !c.headline
+        ? `<span class="ledger-quiet">no shipped artifact in this window</span>`
+        : c.shipped === false || c.kind === "repo"
+          ? `<span class="biz-card-sighting">Seen in trending</span> ${link(c.headline)}`
+          : link(c.headline);
       return `
       <article class="biz-card">
         <h3 class="biz-card-name"><a href="${escapeHtml(entityPath(basePath, c.entityId))}">${escapeHtml(c.name)}</a></h3>

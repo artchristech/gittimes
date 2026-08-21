@@ -75,18 +75,13 @@ const DESKS = {
     kicker: "Scaled, private, and shipping in public",
     cadence: "monthly",
     minItems: 0,
-    maxItems: 4,
+    maxItems: 6,
     windowDays: 30,
     includeQuiet: false,
   },
 };
 
 const DESK_ORDER = ["bigLabs", "startups", "unicorns"];
-
-/** Freshest evidence-bearing event an entity has, or null. */
-function leadEvent(entity) {
-  return (entity.events || []).find((e) => Number.isFinite(e.ageDays)) || (entity.events || [])[0] || null;
-}
 
 /**
  * Freshest event that is actually a SHIP — a release or a published model.
@@ -150,26 +145,55 @@ function ledgerRow(entity) {
   };
 }
 
-/** A Startups / Unicorns card. Same evidence contract, narrative shape. */
+/** Freshest evidence-bearing event an entity has, or null. */
+function leadEvent(entity) {
+  return (entity.events || []).find((e) => Number.isFinite(e.ageDays)) || (entity.events || [])[0] || null;
+}
+
+/**
+ * A Startups / Unicorns card. Same evidence contract, narrative shape.
+ *
+ * Unlike the ledger, these desks do NOT drop a company whose only evidence is a
+ * trending sighting — for a small team, a repo pulling three thousand stars in
+ * a week IS the story, and it is the only story the pipeline can see before the
+ * team cuts its first release. What the card must not do is dress that sighting
+ * up as a ship. So the lead is a ship when there is one, a sighting when there
+ * isn't, and `kind` tells the renderer which it is holding.
+ */
 function card(entity) {
   const s = entity.stats;
-  const ev = leadEvent(entity);
+  const ship = shipEvent(entity);
+  const ev = ship || leadEvent(entity);
   return {
     entityId: entity.id,
     name: entity.name,
     headline: ev ? ev.title : null,
+    // "release" | "model-drop" | "repo". A repo lead is a sighting, and the
+    // renderer says so in words rather than letting `refinedev/refine` sit in
+    // the same slot a shipped release would occupy.
+    kind: ev ? ev.type : null,
+    shipped: Boolean(ship),
     url: ev ? ev.url : null,
+    // FACTS ARE NEWS, NOT INVENTORY. These cards used to lead with "org age
+    // 9.9y · repos tracked 1". Neither is a fact about the company: org age is
+    // a constant that changes once a year, and "repos tracked" is a statement
+    // about how much of them THIS PAPER watches — a measurement artifact printed
+    // in the same typeface as a finding. Both are gone. What is left is what
+    // moved: when they last shipped, how often, and how hard it landed.
     facts: [
-      // Who backed them and when, both printed on the funder's own public
-      // company page that this row links to. It is the one non-shipping fact
-      // the paper can source, and it is why the reader can tell a funded team
-      // from an org that wandered into trending.
+      // Who backed them and when. Both are printed on the funder's own public
+      // company page that this row links to, and it is why a reader can tell a
+      // funded team from an org that wandered into trending.
       entity.backer && entity.batch ? { k: `${entity.backer} batch`, v: entity.batch } : null,
-      Number.isFinite(s.oldestRepoDays) ? { k: "org age", v: humanDays(s.oldestRepoDays) } : null,
-      s.repoCount ? { k: "repos tracked", v: String(s.repoCount) } : null,
-      Number.isFinite(s.starDelta7d) && s.starDelta7d ? { k: "stars 7d", v: `+${s.starDelta7d}` } : null,
-      s.releases30d ? { k: "releases 30d", v: String(s.releases30d) } : null,
-      Number.isFinite(s.lastActivityDays) ? { k: "last ship", v: humanDays(s.lastActivityDays) } : null,
+      Number.isFinite(s.lastShipDays) ? { k: "since last ship", v: humanDays(s.lastShipDays) } : null,
+      s.releases30d ? { k: s.releases30d === 1 ? "release, 30d" : "releases, 30d", v: String(s.releases30d) } : null,
+      s.drops30d ? { k: s.drops30d === 1 ? "open-weight drop, 30d" : "open-weight drops, 30d", v: String(s.drops30d) } : null,
+      Number.isFinite(s.starDelta7d) && s.starDelta7d ? { k: "stars this week", v: `+${s.starDelta7d}` } : null,
+      // Age earns a chip only while it is still news. A team whose first repo
+      // is eight months old is a young team; a ten-year-old org is furniture.
+      Number.isFinite(s.oldestRepoDays) && s.oldestRepoDays <= 730
+        ? { k: "since its first repo", v: humanDays(s.oldestRepoDays) }
+        : null,
     ].filter(Boolean),
     badges: entity.badges || [],
     // Printed verbatim under the card: what the pipeline saw, and where.

@@ -313,3 +313,64 @@ describe("a sighting is not a ship", () => {
     assert.equal(row.evidence.source, "huggingface:/api/models");
   });
 });
+
+describe("cards print news, not inventory", () => {
+  // The live Unicorns cards led with "Org age 9.9y · Repos tracked 1". Neither
+  // is a fact about the company: org age is a constant, and "repos tracked" is
+  // a statement about how much of them this paper watches — a measurement
+  // artifact set in the same typeface as a finding.
+  const shipped = () =>
+    buildRegistry(
+      { releases: [release("qdrant/qdrant", 2, "v1.20.0")] },
+      { nowMs: NOW }
+    );
+
+  it("never prints org age or repo count for a decade-old company", () => {
+    const { entities } = shipped();
+    const c = buildDesk("unicorns", entities).items.find((i) => i.entityId === "qdrant");
+    const keys = c.facts.map((f) => f.k).join(" | ");
+    assert.doesNotMatch(keys, /repos tracked/i, "repos tracked is our instrument, not their news");
+    assert.doesNotMatch(keys, /^org age/i);
+  });
+
+  it("leads with when they last shipped and how often", () => {
+    const { entities } = shipped();
+    const c = buildDesk("unicorns", entities).items.find((i) => i.entityId === "qdrant");
+    const facts = c.facts.map((f) => `${f.v} ${f.k}`);
+    assert.ok(facts.some((f) => /since last ship/.test(f)), `no ship recency in ${facts}`);
+    assert.ok(facts.some((f) => /release/.test(f)), `no cadence in ${facts}`);
+    assert.equal(c.kind, "release");
+    assert.equal(c.shipped, true);
+  });
+
+  it("keeps a young team's age, which is still news", () => {
+    const { entities } = buildRegistry(
+      { repos: [repo("tiny-team/pgvectorlite", { orgAgeDays: 240, starDelta: 3100 })] },
+      { nowMs: NOW }
+    );
+    const c = buildDesk("startups", entities).items.find((i) => i.entityId === "org:tiny-team");
+    assert.ok(c.facts.some((f) => /first repo/.test(f.k)), "a team eight months old is a young team");
+  });
+
+  it("marks a trending sighting as a sighting, not as a ship", () => {
+    // The card still runs — for a small team, a repo pulling 3,000 stars in a
+    // week is the only story the pipeline can see before a first release. It
+    // must not be dressed as one.
+    const { entities } = buildRegistry(
+      { repos: [repo("tiny-team/pgvectorlite", { orgAgeDays: 240, starDelta: 3100 })] },
+      { nowMs: NOW }
+    );
+    const c = buildDesk("startups", entities).items.find((i) => i.entityId === "org:tiny-team");
+    assert.equal(c.kind, "repo");
+    assert.equal(c.shipped, false, "a sighting must never claim a ship");
+    assert.equal(c.evidence.source, "github:/search/repositories");
+  });
+
+  it("tracks the companies whose repos the paper already watched", () => {
+    // The desk read thin at fourteen tracked because nothing in the registry
+    // knew qdrant/qdrant had an owner.
+    const { entities } = shipped();
+    const tracked = buildDesk("unicorns", entities).tracked;
+    assert.ok(tracked >= 20, `only ${tracked} scaled-private companies tracked`);
+  });
+});
