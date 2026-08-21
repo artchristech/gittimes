@@ -70,6 +70,13 @@ module.exports = [
     },
   },
   {
+    // Browser-side canvas sources: ESM, bundled by esbuild, never require()d.
+    files: ["scripts/canvas/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
     ignores: ["node_modules/", "dist/", "site/", "data/", "**/.wrangler/", ".fleet/"],
   },
 ];
