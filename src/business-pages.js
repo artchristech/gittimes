@@ -150,12 +150,14 @@ function page(name, basePath, fields) {
  * rather than a thin page.
  */
 function deskDeck(desk) {
-  const shipped = desk.items.filter((i) => !i.quiet).length;
+  const shipped = desk.items.filter((i) => i.shipped || (!i.quiet && i.observed !== false)).length;
   const quiet = desk.items.filter((i) => i.quiet).length;
+  const unobserved = desk.items.filter((i) => i.observed === false).length;
   const spec = DESKS[desk.id] || {};
   const parts = [`${desk.tracked} tracked`];
   if (shipped) parts.push(`${shipped} shipped in the last ${spec.windowDays || 30} days`);
   if (quiet) parts.push(`${quiet} quiet`);
+  if (unobserved) parts.push(`${unobserved} not covered by these signals`);
   return `${parts.join(" &middot; ")}. Every figure below comes from a fetched record; nothing here is inferred.`;
 }
 
@@ -163,11 +165,15 @@ function deskDeck(desk) {
 function renderLedger(desk, basePath) {
   const rows = desk.items
     .map((row) => {
+      // Three distinct states, and conflating the last two is the bug this
+      // column exists to avoid: shipped / measured-and-silent / not measurable.
       const shipped = row.shipped
         ? `<a href="${escapeHtml(row.shippedUrl || "#")}" target="_blank" rel="noopener">${escapeHtml(row.shipped)}</a>`
-        : `<span class="ledger-quiet">nothing shipped in this window</span>`;
+        : row.observed === false
+          ? `<span class="ledger-unobserved">not covered &mdash; ships outside open weights and watched repos</span>`
+          : `<span class="ledger-quiet">nothing shipped in this window</span>`;
       return `
-      <tr${row.quiet ? ' class="ledger-row-quiet"' : ""}>
+      <tr${row.quiet ? ' class="ledger-row-quiet"' : row.observed === false ? ' class="ledger-row-unobserved"' : ""}>
         <th scope="row" class="ledger-org">
           <a href="${escapeHtml(entityPath(basePath, row.entityId))}">${escapeHtml(row.name)}</a>
           ${row.country ? `<small>${escapeHtml(row.country)}</small>` : ""}
@@ -181,7 +187,7 @@ function renderLedger(desk, basePath) {
     .join("");
   return `
     <table class="ledger-table">
-      <caption class="ledger-caption">Shipping cadence over the last 30 days. A blank ship column is the story, not a gap.</caption>
+      <caption class="ledger-caption">Shipping cadence over the last 30 days, measured from open weights and watched public repos. Labs that ship products rather than weights are marked <em>not covered</em> &mdash; this desk does not mistake its own blind spot for their silence.</caption>
       <thead>
         <tr>
           <th scope="col">Lab</th>
@@ -193,7 +199,20 @@ function renderLedger(desk, basePath) {
       </thead>
       <tbody>${rows}
       </tbody>
-    </table>`;
+    </table>${unobservedNote(desk)}`;
+}
+
+/**
+ * The coverage boundary, stated. Without this the ledger's omissions read as
+ * absence of activity — a reader who doesn't see OpenAI concludes OpenAI did
+ * nothing, which is the same error as printing "quiet" next to their name.
+ */
+function unobservedNote(desk) {
+  const names = desk.unobserved || [];
+  if (names.length === 0) return "";
+  return `<p class="ledger-note"><span class="ent-notclaimed-k">Not covered</span> ${names
+    .map((n) => escapeHtml(n))
+    .join(", ")} &mdash; they ship products rather than open weights or public repos, so this desk has no signal on them and does not infer one.</p>`;
 }
 
 /** Startups / Unicorns — cards. Same evidence contract, narrative shape. */

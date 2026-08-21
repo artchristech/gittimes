@@ -98,7 +98,12 @@ function leadEvent(entity) {
 function ledgerRow(entity) {
   const s = entity.stats;
   const ev = leadEvent(entity);
-  const quiet = !Number.isFinite(s.lastActivityDays) || s.lastActivityDays >= 30;
+  // Silence only counts as silence where we watch a channel that would show
+  // shipping. For a company we cannot see (no open weights, no watched repos)
+  // an empty window is our blind spot, and calling it "quiet" would report a
+  // measurement gap as a fact about the company.
+  const observed = s.observed !== false;
+  const quiet = observed && (!Number.isFinite(s.lastActivityDays) || s.lastActivityDays >= 30);
   return {
     entityId: entity.id,
     name: entity.name,
@@ -113,6 +118,8 @@ function ledgerRow(entity) {
     storyCount: s.storyCount,
     badges: entity.badges || [],
     quiet,
+    observed,
+    signals: s.signals || [],
     evidence: ev ? ev.evidence : null,
   };
 }
@@ -170,7 +177,11 @@ function buildDesk(deskId, entities = [], opts = {}) {
   // desks drop them, because "a startup we saw once did nothing" is not news.
   let ranked;
   if (spec.includeQuiet && spec.quietSlots) {
-    const quiet = mine.filter((e) => !active.includes(e)).sort(quietRank);
+    // Only OBSERVED companies can hold a quiet slot. An unobserved company in
+    // that slot would be the desk asserting inactivity it never measured.
+    const quiet = mine
+      .filter((e) => !active.includes(e) && e.stats.observed !== false)
+      .sort(quietRank);
     const held = quiet.slice(0, spec.quietSlots);
     ranked = active
       .slice()
@@ -196,6 +207,11 @@ function buildDesk(deskId, entities = [], opts = {}) {
     empty,
     reason: empty ? `No ${spec.label.toLowerCase()} movement inside the ${spec.windowDays}d window.` : null,
     tracked: mine.length,
+    // Rostered companies this desk cannot see. They are deliberately NOT ranked
+    // into the rows — there is nothing to rank — but the reader has to be told
+    // the coverage boundary exists, or the ledger's omissions read as absence
+    // of activity. Rendered as a footnote, not as fake rows.
+    unobserved: mine.filter((e) => e.stats.observed === false).map((e) => e.name),
   };
 }
 
@@ -251,9 +267,10 @@ function buildBusinessStrip(desks = {}) {
 function stripLine(deskId, item) {
   if (!item) return null;
   if (deskId === "bigLabs") {
+    if (item.shipped) return `${item.name} shipped ${item.shipped}`;
     return item.quiet
       ? `${item.name} has shipped nothing in ${humanDays(item.lastShippedDays)}`
-      : `${item.name} shipped ${item.shipped}`;
+      : `${item.name} ships outside the channels this desk watches`;
   }
   return item.headline ? `${item.name}: ${item.headline}` : item.name;
 }

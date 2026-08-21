@@ -12,6 +12,8 @@ const {
   classifyTier,
   deriveBadges,
   buildRegistry,
+  watchedRepos,
+  withSignals,
 } = require("../src/registry");
 
 const NOW = Date.parse("2026-07-29T00:00:00Z");
@@ -102,6 +104,43 @@ describe("harvestEvents", () => {
     const { entities } = harvestEvents({ repos: [repo("tiny-team/pgvectorlite")] }, { nowMs: NOW });
     assert.ok(entities.has("org:tiny-team"));
     assert.equal(entities.get("org:tiny-team").curated, false);
+  });
+});
+
+describe("watched repos + signals", () => {
+  it("contributes the roster's own repos to the releases watchlist", () => {
+    // The registry was downstream of feeds that never looked at its roster:
+    // Vercel and Supabase push daily and nothing was watching them.
+    const repos = watchedRepos();
+    assert.ok(repos.includes("vercel/next.js"));
+    assert.ok(repos.includes("supabase/supabase"));
+    assert.equal(new Set(repos).size, repos.length, "watchlist must be deduped");
+  });
+
+  it("marks weights publishers and repo-shippers as observed", () => {
+    assert.deepEqual(withSignals({ id: "deepseek" }).signals, ["weights"]);
+    assert.deepEqual(withSignals({ id: "supabase" }).signals, ["repos"]);
+    assert.deepEqual(withSignals({ id: "huggingface" }).signals, ["weights", "repos"]);
+  });
+
+  it("marks product-shipping companies as unobserved rather than silent", () => {
+    for (const id of ["openai", "anthropic", "perplexity", "anysphere"]) {
+      assert.deepEqual(withSignals({ id }).signals, [], `${id} has no watched channel`);
+    }
+  });
+
+  it("carries observability into the rollup", () => {
+    const { entities } = buildRegistry({ modelDrops: [] }, { nowMs: NOW });
+    assert.equal(entities.find((e) => e.id === "openai").stats.observed, false);
+    assert.equal(entities.find((e) => e.id === "deepseek").stats.observed, true);
+  });
+
+  it("treats a provisional org as observed — it arrived through a channel we watch", () => {
+    const { entities } = buildRegistry(
+      { repos: [repo("tiny-team/thing", { orgAgeDays: 300, starDelta: 900 })] },
+      { nowMs: NOW }
+    );
+    assert.equal(entities.find((e) => e.id === "org:tiny-team").stats.observed, true);
   });
 });
 

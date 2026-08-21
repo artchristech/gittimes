@@ -10,14 +10,14 @@ const { sendNewsletter } = require("./src/newsletter");
 const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
 const { fetchModelDrops } = require("./src/model-drops");
-const { fetchGitHubReleases } = require("./src/github-releases");
+const { fetchGitHubReleases, WATCHED_REPOS } = require("./src/github-releases");
 const { fetchPushups, collectFeaturedRepos } = require("./src/pushups");
 const { renderAIWire } = require("./src/render");
 const { generateEditionPromo } = require("./src/promo");
 const { writePromosPage } = require("./src/promos-page");
 const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
-const { buildRegistry } = require("./src/registry");
+const { buildRegistry, watchedRepos } = require("./src/registry");
 const { buildBusinessDesks, buildBusinessStrip } = require("./src/desks");
 const { writeBusinessPages } = require("./src/business-pages");
 const {
@@ -136,7 +136,16 @@ async function main() {
     modelDropsOff ? Promise.resolve([]) : fetchModelDrops({ limit: 6 }),
     ghReleasesOff
       ? Promise.resolve([])
-      : fetchGitHubReleases({ limit: 5, token: githubToken, suppressRepos: releaseCooldown }),
+      : fetchGitHubReleases({
+          limit: 5,
+          token: githubToken,
+          suppressRepos: releaseCooldown,
+          // The registry's rostered companies ship in repos the AI-infra
+          // watchlist never looked at, which is why the Startups and Unicorns
+          // desks came up empty against live data while Vercel and Supabase
+          // were pushing daily. Deduped; the base list keeps priority.
+          repos: [...new Set([...WATCHED_REPOS, ...watchedRepos()])],
+        }),
   ]);
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 

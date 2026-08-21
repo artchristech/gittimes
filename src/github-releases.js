@@ -19,7 +19,11 @@
 const { ageDays } = require("./recency");
 
 // Hard ceiling on per-run API calls — the watchlist IS the request budget.
-const MAX_WATCHED = 60;
+// Raised from 60 when the company registry started contributing its roster's
+// repos: the base list alone is 47, and silently truncating the registry's
+// additions would have reproduced the exact bug they fix (a rostered company
+// nothing is watching).
+const MAX_WATCHED = 90;
 
 // Repos whose releases are wire-worthy the moment they land, even when the
 // repo isn't in today's trending set. Curated and grouped for easy editing;

@@ -120,6 +120,16 @@ describe("renderDeskPage", () => {
     assert.equal(html.includes("no source on file"), false);
   });
 
+  it("distinguishes 'not covered' from 'nothing shipped' on the ledger", () => {
+    const { entities } = fixture();
+    const html = renderDeskPage(buildDesk("bigLabs", entities));
+    assert.match(html, /does not mistake its own blind spot for their silence/);
+    // The coverage boundary is stated rather than left as an omission.
+    assert.match(html, /Not covered/);
+    assert.match(html, /OpenAI/);
+    assert.match(html, /ship products rather than open weights/);
+  });
+
   it("gives a dark desk a designed empty state that says why", () => {
     const { entities } = buildRegistry({ modelDrops: [drop("Qwen/Qwen3-Next", 1)] }, { nowMs: NOW });
     const html = renderDeskPage(buildDesk("unicorns", entities));

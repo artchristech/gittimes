@@ -61,12 +61,12 @@ const SEED_ENTITIES = [
   { id: "mistral", name: "Mistral AI", tier: TIER_BIG_LAB, country: "FR", github: ["mistralai"], hf: ["mistralai"], domains: ["mistral.ai"] },
   { id: "deepseek", name: "DeepSeek", tier: TIER_BIG_LAB, country: "CN", github: ["deepseek-ai"], hf: ["deepseek-ai"], domains: ["deepseek.com"] },
   { id: "qwen", name: "Qwen", tier: TIER_BIG_LAB, country: "CN", github: ["QwenLM"], hf: ["Qwen"], domains: ["qwen.ai"] },
-  { id: "xai", name: "xAI", tier: TIER_BIG_LAB, country: "US", github: ["xai-org"], hf: ["xai-org"], domains: ["x.ai"] },
+  { id: "xai", name: "xAI", tier: TIER_BIG_LAB, country: "US", github: ["xai-org"], hf: ["xai-org"], domains: ["x.ai", "x-ai"] },
   { id: "ai2", name: "Allen Institute for AI", tier: TIER_BIG_LAB, country: "US", github: ["allenai"], hf: ["allenai"], domains: ["allenai.org"] },
   { id: "cohere", name: "Cohere", tier: TIER_BIG_LAB, country: "CA", github: ["cohere-ai"], hf: ["CohereForAI", "CohereLabs"], domains: ["cohere.com"] },
   { id: "ai21", name: "AI21 Labs", tier: TIER_BIG_LAB, country: "IL", github: ["AI21Labs"], hf: ["ai21labs"], domains: ["ai21.com"] },
   { id: "moonshot", name: "Moonshot AI", tier: TIER_BIG_LAB, country: "CN", github: ["MoonshotAI"], hf: ["moonshotai"], domains: ["moonshot.cn"] },
-  { id: "zhipu", name: "Z.ai / Zhipu", tier: TIER_BIG_LAB, country: "CN", github: ["THUDM", "zai-org"], hf: ["THUDM", "zai-org"], domains: ["z.ai"] },
+  { id: "zhipu", name: "Z.ai / Zhipu", tier: TIER_BIG_LAB, country: "CN", github: ["THUDM", "zai-org"], hf: ["THUDM", "zai-org"], domains: ["z.ai", "z-ai"] },
   { id: "bytedance", name: "ByteDance", tier: TIER_BIG_LAB, country: "CN", github: ["bytedance"], hf: ["bytedance-research", "ByteDance"], domains: ["bytedance.com"] },
   { id: "tencent", name: "Tencent", tier: TIER_BIG_LAB, country: "CN", github: ["Tencent"], hf: ["tencent"], domains: ["tencent.com"] },
   { id: "alibaba", name: "Alibaba", tier: TIER_BIG_LAB, country: "CN", github: ["alibaba"], hf: ["Alibaba-NLP"], domains: ["alibaba.com"] },
@@ -94,6 +94,72 @@ const SEED_ENTITIES = [
   { id: "modal", name: "Modal", tier: TIER_UNICORN, country: "US", github: ["modal-labs"], hf: [], domains: ["modal.com"] },
   { id: "fireworks", name: "Fireworks AI", tier: TIER_UNICORN, country: "US", github: ["fw-ai"], hf: ["fireworks-ai"], domains: ["fireworks.ai"] },
 ];
+
+// --- Observability: which companies we can actually SEE ---------------------
+//
+// The ledger measures open weights and public repos. That is a complete view of
+// a lab like DeepSeek and a near-blind one for OpenAI or Anthropic, who ship
+// products. Reporting "nothing shipped in this window" about a company whose
+// shipping channel we do not watch is not a finding — it is our instrument
+// reporting its own blind spot as news, in a section whose entire premise is
+// that claims come from fetched records.
+//
+// So every entity declares which public channels we watch:
+//   "weights" — publishes open weights; a drop-less window is meaningful.
+//   "repos"   — ships in public repos we watch; a release-less window is meaningful.
+//   (none)    — we have no channel that would reveal their shipping. Such a
+//               company is never called quiet; it is marked NOT COVERED.
+const SIGNAL_WEIGHTS = "weights";
+const SIGNAL_REPOS = "repos";
+
+// Labs whose primary releases land as open weights on Hugging Face.
+const WEIGHTS_PUBLISHERS = new Set([
+  "google-deepmind", "meta-ai", "microsoft", "nvidia", "mistral", "deepseek",
+  "qwen", "xai", "ai2", "cohere", "ai21", "moonshot", "zhipu", "bytedance",
+  "tencent", "alibaba", "apple", "ibm", "stability", "black-forest-labs",
+  "kyutai", "internlm", "01ai", "huggingface",
+]);
+
+// Public repos where a company actually ships, keyed by entity. This is the fix
+// for the registry being downstream of feeds that never looked at its roster:
+// Vercel and Supabase push constantly, and nothing in the pipeline was watching.
+// Each entry costs one API call per run — keep it to repos where a release is a
+// real product event, not SDK version churn.
+// PRODUCT repos only. A first pass here included client SDKs
+// (`databricks-sdk-py`, `elevenlabs-python`, `together-python`, `groq-python`,
+// `modal-client`) and the Unicorns desk immediately filled with
+// `elevenlabs-python v2.64.0`-class rows. That is changelog, not news — the
+// same reason Just Shipped was demoted off the front page. A company earns a
+// row here only where a release is a product event.
+const COMPANY_REPOS = {
+  huggingface: ["huggingface/transformers", "huggingface/diffusers"],
+  vercel: ["vercel/next.js", "vercel/ai"],
+  supabase: ["supabase/supabase"],
+  ollama: ["ollama/ollama"],
+  langchain: ["langchain-ai/langchain", "langchain-ai/langgraph"],
+  "meta-ai": ["pytorch/pytorch"],
+};
+
+/** Attach `signals` + `repos` to a roster entry from the policy tables above. */
+function withSignals(entity) {
+  const repos = COMPANY_REPOS[entity.id] || [];
+  const signals = [];
+  if (WEIGHTS_PUBLISHERS.has(entity.id)) signals.push(SIGNAL_WEIGHTS);
+  if (repos.length > 0) signals.push(SIGNAL_REPOS);
+  return { ...entity, repos, signals };
+}
+
+/**
+ * Every repo the registry wants watched, for the releases firehose. Merging
+ * this into the fetcher's watchlist is what lets a rostered company's shipping
+ * reach the desks at all.
+ * @returns {string[]}
+ */
+function watchedRepos(entities = SEED_ENTITIES) {
+  const out = new Set();
+  for (const e of entities) for (const r of COMPANY_REPOS[e.id] || []) out.add(r);
+  return [...out];
+}
 
 // --- Identity --------------------------------------------------------------
 
@@ -189,7 +255,9 @@ function harvestEvents(sources = {}, opts = {}) {
   } = opts;
 
   const index = buildAliasIndex(seed);
-  const byId = new Map(seed.filter((e) => e && e.id).map((e) => [e.id, { ...e, curated: true }]));
+  const byId = new Map(
+    seed.filter((e) => e && e.id).map((e) => [e.id, { ...withSignals(e), curated: true }])
+  );
   const events = [];
 
   // An artifact from an unknown org creates that org as a provisional entity
@@ -308,6 +376,12 @@ function rollUp(entity, events = [], opts = {}) {
     starDelta7d: starDelta || null,
     oldestRepoDays: Number.isFinite(entity.oldestRepoDays) ? entity.oldestRepoDays : null,
     openWeights: drops.length > 0,
+    // Whether ANY channel we watch would reveal this company's shipping. False
+    // means silence is our blind spot, not their quarter — the desks must not
+    // report it as inactivity. Provisional orgs arrive via a repo or a drop, so
+    // by construction we can see them.
+    observed: Array.isArray(entity.signals) ? entity.signals.length > 0 : true,
+    signals: Array.isArray(entity.signals) ? entity.signals : [],
     // From the DB, not the wire: how long this paper has been covering them.
     storyCount: history.storyCount || 0,
     firstSeen: history.firstSeen || null,
@@ -403,6 +477,12 @@ const byActivity = (a, b) => {
 
 module.exports = {
   SEED_ENTITIES,
+  WEIGHTS_PUBLISHERS,
+  COMPANY_REPOS,
+  SIGNAL_WEIGHTS,
+  SIGNAL_REPOS,
+  withSignals,
+  watchedRepos,
   TIERS,
   TIER_BIG_LAB,
   TIER_UNICORN,

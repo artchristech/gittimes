@@ -100,6 +100,45 @@ describe("buildDesk — Big Labs", () => {
   });
 });
 
+describe("observability — silence vs. blind spot", () => {
+  it("never calls a lab quiet when it ships outside the channels we watch", () => {
+    // OpenAI and Anthropic ship products, not weights, and have no watched
+    // repos. The old ledger printed "nothing shipped in this window" about
+    // companies that shipped that week — reporting our blind spot as news.
+    const { entities } = fixture();
+    const desk = buildDesk("bigLabs", entities);
+    for (const id of ["openai", "anthropic"]) {
+      const row = desk.items.find((i) => i.entityId === id);
+      if (!row) continue;
+      assert.equal(row.quiet, false, `${id} must not be labelled quiet`);
+      assert.equal(row.observed, false);
+    }
+  });
+
+  it("still calls an open-weights lab quiet when it genuinely goes dark", () => {
+    // The fix must not blunt the actual finding: Mistral publishes weights, so
+    // a silent window IS measured and IS the story.
+    const history = new Map([["mistral", { storyCount: 40, firstSeen: "2026-01-02" }]]);
+    const { entities } = buildRegistry({ modelDrops: [drop("Qwen/Qwen3-Next", 1)] }, { nowMs: NOW, history });
+    const row = buildDesk("bigLabs", entities).items.find((i) => i.quiet);
+    assert.equal(row.entityId, "mistral");
+    assert.equal(row.observed, true);
+  });
+
+  it("keeps unobserved companies out of the reserved quiet slots", () => {
+    const { entities } = fixture();
+    const desk = buildDesk("bigLabs", entities);
+    for (const row of desk.items.filter((i) => i.quiet)) assert.equal(row.observed, true);
+  });
+
+  it("declares which signals it watched for each company", () => {
+    const { entities } = fixture();
+    const desk = buildDesk("bigLabs", entities);
+    const ds = desk.items.find((i) => i.entityId === "deepseek");
+    assert.ok(ds.signals.includes("weights"));
+  });
+});
+
 describe("buildDesk — Startups", () => {
   it("selects derived small teams, capped at the desk budget", () => {
     const { entities } = fixture();
