@@ -23,14 +23,32 @@ const TRUSTED_ORGS = new Set([
 ]);
 
 // Community repackages/quantizations — a re-host of someone else's drop, not the
-// primary event. Kept out of the band unless the author is itself a trusted lab.
-const QUANT_RE = /[-_.](gguf|gptq|awq|exl2|exl3|mlx|bnb|4bit|8bit|int4|int8|fp8|onnx|mlc)$/i;
+// primary event. A quantization is a packaging change, never the event itself,
+// so these are excluded for EVERYONE now: the old "unless the author is trusted"
+// exemption is what put `unsloth/Qwen3.8-27B-GGUF` in the band directly beneath
+// the `Qwen/Qwen3.8-27B` it repackages. Being a trusted lab earns you early
+// coverage of your own releases, not a second slot for a re-host.
+// nvfp4/mxfp4/w4a16/w8a8 are the newer hardware-specific quant formats; without
+// them an `…-30B-A3B-NVFP4` repackage still took a slot from a real release.
+const QUANT_RE = /[-_.](gguf|gptq|awq|exl2|exl3|mlx|bnb|4bit|8bit|int4|int8|fp8|nvfp4|mxfp4|w4a16|w8a8|onnx|mlc)$/i;
 
 // HF tags that mark a model as DERIVED from someone else's release (a finetune,
 // merge, adapter, or quant) rather than a primary "drop". `base_model:<kind>:<id>`
 // is HF's canonical lineage tag; `merge`/`mergekit` are the bare merge markers.
 const DERIVATIVE_TAG_RE = /^base_model:(finetune|merge|adapter|quantized):/i;
 const DERIVATIVE_BARE = new Set(["merge", "mergekit"]);
+// The base model's OWNER, pulled out of `base_model:<kind>:<owner>/<name>`. A lab
+// building on its own prior work is shipping; a third party rebuilding someone
+// else's weights is repackaging. Only the lineage tag can tell those apart.
+const BASE_OWNER_RE = /^base_model:(?:finetune|merge|adapter|quantized):([^/]+)\//i;
+
+function baseOwner(tags) {
+  for (const t of tags) {
+    const m = BASE_OWNER_RE.exec(t);
+    if (m) return m[1];
+  }
+  return null;
+}
 // Roleplay / uncensored community models — never front-page news for a builder
 // paper, and the single biggest source of "ridiculous drop" noise (e.g. the
 // `-Claude-Mythos` uncensored Qwen finetunes that out-like real releases).
@@ -56,9 +74,14 @@ function selectModelDrops(models, opts = {}) {
     nowMs = Date.now(),
     gravity = 1.3,
     trustedBoost = 3,
+    // No single lab may own the band. Four of six slots going to one vendor
+    // (2026-08-15: three Qwen models plus a re-host of one of them) reads as a
+    // fan page, not a wire — and it buries every other lab that shipped.
+    maxPerAuthor = 2,
   } = opts;
   if (!Array.isArray(models)) return [];
   const seen = new Set();
+  const perAuthor = new Map();
   // Freshness-decayed traction: what's NEW and getting picked up, not whatever
   // accreted the most likes across the whole window. Without this, the highest-
   // like model sits pinned at #1 for days and the band reads as "never updates".
@@ -78,8 +101,14 @@ function selectModelDrops(models, opts = {}) {
         downloads: m.downloads || 0,
         age: ageDays(m.createdAt, nowMs),
         trusted: TRUSTED_ORGS.has(author),
-        quant: QUANT_RE.test(m.id),
+        quant: QUANT_RE.test(m.id) || /^base_model:quantized:/i.test(tags.find((t) => /^base_model:quantized:/i.test(t)) || ""),
         derivative: isDerivative(tags),
+        // Null when HF carries no lineage tag — treated as "own work" so an
+        // untagged primary release is never mistaken for a repackage.
+        rehost: (() => {
+          const owner = baseOwner(tags);
+          return owner != null && owner.toLowerCase() !== author.toLowerCase();
+        })(),
         roleplay: isRoleplay(tags),
       };
     })
@@ -87,9 +116,15 @@ function selectModelDrops(models, opts = {}) {
     .filter((x) => x.age <= windowDays)
     // Roleplay / uncensored community models are never a builder-paper drop.
     .filter((x) => !x.roleplay)
+    // A quantization is a packaging change, not a release. No exemptions — this
+    // is what kept a GGUF re-host sitting under the model it repackaged.
+    .filter((x) => !x.quant)
+    // Rebuilding ANOTHER lab's weights is repackaging, however trusted you are.
+    // Building on your own prior work still counts as shipping.
+    .filter((x) => !x.rehost)
     // A trusted lab is news immediately. Everyone else must be a PRIMARY release
-    // (not a finetune/merge/adapter/quant re-host) WITH real community traction.
-    .filter((x) => x.trusted || (!x.derivative && !x.quant && x.likes >= minLikes))
+    // (not a finetune/merge/adapter) WITH real community traction.
+    .filter((x) => x.trusted || (!x.derivative && x.likes >= minLikes))
     .filter((x) => {
       if (seen.has(x.m.id)) return false;
       seen.add(x.m.id);
@@ -97,6 +132,12 @@ function selectModelDrops(models, opts = {}) {
     })
     // Freshest, most-picked-up first; downloads break ties.
     .sort((a, b) => dropScore(b) - dropScore(a) || b.downloads - a.downloads)
+    // Cap AFTER ranking so each lab's best drop is the one that survives.
+    .filter((x) => {
+      const n = (perAuthor.get(x.author) || 0) + 1;
+      perAuthor.set(x.author, n);
+      return n <= maxPerAuthor;
+    })
     .slice(0, limit)
     .map((x) => ({
       id: x.m.id,

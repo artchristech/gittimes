@@ -14,6 +14,83 @@ const M = (id, likes, ageDays, extra = {}) => ({
   tags: extra.tags ?? [],
 });
 
+describe("selectModelDrops — band de-duplication", () => {
+  // All four regressions below shipped together on the 2026-08-15 front page:
+  // Qwen took three of six slots and unsloth took a fourth with a GGUF of the
+  // Qwen model sitting directly above it.
+  it("caps one lab at two slots so the band is not a fan page", () => {
+    const out = selectModelDrops(
+      [
+        M("Qwen/a", 900, 1),
+        M("Qwen/b", 800, 1),
+        M("Qwen/c", 700, 1),
+        M("Qwen/d", 600, 1),
+        M("deepseek-ai/x", 100, 2),
+        M("google/y", 90, 2),
+      ],
+      { nowMs: NOW }
+    );
+    const qwen = out.filter((d) => d.author === "Qwen");
+    assert.equal(qwen.length, 2);
+    assert.deepEqual(qwen.map((d) => d.id), ["Qwen/a", "Qwen/b"], "each lab's best drops survive the cap");
+    assert.ok(out.some((d) => d.author === "deepseek-ai"), "other labs get the freed slots");
+  });
+
+  it("keeps a trusted lab's GGUF re-host of another lab's model out of the band", () => {
+    const out = selectModelDrops(
+      [
+        M("Qwen/Qwen3.8-27B", 500, 1),
+        M("unsloth/Qwen3.8-27B-GGUF", 900, 1, {
+          tags: ["base_model:quantized:Qwen/Qwen3.8-27B"],
+        }),
+      ],
+      { nowMs: NOW }
+    );
+    assert.deepEqual(out.map((d) => d.id), ["Qwen/Qwen3.8-27B"]);
+  });
+
+  it("drops a quantization even from a trusted lab publishing its own", () => {
+    // A quantization is a packaging change, not a release event.
+    const out = selectModelDrops([M("Qwen/Qwen3.8-27B-FP8", 900, 1)], { nowMs: NOW });
+    assert.deepEqual(out, []);
+  });
+
+  it("still runs a lab building on its OWN prior work", () => {
+    const out = selectModelDrops(
+      [M("Qwen/Qwen3.8-Instruct", 300, 1, { tags: ["base_model:finetune:Qwen/Qwen3.8-27B"] })],
+      { nowMs: NOW }
+    );
+    assert.deepEqual(out.map((d) => d.id), ["Qwen/Qwen3.8-Instruct"]);
+  });
+
+  it("treats an untagged release as own work, never as a repackage", () => {
+    const out = selectModelDrops([M("deepseek-ai/DeepSeek-V4-Pro", 200, 1)], { nowMs: NOW });
+    assert.equal(out.length, 1);
+  });
+
+  it("catches the newer hardware quant formats too", () => {
+    // Live band, 2026-08-15 after the first fix: an NVFP4 repackage still held
+    // a slot because the pattern only knew the older format names.
+    const out = selectModelDrops(
+      [
+        M("nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4", 900, 1),
+        M("nvidia/Nemotron-3.5-Lightning-30B-A3B-MXFP4", 900, 1),
+        M("nvidia/Nemotron-3.5-Lightning-30B", 100, 1),
+      ],
+      { nowMs: NOW }
+    );
+    assert.deepEqual(out.map((d) => d.id), ["nvidia/Nemotron-3.5-Lightning-30B"]);
+  });
+
+  it("respects an explicit maxPerAuthor", () => {
+    const out = selectModelDrops([M("Qwen/a", 900, 1), M("Qwen/b", 800, 1)], {
+      nowMs: NOW,
+      maxPerAuthor: 1,
+    });
+    assert.equal(out.length, 1);
+  });
+});
+
 describe("selectModelDrops", () => {
   it("keeps recent high-traction drops, ranked biggest-first", () => {
     const out = selectModelDrops([M("acme/small", 90, 3), M("acme/big", 900, 5)], { nowMs: NOW });
@@ -74,12 +151,18 @@ describe("selectModelDrops", () => {
     assert.equal(out[0].author, "Qwen");
   });
 
-  it("excludes a community quantization re-host but keeps a trusted one", () => {
+  it("excludes every quantization, trusted author or not", () => {
+    // POLICY CHANGE (2026-08-15): this test previously asserted that a trusted
+    // lab's own GGUF was KEPT. That exemption is what put
+    // `unsloth/Qwen3.8-27B-GGUF` in the live band directly beneath the
+    // `Qwen/Qwen3.8-27B` it repackages. A quantization is a packaging change,
+    // not a release — trust now buys early coverage of primary work, not a
+    // slot for a repackage.
     const out = selectModelDrops(
-      [M("bloke/Something-GGUF", 500, 2), M("Qwen/Qwen9-GGUF", 5, 2)],
+      [M("bloke/Something-GGUF", 500, 2), M("Qwen/Qwen9-GGUF", 5, 2), M("Qwen/Qwen9", 5, 2)],
       { nowMs: NOW }
     );
-    assert.deepEqual(out.map((d) => d.id), ["Qwen/Qwen9-GGUF"]);
+    assert.deepEqual(out.map((d) => d.id), ["Qwen/Qwen9"]);
   });
 
   it("dedupes by id", () => {
@@ -107,7 +190,10 @@ describe("selectModelDrops", () => {
   });
 
   it("respects limit", () => {
-    const many = Array.from({ length: 10 }, (_, i) => M(`acme/m${i}`, 100 + i, 1));
+    // One author per model: the per-author cap and `limit` are separate gates,
+    // and this test is about `limit`. (The old fixture put all ten under
+    // `acme`, so the cap would decide the count instead.)
+    const many = Array.from({ length: 10 }, (_, i) => M(`acme${i}/m${i}`, 100 + i, 1));
     assert.equal(selectModelDrops(many, { nowMs: NOW, limit: 3 }).length, 3);
   });
 });
