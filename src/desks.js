@@ -248,8 +248,24 @@ function buildBusinessDesks(entities = [], opts = {}) {
  * sections for slots, same shape that worked for the Model Drops band.
  * @param {object} desks - buildBusinessDesks() output
  */
-function buildBusinessStrip(desks = {}) {
-  return DESK_ORDER.map((id) => {
+function buildBusinessStrip(desks = {}, opts = {}) {
+  // The Price Board leads the strip when it has a mover. A lab changing what it
+  // charges is a harder, more decision-relevant fact than a repo getting tagged,
+  // and unlike release cadence it is a number the reader can act on.
+  const priceRow = opts.priceBoard
+    ? [
+        {
+          deskId: "prices",
+          label: "Price Board",
+          slug: "prices",
+          line: opts.priceHeadline || null,
+          signal: (opts.priceBoard.movers || []).length > 0 ? "up" : "quiet",
+          url: null,
+        },
+      ]
+    : [];
+
+  return priceRow.concat(DESK_ORDER.map((id) => {
     const desk = desks[id];
     if (!desk) return null;
     const top = desk.items[0];
@@ -261,7 +277,7 @@ function buildBusinessStrip(desks = {}) {
       signal: desk.empty ? "quiet" : signalFor(id, desk),
       url: top ? top.url || top.shippedUrl || null : null,
     };
-  }).filter(Boolean);
+  })).filter(Boolean);
 }
 
 function stripLine(deskId, item) {

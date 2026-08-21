@@ -570,6 +570,60 @@ function saveModelPrices(dataDir, dateStr, models) {
 }
 
 /**
+ * The whole price tape for a window, newest date first, in the shape the Price
+ * Board consumes.
+ *
+ * Keyed on `model_id` (the upstream OpenRouter id) rather than our curated
+ * roster key. That is the fix for identity drift: our key is an editorial label
+ * and can be re-cut at the desk, while the id is assigned upstream and stays
+ * put for a model's whole life. Joining a series on an editorial label means
+ * the series breaks whenever the desk renames something.
+ *
+ * Promotional fields ride along so the board can tell a promo LAPSING from a
+ * genuine price rise — from a single day's row those look identical, and
+ * reporting an introductory period ending as "Anthropic raised prices 50%"
+ * would be a fabricated finding.
+ *
+ * @param {string} dataDir
+ * @param {number} [sinceDays] - omit for the entire tape
+ * @returns {Array<{date: string, models: Array<object>}>}
+ */
+function loadPriceTape(dataDir, sinceDays) {
+  const db = getDb(dataDir);
+  const rows = Number.isFinite(sinceDays)
+    ? db
+        .prepare(
+          `SELECT date, model_id, provider, input, output, is_promotional,
+                  promo_ends_on, list_input, list_output
+           FROM model_prices WHERE date >= date('now', ?) ORDER BY date DESC`
+        )
+        .all(`-${Math.floor(sinceDays)} days`)
+    : db
+        .prepare(
+          `SELECT date, model_id, provider, input, output, is_promotional,
+                  promo_ends_on, list_input, list_output
+           FROM model_prices ORDER BY date DESC`
+        )
+        .all();
+
+  const byDate = new Map();
+  for (const r of rows) {
+    if (!byDate.has(r.date)) byDate.set(r.date, []);
+    byDate.get(r.date).push({
+      id: r.model_id,
+      provider: r.provider || "",
+      input: r.input,
+      output: r.output,
+      isPromotional: r.is_promotional === 1,
+      promoEndsOn: r.promo_ends_on || null,
+      listInput: r.list_input,
+      listOutput: r.list_output,
+    });
+  }
+  return [...byDate.entries()].map(([date, models]) => ({ date, models }));
+}
+
+/**
  * Load the price series for one model, oldest first.
  * @param {string} dataDir
  * @param {string} modelId
@@ -867,6 +921,7 @@ module.exports = {
   saveSnapshot,
   saveModelPrices,
   loadModelPrices,
+  loadPriceTape,
   migrateFromJson,
   recordPlacements,
   getEditionPlacements,

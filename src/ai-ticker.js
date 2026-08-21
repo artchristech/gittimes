@@ -103,6 +103,11 @@ async function fetchOpenRouterPrices(trackedModels) {
 // --- Snapshot system (30-day rolling history) ---
 
 const HISTORY_FILE = ".ai-ticker-history.json";
+// Rolling window for the banner's day-over-day delta. Retention stays short on
+// purpose: the durable price series is the `model_prices` tape in SQLite, which
+// is never pruned and joins on the upstream model id. Two stores with two
+// retention policies is what made this look like a data-loss bug in the first
+// place — this one is a cache, not the record.
 const MAX_HISTORY_DAYS = 30;
 
 function loadHistory(outDir) {
@@ -226,6 +231,11 @@ async function getTickerData(outDir) {
 
     return {
       key: m.key,
+      // The upstream model id, carried through so downstream consumers can join
+      // a price series on a STABLE identity. `key` is an editorial label that
+      // gets re-cut at the desk; the id is assigned upstream and does not move.
+      // Without this the Price Board silently fell back to joining on `key`.
+      openrouterId: m.openrouterId || null,
       label: m.label,
       provider: m.provider,
       input: current.input,

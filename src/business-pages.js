@@ -276,6 +276,87 @@ function renderDeskPage(desk, options = {}) {
   });
 }
 
+// --- The Price Board -------------------------------------------------------
+
+const money = (n) => (n >= 1 ? `$${Number(n).toFixed(2)}` : `$${Number(n).toFixed(3)}`);
+
+function moveCell(row) {
+  // An unknown is stated, never rendered as "unchanged" — that would be the
+  // price-desk version of calling a lab quiet because we weren't watching.
+  if (row.noBaseline) return `<span class="pb-none">no baseline in window</span>`;
+  if (row.direction === "flat") return `<span class="pb-flat">unchanged</span>`;
+  const arrow = row.direction === "cut" ? "&#9660;" : "&#9650;";
+  const cls = row.direction === "cut" ? "pb-cut" : "pb-hike";
+  return `<span class="${cls}">${arrow} ${Math.abs(row.movePct).toFixed(1)}%</span>`;
+}
+
+/**
+ * The Price Board page. What each frontier model costs, and who moved inside
+ * the window — the only proprietary time series this project keeps, and until
+ * now the only one no desk read.
+ * @param {object} board - buildPriceBoard() output
+ * @param {object} [options] - { basePath }
+ */
+function renderPriceBoardPage(board, options = {}) {
+  const basePath = options.basePath || "";
+
+  if (!board || board.rows.length === 0) {
+    return page("business", basePath, {
+      title: "The Git Times — Price Board",
+      desc: "What the frontier labs charge per million tokens, and who moved.",
+      kicker: "Price Board",
+      headline: "Price Board",
+      deck: "No pricing data available for this edition.",
+      body: `<div class="biz-empty"><p class="biz-empty-head">Board is dark</p><p>The pricing sync produced no tracked models for this edition.</p></div>${notClaimedHtml()}`,
+    });
+  }
+
+  const rows = board.rows
+    .map((r) => {
+      const name = r.entityId
+        ? `<a href="${escapeHtml(entityPath(basePath, r.entityId))}">${escapeHtml(r.lab)}</a>`
+        : escapeHtml(r.lab);
+      const was = r.wasOutput != null ? `<small>was ${escapeHtml(money(r.wasOutput))}</small>` : "";
+      return `
+      <tr class="pb-row-${escapeHtml(r.direction)}">
+        <th scope="row" class="pb-model">${escapeHtml(r.label)}<small>${name}</small></th>
+        <td class="ledger-num">${escapeHtml(money(r.input))}</td>
+        <td class="ledger-num">${escapeHtml(money(r.output))}${was}</td>
+        <td class="ledger-num">${moveCell(r)}</td>
+      </tr>`;
+    })
+    .join("");
+
+  const baseline = board.baselineDate
+    ? `Compared against ${escapeHtml(board.baselineDate)} (${board.baselineAgeDays} days ago), the oldest snapshot inside the ${board.windowDays}-day window.`
+    : `No snapshot in the ${board.windowDays}-day window is old enough to compare against yet, so no row shows a move.`;
+
+  const body = `
+    <table class="ledger-table price-board">
+      <caption class="ledger-caption">Published list price per million tokens, from the daily OpenRouter sync. ${baseline}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Model</th>
+          <th scope="col" class="ledger-num">$/M in</th>
+          <th scope="col" class="ledger-num">$/M out</th>
+          <th scope="col" class="ledger-num">Change</th>
+        </tr>
+      </thead>
+      <tbody>${rows}
+      </tbody>
+    </table>
+    <p class="ledger-note"><span class="ent-notclaimed-k">Coverage</span> ${board.covered} of ${board.rows.length} models have a baseline in the window; the rest are listed at current price with no change shown. Snapshots exist only for days the paper published, so the series is deliberately sparse rather than interpolated.</p>`;
+
+  return page("business", basePath, {
+    title: "The Git Times — Price Board",
+    desc: "What the frontier labs charge per million tokens, and who moved.",
+    kicker: "Price Board",
+    headline: "Price Board",
+    deck: `${board.rows.length} frontier models &middot; ${board.movers.length} moved inside ${board.windowDays} days. A price cut is strategy made public.`,
+    body: body + notClaimedHtml(),
+  });
+}
+
 // --- Company index ---------------------------------------------------------
 
 /**
@@ -454,8 +535,13 @@ function writePage(dir, html) {
  * @returns {{ desks: number, companies: number, paths: string[] }}
  */
 function writeBusinessPages(outDir, args = {}) {
-  const { desks = {}, entities = [], getTimeline = () => [], basePath = "" } = args;
+  const { desks = {}, entities = [], getTimeline = () => [], basePath = "", priceBoard = null } = args;
   const paths = [];
+
+  if (priceBoard) {
+    writePage(path.join(outDir, "prices"), renderPriceBoardPage(priceBoard, { basePath }));
+    paths.push("/prices/");
+  }
 
   for (const id of DESK_ORDER) {
     const desk = desks[id];
@@ -492,6 +578,7 @@ module.exports = {
   assignSlugs,
   selectPageableEntities,
   renderDeskPage,
+  renderPriceBoardPage,
   renderCompanyIndexPage,
   renderEntityPage,
   writeBusinessPages,

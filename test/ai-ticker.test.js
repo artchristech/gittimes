@@ -268,15 +268,33 @@ describe("enriched model data", () => {
 
 describe("curated data integrity", () => {
   it("loads tracked models from curated config", () => {
-    assert.ok(TRACKED_MODELS.length >= 10);
+    // Asserts INVARIANTS, not membership. The roster is editorial and must
+    // rotate as labs ship — pinning specific keys (it previously pinned
+    // claude-fable-5, gpt-5.5, grok-4.5) means every legitimate refresh breaks
+    // the suite and teaches you to edit the test instead of reading it.
+    assert.ok(TRACKED_MODELS.length >= 10, "roster should cover the frontier");
     const keys = TRACKED_MODELS.map((m) => m.key);
-    assert.ok(keys.includes("claude-fable-5"));
-    assert.ok(keys.includes("gpt-5.5"));
-    assert.ok(keys.includes("gemini-3.1-pro"));
-    assert.ok(keys.includes("grok-4.5"));
-    assert.ok(keys.includes("deepseek-v4-pro"));
+    assert.equal(new Set(keys).size, keys.length, "duplicate roster key");
     for (const m of TRACKED_MODELS) {
       assert.ok(m.provider, `${m.key} missing provider`);
+      assert.ok(m.label, `${m.key} missing label`);
+      // The id is the stable identity the price tape joins on, so it must be
+      // a namespaced upstream id and not an editorial label.
+      assert.match(m.openrouterId || "", /^[\w.-]+\/[\w.:-]+$/, `${m.key} has no upstream id`);
+    }
+  });
+
+  it("tracks only models that exist in the synced catalog", () => {
+    // Catches a typo'd or retired id at test time rather than as a silently
+    // missing row on the Price Board and markets table.
+    const fs = require("fs");
+    const p = require("path").join(__dirname, "..", "data", "ai-models.json");
+    if (!fs.existsSync(p)) return;
+    const synced = JSON.parse(fs.readFileSync(p, "utf-8"));
+    const catalog = new Set((synced.catalog || []).map((m) => m.id));
+    if (catalog.size === 0) return;
+    for (const m of TRACKED_MODELS) {
+      assert.ok(catalog.has(m.openrouterId), `${m.key} -> ${m.openrouterId} is not in the catalog`);
     }
   });
 

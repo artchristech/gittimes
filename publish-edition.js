@@ -7,7 +7,7 @@ const { publish, getRecentRepoNames, getRecentLeadRepos, getRecentRepoCoverage, 
 const { snapshotHistory } = require("./src/history");
 const { buildLeadThreadContext } = require("./src/threads");
 const { sendNewsletter } = require("./src/newsletter");
-const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot } = require("./src/ai-ticker");
+const { getTickerData, getFullMarketData, renderTickerBanner, saveSnapshot, loadHistory } = require("./src/ai-ticker");
 const { fetchAIHeadlines, fetchArxiv } = require("./src/ai-headlines");
 const { fetchModelDrops } = require("./src/model-drops");
 const { fetchGitHubReleases, WATCHED_REPOS } = require("./src/github-releases");
@@ -20,6 +20,7 @@ const { fetchStarTrajectory } = require("./src/star-history");
 const { buildRegistry, watchedRepos } = require("./src/registry");
 const { buildBusinessDesks, buildBusinessStrip } = require("./src/desks");
 const { writeBusinessPages } = require("./src/business-pages");
+const { buildPriceBoard, priceHeadline } = require("./src/price-board");
 const {
   closeDb,
   recordEditionMeta,
@@ -28,6 +29,7 @@ const {
   recordRegistry,
   getEntityHistory,
   getEntityTimeline,
+  loadPriceTape,
   resolveDataDir,
 } = require("./src/db");
 const { resetMetrics, getMetrics, createClient, attachModelDropHeadlines } = require("./src/xai");
@@ -165,6 +167,7 @@ async function main() {
   let businessDesks = null;
   let businessStrip = null;
   let registryEntities = [];
+  let priceBoard = null;
   if (process.env.GT_DISABLE_BUSINESS !== "1") {
     try {
       const dataDir = resolveDataDir(outDir);
@@ -180,7 +183,40 @@ async function main() {
       );
       registryEntities = registry.entities;
       businessDesks = buildBusinessDesks(registryEntities);
-      businessStrip = buildBusinessStrip(businessDesks);
+
+
+      // The Price Board. The rolling ticker history has been in the repo the
+      // whole time and no desk read it — it is the only proprietary time series
+      // this project keeps, and price is the one number about these companies
+      // that is dated, numeric and decision-relevant. Built here so a move can
+      // ride the front-page strip alongside the shipping desks.
+      try {
+        // The tape written by sync-models.js (`model_prices`): never pruned,
+        // keyed on the upstream model id, and promo-aware. The ticker's rolling
+        // JSON is the fallback only — it deletes its own tail and joins on our
+        // editorial key, so it cannot carry a long series.
+        const priceDataDir = resolveDataDir(outDir);
+        const tape = loadPriceTape(priceDataDir);
+        priceBoard = buildPriceBoard({
+          models: (tickerData && tickerData.models) || [],
+          history: tape.length > 0 ? tape : loadHistory(outDir),
+        });
+        console.log(
+          `Price tape: ${tape.length} day(s) on file` + (tape.length === 0 ? " — falling back to the rolling ticker window" : "")
+        );
+        console.log(
+          `Price Board: ${priceBoard.rows.length} models, ${priceBoard.movers.length} moved` +
+            (priceBoard.baselineDate ? ` vs ${priceBoard.baselineDate}` : " (no baseline yet)")
+        );
+      } catch (e) {
+        console.warn(`Price Board skipped (non-fatal): ${e.message}`);
+      }
+
+      // Strip built last so a price move can lead it.
+      businessStrip = buildBusinessStrip(businessDesks, {
+        priceBoard,
+        priceHeadline: priceBoard ? priceHeadline(priceBoard) : null,
+      });
       const shape = Object.values(businessDesks)
         .map((d) => `${d.label} ${d.empty ? "dark" : d.items.length}`)
         .join(", ");
@@ -261,6 +297,7 @@ async function main() {
             entities: registryEntities,
             getTimeline: (id) => getEntityTimeline(dataDir, id, 40),
             basePath,
+            priceBoard,
           });
           console.log(`Business pages: ${written.desks} desks + ${written.companies} company files`);
         } catch (e) {
