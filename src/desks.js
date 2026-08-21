@@ -134,6 +134,11 @@ function card(entity) {
     headline: ev ? ev.title : null,
     url: ev ? ev.url : null,
     facts: [
+      // Who backed them and when, both printed on the funder's own public
+      // company page that this row links to. It is the one non-shipping fact
+      // the paper can source, and it is why the reader can tell a funded team
+      // from an org that wandered into trending.
+      entity.backer && entity.batch ? { k: `${entity.backer} batch`, v: entity.batch } : null,
       Number.isFinite(s.oldestRepoDays) ? { k: "org age", v: humanDays(s.oldestRepoDays) } : null,
       s.repoCount ? { k: "repos tracked", v: String(s.repoCount) } : null,
       Number.isFinite(s.starDelta7d) && s.starDelta7d ? { k: "stars 7d", v: `+${s.starDelta7d}` } : null,

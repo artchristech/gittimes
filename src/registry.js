@@ -27,6 +27,7 @@
  */
 
 const { ageDays } = require("./recency");
+const { rosterEntities, rosterRepos } = require("./startup-roster");
 
 // --- Tiers -----------------------------------------------------------------
 //
@@ -50,7 +51,7 @@ const TIERS = [TIER_BIG_LAB, TIER_UNICORN, TIER_STARTUP];
  * live data — deriving "unicorn" would mean asserting a valuation the paper
  * cannot source. Adding a company here is a coverage decision, not a fact claim.
  */
-const SEED_ENTITIES = [
+const CURATED_ENTITIES = [
   // --- Frontier labs & hyperscaler AI orgs ---
   { id: "openai", name: "OpenAI", tier: TIER_BIG_LAB, country: "US", github: ["openai"], hf: ["openai"], domains: ["openai.com"] },
   { id: "anthropic", name: "Anthropic", tier: TIER_BIG_LAB, country: "US", github: ["anthropics"], hf: ["Anthropic"], domains: ["anthropic.com"] },
@@ -94,6 +95,26 @@ const SEED_ENTITIES = [
   { id: "modal", name: "Modal", tier: TIER_UNICORN, country: "US", github: ["modal-labs"], hf: [], domains: ["modal.com"] },
   { id: "fireworks", name: "Fireworks AI", tier: TIER_UNICORN, country: "US", github: ["fw-ai"], hf: ["fireworks-ai"], domains: ["fireworks.ai"] },
 ];
+
+/**
+ * The startup spine, loaded from data/startup-roster.json (see startup-roster.js
+ * for why it is a committed file rather than a feed).
+ *
+ * This does NOT replace the derived tier below. classifyTier() still promotes an
+ * unrostered org that is young and gaining, so a team nobody has funded can still
+ * reach the desk on the strength of what it shipped. The roster exists because
+ * that derived path, alone, cleared almost nobody and left /startups/ printing
+ * its empty state indefinitely — a page that never fills is not a high bar, it
+ * is a broken surface.
+ *
+ * Tier is stamped here rather than in the data file: what stage a company is at
+ * stays an editorial judgement in code, and the JSON stays a record of what was
+ * fetched.
+ */
+const ROSTER_STARTUPS = rosterEntities().map((e) => ({ ...e, tier: TIER_STARTUP }));
+
+/** The full curated roster: hand-picked labs and scaled privates, plus the spine. */
+const SEED_ENTITIES = CURATED_ENTITIES.concat(ROSTER_STARTUPS);
 
 // --- Observability: which companies we can actually SEE ---------------------
 //
@@ -142,7 +163,12 @@ const COMPANY_REPOS = {
 
 /** Attach `signals` + `repos` to a roster entry from the policy tables above. */
 function withSignals(entity) {
-  const repos = COMPANY_REPOS[entity.id] || [];
+  // Roster startups carry their own verified repos; the hand-curated roster
+  // reads its repos out of the table above. Either way a company is observable
+  // only through a channel something is actually watching.
+  const repos = Array.isArray(entity.repos) && entity.repos.length > 0
+    ? entity.repos
+    : COMPANY_REPOS[entity.id] || [];
   const signals = [];
   if (WEIGHTS_PUBLISHERS.has(entity.id)) signals.push(SIGNAL_WEIGHTS);
   if (repos.length > 0) signals.push(SIGNAL_REPOS);
@@ -157,7 +183,10 @@ function withSignals(entity) {
  */
 function watchedRepos(entities = SEED_ENTITIES) {
   const out = new Set();
-  for (const e of entities) for (const r of COMPANY_REPOS[e.id] || []) out.add(r);
+  for (const e of entities) {
+    for (const r of COMPANY_REPOS[e.id] || []) out.add(r);
+    for (const r of e.repos || []) out.add(r);
+  }
   return [...out];
 }
 
@@ -477,6 +506,9 @@ const byActivity = (a, b) => {
 
 module.exports = {
   SEED_ENTITIES,
+  CURATED_ENTITIES,
+  ROSTER_STARTUPS,
+  rosterRepos,
   WEIGHTS_PUBLISHERS,
   COMPANY_REPOS,
   SIGNAL_WEIGHTS,

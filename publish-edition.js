@@ -178,7 +178,11 @@ async function main() {
         console.warn(`Entity history unavailable (non-fatal): ${e.message}`);
       }
       const registry = buildRegistry(
-        { modelDrops, releases: ghReleases, repos: rawCandidates },
+        // `.log` is every release inside the ledger window, not the five the
+        // band picked. Feeding the registry the band's selection was why a
+        // rostered company that shipped twice this week could still read as
+        // silent: it lost the slot to a bigger repo and vanished from the desk.
+        { modelDrops, releases: ghReleases.log || ghReleases, repos: rawCandidates },
         { history: entityHistory }
       );
       registryEntities = registry.entities;
