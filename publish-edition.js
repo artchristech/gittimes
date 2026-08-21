@@ -132,13 +132,20 @@ async function main() {
   } catch (e) {
     console.warn(`Just Shipped cooldown unavailable (non-fatal): ${e.message}`);
   }
-  const [aiHeadlines, arxivPapers, modelDrops, ghReleases] = await Promise.all([
+  // Both flow fetchers run with `withLog` so the company registry sees the full
+  // in-window log, not the five or six rows the bands picked. Feeding the
+  // registry a band selection is what made the ledger lie: NVIDIA published
+  // weights all week and printed as silent because two other labs outranked it.
+  const [aiHeadlines, arxivPapers, dropsResult, releasesResult] = await Promise.all([
     fetchAIHeadlines({ limit: 5 }),
     fetchArxiv({ limit: 3 }),
-    modelDropsOff ? Promise.resolve([]) : fetchModelDrops({ limit: 6 }),
+    modelDropsOff
+      ? Promise.resolve({ drops: [], log: [] })
+      : fetchModelDrops({ limit: 6, withLog: true }),
     ghReleasesOff
-      ? Promise.resolve([])
+      ? Promise.resolve({ releases: [], log: [] })
       : fetchGitHubReleases({
+          withLog: true,
           limit: 5,
           token: githubToken,
           suppressRepos: releaseCooldown,
@@ -149,6 +156,8 @@ async function main() {
           repos: [...new Set([...WATCHED_REPOS, ...watchedRepos()])],
         }),
   ]);
+  const modelDrops = dropsResult.drops;
+  const ghReleases = releasesResult.releases;
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
   // Model Drops arrives as metadata — name, owner, task, likes. One LLM call
@@ -178,11 +187,11 @@ async function main() {
         console.warn(`Entity history unavailable (non-fatal): ${e.message}`);
       }
       const registry = buildRegistry(
-        // `.log` is every release inside the ledger window, not the five the
-        // band picked. Feeding the registry the band's selection was why a
-        // rostered company that shipped twice this week could still read as
-        // silent: it lost the slot to a bigger repo and vanished from the desk.
-        { modelDrops, releases: ghReleases.log || ghReleases, repos: rawCandidates },
+        {
+          modelDrops: dropsResult.log,
+          releases: releasesResult.log,
+          repos: rawCandidates,
+        },
         { history: entityHistory }
       );
       registryEntities = registry.entities;

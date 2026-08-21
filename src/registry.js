@@ -389,6 +389,14 @@ function rollUp(entity, events = [], opts = {}) {
   const ages = events.map((e) => e.ageDays).filter(Number.isFinite);
   const lastActivityDays = ages.length ? Math.min(...ages) : null;
 
+  // A SHIP is a release or a published model. A repo turning up in trending is
+  // a sighting — evidence the repo exists and is moving, not evidence the
+  // company shipped anything. Collapsing the two is what put
+  // `Microsoft | microsoft/PowerToys` in the Big Labs "most recent ship"
+  // column: PowerToys appeared in trending, and appearing is not shipping.
+  const shipAges = [...releases, ...drops].map((e) => e.ageDays).filter(Number.isFinite);
+  const lastShipDays = shipAges.length ? Math.min(...shipAges) : null;
+
   const starDelta = repos.reduce(
     (sum, e) => sum + (Number.isFinite(e.metrics?.starDelta) ? e.metrics.starDelta : 0),
     0
@@ -402,6 +410,7 @@ function rollUp(entity, events = [], opts = {}) {
     repoCount: new Set(repos.map((e) => e.metrics?.repo).filter(Boolean)).size,
     eventCount: events.length,
     lastActivityDays,
+    lastShipDays,
     starDelta7d: starDelta || null,
     oldestRepoDays: Number.isFinite(entity.oldestRepoDays) ? entity.oldestRepoDays : null,
     openWeights: drops.length > 0,

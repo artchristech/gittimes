@@ -43,6 +43,10 @@ const DESKS = {
     maxItems: 8,
     windowDays: 30,
     includeQuiet: true,
+    // The ledger ranks and reports on SHIPS ONLY — releases and published
+    // weights. A trending sighting is not a ship, and a desk that treats it as
+    // one turns "who shipped" into "whose repo we happened to see".
+    shipsOnly: true,
     // Quiet labs get RESERVED slots rather than competing on recency — ranked by
     // freshness they'd always lose to whoever shipped this morning, and the
     // ledger would silently become an activity leaderboard. "Mistral has shipped
@@ -85,6 +89,28 @@ function leadEvent(entity) {
 }
 
 /**
+ * Freshest event that is actually a SHIP — a release or a published model.
+ *
+ * The ledger used to fall back to leadEvent() when a lab had neither, which
+ * meant a repo merely APPEARING in the day's trending set rendered in the "most
+ * recent ship" column: `Meta AI | pytorch/pytorch | 0 releases | 0 drops |
+ * today`, and `Microsoft | microsoft/PowerToys`. Neither is a lab ship. A row
+ * with no ship now returns null and renders as silence, which is the truth.
+ */
+function shipEvent(entity) {
+  const ships = (entity.events || []).filter(
+    (e) => e.type === "release" || e.type === "model-drop"
+  );
+  return ships.find((e) => Number.isFinite(e.ageDays)) || ships[0] || null;
+}
+
+/** How recently an entity did the thing this desk measures. */
+function activityDays(entity, spec = {}) {
+  const s = entity.stats || {};
+  return spec.shipsOnly ? s.lastShipDays : s.lastActivityDays;
+}
+
+/**
  * A Big Labs ledger row. The load-bearing column is `lastShippedDays` — the
  * paper's actual beat is cadence and silence, both of which are matters of
  * public record.
@@ -97,13 +123,13 @@ function leadEvent(entity) {
  */
 function ledgerRow(entity) {
   const s = entity.stats;
-  const ev = leadEvent(entity);
+  const ev = shipEvent(entity);
   // Silence only counts as silence where we watch a channel that would show
   // shipping. For a company we cannot see (no open weights, no watched repos)
   // an empty window is our blind spot, and calling it "quiet" would report a
   // measurement gap as a fact about the company.
   const observed = s.observed !== false;
-  const quiet = observed && (!Number.isFinite(s.lastActivityDays) || s.lastActivityDays >= 30);
+  const quiet = observed && (!Number.isFinite(s.lastShipDays) || s.lastShipDays >= 30);
   return {
     entityId: entity.id,
     name: entity.name,
@@ -113,7 +139,7 @@ function ledgerRow(entity) {
     shippedType: ev ? ev.type : null,
     releases30d: s.releases30d,
     drops30d: s.drops30d,
-    lastShippedDays: s.lastActivityDays,
+    lastShippedDays: s.lastShipDays,
     openWeights: s.openWeights,
     storyCount: s.storyCount,
     badges: entity.badges || [],
@@ -174,9 +200,10 @@ function buildDesk(deskId, entities = [], opts = {}) {
   if (!spec) throw new Error(`Unknown desk: ${deskId}`);
 
   const mine = entities.filter((e) => e.tier === spec.tier);
-  const active = mine.filter(
-    (e) => Number.isFinite(e.stats.lastActivityDays) && e.stats.lastActivityDays <= spec.windowDays
-  );
+  const active = mine.filter((e) => {
+    const d = activityDays(e, spec);
+    return Number.isFinite(d) && d <= spec.windowDays;
+  });
 
   // Big Labs keeps quiet roster labs — silence is the story there. The other two
   // desks drop them, because "a startup we saw once did nothing" is not news.
@@ -186,15 +213,15 @@ function buildDesk(deskId, entities = [], opts = {}) {
     // that slot would be the desk asserting inactivity it never measured.
     const quiet = mine
       .filter((e) => !active.includes(e) && e.stats.observed !== false)
-      .sort(quietRank);
+      .sort(quietRank(spec));
     const held = quiet.slice(0, spec.quietSlots);
     ranked = active
       .slice()
-      .sort(deskRank)
+      .sort(deskRank(spec))
       .slice(0, Math.max(0, spec.maxItems - held.length))
       .concat(held);
   } else {
-    ranked = (spec.includeQuiet ? mine : active).slice().sort(deskRank).slice(0, spec.maxItems);
+    ranked = (spec.includeQuiet ? mine : active).slice().sort(deskRank(spec)).slice(0, spec.maxItems);
   }
   const shaped = spec.tier === TIER_BIG_LAB ? ranked.map(ledgerRow) : ranked.map(card);
 
@@ -225,16 +252,26 @@ function buildDesk(deskId, entities = [], opts = {}) {
  * most, then the longest. A lab we've written about thirty times going dark is
  * news; one we've mentioned once is just a gap in our data.
  */
-function quietRank(a, b) {
-  const silence = (x) => (Number.isFinite(x.stats.lastActivityDays) ? x.stats.lastActivityDays : 0);
-  return b.stats.storyCount - a.stats.storyCount || silence(b) - silence(a);
+function quietRank(spec = {}) {
+  return (a, b) => {
+    const silence = (x) => {
+      const d = activityDays(x, spec);
+      return Number.isFinite(d) ? d : 0;
+    };
+    return b.stats.storyCount - a.stats.storyCount || silence(b) - silence(a);
+  };
 }
 
 /** Most recently active first; volume breaks ties. */
-function deskRank(a, b) {
-  const recency = (x) => (Number.isFinite(x.stats.lastActivityDays) ? x.stats.lastActivityDays : 9999);
-  const volume = (x) => x.stats.releases30d + x.stats.drops30d;
-  return recency(a) - recency(b) || volume(b) - volume(a);
+function deskRank(spec = {}) {
+  return (a, b) => {
+    const recency = (x) => {
+      const d = activityDays(x, spec);
+      return Number.isFinite(d) ? d : 9999;
+    };
+    const volume = (x) => x.stats.releases30d + x.stats.drops30d;
+    return recency(a) - recency(b) || volume(b) - volume(a);
+  };
 }
 
 /**
@@ -310,5 +347,6 @@ module.exports = {
   buildBusinessStrip,
   ledgerRow,
   card,
+  shipEvent,
   humanDays,
 };

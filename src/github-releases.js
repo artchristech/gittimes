@@ -267,14 +267,14 @@ function allReleases(items, opts = {}) {
  * failure — the releases band is a bonus block, never a reason to fail the
  * edition. Works without a token (degraded rate limits) but never throws.
  *
- * Returns the band's editorial selection. The full in-window release log rides
- * along on the returned array as `.log` so the company registry can read every
- * ship without a second pass over the API — one fetch, two consumers, because
- * the watchlist IS the request budget and doubling it to serve the ledger would
- * cost more than the ledger is worth.
+ * Returns the band's editorial selection, or `{ releases, log }` when `withLog`
+ * is set — the full in-window release log from the SAME fetch, so the company
+ * registry can read every ship without a second pass. The watchlist IS the
+ * request budget, and doubling it to serve the ledger would cost more than the
+ * ledger is worth.
  *
- * @param {object} [options] - { repos, limit, windowDays, logWindowDays, minPatchReactions, token, fetchImpl, nowMs, timeoutMs, concurrency }
- * @returns {Promise<Array>}
+ * @param {object} [options] - { repos, limit, windowDays, logWindowDays, withLog, minPatchReactions, token, fetchImpl, nowMs, timeoutMs, concurrency }
+ * @returns {Promise<Array|{releases: Array, log: Array}>}
  */
 async function fetchGitHubReleases(options = {}) {
   const {
@@ -293,11 +293,14 @@ async function fetchGitHubReleases(options = {}) {
     // The ledger's question is different — "when did this company last ship" —
     // and answering it needs a longer look-back than the band's.
     logWindowDays = 60,
+    // Opt-in: return { releases, log } instead of the bare band selection, so
+    // the registry can read every ship without a second pass over the API.
+    withLog = false,
   } = options;
 
   if (typeof fetchImpl !== "function") {
     console.warn("GitHub Releases: no fetch available, skipping");
-    return [];
+    return withLog ? { releases: [], log: [] } : [];
   }
 
   // Same header discipline as src/github.js — UA always, auth when present.
@@ -361,8 +364,7 @@ async function fetchGitHubReleases(options = {}) {
     `GitHub Releases: ${releases.length} notable release(s) from ${watched.length} watched repos` +
       ` (${log.length} shipped inside ${logWindowDays}d, for the company ledger)`
   );
-  releases.log = log;
-  return releases;
+  return withLog ? { releases, log } : releases;
 }
 
 module.exports = {
