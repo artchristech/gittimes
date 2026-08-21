@@ -284,6 +284,84 @@ function renderDeskPage(desk, options = {}) {
   });
 }
 
+// --- Sectors ---------------------------------------------------------------
+
+/**
+ * The Sectors page — the topic axis crossed with the actor axis.
+ *
+ * Every other Business page reads down a stage (labs, startups, scaled
+ * privates). This one reads down a subject, and answers the question the topic
+ * tabs could never answer because they only ever held one edition: which
+ * companies are actually working in Robotics, in Cyber, in Systems.
+ *
+ * A sector with nobody in it prints as empty rather than being hidden. The
+ * absence is the finding — it is what "nobody the paper tracks shipped into
+ * Robotics this month" looks like — and a page that quietly drops its empty
+ * sectors would report a fuller world than it measured.
+ */
+function renderSectorsPage(desk, options = {}) {
+  const basePath = options.basePath || "";
+
+  if (!desk || desk.empty) {
+    return page("business", basePath, {
+      title: "The Git Times — Sectors",
+      desc: "Which companies shipped into each topic sector, from public release data.",
+      kicker: "Sectors",
+      headline: "Sectors",
+      deck: `Nothing filed into a sector inside the last ${(desk && desk.windowDays) || 30} days.`,
+      body: `<div class="biz-empty"><p class="biz-empty-head">Nothing to report</p><p>No tracked company shipped an artifact this desk could file under a sector in this window.</p></div>${notClaimedHtml()}`,
+    });
+  }
+
+  const blocks = desk.sectors
+    .map((sector) => {
+      if (sector.empty) {
+        return `
+      <section class="sector-block sector-block-empty">
+        <h3 class="sector-head">${escapeHtml(sector.label)} <span class="co-count">0</span></h3>
+        <p class="ledger-quiet">No tracked company shipped into ${escapeHtml(sector.label)} in this window.</p>
+      </section>`;
+      }
+      const rows = sector.companies
+        .map((c) => {
+          const artifact = `<a href="${escapeHtml(c.url || "#")}" target="_blank" rel="noopener">${escapeHtml(c.headline)}</a>`;
+          const lead = c.shipped
+            ? artifact
+            : `<span class="biz-card-sighting">Seen in trending</span> ${artifact}`;
+          return `
+          <li class="sector-row">
+            <a class="co-name" href="${escapeHtml(entityPath(basePath, c.entityId))}">${escapeHtml(c.name)}</a>
+            <span class="sector-artifact">${lead}</span>
+            <span class="co-meta">${escapeHtml(humanDays(c.ageDays))} ago</span>
+            ${evidenceHtml(c.evidence)}
+          </li>`;
+        })
+        .join("");
+      const more =
+        sector.total > sector.companies.length
+          ? `<p class="ledger-note">${sector.total - sector.companies.length} more company/companies shipped into ${escapeHtml(sector.label)} and are not listed here.</p>`
+          : "";
+      return `
+      <section class="sector-block">
+        <h3 class="sector-head">${escapeHtml(sector.label)} <span class="co-count">${sector.total}</span></h3>
+        <ul class="sector-list">${rows}
+        </ul>${more}
+      </section>`;
+    })
+    .join("");
+
+  const note = `<p class="ledger-note"><span class="ent-notclaimed-k">How a sector is decided</span> a repo is filed on its owner&rsquo;s own GitHub topics, or failing that its language, against the same lists this paper queries GitHub with; a published model is filed under AI. ${desk.unclassified} artifact(s) in this window carried neither a topic nor a language this desk could match, and are counted here rather than guessed into a sector.</p>`;
+
+  return page("business", basePath, {
+    title: "The Git Times — Sectors",
+    desc: "Which companies shipped into each topic sector, from public release data.",
+    kicker: "Sectors",
+    headline: "Sectors",
+    deck: `${desk.companies} companies shipped ${desk.classified} filed artifact(s) across ${desk.sectors.filter((s) => !s.empty).length} sectors in the last ${desk.windowDays} days.`,
+    body: `<div class="sector-grid">${blocks}</div>${note}${notClaimedHtml()}`,
+  });
+}
+
 // --- The Price Board -------------------------------------------------------
 
 const money = (n) => (n >= 1 ? `$${Number(n).toFixed(2)}` : `$${Number(n).toFixed(3)}`);
@@ -543,8 +621,23 @@ function writePage(dir, html) {
  * @returns {{ desks: number, companies: number, paths: string[] }}
  */
 function writeBusinessPages(outDir, args = {}) {
-  const { desks = {}, entities = [], getTimeline = () => [], basePath = "", priceBoard = null } = args;
+  const {
+    desks = {},
+    entities = [],
+    getTimeline = () => [],
+    basePath = "",
+    priceBoard = null,
+    sectorDesk = null,
+  } = args;
   const paths = [];
+
+  // Sectors is a standing page like the desks, which is the whole point of
+  // promoting it out of the lens row: every lens entry now navigates somewhere
+  // that outlives the edition.
+  if (sectorDesk) {
+    writePage(path.join(outDir, "sectors"), renderSectorsPage(sectorDesk, { basePath }));
+    paths.push("/sectors/");
+  }
 
   if (priceBoard) {
     writePage(path.join(outDir, "prices"), renderPriceBoardPage(priceBoard, { basePath }));
@@ -586,6 +679,7 @@ module.exports = {
   assignSlugs,
   selectPageableEntities,
   renderDeskPage,
+  renderSectorsPage,
   renderPriceBoardPage,
   renderCompanyIndexPage,
   renderEntityPage,

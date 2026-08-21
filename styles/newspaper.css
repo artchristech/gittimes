@@ -968,6 +968,42 @@ a.biz-line:hover {
   background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
 }
 
+/* Sectors — the topic axis crossed with the actor axis. An empty sector is
+   printed, not hidden, so the reader can see where nobody shipped. */
+.sector-grid {
+  display: grid;
+  gap: 22px;
+}
+
+.sector-head {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.sector-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sector-row {
+  display: grid;
+  gap: 2px;
+  padding: 7px 0;
+  border-bottom: 1px dotted var(--rule-light);
+}
+
+.sector-artifact {
+  font-size: 14px;
+}
+
+.sector-block-empty .sector-head {
+  color: var(--ink-faint);
+}
+
 /* Price Board. A cut and a hike must be tellable apart at a glance — that
    contrast is the whole informational payload of the column. */
 .pb-model {
@@ -2725,9 +2761,9 @@ body.chat-on .hybrid-ask {
   cursor: default;
 }
 
-/* The three actor lenses are anchors to standing desk pages, not panel
-   switches. They must be visually indistinguishable from the Sectors tab —
-   the row is one row — while still behaving (and announcing) as navigation. */
+/* Every lens is an anchor to a standing page, not a panel switch. Keeping the
+   row uniform is the point: one row, one behaviour, and navigation that
+   announces itself as navigation to a screen reader. */
 a.lens-tab {
   display: inline-block;
   text-decoration: none;

@@ -380,6 +380,10 @@ function harvestEvents(sources = {}, opts = {}) {
         starDelta: Number.isFinite(repo.starDelta) ? repo.starDelta : null,
         createdAt: created,
         language: repo.language || null,
+        // Carried so the Sectors desk can file this artifact under a topic
+        // without a second fetch. Topics are the repo owner's own labels, which
+        // is why they are allowed to decide a sector and a guess is not.
+        topics: Array.isArray(repo.topics) ? repo.topics.map(String) : [],
       },
       evidence: { source: "github:/search/repositories", ref: fullName, fetchedAt },
     });

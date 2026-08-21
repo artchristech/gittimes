@@ -19,6 +19,7 @@ const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
 const { buildRegistry, watchedRepos } = require("./src/registry");
 const { buildBusinessDesks, buildBusinessStrip } = require("./src/desks");
+const { buildSectorDesk } = require("./src/sectors");
 const { writeBusinessPages } = require("./src/business-pages");
 const { buildPriceBoard, priceHeadline } = require("./src/price-board");
 const {
@@ -176,6 +177,7 @@ async function main() {
   let businessDesks = null;
   let businessStrip = null;
   let registryEntities = [];
+  let sectorDesk = null;
   let priceBoard = null;
   if (process.env.GT_DISABLE_BUSINESS !== "1") {
     try {
@@ -196,6 +198,20 @@ async function main() {
       );
       registryEntities = registry.entities;
       businessDesks = buildBusinessDesks(registryEntities);
+
+      // Sectors — the topic axis crossed with the actor axis. It was a lens-row
+      // button that switched a panel; it is a standing page now, so every entry
+      // in that row navigates to something that outlives the edition.
+      try {
+        sectorDesk = buildSectorDesk(registryEntities);
+        console.log(
+          `Sectors: ${sectorDesk.companies} companies across ` +
+            `${sectorDesk.sectors.filter((x) => !x.empty).length} sectors ` +
+            `(${sectorDesk.unclassified} artifact(s) unfiled)`
+        );
+      } catch (e) {
+        console.warn(`Sectors desk skipped (non-fatal): ${e.message}`);
+      }
 
 
       // The Price Board. The rolling ticker history has been in the repo the
@@ -308,6 +324,7 @@ async function main() {
           const written = writeBusinessPages(outDir, {
             desks: businessDesks || {},
             entities: registryEntities,
+            sectorDesk,
             getTimeline: (id) => getEntityTimeline(dataDir, id, 40),
             basePath,
             priceBoard,
