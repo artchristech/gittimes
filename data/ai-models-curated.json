@@ -1,11 +1,11 @@
 {
   "bannerKeys": [
-    "claude-fable-5",
-    "gpt-5.5",
-    "gemini-3.1-pro",
-    "grok-4.5",
-    "deepseek-v4-pro",
-    "qwen3.7-max",
+    "claude-opus-5",
+    "gpt-5.6-sol",
+    "gemini-3.7-flash",
+    "grok-4.6",
+    "deepseek-v4-pro-0813",
+    "qwen3.8-max",
     "kimi-k3"
   ],
   "_promos_note": "Editorial overrides for introductory/promotional pricing. Keyed by OpenRouter id. A promo expiry looks identical to a price hike from a single daily snapshot, so the list_* price must be recorded BEFORE the promo ends. Hand-maintained: there is no feed for this.",
@@ -17,7 +17,7 @@
       "source": "https://docs.anthropic.com/en/docs/about-claude/pricing"
     }
   },
-  "_bannerSlots_note": "Auto-latest roster: sync-models.js resolves each slot to the NEWEST FLAGSHIP catalog model whose id starts with `match` and contains none of `exclude`, by `created` timestamp. Excludes must drop sub-flagship tiers so 'newest' means newest flagship (e.g. Claude excludes `sonnet`/`haiku` → resolves the premium `claude-fable-*`, not the newer mid-tier Sonnet). `pin` forces an exact id; optional `expect` substring warns when the resolved id lacks it (catalog lags a known launch). The provider set + excludes are editorial — tune at the desk; the resolution mechanism is what's tested. Resolved slots are written to `bannerModels` (front-page banner ONLY) — they do NOT enter `models`, so the markets table + Cost-of-Intelligence index stay on the curated trackedModels. Each sync also prints a Banner Roster report and writes data/banner-roster.json (the easy check). trackedModels/evals are the curated current frontier — refresh them at the desk to match the auto-resolved banner; bannerKeys is the backward-compat banner fallback.",
+  "_bannerSlots_note": "Auto-latest roster: sync-models.js resolves each slot to the NEWEST FLAGSHIP catalog model whose id starts with `match` and contains none of `exclude`, by `created` timestamp. Excludes must drop sub-flagship tiers so 'newest' means newest flagship (e.g. Claude excludes `sonnet`/`haiku` \u2192 resolves the premium `claude-fable-*`, not the newer mid-tier Sonnet). `pin` forces an exact id; optional `expect` substring warns when the resolved id lacks it (catalog lags a known launch). The provider set + excludes are editorial \u2014 tune at the desk; the resolution mechanism is what's tested. Resolved slots are written to `bannerModels` (front-page banner ONLY) \u2014 they do NOT enter `models`, so the markets table + Cost-of-Intelligence index stay on the curated trackedModels. Each sync also prints a Banner Roster report and writes data/banner-roster.json (the easy check). trackedModels/evals are the curated current frontier \u2014 refresh them at the desk to match the auto-resolved banner; bannerKeys is the backward-compat banner fallback.",
   "bannerSlots": [
     {
       "label": "Claude",
@@ -34,7 +34,7 @@
         "-preview",
         "-exp"
       ],
-      "expect": "claude-fable"
+      "expect": "claude-opus-5"
     },
     {
       "label": "GPT",
@@ -127,108 +127,76 @@
   ],
   "trackedModels": [
     {
-      "key": "claude-fable-5",
-      "openrouterId": "anthropic/claude-fable-5",
-      "label": "Claude Fable 5",
-      "provider": "Anthropic",
-      "input": 10,
-      "output": 50
-    },
-    {
-      "key": "claude-opus-4.8",
-      "openrouterId": "anthropic/claude-opus-4.8",
-      "label": "Claude Opus 4.8",
-      "provider": "Anthropic",
-      "input": 5,
-      "output": 25
+      "key": "claude-opus-5",
+      "openrouterId": "anthropic/claude-opus-5",
+      "label": "Claude Opus 5",
+      "provider": "Anthropic"
     },
     {
       "key": "claude-sonnet-5",
       "openrouterId": "anthropic/claude-sonnet-5",
       "label": "Claude Sonnet 5",
-      "provider": "Anthropic",
-      "input": 3,
-      "output": 15
+      "provider": "Anthropic"
     },
     {
-      "key": "gpt-5.5",
-      "openrouterId": "openai/gpt-5.5",
-      "label": "GPT-5.5",
-      "provider": "OpenAI",
-      "input": 5,
-      "output": 30
+      "key": "gpt-5.6-sol",
+      "openrouterId": "openai/gpt-5.6-sol",
+      "label": "GPT-5.6 Sol",
+      "provider": "OpenAI"
     },
     {
-      "key": "gpt-5.4",
-      "openrouterId": "openai/gpt-5.4",
-      "label": "GPT-5.4",
-      "provider": "OpenAI",
-      "input": 2.5,
-      "output": 15
+      "key": "gpt-5.6-luna",
+      "openrouterId": "openai/gpt-5.6-luna",
+      "label": "GPT-5.6 Luna",
+      "provider": "OpenAI"
     },
     {
       "key": "gemini-3.1-pro",
       "openrouterId": "google/gemini-3.1-pro-preview",
-      "label": "Gemini 3.1 Pro",
-      "provider": "Google",
-      "input": 2,
-      "output": 12
+      "label": "Gemini 3.1 Pro Preview",
+      "provider": "Google"
     },
     {
-      "key": "gemini-3.5-flash",
-      "openrouterId": "google/gemini-3.5-flash",
-      "label": "Gemini 3.5 Flash",
-      "provider": "Google",
-      "input": 1.5,
-      "output": 9
+      "key": "gemini-3.7-flash",
+      "openrouterId": "google/gemini-3.7-flash",
+      "label": "Gemini 3.7 Flash",
+      "provider": "Google"
     },
     {
-      "key": "grok-4.5",
-      "openrouterId": "x-ai/grok-4.5",
-      "label": "Grok 4.5",
-      "provider": "xAI",
-      "input": 2,
-      "output": 6
+      "key": "grok-4.6",
+      "openrouterId": "x-ai/grok-4.6",
+      "label": "Grok 4.6",
+      "provider": "xAI"
     },
     {
-      "key": "deepseek-v4-pro",
-      "openrouterId": "deepseek/deepseek-v4-pro",
-      "label": "DeepSeek V4 Pro",
-      "provider": "DeepSeek",
-      "input": 0.28,
-      "output": 0.87
+      "key": "deepseek-v4-pro-0813",
+      "openrouterId": "deepseek/deepseek-v4-pro-0813",
+      "label": "DeepSeek V4 Pro 0813",
+      "provider": "DeepSeek"
     },
     {
-      "key": "qwen3.7-max",
-      "openrouterId": "qwen/qwen3.7-max",
-      "label": "Qwen3.7 Max",
-      "provider": "Alibaba",
-      "input": 1.2,
-      "output": 3.75
+      "key": "qwen3.8-max",
+      "openrouterId": "qwen/qwen3.8-max",
+      "label": "Qwen3.8 Max",
+      "provider": "Alibaba"
     },
     {
       "key": "kimi-k3",
       "openrouterId": "moonshotai/kimi-k3",
       "label": "Kimi K3",
-      "provider": "Moonshot",
-      "input": 3,
-      "output": 15
-    },
-    {
-      "key": "kimi-k2.6",
-      "openrouterId": "moonshotai/kimi-k2.6",
-      "label": "Kimi K2.6",
-      "provider": "Moonshot",
-      "input": 0.55,
-      "output": 3.41
+      "provider": "Moonshot"
     },
     {
       "key": "mistral-large",
       "openrouterId": "mistralai/mistral-large-2512",
-      "label": "Mistral Large",
-      "provider": "Mistral",
-      "input": 0.5,
-      "output": 1.5
+      "label": "Mistral Large 3 2512",
+      "provider": "Mistral"
+    },
+    {
+      "key": "glm-5.2",
+      "openrouterId": "z-ai/glm-5.2",
+      "label": "GLM 5.2",
+      "provider": "Z.ai"
     }
   ],
   "speed": [
@@ -292,7 +260,7 @@
   ],
   "evals": {
     "asOf": "2026-07-09",
-    "note": "Editorially curated from public benchmark leaderboards and model cards. Quality scores, unlike pricing, are not live — they are hand-maintained by the desk and dated. The model roster is kept in step with the auto-resolved front-page banner.",
+    "note": "Editorially curated from public benchmark leaderboards and model cards. Quality scores, unlike pricing, are not live \u2014 they are hand-maintained by the desk and dated. The model roster is kept in step with the auto-resolved front-page banner.",
     "sources": [
       {
         "label": "LMArena",
@@ -338,35 +306,11 @@
       }
     ],
     "models": {
-      "claude-fable-5": {
-        "mmlu_pro": 90.2,
-        "gpqa": 83.5,
-        "swe_bench": 80.5,
-        "arena_elo": 1467
-      },
-      "claude-opus-4.8": {
-        "mmlu_pro": 89.1,
-        "gpqa": 81.4,
-        "swe_bench": 78.2,
-        "arena_elo": 1451
-      },
       "claude-sonnet-5": {
         "mmlu_pro": 87.2,
         "gpqa": 78.2,
         "swe_bench": 74.8,
         "arena_elo": 1427
-      },
-      "gpt-5.5": {
-        "mmlu_pro": 88.6,
-        "gpqa": 82.1,
-        "swe_bench": 76,
-        "arena_elo": 1455
-      },
-      "gpt-5.4": {
-        "mmlu_pro": 86.8,
-        "gpqa": 78.9,
-        "swe_bench": 73.1,
-        "arena_elo": 1421
       },
       "gemini-3.1-pro": {
         "mmlu_pro": 88,
@@ -374,42 +318,13 @@
         "swe_bench": 71.5,
         "arena_elo": 1448
       },
-      "gemini-3.5-flash": {
-        "mmlu_pro": 81.2,
-        "gpqa": 70.1,
-        "swe_bench": 60.4,
-        "arena_elo": 1379
-      },
-      "grok-4.5": {
-        "mmlu_pro": 89,
-        "gpqa": 81.6,
-        "swe_bench": 75.2,
-        "arena_elo": 1452
-      },
-      "deepseek-v4-pro": {
-        "mmlu_pro": 87.6,
-        "gpqa": 79.4,
-        "swe_bench": 73.5,
-        "arena_elo": 1430
-      },
-      "qwen3.7-max": {
-        "mmlu_pro": 86.6,
-        "gpqa": 77.2,
-        "swe_bench": 71.4,
-        "arena_elo": 1420
-      },
-      "kimi-k2.6": {
-        "mmlu_pro": 85.9,
-        "gpqa": 75.6,
-        "swe_bench": 72.8,
-        "arena_elo": 1417
-      },
       "mistral-large": {
         "mmlu_pro": 79,
         "gpqa": 67,
         "swe_bench": 52.3,
         "arena_elo": 1351
       }
-    }
+    },
+    "_coverage_note": "Scores exist only for models the desk has hand-entered. Models added to trackedModels without scores are omitted from the Quality Index rather than given estimates \u2014 the markets table filters on composite!=null. Refill at the desk."
   }
 }
