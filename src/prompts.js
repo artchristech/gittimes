@@ -199,6 +199,8 @@ function quickHitPrompt(repos) {
 
   return `You are writing one-line summaries for a newspaper's "Quick Hits" section. Each summary must be a single punchy sentence, max 30 words, that tells a builder what the project does and why it's worth a look. Focus on capabilities, not popularity metrics.
 
+NEVER begin a summary with the repo's name or owner (no "owner/repo:", no "ProjectName —"). The name is already printed beside your sentence; repeating it turns the section into a directory listing. Start with what the project DOES.
+
 REPOS:
 ${list}
 

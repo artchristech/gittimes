@@ -271,12 +271,38 @@ function parseArticle(text, repo) {
   };
 }
 
+/**
+ * Strip a leading repo label off a quick-hit summary.
+ *
+ * The prompt feeds the model `N. owner/repo (Lang): description`, and it echoes
+ * that label back often enough to matter (7 of 32 on the 2026-08-15 front page:
+ * "elie222/rakazo: An open-source Grok Bot alternative…"). The renderer already
+ * prints the name in its own span immediately to the left, so the echo is pure
+ * duplication — it reads like a directory listing rather than a paper.
+ *
+ * Only strips when the prefix genuinely matches this repo's name or owner, so a
+ * summary that legitimately opens with a different project's name survives.
+ */
+function stripRepoLabel(summary, repo) {
+  const text = String(summary || "").trim();
+  const m = /^([\w.@-]+(?:\/[\w.-]+)?)\s*(?:\([^)]*\))?\s*[:—–-]\s+(.*)$/s.exec(text);
+  if (!m) return text;
+  const [, label, rest] = m;
+  const full = String(repo?.name || "").toLowerCase();
+  const short = full.includes("/") ? full.split("/")[1] : full;
+  const owner = full.includes("/") ? full.split("/")[0] : "";
+  const lower = label.toLowerCase();
+  const matches = lower === full || lower === short || lower === owner;
+  // Never trade a real sentence for a fragment.
+  return matches && rest.trim().length >= 20 ? rest.trim() : text;
+}
+
 function parseQuickHits(text, repos) {
   const lines = text.split("\n").filter((l) => l.trim());
   return repos.map((repo, i) => {
     const line = lines.find((l) => l.startsWith(`${i + 1}.`));
     const summary = line
-      ? line.replace(/^\d+\.\s*/, "").trim()
+      ? stripRepoLabel(line.replace(/^\d+\.\s*/, "").trim(), repo)
       : repo.description;
     // One-liners are too short for the frequency heuristics, but a junk-token
     // run still shows up here — fall back to the description when it does.
