@@ -251,7 +251,12 @@ describe("buildRegistry", () => {
     const ids = SEED_ENTITIES.map((e) => e.id);
     assert.equal(new Set(ids).size, ids.length, "duplicate entity id in the roster");
     for (const e of SEED_ENTITIES) {
-      assert.ok([TIER_BIG_LAB, TIER_UNICORN].includes(e.tier), `${e.id} has a bad curated tier`);
+      // Startup is now a curated tier too — the roster spine (see
+      // src/startup-roster.js) seeds it, alongside the derived path below.
+      assert.ok(
+        [TIER_BIG_LAB, TIER_UNICORN, TIER_STARTUP].includes(e.tier),
+        `${e.id} has a bad curated tier`
+      );
     }
   });
 

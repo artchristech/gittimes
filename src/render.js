@@ -408,21 +408,21 @@ function buildNavHtml(nav) {
   return `<nav class="edition-nav">${links.join(" · ")}</nav>`;
 }
 
-/* The lens row — who shipped it, one level above what it is. The topic tabs
- * below answer "what kind of thing is this"; these answer "who made it", which
- * is the question a reader actually arrives with.
+/* The lens row — a cut across the paper that outlives the edition. Every entry
+ * is an anchor to a standing page, and that uniformity is now load-bearing.
  *
- * This row sat here dead for months, marked "not wired up yet", because wiring
- * it meant classifying a repo's owner — selection logic, not a label. The
- * company registry is that logic, so the three actor lenses now resolve to the
- * Business desk pages and only Sectors remains a tab.
+ * Sectors used to be the exception: a `<button>` that switched this edition's
+ * topic panel, sitting in the same row as three `<a>` links to desk pages. Four
+ * things that look identical and behave two different ways is a promise the
+ * interface does not keep — a reader who clicks three of them and navigates has
+ * every reason to expect the fourth to navigate too. It was also a category
+ * error: the topic tabs answer "what kind of thing is this", and this row asks
+ * "who is behind it".
  *
- * That split is deliberate and is why these are ANCHORS, not buttons: Sectors
- * switches a panel inside this edition (today's stories, by topic), while the
- * desks are standing pages that outlive the edition (a company's record, by
- * actor). Making them look identical while behaving differently would be the
- * lie; an anchor navigates and announces itself as navigation to a screen
- * reader, a button doesn't.
+ * Sectors is now a standing page of its own (src/sectors.js) that answers the
+ * row's question on the topic axis — which companies are shipping into each
+ * sector — so the row is internally consistent and the topic tabs go on doing
+ * their own job below.
  *
  * Labels track the shipped desk names — a lens reading "Indie Builder" that
  * lands on a page titled "Startups" is a seam the reader has to absorb. */
@@ -430,7 +430,7 @@ const LENSES = [
   { id: "unicorns", label: "Unicorns", slug: "unicorns" },
   { id: "startups", label: "Startups", slug: "startups" },
   { id: "labs", label: "Big Labs", slug: "big-labs" },
-  { id: "sectors", label: "Sectors", slug: null },
+  { id: "sectors", label: "Sectors", slug: "sectors" },
 ];
 
 /**
@@ -440,13 +440,10 @@ const LENSES = [
  */
 function renderLensNav(options = {}) {
   const basePath = options.basePath || "";
-  const tabs = LENSES.map((lens) => {
-    // Sectors is this edition's topic tabs — a panel switch, already active.
-    if (!lens.slug) {
-      return `<button class="lens-tab active" data-lens="${escapeHtml(lens.id)}">${escapeHtml(lens.label)}</button>`;
-    }
-    return `<a class="lens-tab lens-link" href="${escapeHtml(`${basePath}/${lens.slug}/`)}" data-lens="${escapeHtml(lens.id)}">${escapeHtml(lens.label)}</a>`;
-  });
+  const tabs = LENSES.map(
+    (lens) =>
+      `<a class="lens-tab lens-link" href="${escapeHtml(`${basePath}/${lens.slug}/`)}" data-lens="${escapeHtml(lens.id)}">${escapeHtml(lens.label)}</a>`
+  );
   return `<nav class="lens-nav" aria-label="Story lens">${tabs.join("")}</nav>`;
 }
 

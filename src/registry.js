@@ -27,6 +27,7 @@
  */
 
 const { ageDays } = require("./recency");
+const { rosterEntities, rosterRepos } = require("./startup-roster");
 
 // --- Tiers -----------------------------------------------------------------
 //
@@ -50,7 +51,7 @@ const TIERS = [TIER_BIG_LAB, TIER_UNICORN, TIER_STARTUP];
  * live data — deriving "unicorn" would mean asserting a valuation the paper
  * cannot source. Adding a company here is a coverage decision, not a fact claim.
  */
-const SEED_ENTITIES = [
+const CURATED_ENTITIES = [
   // --- Frontier labs & hyperscaler AI orgs ---
   { id: "openai", name: "OpenAI", tier: TIER_BIG_LAB, country: "US", github: ["openai"], hf: ["openai"], domains: ["openai.com"] },
   { id: "anthropic", name: "Anthropic", tier: TIER_BIG_LAB, country: "US", github: ["anthropics"], hf: ["Anthropic"], domains: ["anthropic.com"] },
@@ -93,7 +94,39 @@ const SEED_ENTITIES = [
   { id: "ollama", name: "Ollama", tier: TIER_UNICORN, country: "US", github: ["ollama"], hf: [], domains: ["ollama.com"] },
   { id: "modal", name: "Modal", tier: TIER_UNICORN, country: "US", github: ["modal-labs"], hf: [], domains: ["modal.com"] },
   { id: "fireworks", name: "Fireworks AI", tier: TIER_UNICORN, country: "US", github: ["fw-ai"], hf: ["fireworks-ai"], domains: ["fireworks.ai"] },
+  // Companies whose product repos this paper ALREADY watched without ever
+  // attributing them to a company. The Unicorns desk read thin — fourteen
+  // tracked, four shipping — not because these companies are quiet but because
+  // nothing in the registry knew qdrant/qdrant had an owner. Adding them costs
+  // no API budget: every repo below except three is already on the watchlist.
+  { id: "llamaindex", name: "LlamaIndex", tier: TIER_UNICORN, country: "US", github: ["run-llama"], hf: ["llamaindex"], domains: ["llamaindex.ai"] },
+  { id: "qdrant", name: "Qdrant", tier: TIER_UNICORN, country: "DE", github: ["qdrant"], hf: ["Qdrant"], domains: ["qdrant.tech"] },
+  { id: "weaviate", name: "Weaviate", tier: TIER_UNICORN, country: "NL", github: ["weaviate"], hf: [], domains: ["weaviate.io"] },
+  { id: "chroma", name: "Chroma", tier: TIER_UNICORN, country: "US", github: ["chroma-core"], hf: [], domains: ["trychroma.com"] },
+  { id: "unstructured", name: "Unstructured", tier: TIER_UNICORN, country: "US", github: ["Unstructured-IO"], hf: [], domains: ["unstructured.io"] },
+  { id: "wandb", name: "Weights & Biases", tier: TIER_UNICORN, country: "US", github: ["wandb"], hf: [], domains: ["wandb.ai"] },
+  { id: "n8n", name: "n8n", tier: TIER_UNICORN, country: "DE", github: ["n8n-io"], hf: [], domains: ["n8n.io"] },
 ];
+
+/**
+ * The startup spine, loaded from data/startup-roster.json (see startup-roster.js
+ * for why it is a committed file rather than a feed).
+ *
+ * This does NOT replace the derived tier below. classifyTier() still promotes an
+ * unrostered org that is young and gaining, so a team nobody has funded can still
+ * reach the desk on the strength of what it shipped. The roster exists because
+ * that derived path, alone, cleared almost nobody and left /startups/ printing
+ * its empty state indefinitely — a page that never fills is not a high bar, it
+ * is a broken surface.
+ *
+ * Tier is stamped here rather than in the data file: what stage a company is at
+ * stays an editorial judgement in code, and the JSON stays a record of what was
+ * fetched.
+ */
+const ROSTER_STARTUPS = rosterEntities().map((e) => ({ ...e, tier: TIER_STARTUP }));
+
+/** The full curated roster: hand-picked labs and scaled privates, plus the spine. */
+const SEED_ENTITIES = CURATED_ENTITIES.concat(ROSTER_STARTUPS);
 
 // --- Observability: which companies we can actually SEE ---------------------
 //
@@ -138,11 +171,23 @@ const COMPANY_REPOS = {
   ollama: ["ollama/ollama"],
   langchain: ["langchain-ai/langchain", "langchain-ai/langgraph"],
   "meta-ai": ["pytorch/pytorch"],
+  llamaindex: ["run-llama/llama_index"],
+  qdrant: ["qdrant/qdrant"],
+  weaviate: ["weaviate/weaviate"],
+  chroma: ["chroma-core/chroma"],
+  unstructured: ["Unstructured-IO/unstructured"],
+  wandb: ["wandb/wandb"],
+  n8n: ["n8n-io/n8n"],
 };
 
 /** Attach `signals` + `repos` to a roster entry from the policy tables above. */
 function withSignals(entity) {
-  const repos = COMPANY_REPOS[entity.id] || [];
+  // Roster startups carry their own verified repos; the hand-curated roster
+  // reads its repos out of the table above. Either way a company is observable
+  // only through a channel something is actually watching.
+  const repos = Array.isArray(entity.repos) && entity.repos.length > 0
+    ? entity.repos
+    : COMPANY_REPOS[entity.id] || [];
   const signals = [];
   if (WEIGHTS_PUBLISHERS.has(entity.id)) signals.push(SIGNAL_WEIGHTS);
   if (repos.length > 0) signals.push(SIGNAL_REPOS);
@@ -157,7 +202,10 @@ function withSignals(entity) {
  */
 function watchedRepos(entities = SEED_ENTITIES) {
   const out = new Set();
-  for (const e of entities) for (const r of COMPANY_REPOS[e.id] || []) out.add(r);
+  for (const e of entities) {
+    for (const r of COMPANY_REPOS[e.id] || []) out.add(r);
+    for (const r of e.repos || []) out.add(r);
+  }
   return [...out];
 }
 
@@ -332,6 +380,10 @@ function harvestEvents(sources = {}, opts = {}) {
         starDelta: Number.isFinite(repo.starDelta) ? repo.starDelta : null,
         createdAt: created,
         language: repo.language || null,
+        // Carried so the Sectors desk can file this artifact under a topic
+        // without a second fetch. Topics are the repo owner's own labels, which
+        // is why they are allowed to decide a sector and a guess is not.
+        topics: Array.isArray(repo.topics) ? repo.topics.map(String) : [],
       },
       evidence: { source: "github:/search/repositories", ref: fullName, fetchedAt },
     });
@@ -360,6 +412,14 @@ function rollUp(entity, events = [], opts = {}) {
   const ages = events.map((e) => e.ageDays).filter(Number.isFinite);
   const lastActivityDays = ages.length ? Math.min(...ages) : null;
 
+  // A SHIP is a release or a published model. A repo turning up in trending is
+  // a sighting — evidence the repo exists and is moving, not evidence the
+  // company shipped anything. Collapsing the two is what put
+  // `Microsoft | microsoft/PowerToys` in the Big Labs "most recent ship"
+  // column: PowerToys appeared in trending, and appearing is not shipping.
+  const shipAges = [...releases, ...drops].map((e) => e.ageDays).filter(Number.isFinite);
+  const lastShipDays = shipAges.length ? Math.min(...shipAges) : null;
+
   const starDelta = repos.reduce(
     (sum, e) => sum + (Number.isFinite(e.metrics?.starDelta) ? e.metrics.starDelta : 0),
     0
@@ -373,6 +433,7 @@ function rollUp(entity, events = [], opts = {}) {
     repoCount: new Set(repos.map((e) => e.metrics?.repo).filter(Boolean)).size,
     eventCount: events.length,
     lastActivityDays,
+    lastShipDays,
     starDelta7d: starDelta || null,
     oldestRepoDays: Number.isFinite(entity.oldestRepoDays) ? entity.oldestRepoDays : null,
     openWeights: drops.length > 0,
@@ -477,6 +538,9 @@ const byActivity = (a, b) => {
 
 module.exports = {
   SEED_ENTITIES,
+  CURATED_ENTITIES,
+  ROSTER_STARTUPS,
+  rosterRepos,
   WEIGHTS_PUBLISHERS,
   COMPANY_REPOS,
   SIGNAL_WEIGHTS,

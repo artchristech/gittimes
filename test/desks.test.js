@@ -1,8 +1,20 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { buildDesk, buildBusinessDesks, buildBusinessStrip, DESK_ORDER } = require("../src/desks");
-const { buildRegistry, TIER_BIG_LAB, TIER_STARTUP, TIER_UNICORN } = require("../src/registry");
+const {
+  buildDesk,
+  buildBusinessDesks,
+  buildBusinessStrip,
+  ledgerRow,
+  DESK_ORDER,
+} = require("../src/desks");
+const {
+  buildRegistry,
+  CURATED_ENTITIES,
+  TIER_BIG_LAB,
+  TIER_STARTUP,
+  TIER_UNICORN,
+} = require("../src/registry");
 
 const NOW = Date.parse("2026-07-29T00:00:00Z");
 const iso = (d) => new Date(NOW - d * 86400000).toISOString();
@@ -212,5 +224,153 @@ describe("buildBusinessDesks / strip", () => {
 
   it("desks and registry agree on tier vocabulary", () => {
     assert.deepEqual([TIER_BIG_LAB, TIER_STARTUP, TIER_UNICORN].sort(), ["bigLab", "startup", "unicorn"]);
+  });
+});
+
+describe("a sighting is not a ship", () => {
+  // The live ledger printed `Meta AI | pytorch/pytorch | 0 releases | 0 drops |
+  // today` and `Microsoft | microsoft/PowerToys`. Both rows came from a repo
+  // turning up in the day's trending set. Appearing in trending is evidence a
+  // repo is moving; it is not evidence the lab shipped anything, and the "most
+  // recent ship" column is not allowed to say otherwise.
+  // A two-lab roster keeps the assertions about WHICH rows appear, rather than
+  // about how the reserved quiet slots happened to be allotted today.
+  const seeds = CURATED_ENTITIES.filter((e) => ["meta-ai", "nvidia", "openai"].includes(e.id));
+  const registry = (sources) => buildRegistry(sources, { entities: seeds, nowMs: NOW });
+  // Every lab on the roster gets a row, so these assertions are about what the
+  // ship column SAYS, not about which two quiet slots today's ranking allotted.
+  const DESKS_ALL = {
+    bigLabs: {
+      id: "bigLabs",
+      label: "Big Labs",
+      slug: "big-labs",
+      tier: TIER_BIG_LAB,
+      kicker: "Who shipped, who went quiet",
+      cadence: "daily",
+      minItems: 0,
+      maxItems: 20,
+      windowDays: 30,
+      includeQuiet: true,
+      shipsOnly: true,
+      quietSlots: 20,
+    },
+  };
+  const ledger = (entities) => buildDesk("bigLabs", entities, { desks: DESKS_ALL });
+  const sightingOnly = () => registry({ repos: [repo("pytorch/pytorch", { pushedDays: 0 })] });
+
+  it("leaves the ship column empty when a lab only appeared in trending", () => {
+    const { entities } = sightingOnly();
+    const desk = ledger(entities);
+    const meta = desk.items.find((r) => r.entityId === "meta-ai");
+    assert.equal(meta.shipped, null, "a trending sighting must not render as a ship");
+    assert.equal(meta.releases30d, 0);
+    assert.equal(meta.drops30d, 0);
+  });
+
+  it("never prints a bare repo name in the ship column", () => {
+    const { entities } = sightingOnly();
+    const desk = ledger(entities);
+    for (const row of desk.items) {
+      if (!row.shipped) continue;
+      assert.equal(
+        /^[\w.-]+\/[\w.-]+$/.test(row.shipped),
+        false,
+        `"${row.shipped}" is a repo reference, not a ship`
+      );
+    }
+  });
+
+  it("does not let a sighting reset the last-ship clock", () => {
+    const { entities } = registry({
+      repos: [repo("pytorch/pytorch", { pushedDays: 0 })],
+      releases: [release("pytorch/pytorch", 40, "v2.9.0")],
+    });
+    const row = ledger(entities).items.find((r) => r.entityId === "meta-ai");
+    assert.equal(row.lastShippedDays, 40, "last ship is the release, not today's sighting");
+    assert.equal(row.quiet, true, "40 days without a ship is quiet, whatever trending shows");
+  });
+
+  it("still calls an unobserved lab not-covered rather than quiet", () => {
+    // The contract this desk runs on: silence counts only where a watched
+    // channel would have revealed shipping.
+    const { entities } = registry({});
+    const openai = entities.find((e) => e.id === "openai");
+    assert.equal(openai.stats.observed, false);
+    assert.equal(ledgerRow(openai).quiet, false, "a blind spot is never reported as silence");
+    // And it is never ranked into a reserved quiet slot, however dark the desk.
+    assert.equal(ledger(entities).items.some((r) => r.entityId === "openai"), false);
+    assert.ok(ledger(entities).unobserved.includes("OpenAI"));
+  });
+
+  it("reports a weights publisher that shipped, rather than ranking it out", () => {
+    // NVIDIA published weights all week and the ledger said it had shipped
+    // nothing — because the registry was fed the six-row drops band instead of
+    // the release log. With the log, the drop is the row.
+    const { entities } = registry({ modelDrops: [drop("nvidia/Nemotron-Next", 2)] });
+    const row = ledger(entities).items.find((r) => r.entityId === "nvidia");
+    assert.equal(row.shipped, "Nemotron-Next");
+    assert.equal(row.quiet, false);
+    assert.equal(row.evidence.source, "huggingface:/api/models");
+  });
+});
+
+describe("cards print news, not inventory", () => {
+  // The live Unicorns cards led with "Org age 9.9y · Repos tracked 1". Neither
+  // is a fact about the company: org age is a constant, and "repos tracked" is
+  // a statement about how much of them this paper watches — a measurement
+  // artifact set in the same typeface as a finding.
+  const shipped = () =>
+    buildRegistry(
+      { releases: [release("qdrant/qdrant", 2, "v1.20.0")] },
+      { nowMs: NOW }
+    );
+
+  it("never prints org age or repo count for a decade-old company", () => {
+    const { entities } = shipped();
+    const c = buildDesk("unicorns", entities).items.find((i) => i.entityId === "qdrant");
+    const keys = c.facts.map((f) => f.k).join(" | ");
+    assert.doesNotMatch(keys, /repos tracked/i, "repos tracked is our instrument, not their news");
+    assert.doesNotMatch(keys, /^org age/i);
+  });
+
+  it("leads with when they last shipped and how often", () => {
+    const { entities } = shipped();
+    const c = buildDesk("unicorns", entities).items.find((i) => i.entityId === "qdrant");
+    const facts = c.facts.map((f) => `${f.v} ${f.k}`);
+    assert.ok(facts.some((f) => /since last ship/.test(f)), `no ship recency in ${facts}`);
+    assert.ok(facts.some((f) => /release/.test(f)), `no cadence in ${facts}`);
+    assert.equal(c.kind, "release");
+    assert.equal(c.shipped, true);
+  });
+
+  it("keeps a young team's age, which is still news", () => {
+    const { entities } = buildRegistry(
+      { repos: [repo("tiny-team/pgvectorlite", { orgAgeDays: 240, starDelta: 3100 })] },
+      { nowMs: NOW }
+    );
+    const c = buildDesk("startups", entities).items.find((i) => i.entityId === "org:tiny-team");
+    assert.ok(c.facts.some((f) => /first repo/.test(f.k)), "a team eight months old is a young team");
+  });
+
+  it("marks a trending sighting as a sighting, not as a ship", () => {
+    // The card still runs — for a small team, a repo pulling 3,000 stars in a
+    // week is the only story the pipeline can see before a first release. It
+    // must not be dressed as one.
+    const { entities } = buildRegistry(
+      { repos: [repo("tiny-team/pgvectorlite", { orgAgeDays: 240, starDelta: 3100 })] },
+      { nowMs: NOW }
+    );
+    const c = buildDesk("startups", entities).items.find((i) => i.entityId === "org:tiny-team");
+    assert.equal(c.kind, "repo");
+    assert.equal(c.shipped, false, "a sighting must never claim a ship");
+    assert.equal(c.evidence.source, "github:/search/repositories");
+  });
+
+  it("tracks the companies whose repos the paper already watched", () => {
+    // The desk read thin at fourteen tracked because nothing in the registry
+    // knew qdrant/qdrant had an owner.
+    const { entities } = shipped();
+    const tracked = buildDesk("unicorns", entities).tracked;
+    assert.ok(tracked >= 20, `only ${tracked} scaled-private companies tracked`);
   });
 });

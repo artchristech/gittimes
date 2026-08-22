@@ -14,11 +14,12 @@ const STRIP = [
 ];
 
 describe("renderLensNav", () => {
-  it("wires the three actor lenses to their desk pages", () => {
+  it("wires every lens to its standing page", () => {
     const html = renderLensNav();
     assert.match(html, /href="\/big-labs\/"/);
     assert.match(html, /href="\/startups\/"/);
     assert.match(html, /href="\/unicorns\/"/);
+    assert.match(html, /href="\/sectors\/"/);
   });
 
   it("leaves no dead 'not wired up yet' lens behind", () => {
@@ -27,17 +28,19 @@ describe("renderLensNav", () => {
     assert.equal(html.includes("Not wired up yet"), false);
   });
 
-  it("keeps Sectors a button — it switches a panel, it does not navigate", () => {
-    // The row looks like one row but does two things; the element type is what
-    // tells a screen reader (and the browser) which is which.
+  it("makes every entry behave the same way", () => {
+    // The row is one row, so it must do one thing. Sectors was a <button> that
+    // switched this edition's topic panel while its three neighbours navigated
+    // to standing pages — four elements that look identical and behave two
+    // ways. Sectors is a standing page now, so the row is uniform.
     const html = renderLensNav();
-    assert.match(html, /<button class="lens-tab active" data-lens="sectors">Sectors<\/button>/);
-    assert.equal((html.match(/<a class="lens-tab/g) || []).length, 3);
+    assert.equal(html.includes("<button"), false, "no lens switches a panel");
+    assert.equal((html.match(/<a class="lens-tab/g) || []).length, 4);
   });
 
   it("labels match the desk pages they land on", () => {
     const html = renderLensNav();
-    for (const label of ["Unicorns", "Startups", "Big Labs"]) assert.match(html, new RegExp(label));
+    for (const label of ["Unicorns", "Startups", "Big Labs", "Sectors"]) assert.match(html, new RegExp(label));
     assert.equal(html.includes("Indie Builder"), false);
     assert.equal(html.includes(">VC<"), false);
   });

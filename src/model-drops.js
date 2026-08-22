@@ -66,6 +66,30 @@ const isRoleplay = (tags) => tags.some((t) => ROLEPLAY_TAGS.has(t.toLowerCase())
  * @param {object} [opts] - { limit, windowDays, minLikes, nowMs }
  * @returns {Array<{id,author,name,task,likes,downloads,createdAt,ageDays,url}>}
  */
+/** Raw HF record → the annotated shape both selectors filter and rank on. */
+function annotate(m, nowMs) {
+  const author = m.id.split("/")[0];
+  const tags = Array.isArray(m.tags) ? m.tags.map(String) : [];
+  return {
+    m,
+    author,
+    name: m.id.slice(author.length + 1) || m.id,
+    likes: m.likes || 0,
+    downloads: m.downloads || 0,
+    age: ageDays(m.createdAt, nowMs),
+    trusted: TRUSTED_ORGS.has(author),
+    quant: QUANT_RE.test(m.id) || /^base_model:quantized:/i.test(tags.find((t) => /^base_model:quantized:/i.test(t)) || ""),
+    derivative: isDerivative(tags),
+    // Null when HF carries no lineage tag — treated as "own work" so an
+    // untagged primary release is never mistaken for a repackage.
+    rehost: (() => {
+      const owner = baseOwner(tags);
+      return owner != null && owner.toLowerCase() !== author.toLowerCase();
+    })(),
+    roleplay: isRoleplay(tags),
+  };
+}
+
 function selectModelDrops(models, opts = {}) {
   const {
     limit = 6,
@@ -90,28 +114,7 @@ function selectModelDrops(models, opts = {}) {
     ((x.likes + 1) / Math.pow(Math.max(0, x.age) + 2, gravity)) * (x.trusted ? trustedBoost : 1);
   return models
     .filter((m) => m && typeof m.id === "string" && m.id.includes("/"))
-    .map((m) => {
-      const author = m.id.split("/")[0];
-      const tags = Array.isArray(m.tags) ? m.tags.map(String) : [];
-      return {
-        m,
-        author,
-        name: m.id.slice(author.length + 1) || m.id,
-        likes: m.likes || 0,
-        downloads: m.downloads || 0,
-        age: ageDays(m.createdAt, nowMs),
-        trusted: TRUSTED_ORGS.has(author),
-        quant: QUANT_RE.test(m.id) || /^base_model:quantized:/i.test(tags.find((t) => /^base_model:quantized:/i.test(t)) || ""),
-        derivative: isDerivative(tags),
-        // Null when HF carries no lineage tag — treated as "own work" so an
-        // untagged primary release is never mistaken for a repackage.
-        rehost: (() => {
-          const owner = baseOwner(tags);
-          return owner != null && owner.toLowerCase() !== author.toLowerCase();
-        })(),
-        roleplay: isRoleplay(tags),
-      };
-    })
+    .map((m) => annotate(m, nowMs))
     // A "drop" must be genuinely recent — created inside the window, not just hot.
     .filter((x) => x.age <= windowDays)
     // Roleplay / uncensored community models are never a builder-paper drop.
@@ -139,24 +142,68 @@ function selectModelDrops(models, opts = {}) {
       return n <= maxPerAuthor;
     })
     .slice(0, limit)
-    .map((x) => ({
-      id: x.m.id,
-      author: x.author,
-      name: x.name,
-      task: x.m.pipeline_tag || null,
-      likes: x.likes,
-      downloads: x.downloads,
-      createdAt: x.m.createdAt || null,
-      ageDays: Number.isFinite(x.age) ? Math.floor(x.age) : null,
-      url: `https://huggingface.co/${x.m.id}`,
-    }));
+    .map(toDrop);
+}
+
+/** Annotated HF record → the drop shape every consumer downstream reads. */
+function toDrop(x) {
+  return {
+    id: x.m.id,
+    author: x.author,
+    name: x.name,
+    task: x.m.pipeline_tag || null,
+    likes: x.likes,
+    downloads: x.downloads,
+    createdAt: x.m.createdAt || null,
+    ageDays: Number.isFinite(x.age) ? Math.floor(x.age) : null,
+    url: `https://huggingface.co/${x.m.id}`,
+  };
+}
+
+/**
+ * Every primary open-weight release inside the window, unranked and untraction-
+ * gated.
+ *
+ * selectModelDrops() answers an editorial question — which six drops lead the
+ * band today — and caps two per author so no lab owns the wire. Right for a
+ * band, wrong for the company ledger, which was reading that same six-row
+ * selection and therefore printed "NVIDIA has shipped nothing in this window"
+ * while NVIDIA published weights all week. The lab did not go quiet; it lost a
+ * slot. Reporting that as silence is the instrument reporting its own budget as
+ * a fact about a company.
+ *
+ * Still excluded, because they are not ships: quantizations (a packaging
+ * change), re-hosts of another lab's weights, roleplay models, and derivatives.
+ * What is dropped is the likes floor — the ledger asks whether a lab published,
+ * not whether the publication was popular.
+ *
+ * @param {Array} models - raw HF /api/models records
+ * @param {object} [opts] - { windowDays, nowMs }
+ * @returns {Array}
+ */
+function allDrops(models, opts = {}) {
+  const { windowDays = 60, nowMs = Date.now() } = opts;
+  if (!Array.isArray(models)) return [];
+  const seen = new Set();
+  return models
+    .filter((m) => m && typeof m.id === "string" && m.id.includes("/"))
+    .map((m) => annotate(m, nowMs))
+    .filter((x) => Number.isFinite(x.age) && x.age <= windowDays)
+    .filter((x) => !x.roleplay && !x.quant && !x.rehost && !x.derivative)
+    .filter((x) => {
+      if (seen.has(x.m.id)) return false;
+      seen.add(x.m.id);
+      return true;
+    })
+    .sort((a, b) => a.age - b.age)
+    .map(toDrop);
 }
 
 /**
  * Fetch recent high-signal model drops from Hugging Face. Returns [] on any
  * failure — the drops band is a bonus block, never a reason to fail the edition.
- * @param {object} [options] - { limit, windowDays, minLikes, fetchImpl, nowMs, timeoutMs }
- * @returns {Promise<Array>}
+ * @param {object} [options] - { limit, windowDays, minLikes, logWindowDays, withLog, fetchImpl, nowMs, timeoutMs }
+ * @returns {Promise<Array|{drops: Array, log: Array}>} - `{ drops, log }` when withLog
  */
 async function fetchModelDrops(options = {}) {
   const {
@@ -166,11 +213,18 @@ async function fetchModelDrops(options = {}) {
     fetchImpl = globalThis.fetch,
     nowMs = Date.now(),
     timeoutMs = 10_000,
+    // The band's window is 14 days because a two-week-old model is not news.
+    // "When did this lab last publish weights" needs a longer look-back.
+    logWindowDays = 60,
+    // Opt-in: return { drops, log } instead of the bare band selection. The
+    // registry needs the log; every other caller wants the six rows and its
+    // return value stays exactly the array it always was.
+    withLog = false,
   } = options;
 
   if (typeof fetchImpl !== "function") {
     console.warn("Model Drops: no fetch available, skipping");
-    return [];
+    return withLog ? { drops: [], log: [] } : [];
   }
 
   // Three lanes, merged: `likes7d` = what got traction this week; `createdAt` =
@@ -211,9 +265,16 @@ async function fetchModelDrops(options = {}) {
   };
 
   const pages = await Promise.all(urls.map(get));
-  const drops = selectModelDrops(pages.flat(), { limit, windowDays, minLikes, nowMs });
-  console.log(`Model Drops: ${drops.length} recent model release(s) from Hugging Face`);
-  return drops;
+  const pool = pages.flat();
+  const drops = selectModelDrops(pool, { limit, windowDays, minLikes, nowMs });
+  // The full log rides along for the company registry — see allDrops(). Same
+  // fetch, two consumers.
+  const log = allDrops(pool, { windowDays: logWindowDays, nowMs });
+  console.log(
+    `Model Drops: ${drops.length} recent model release(s) from Hugging Face` +
+      ` (${log.length} primary release(s) inside ${logWindowDays}d, for the company ledger)`
+  );
+  return withLog ? { drops, log } : drops;
 }
 
-module.exports = { fetchModelDrops, selectModelDrops, TRUSTED_ORGS };
+module.exports = { fetchModelDrops, selectModelDrops, allDrops, TRUSTED_ORGS };
