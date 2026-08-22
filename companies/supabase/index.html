@@ -971,6 +971,82 @@ a.biz-line:hover {
   background: color-mix(in srgb, var(--paper) 96%, var(--ink) 4%);
 }
 
+/* Price Board. A cut and a hike must be tellable apart at a glance — that
+   contrast is the whole informational payload of the column. */
+.pb-model {
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pb-model small,
+.price-board .ledger-num small {
+  display: block;
+  font-family: var(--font-meta);
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--ink-faint);
+  margin-top: 2px;
+}
+
+.pb-model small a {
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.pb-model small a:hover {
+  color: var(--accent);
+}
+
+.pb-cut {
+  color: #2f6b3a;
+  font-weight: 700;
+}
+
+.pb-hike {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pb-flat,
+.pb-none {
+  color: var(--ink-faint);
+}
+
+.pb-none {
+  font-style: italic;
+  font-size: 11px;
+}
+
+.pb-row-cut {
+  background: color-mix(in srgb, var(--paper) 96%, #2f6b3a 4%);
+}
+
+.ledger-note {
+  font-family: var(--font-meta);
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 14px;
+  line-height: 1.6;
+}
+
+/* Not-covered is a different state from quiet and must not look like it —
+   one is a fact about the company, the other about our instruments. */
+.ledger-unobserved {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.ledger-row-unobserved {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    color-mix(in srgb, var(--paper) 97%, var(--ink) 3%) 6px,
+    color-mix(in srgb, var(--paper) 97%, var(--ink) 3%) 12px
+  );
+}
+
 /* Cards — Startups / Unicorns. */
 .biz-cards {
   display: grid;
@@ -5330,6 +5406,7 @@ body.gt-searching .gt-fold {
   </header>
 
   <nav class="business-nav" aria-label="Business desks">
+    <a href="/prices/">Price Board</a>
     <a href="/big-labs/">Big Labs</a>
     <a href="/startups/">Startups</a>
     <a href="/unicorns/">Unicorns</a>
@@ -5354,11 +5431,11 @@ body.gt-searching .gt-fold {
         <h3 class="ent-body-head">Everything they shipped, as we recorded it</h3>
         <ul class="ent-timeline">
       <li class="ent-tl">
-        <span class="ent-tl-when">2026-08-21</span>
+        <span class="ent-tl-when">2026-08-22</span>
         <span class="ent-tl-type">Repo activity</span>
         <h4 class="ent-tl-title"><a href="https://github.com/supabase/supabase" target="_blank" rel="noopener">supabase/supabase</a></h4>
         
-        <span class="ent-evidence">github:/search/repositories &middot; supabase/supabase &middot; fetched 2026-08-21</span>
+        <span class="ent-evidence">github:/search/repositories &middot; supabase/supabase &middot; fetched 2026-08-22</span>
       </li></ul>
       </div>
     </div><p class="ent-notclaimed"><span class="ent-notclaimed-k">Not claimed</span> valuation, funding, headcount, revenue &mdash; The Git Times has no source for them and does not infer them.</p>
