@@ -346,7 +346,18 @@ async function publish(content, outDir, options = {}) {
           context_length: m.context_length || null,
           input_modalities: m.input_modalities || null,
         })),
-      onRadar: (td.untracked || []).slice(0, 6).map((m) => ({ name: m.name, output: m.outputPrice })),
+      // The Radar rides into the machine-readable summary with its reasons
+      // attached: `free` and `isNew` are why a row is news, and a consumer that
+      // only sees a name and a price re-creates the blind spot this desk exists
+      // to close. Older sync output lacks the fields — coerce, don't assume.
+      onRadar: (td.untracked || []).slice(0, 6).map((m) => ({
+        name: m.name,
+        id: m.id || null,
+        output: m.outputPrice,
+        free: m.free === true,
+        isNew: m.isNew === true,
+        signals: Array.isArray(m.signals) ? m.signals : [],
+      })),
     };
     const dataDir = path.join(outDir, "data");
     if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
