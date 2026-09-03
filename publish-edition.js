@@ -19,6 +19,7 @@ const { enrichRepo } = require("./src/github");
 const { fetchStarTrajectory } = require("./src/star-history");
 const { buildRegistry, watchedRepos } = require("./src/registry");
 const { buildBusinessDesks, buildBusinessStrip } = require("./src/desks");
+const { buildSectorDesk } = require("./src/sectors");
 const { writeBusinessPages } = require("./src/business-pages");
 const { buildPriceBoard, priceHeadline } = require("./src/price-board");
 const {
@@ -132,13 +133,20 @@ async function main() {
   } catch (e) {
     console.warn(`Just Shipped cooldown unavailable (non-fatal): ${e.message}`);
   }
-  const [aiHeadlines, arxivPapers, modelDrops, ghReleases] = await Promise.all([
+  // Both flow fetchers run with `withLog` so the company registry sees the full
+  // in-window log, not the five or six rows the bands picked. Feeding the
+  // registry a band selection is what made the ledger lie: NVIDIA published
+  // weights all week and printed as silent because two other labs outranked it.
+  const [aiHeadlines, arxivPapers, dropsResult, releasesResult] = await Promise.all([
     fetchAIHeadlines({ limit: 5 }),
     fetchArxiv({ limit: 3 }),
-    modelDropsOff ? Promise.resolve([]) : fetchModelDrops({ limit: 6 }),
+    modelDropsOff
+      ? Promise.resolve({ drops: [], log: [] })
+      : fetchModelDrops({ limit: 6, withLog: true }),
     ghReleasesOff
-      ? Promise.resolve([])
+      ? Promise.resolve({ releases: [], log: [] })
       : fetchGitHubReleases({
+          withLog: true,
           limit: 5,
           token: githubToken,
           suppressRepos: releaseCooldown,
@@ -149,6 +157,8 @@ async function main() {
           repos: [...new Set([...WATCHED_REPOS, ...watchedRepos()])],
         }),
   ]);
+  const modelDrops = dropsResult.drops;
+  const ghReleases = releasesResult.releases;
   const aiWireHtml = renderAIWire(aiHeadlines, { research: arxivPapers });
 
   // Model Drops arrives as metadata — name, owner, task, likes. One LLM call
@@ -167,6 +177,7 @@ async function main() {
   let businessDesks = null;
   let businessStrip = null;
   let registryEntities = [];
+  let sectorDesk = null;
   let priceBoard = null;
   if (process.env.GT_DISABLE_BUSINESS !== "1") {
     try {
@@ -178,11 +189,29 @@ async function main() {
         console.warn(`Entity history unavailable (non-fatal): ${e.message}`);
       }
       const registry = buildRegistry(
-        { modelDrops, releases: ghReleases, repos: rawCandidates },
+        {
+          modelDrops: dropsResult.log,
+          releases: releasesResult.log,
+          repos: rawCandidates,
+        },
         { history: entityHistory }
       );
       registryEntities = registry.entities;
       businessDesks = buildBusinessDesks(registryEntities);
+
+      // Sectors — the topic axis crossed with the actor axis. It was a lens-row
+      // button that switched a panel; it is a standing page now, so every entry
+      // in that row navigates to something that outlives the edition.
+      try {
+        sectorDesk = buildSectorDesk(registryEntities);
+        console.log(
+          `Sectors: ${sectorDesk.companies} companies across ` +
+            `${sectorDesk.sectors.filter((x) => !x.empty).length} sectors ` +
+            `(${sectorDesk.unclassified} artifact(s) unfiled)`
+        );
+      } catch (e) {
+        console.warn(`Sectors desk skipped (non-fatal): ${e.message}`);
+      }
 
 
       // The Price Board. The rolling ticker history has been in the repo the
@@ -295,6 +324,7 @@ async function main() {
           const written = writeBusinessPages(outDir, {
             desks: businessDesks || {},
             entities: registryEntities,
+            sectorDesk,
             getTimeline: (id) => getEntityTimeline(dataDir, id, 40),
             basePath,
             priceBoard,

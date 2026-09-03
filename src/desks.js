@@ -43,6 +43,10 @@ const DESKS = {
     maxItems: 8,
     windowDays: 30,
     includeQuiet: true,
+    // The ledger ranks and reports on SHIPS ONLY — releases and published
+    // weights. A trending sighting is not a ship, and a desk that treats it as
+    // one turns "who shipped" into "whose repo we happened to see".
+    shipsOnly: true,
     // Quiet labs get RESERVED slots rather than competing on recency — ranked by
     // freshness they'd always lose to whoever shipped this morning, and the
     // ledger would silently become an activity leaderboard. "Mistral has shipped
@@ -71,7 +75,7 @@ const DESKS = {
     kicker: "Scaled, private, and shipping in public",
     cadence: "monthly",
     minItems: 0,
-    maxItems: 4,
+    maxItems: 6,
     windowDays: 30,
     includeQuiet: false,
   },
@@ -79,9 +83,26 @@ const DESKS = {
 
 const DESK_ORDER = ["bigLabs", "startups", "unicorns"];
 
-/** Freshest evidence-bearing event an entity has, or null. */
-function leadEvent(entity) {
-  return (entity.events || []).find((e) => Number.isFinite(e.ageDays)) || (entity.events || [])[0] || null;
+/**
+ * Freshest event that is actually a SHIP — a release or a published model.
+ *
+ * The ledger used to fall back to leadEvent() when a lab had neither, which
+ * meant a repo merely APPEARING in the day's trending set rendered in the "most
+ * recent ship" column: `Meta AI | pytorch/pytorch | 0 releases | 0 drops |
+ * today`, and `Microsoft | microsoft/PowerToys`. Neither is a lab ship. A row
+ * with no ship now returns null and renders as silence, which is the truth.
+ */
+function shipEvent(entity) {
+  const ships = (entity.events || []).filter(
+    (e) => e.type === "release" || e.type === "model-drop"
+  );
+  return ships.find((e) => Number.isFinite(e.ageDays)) || ships[0] || null;
+}
+
+/** How recently an entity did the thing this desk measures. */
+function activityDays(entity, spec = {}) {
+  const s = entity.stats || {};
+  return spec.shipsOnly ? s.lastShipDays : s.lastActivityDays;
 }
 
 /**
@@ -97,13 +118,13 @@ function leadEvent(entity) {
  */
 function ledgerRow(entity) {
   const s = entity.stats;
-  const ev = leadEvent(entity);
+  const ev = shipEvent(entity);
   // Silence only counts as silence where we watch a channel that would show
   // shipping. For a company we cannot see (no open weights, no watched repos)
   // an empty window is our blind spot, and calling it "quiet" would report a
   // measurement gap as a fact about the company.
   const observed = s.observed !== false;
-  const quiet = observed && (!Number.isFinite(s.lastActivityDays) || s.lastActivityDays >= 30);
+  const quiet = observed && (!Number.isFinite(s.lastShipDays) || s.lastShipDays >= 30);
   return {
     entityId: entity.id,
     name: entity.name,
@@ -113,7 +134,7 @@ function ledgerRow(entity) {
     shippedType: ev ? ev.type : null,
     releases30d: s.releases30d,
     drops30d: s.drops30d,
-    lastShippedDays: s.lastActivityDays,
+    lastShippedDays: s.lastShipDays,
     openWeights: s.openWeights,
     storyCount: s.storyCount,
     badges: entity.badges || [],
@@ -124,21 +145,55 @@ function ledgerRow(entity) {
   };
 }
 
-/** A Startups / Unicorns card. Same evidence contract, narrative shape. */
+/** Freshest evidence-bearing event an entity has, or null. */
+function leadEvent(entity) {
+  return (entity.events || []).find((e) => Number.isFinite(e.ageDays)) || (entity.events || [])[0] || null;
+}
+
+/**
+ * A Startups / Unicorns card. Same evidence contract, narrative shape.
+ *
+ * Unlike the ledger, these desks do NOT drop a company whose only evidence is a
+ * trending sighting — for a small team, a repo pulling three thousand stars in
+ * a week IS the story, and it is the only story the pipeline can see before the
+ * team cuts its first release. What the card must not do is dress that sighting
+ * up as a ship. So the lead is a ship when there is one, a sighting when there
+ * isn't, and `kind` tells the renderer which it is holding.
+ */
 function card(entity) {
   const s = entity.stats;
-  const ev = leadEvent(entity);
+  const ship = shipEvent(entity);
+  const ev = ship || leadEvent(entity);
   return {
     entityId: entity.id,
     name: entity.name,
     headline: ev ? ev.title : null,
+    // "release" | "model-drop" | "repo". A repo lead is a sighting, and the
+    // renderer says so in words rather than letting `refinedev/refine` sit in
+    // the same slot a shipped release would occupy.
+    kind: ev ? ev.type : null,
+    shipped: Boolean(ship),
     url: ev ? ev.url : null,
+    // FACTS ARE NEWS, NOT INVENTORY. These cards used to lead with "org age
+    // 9.9y · repos tracked 1". Neither is a fact about the company: org age is
+    // a constant that changes once a year, and "repos tracked" is a statement
+    // about how much of them THIS PAPER watches — a measurement artifact printed
+    // in the same typeface as a finding. Both are gone. What is left is what
+    // moved: when they last shipped, how often, and how hard it landed.
     facts: [
-      Number.isFinite(s.oldestRepoDays) ? { k: "org age", v: humanDays(s.oldestRepoDays) } : null,
-      s.repoCount ? { k: "repos tracked", v: String(s.repoCount) } : null,
-      Number.isFinite(s.starDelta7d) && s.starDelta7d ? { k: "stars 7d", v: `+${s.starDelta7d}` } : null,
-      s.releases30d ? { k: "releases 30d", v: String(s.releases30d) } : null,
-      Number.isFinite(s.lastActivityDays) ? { k: "last ship", v: humanDays(s.lastActivityDays) } : null,
+      // Who backed them and when. Both are printed on the funder's own public
+      // company page that this row links to, and it is why a reader can tell a
+      // funded team from an org that wandered into trending.
+      entity.backer && entity.batch ? { k: `${entity.backer} batch`, v: entity.batch } : null,
+      Number.isFinite(s.lastShipDays) ? { k: "since last ship", v: humanDays(s.lastShipDays) } : null,
+      s.releases30d ? { k: s.releases30d === 1 ? "release, 30d" : "releases, 30d", v: String(s.releases30d) } : null,
+      s.drops30d ? { k: s.drops30d === 1 ? "open-weight drop, 30d" : "open-weight drops, 30d", v: String(s.drops30d) } : null,
+      Number.isFinite(s.starDelta7d) && s.starDelta7d ? { k: "stars this week", v: `+${s.starDelta7d}` } : null,
+      // Age earns a chip only while it is still news. A team whose first repo
+      // is eight months old is a young team; a ten-year-old org is furniture.
+      Number.isFinite(s.oldestRepoDays) && s.oldestRepoDays <= 730
+        ? { k: "since its first repo", v: humanDays(s.oldestRepoDays) }
+        : null,
     ].filter(Boolean),
     badges: entity.badges || [],
     // Printed verbatim under the card: what the pipeline saw, and where.
@@ -169,9 +224,10 @@ function buildDesk(deskId, entities = [], opts = {}) {
   if (!spec) throw new Error(`Unknown desk: ${deskId}`);
 
   const mine = entities.filter((e) => e.tier === spec.tier);
-  const active = mine.filter(
-    (e) => Number.isFinite(e.stats.lastActivityDays) && e.stats.lastActivityDays <= spec.windowDays
-  );
+  const active = mine.filter((e) => {
+    const d = activityDays(e, spec);
+    return Number.isFinite(d) && d <= spec.windowDays;
+  });
 
   // Big Labs keeps quiet roster labs — silence is the story there. The other two
   // desks drop them, because "a startup we saw once did nothing" is not news.
@@ -181,15 +237,15 @@ function buildDesk(deskId, entities = [], opts = {}) {
     // that slot would be the desk asserting inactivity it never measured.
     const quiet = mine
       .filter((e) => !active.includes(e) && e.stats.observed !== false)
-      .sort(quietRank);
+      .sort(quietRank(spec));
     const held = quiet.slice(0, spec.quietSlots);
     ranked = active
       .slice()
-      .sort(deskRank)
+      .sort(deskRank(spec))
       .slice(0, Math.max(0, spec.maxItems - held.length))
       .concat(held);
   } else {
-    ranked = (spec.includeQuiet ? mine : active).slice().sort(deskRank).slice(0, spec.maxItems);
+    ranked = (spec.includeQuiet ? mine : active).slice().sort(deskRank(spec)).slice(0, spec.maxItems);
   }
   const shaped = spec.tier === TIER_BIG_LAB ? ranked.map(ledgerRow) : ranked.map(card);
 
@@ -220,16 +276,26 @@ function buildDesk(deskId, entities = [], opts = {}) {
  * most, then the longest. A lab we've written about thirty times going dark is
  * news; one we've mentioned once is just a gap in our data.
  */
-function quietRank(a, b) {
-  const silence = (x) => (Number.isFinite(x.stats.lastActivityDays) ? x.stats.lastActivityDays : 0);
-  return b.stats.storyCount - a.stats.storyCount || silence(b) - silence(a);
+function quietRank(spec = {}) {
+  return (a, b) => {
+    const silence = (x) => {
+      const d = activityDays(x, spec);
+      return Number.isFinite(d) ? d : 0;
+    };
+    return b.stats.storyCount - a.stats.storyCount || silence(b) - silence(a);
+  };
 }
 
 /** Most recently active first; volume breaks ties. */
-function deskRank(a, b) {
-  const recency = (x) => (Number.isFinite(x.stats.lastActivityDays) ? x.stats.lastActivityDays : 9999);
-  const volume = (x) => x.stats.releases30d + x.stats.drops30d;
-  return recency(a) - recency(b) || volume(b) - volume(a);
+function deskRank(spec = {}) {
+  return (a, b) => {
+    const recency = (x) => {
+      const d = activityDays(x, spec);
+      return Number.isFinite(d) ? d : 9999;
+    };
+    const volume = (x) => x.stats.releases30d + x.stats.drops30d;
+    return recency(a) - recency(b) || volume(b) - volume(a);
+  };
 }
 
 /**
@@ -305,5 +371,6 @@ module.exports = {
   buildBusinessStrip,
   ledgerRow,
   card,
+  shipEvent,
   humanDays,
 };

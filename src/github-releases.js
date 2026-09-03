@@ -200,19 +200,65 @@ function selectReleases(items, opts = {}) {
       return true;
     })
     .slice(0, limit)
-    .map((x) => ({
-      repo: x.r.repo,
-      owner: x.owner,
-      name: x.name,
-      tag: x.r.tag_name,
-      title: x.r.name || x.r.tag_name,
-      reactions: x.reactions,
-      publishedAt: x.r.published_at || null,
-      ageDays: Number.isFinite(x.age) ? Math.floor(x.age) : null,
-      url:
-        x.r.html_url ||
-        `https://github.com/${x.r.repo}/releases/tag/${encodeURIComponent(x.r.tag_name)}`,
-    }));
+    .map(toRelease);
+}
+
+/** Raw GitHub release record → the row shape every consumer downstream reads. */
+function toRelease(x) {
+  return {
+    repo: x.r.repo,
+    owner: x.owner,
+    name: x.name,
+    tag: x.r.tag_name,
+    title: x.r.name || x.r.tag_name,
+    reactions: x.reactions,
+    publishedAt: x.r.published_at || null,
+    ageDays: Number.isFinite(x.age) ? Math.floor(x.age) : null,
+    url:
+      x.r.html_url ||
+      `https://github.com/${x.r.repo}/releases/tag/${encodeURIComponent(x.r.tag_name)}`,
+  };
+}
+
+/**
+ * Every shipped release inside the window, unranked and ungated.
+ *
+ * selectReleases() answers an EDITORIAL question — which five releases are worth
+ * a band slot today — and its cooldown, patch-noise and one-per-repo filters are
+ * right for that. They are wrong for the company registry, which was being fed
+ * that same five-row selection and therefore saw almost nothing: a rostered
+ * company could ship twice in a week and still register as silent because a
+ * bigger repo outranked it. The ledger needs the log, not the front page.
+ *
+ * Drafts and prereleases are still excluded — they are not ships.
+ *
+ * @param {Array} items - annotated raw release records
+ * @param {object} [opts] - { windowDays, nowMs }
+ * @returns {Array}
+ */
+function allReleases(items, opts = {}) {
+  const { windowDays = 60, nowMs = Date.now() } = opts;
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter(
+      (r) =>
+        r &&
+        typeof r.repo === "string" &&
+        r.repo.includes("/") &&
+        typeof r.tag_name === "string" &&
+        r.tag_name.length > 0
+    )
+    .map((r) => ({
+      r,
+      owner: r.repo.split("/")[0],
+      name: r.repo.split("/")[1],
+      age: ageDays(r.published_at || r.created_at, nowMs),
+      reactions: (r.reactions && r.reactions.total_count) || 0,
+    }))
+    .filter((x) => !x.r.draft && !x.r.prerelease && !PRERELEASE_TAG_RE.test(x.r.tag_name))
+    .filter((x) => Number.isFinite(x.age) && x.age <= windowDays)
+    .sort((a, b) => a.age - b.age)
+    .map(toRelease);
 }
 
 /**
@@ -220,8 +266,15 @@ function selectReleases(items, opts = {}) {
  * per repo (capped at MAX_WATCHED), batched to stay polite. Returns [] on any
  * failure — the releases band is a bonus block, never a reason to fail the
  * edition. Works without a token (degraded rate limits) but never throws.
- * @param {object} [options] - { repos, limit, windowDays, minPatchReactions, token, fetchImpl, nowMs, timeoutMs, concurrency }
- * @returns {Promise<Array>}
+ *
+ * Returns the band's editorial selection, or `{ releases, log }` when `withLog`
+ * is set — the full in-window release log from the SAME fetch, so the company
+ * registry can read every ship without a second pass. The watchlist IS the
+ * request budget, and doubling it to serve the ledger would cost more than the
+ * ledger is worth.
+ *
+ * @param {object} [options] - { repos, limit, windowDays, logWindowDays, withLog, minPatchReactions, token, fetchImpl, nowMs, timeoutMs, concurrency }
+ * @returns {Promise<Array|{releases: Array, log: Array}>}
  */
 async function fetchGitHubReleases(options = {}) {
   const {
@@ -236,11 +289,18 @@ async function fetchGitHubReleases(options = {}) {
     nowMs = Date.now(),
     timeoutMs = 10_000,
     concurrency = 8,
+    // The band's window is 14 days because a two-week-old release is not news.
+    // The ledger's question is different — "when did this company last ship" —
+    // and answering it needs a longer look-back than the band's.
+    logWindowDays = 60,
+    // Opt-in: return { releases, log } instead of the bare band selection, so
+    // the registry can read every ship without a second pass over the API.
+    withLog = false,
   } = options;
 
   if (typeof fetchImpl !== "function") {
     console.warn("GitHub Releases: no fetch available, skipping");
-    return [];
+    return withLog ? { releases: [], log: [] } : [];
   }
 
   // Same header discipline as src/github.js — UA always, auth when present.
@@ -299,10 +359,18 @@ async function fetchGitHubReleases(options = {}) {
     suppressRepos,
     nowMs,
   });
+  const log = allReleases(all, { windowDays: logWindowDays, nowMs });
   console.log(
-    `GitHub Releases: ${releases.length} notable release(s) from ${watched.length} watched repos`
+    `GitHub Releases: ${releases.length} notable release(s) from ${watched.length} watched repos` +
+      ` (${log.length} shipped inside ${logWindowDays}d, for the company ledger)`
   );
-  return releases;
+  return withLog ? { releases, log } : releases;
 }
 
-module.exports = { fetchGitHubReleases, selectReleases, isPatchNoise, WATCHED_REPOS };
+module.exports = {
+  fetchGitHubReleases,
+  selectReleases,
+  allReleases,
+  isPatchNoise,
+  WATCHED_REPOS,
+};
