@@ -134,6 +134,34 @@ describe("renderRadarSection", () => {
     assert.equal(renderRadarSection([]), "");
     assert.equal(renderRadarSection(null), "");
   });
+  it("badges a free listing and shows why it qualified", () => {
+    const html = renderRadarSection([
+      {
+        id: "stealth/ox-alpha",
+        name: "Ox Alpha",
+        outputPrice: 0,
+        created: Math.floor(Date.now() / 1000),
+        free: true,
+        isNew: true,
+        signals: ["free", "1M context", "multimodal + tool calling", "new listing"],
+      },
+    ]);
+    assert.ok(html.includes("Ox Alpha"));
+    assert.ok(html.includes("stealth"), "the namespace is the story on a stealth listing");
+    assert.ok(html.includes("radar-badge-free"));
+    assert.ok(html.includes(">FREE<"));
+    assert.ok(html.includes(">NEW<"));
+    assert.ok(html.includes("Free"), "$0 renders as Free, not as a missing price");
+    assert.ok(html.includes("1M context"));
+    assert.ok(!html.includes("free &middot; 1M context"), "badge facts are not repeated in the why column");
+  });
+  it("renders a row with no badges or signals from a pre-upgrade sync file", () => {
+    const html = renderRadarSection([
+      { id: "openai/gpt-5.5-pro", name: "OpenAI: GPT-5.5 Pro", outputPrice: 180, created: null },
+    ]);
+    assert.ok(html.includes("GPT-5.5 Pro"));
+    assert.ok(!html.includes("radar-badge"), "absent fields must not fabricate a FREE badge");
+  });
 });
 
 describe("buildCatalog (sync persists full catalog)", () => {
@@ -293,5 +321,41 @@ describe("timeAgo", () => {
 
   it("returns empty string for null", () => {
     assert.equal(timeAgo(null), "");
+  });
+});
+
+describe("renderRadarSection — reconciling two dates", () => {
+  const day = 86400;
+  it("prints when we first saw a listing whose upstream date is old", () => {
+    // A NEW badge beside "44mo ago" reads as a bug unless the table says which
+    // date is which. This is the relisted / backdated / unhidden case.
+    const html = renderRadarSection([
+      {
+        id: "stealth/ox-beta", name: "Ox Beta", outputPrice: 0,
+        created: Math.floor(Date.now() / 1000) - 900 * day,
+        free: true, isNew: true, firstSeenOn: "2026-08-25", signals: ["free", "1M context"],
+      },
+    ]);
+    assert.ok(html.includes("first seen 2026-08-25"));
+  });
+  it("stays silent when the two dates agree", () => {
+    const html = renderRadarSection([
+      {
+        id: "stealth/ox-alpha", name: "Ox Alpha", outputPrice: 0,
+        created: Math.floor(Date.now() / 1000) - 2 * day,
+        free: true, isNew: true, firstSeenOn: "2026-08-25", signals: ["free", "1M context"],
+      },
+    ]);
+    assert.ok(!html.includes("first seen"), "nothing to reconcile, nothing to say");
+  });
+  it("stays silent for a standing row that was never flagged new", () => {
+    const html = renderRadarSection([
+      {
+        id: "openai/o1-pro", name: "OpenAI: o1-pro", outputPrice: 600,
+        created: Math.floor(Date.now() / 1000) - 500 * day,
+        free: false, isNew: false, firstSeenOn: "2026-08-25", signals: ["premium priced"],
+      },
+    ]);
+    assert.ok(!html.includes("first seen"));
   });
 });
