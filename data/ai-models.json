@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-09-02T09:19:03.974Z",
+  "syncedAt": "2026-09-03T09:28:40.819Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 12,
     "missed": 0,
-    "catalog": 395,
+    "catalog": 398,
     "bannerSlots": 7
   },
   "models": [
@@ -687,6 +687,18 @@
   },
   "untracked": [
     {
+      "id": "google/gemini-3.8-flash",
+      "name": "Google: Gemini 3.8 Flash",
+      "outputPrice": 3.75,
+      "created": 1788362056
+    },
+    {
+      "id": "google/gemini-3.8-flash:batch",
+      "name": "Google: Gemini 3.8 Flash (batch)",
+      "outputPrice": 1.875,
+      "created": 1788362056
+    },
+    {
       "id": "anthropic/claude-fable-5.1",
       "name": "Anthropic: Claude Fable 5.1",
       "outputPrice": 50,
@@ -733,18 +745,6 @@
       "name": "OpenAI: GPT-5.6 Terra Pro",
       "outputPrice": 12,
       "created": 1783590861
-    },
-    {
-      "id": "openai/gpt-5.6-terra-pro:batch",
-      "name": "OpenAI: GPT-5.6 Terra Pro (batch)",
-      "outputPrice": 6,
-      "created": 1783590861
-    },
-    {
-      "id": "openai/gpt-5.6-terra",
-      "name": "OpenAI: GPT-5.6 Terra",
-      "outputPrice": 12,
-      "created": 1783590857
     }
   ],
   "catalog": [
@@ -3559,8 +3559,8 @@
       "context_length": 1048576,
       "input": 2,
       "output": 6,
-      "cache_read_price": 0.19999999999999998,
-      "max_completion_tokens": 131072,
+      "cache_read_price": 0.25,
+      "max_completion_tokens": 262144,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -4446,8 +4446,8 @@
       "context_length": 1310720,
       "input": 1.4,
       "output": 4.4,
-      "cache_read_price": 0.26,
-      "max_completion_tokens": 131072,
+      "cache_read_price": 0.14,
+      "max_completion_tokens": 262144,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -4589,6 +4589,40 @@
       ],
       "created": 1738351721,
       "description": "OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. This model sup",
+      "hugging_face_id": null
+    },
+    {
+      "id": "meta/muse-spark-1.3",
+      "name": "Meta: Muse Spark 1.3",
+      "context_length": 1048576,
+      "input": 1.25,
+      "output": 4.25,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1788378359,
+      "description": "Muse Spark 1.3 is a multimodal reasoning model from Meta for long-running agentic, multi-agent, and coding workflows. It is designed to keep track of informatio",
       "hugging_face_id": null
     },
     {
@@ -4979,45 +5013,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "~z-ai/glm-latest",
-      "name": "Z.ai: GLM Latest",
-      "context_length": 1310720,
-      "input": 1.17,
-      "output": 3.9600000000000004,
-      "cache_read_price": 0.234,
-      "max_completion_tokens": 943718,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1787151053,
-      "description": "This model always redirects to the latest GLM model from Z.ai.",
-      "hugging_face_id": null
-    },
-    {
       "id": "deepseek/deepseek-v4-pro-0813:batch",
       "name": "DeepSeek: DeepSeek V4 Pro 0813 (batch)",
       "context_length": 1048576,
@@ -5116,6 +5111,40 @@
       ],
       "created": 1758662808,
       "description": "Qwen3-Max is an updated release built on the Qwen3 series, offering major improvements in reasoning, instruction following, multilingual support, and long-tail ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "google/gemini-3.8-flash",
+      "name": "Google: Gemini 3.8 Flash",
+      "context_length": 1048576,
+      "input": 0.75,
+      "output": 3.75,
+      "cache_read_price": 0.075,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1788362056,
+      "description": "Gemini 3.8 Flash is Google's most intelligent Flash model with significant gains from 3.7 Flash across software engineering, agentic tasks, and multi-step reaso",
       "hugging_face_id": null
     },
     {
@@ -5255,41 +5284,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "nvidia/nemotron-3-ultra-550b-a55b:batch",
-      "name": "NVIDIA: Nemotron 3 Ultra (batch)",
-      "context_length": 512288,
-      "input": 0.6,
-      "output": 3.5999999999999996,
-      "cache_read_price": 0.19999999999999998,
-      "max_completion_tokens": 461059,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1780551208,
-      "description": "NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid",
-      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
-    },
-    {
       "id": "qwen/qwen3.6-27b",
       "name": "Qwen: Qwen3.6 27B",
       "context_length": 262144,
@@ -5327,6 +5321,84 @@
       "created": 1777255064,
       "description": "Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a",
       "hugging_face_id": "Qwen/Qwen3.6-27B"
+    },
+    {
+      "id": "qwen/qwen3.5-397b-a17b",
+      "name": "Qwen: Qwen3.5 397B A17B",
+      "context_length": 262144,
+      "input": 0.55,
+      "output": 3.5,
+      "cache_read_price": 0.22499999999999998,
+      "max_completion_tokens": 235929,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1771223018,
+      "description": "The Qwen3.5 series 397B-A17B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-o",
+      "hugging_face_id": "Qwen/Qwen3.5-397B-A17B"
+    },
+    {
+      "id": "~z-ai/glm-latest",
+      "name": "Z.ai: GLM Latest",
+      "context_length": 1310720,
+      "input": 1.106,
+      "output": 3.476,
+      "cache_read_price": 0.1817,
+      "max_completion_tokens": 943718,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787151053,
+      "description": "This model always redirects to the latest GLM model from Z.ai.",
+      "hugging_face_id": null
     },
     {
       "id": "moonshotai/kimi-k2.7-code",
@@ -5461,42 +5533,6 @@
       "created": 1733436303,
       "description": "Amazon Nova Pro 1.0 is a capable multimodal model from Amazon focused on providing a combination of accuracy, speed, and cost for a wide range of tasks. As of D",
       "hugging_face_id": null
-    },
-    {
-      "id": "nvidia/nemotron-3-ultra-550b-a55b",
-      "name": "NVIDIA: Nemotron 3 Ultra",
-      "context_length": 262144,
-      "input": 0.625,
-      "output": 3.125,
-      "cache_read_price": 0.1875,
-      "max_completion_tokens": 32768,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1780551208,
-      "description": "NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid",
-      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
     },
     {
       "id": "z-ai/glm-5.2",
@@ -6233,6 +6269,42 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-R1"
     },
     {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "NVIDIA: Nemotron 3 Ultra",
+      "context_length": 262144,
+      "input": 0.6,
+      "output": 2.4,
+      "cache_read_price": 0.12,
+      "max_completion_tokens": 182520,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1780551208,
+      "description": "NVIDIA Nemotron 3 Ultra is an open frontier-reasoning and orchestration model from NVIDIA, with 55B active parameters out of 550B total (MoE). Built on a hybrid",
+      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
+    },
+    {
       "id": "qwen/qwen3.5-122b-a10b",
       "name": "Qwen: Qwen3.5-122B-A10B",
       "context_length": 262144,
@@ -6371,45 +6443,6 @@
       "hugging_face_id": "Qwen/Qwen3-30B-A3B-Thinking-2507"
     },
     {
-      "id": "qwen/qwen3.5-397b-a17b",
-      "name": "Qwen: Qwen3.5 397B A17B",
-      "context_length": 262144,
-      "input": 0.39,
-      "output": 2.34,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1771223018,
-      "description": "The Qwen3.5 series 397B-A17B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-o",
-      "hugging_face_id": "Qwen/Qwen3.5-397B-A17B"
-    },
-    {
       "id": "qwen/qwen3-235b-a22b-thinking-2507",
       "name": "Qwen: Qwen3 235B A22B Thinking 2507",
       "context_length": 131072,
@@ -6538,6 +6571,41 @@
       "created": 1769487076,
       "description": "Kimi K2.5 is Moonshot AI's native multimodal model, delivering state-of-the-art visual coding capability and a self-directed agent swarm paradigm. Built on Kimi",
       "hugging_face_id": "moonshotai/Kimi-K2.5"
+    },
+    {
+      "id": "z-ai/glm-4.6",
+      "name": "Z.ai: GLM 4.6",
+      "context_length": 204800,
+      "input": 0.55,
+      "output": 2.2,
+      "cache_read_price": 0.11,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1759235576,
+      "description": "Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en",
+      "hugging_face_id": "zai-org/GLM-4.6"
     },
     {
       "id": "z-ai/glm-4.5",
@@ -7239,6 +7307,70 @@
       "hugging_face_id": null
     },
     {
+      "id": "google/gemini-3.8-flash:batch",
+      "name": "Google: Gemini 3.8 Flash (batch)",
+      "context_length": 1048576,
+      "input": 0.375,
+      "output": 1.875,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1788362056,
+      "description": "Gemini 3.8 Flash is Google's most intelligent Flash model with significant gains from 3.7 Flash across software engineering, agentic tasks, and multi-step reaso",
+      "hugging_face_id": null
+    },
+    {
+      "id": "google/gemini-3.7-flash:batch",
+      "name": "Google: Gemini 3.7 Flash (batch)",
+      "context_length": 1048576,
+      "input": 0.375,
+      "output": 1.875,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "tool_choice",
+        "tools"
+      ],
+      "created": 1786640581,
+      "description": "Gemini 3.7 Flash is a multimodal model from Google for fast agentic workflows, coding, and complex multi-step reasoning. It is designed for tasks that require r",
+      "hugging_face_id": null
+    },
+    {
       "id": "google/gemini-3.6-flash:batch",
       "name": "Google: Gemini 3.6 Flash (batch)",
       "context_length": 1048576,
@@ -7405,41 +7537,6 @@
       "created": 1766378014,
       "description": "GLM-4.7 is Z.ai’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. ",
       "hugging_face_id": "zai-org/GLM-4.7"
-    },
-    {
-      "id": "z-ai/glm-4.6",
-      "name": "Z.ai: GLM 4.6",
-      "context_length": 204800,
-      "input": 0.43,
-      "output": 1.75,
-      "cache_read_price": 0.08,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1759235576,
-      "description": "Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en",
-      "hugging_face_id": "zai-org/GLM-4.6"
     },
     {
       "id": "aion-labs/aion-2.0",
@@ -7893,6 +7990,7 @@
         "logit_bias",
         "logprobs",
         "max_tokens",
+        "min_p",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
@@ -8157,45 +8255,6 @@
       "created": 1710288000,
       "description": "Claude 3 Haiku is Anthropic's fastest and most compact model for\nnear-instant responsiveness. Quick and accurate targeted performance.\n\nSee the launch announcem",
       "hugging_face_id": null
-    },
-    {
-      "id": "meta/muse-glimmer-30b",
-      "name": "Meta: Muse Glimmer 30B",
-      "context_length": 131072,
-      "input": 0.3,
-      "output": 1.2,
-      "cache_read_price": 0.04,
-      "max_completion_tokens": 16384,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786302394,
-      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
-      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
     },
     {
       "id": "thinkingmachines/inkling-small",
@@ -8694,6 +8753,45 @@
       "created": 1777261362,
       "description": "Qwen3.6 Flash is a fast, efficient language model from Alibaba's Qwen 3.6 series. It supports text, image, and video input with a 1M token context window. Tiere",
       "hugging_face_id": null
+    },
+    {
+      "id": "meta/muse-glimmer-30b",
+      "name": "Meta: Muse Glimmer 30B",
+      "context_length": 131072,
+      "input": 0.3,
+      "output": 1.1,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 117964,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786302394,
+      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
+      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
     },
     {
       "id": "qwen/qwen3-next-80b-a3b-instruct",
@@ -9210,38 +9308,6 @@
       "created": 1755779628,
       "description": "DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinking modes via prompt templates. It extend",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1"
-    },
-    {
-      "id": "google/gemini-3.7-flash:batch",
-      "name": "Google: Gemini 3.7 Flash (batch)",
-      "context_length": 1048576,
-      "input": 0.1875,
-      "output": 0.9375,
-      "cache_read_price": 0.01875,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+file+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "file",
-        "audio"
-      ],
-      "supported_parameters": [
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "reasoning_effort",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "tool_choice",
-        "tools"
-      ],
-      "created": 1786640581,
-      "description": "Gemini 3.7 Flash is a multimodal model from Google for fast agentic workflows, coding, and complex multi-step reasoning. It is designed for tasks that require r",
-      "hugging_face_id": null
     },
     {
       "id": "qwen/qwen3.6-35b-a3b",
@@ -9876,41 +9942,6 @@
       "created": 1685232000,
       "description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nT",
       "hugging_face_id": null
-    },
-    {
-      "id": "meta-llama/llama-3.3-70b-instruct",
-      "name": "Meta: Llama 3.3 70B Instruct",
-      "context_length": 131072,
-      "input": 0.71,
-      "output": 0.71,
-      "cache_read_price": 0.71,
-      "max_completion_tokens": 115200,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1733506137,
-      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
-      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
     },
     {
       "id": "nousresearch/hermes-3-llama-3.1-70b",
@@ -11371,6 +11402,41 @@
       "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
     },
     {
+      "id": "meta-llama/llama-3.3-70b-instruct",
+      "name": "Meta: Llama 3.3 70B Instruct",
+      "context_length": 131072,
+      "input": 0.09999999999999999,
+      "output": 0.32,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1733506137,
+      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
+      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
+    },
+    {
       "id": "stepfun/step-3.5-flash",
       "name": "StepFun: Step 3.5 Flash",
       "context_length": 262144,
@@ -11788,7 +11854,7 @@
       "input": 0.075,
       "output": 0.25,
       "cache_read_price": 0.015,
-      "max_completion_tokens": 131072,
+      "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
         "text",
@@ -11989,6 +12055,40 @@
       "hugging_face_id": "meta-llama/Llama-3.2-1B-Instruct"
     },
     {
+      "id": "meta/muse-spark-1.3-contributor",
+      "name": "Meta: Muse Spark 1.3 Contributor",
+      "context_length": 1048576,
+      "input": 0.09999999999999999,
+      "output": 0.19999999999999998,
+      "cache_read_price": 0.002,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1788381519,
+      "description": "Muse Spark 1.3 Contributor is the cost-efficient contributor tier of Meta’s multimodal reasoning model for experimentation, learning, and early-stage agentic, m",
+      "hugging_face_id": null
+    },
+    {
       "id": "meta/muse-spark-1.2-contributor",
       "name": "Meta: Muse Spark 1.2 Contributor",
       "context_length": 1048576,
@@ -12065,8 +12165,8 @@
       "context_length": 262144,
       "input": 0.049999999999999996,
       "output": 0.19999999999999998,
-      "cache_read_price": 0.024999999999999998,
-      "max_completion_tokens": 228000,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 235929,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -12693,8 +12793,10 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "logit_bias",
         "logprobs",
         "max_tokens",
+        "min_p",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
