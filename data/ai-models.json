@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-09-07T09:57:38.608Z",
+  "syncedAt": "2026-09-08T09:23:03.852Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
@@ -2181,6 +2181,46 @@
       "hugging_face_id": null
     },
     {
+      "id": "~moonshotai/kimi-latest",
+      "name": "MoonshotAI Kimi Latest",
+      "context_length": 1048576,
+      "input": 2.5,
+      "output": 14,
+      "cache_read_price": 0.29,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777318428,
+      "description": "This model always redirects to the latest model in the MoonshotAI Kimi family.",
+      "hugging_face_id": null
+    },
+    {
       "id": "openai/gpt-5.3-codex",
       "name": "OpenAI: GPT-5.3-Codex",
       "context_length": 400000,
@@ -2292,46 +2332,6 @@
       ],
       "created": 1765389775,
       "description": "GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reas",
-      "hugging_face_id": null
-    },
-    {
-      "id": "~moonshotai/kimi-latest",
-      "name": "MoonshotAI Kimi Latest",
-      "context_length": 1048576,
-      "input": 2.5500000000000003,
-      "output": 12.75,
-      "cache_read_price": 0.25599998999999996,
-      "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777318428,
-      "description": "This model always redirects to the latest model in the MoonshotAI Kimi family.",
       "hugging_face_id": null
     },
     {
@@ -5336,11 +5336,11 @@
     {
       "id": "mistralai/mistral-medium-3-5:batch",
       "name": "Mistral: Mistral Medium 3.5 (batch)",
-      "context_length": 32768,
+      "context_length": 262144,
       "input": 0.75,
       "output": 3.75,
       "cache_read_price": null,
-      "max_completion_tokens": 26214,
+      "max_completion_tokens": 209715,
       "modality": "text+image+file->text",
       "input_modalities": [
         "text",
@@ -5444,9 +5444,9 @@
       "id": "moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "context_length": 262144,
-      "input": 0.66,
-      "output": 3.4,
-      "cache_read_price": 0.18,
+      "input": 0.71,
+      "output": 3.5,
+      "cache_read_price": 0.15,
       "max_completion_tokens": 235929,
       "modality": "text+image->text",
       "input_modalities": [
@@ -5962,7 +5962,7 @@
       ],
       "created": 1787897375,
       "description": "Tencent: Hy4 preview is a mixture-of-experts model from Tencent, with 49B active parameters out of 770B total. It is designed for coding agents, complex tool-us",
-      "hugging_face_id": null
+      "hugging_face_id": "tencent/Hy4-preview"
     },
     {
       "id": "bytedance-seed/seed-2-1-turbo",
@@ -6161,8 +6161,8 @@
       "context_length": 262144,
       "input": 0.6,
       "output": 2.5,
-      "cache_read_price": 0.15,
-      "max_completion_tokens": 100352,
+      "cache_read_price": null,
+      "max_completion_tokens": 235929,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -6652,6 +6652,41 @@
       "hugging_face_id": "moonshotai/Kimi-K2.5"
     },
     {
+      "id": "z-ai/glm-4.6",
+      "name": "Z.ai: GLM 4.6",
+      "context_length": 204800,
+      "input": 0.55,
+      "output": 2.2,
+      "cache_read_price": 0.11,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1759235576,
+      "description": "Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en",
+      "hugging_face_id": "zai-org/GLM-4.6"
+    },
+    {
       "id": "z-ai/glm-4.5",
       "name": "Z.ai: GLM 4.5",
       "context_length": 131072,
@@ -6682,7 +6717,7 @@
       "id": "minimax/minimax-m1",
       "name": "MiniMax: MiniMax M1",
       "context_length": 1000000,
-      "input": 0.55,
+      "input": 0.39999999999999997,
       "output": 2.2,
       "cache_read_price": null,
       "max_completion_tokens": 40000,
@@ -7653,78 +7688,6 @@
       "created": 1766378014,
       "description": "GLM-4.7 is Z.ai’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. ",
       "hugging_face_id": "zai-org/GLM-4.7"
-    },
-    {
-      "id": "z-ai/glm-4.6",
-      "name": "Z.ai: GLM 4.6",
-      "context_length": 204800,
-      "input": 0.43,
-      "output": 1.75,
-      "cache_read_price": 0.08,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1759235576,
-      "description": "Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en",
-      "hugging_face_id": "zai-org/GLM-4.6"
-    },
-    {
-      "id": "deepseek/deepseek-chat-v3.1",
-      "name": "DeepSeek: DeepSeek V3.1",
-      "context_length": 163840,
-      "input": 0.55,
-      "output": 1.6500000000000001,
-      "cache_read_price": 0.55,
-      "max_completion_tokens": 144900,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1755779628,
-      "description": "DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinking modes via prompt templates. It extend",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3.1"
     },
     {
       "id": "aion-labs/aion-2.0",
@@ -8907,6 +8870,41 @@
       "hugging_face_id": "stepfun-ai/Step-3.7-Flash"
     },
     {
+      "id": "deepseek/deepseek-chat-v3-0324",
+      "name": "DeepSeek: DeepSeek V3 0324",
+      "context_length": 163840,
+      "input": 0.29,
+      "output": 1.1400000000000001,
+      "cache_read_price": 0.11,
+      "max_completion_tokens": 147456,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1742824755,
+      "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [Deep",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3-0324"
+    },
+    {
       "id": "qwen/qwen3.6-flash",
       "name": "Qwen: Qwen3.6 Flash",
       "context_length": 1000000,
@@ -9124,7 +9122,6 @@
         "image"
       ],
       "supported_parameters": [
-        "frequency_penalty",
         "include_reasoning",
         "logprobs",
         "max_tokens",
@@ -9238,41 +9235,6 @@
       "created": 1753230546,
       "description": "Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is optimized for agentic coding tasks such as ",
       "hugging_face_id": "Qwen/Qwen3-Coder-480B-A35B-Instruct"
-    },
-    {
-      "id": "deepseek/deepseek-chat-v3-0324",
-      "name": "DeepSeek: DeepSeek V3 0324",
-      "context_length": 163840,
-      "input": 0.25,
-      "output": 1,
-      "cache_read_price": null,
-      "max_completion_tokens": 147456,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1742824755,
-      "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the [Deep",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3-0324"
     },
     {
       "id": "qwen/qwen2.5-vl-72b-instruct",
@@ -9459,6 +9421,80 @@
       "created": 1775148486,
       "description": "Gemma 4 31B Instruct is Google DeepMind's 30.7B dense multimodal model supporting text and image input with text output. Features a 256K token context window, c",
       "hugging_face_id": "google/gemma-4-31B-it"
+    },
+    {
+      "id": "deepseek/deepseek-chat-v3.1",
+      "name": "DeepSeek: DeepSeek V3.1",
+      "context_length": 163840,
+      "input": 0.25,
+      "output": 0.95,
+      "cache_read_price": 0.13,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1755779628,
+      "description": "DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinking modes via prompt templates. It extend",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3.1"
+    },
+    {
+      "id": "qwen/qwen3-14b",
+      "name": "Qwen: Qwen3 14B",
+      "context_length": 131072,
+      "input": 0.22749999999999998,
+      "output": 0.9099999999999999,
+      "cache_read_price": null,
+      "max_completion_tokens": 8192,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1745876478,
+      "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
+      "hugging_face_id": "Qwen/Qwen3-14B"
     },
     {
       "id": "qwen/qwen3.6-35b-a3b",
@@ -10859,6 +10895,7 @@
         "response_format",
         "seed",
         "stop",
+        "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
@@ -11151,10 +11188,10 @@
       "id": "z-ai/glm-4.7-flash",
       "name": "Z.ai: GLM 4.7 Flash",
       "context_length": 202752,
-      "input": 0.06,
+      "input": 0.060500000000000005,
       "output": 0.39999999999999997,
-      "cache_read_price": 0.01,
-      "max_completion_tokens": 16384,
+      "cache_read_price": null,
+      "max_completion_tokens": 117964,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -11823,46 +11860,6 @@
       "hugging_face_id": "tencent/Hy-MT2-7B"
     },
     {
-      "id": "deepseek/deepseek-v4-flash-0731",
-      "name": "DeepSeek: DeepSeek V4 Flash 0731",
-      "context_length": 1310720,
-      "input": 0.14,
-      "output": 0.28,
-      "cache_read_price": 0.028,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1785478908,
-      "description": "DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total. This re-post-trained revision is suited",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-0731"
-    },
-    {
       "id": "deepseek/deepseek-v4-flash-0731:batch",
       "name": "DeepSeek: DeepSeek V4 Flash 0731 (batch)",
       "context_length": 1048576,
@@ -12112,43 +12109,6 @@
       "created": 1773152396,
       "description": "Qwen3.5-9B is a multimodal foundation model from the Qwen3.5 family, designed to deliver strong reasoning, coding, and visual understanding in an efficient 9B-p",
       "hugging_face_id": "Qwen/Qwen3.5-9B"
-    },
-    {
-      "id": "qwen/qwen3-14b",
-      "name": "Qwen: Qwen3 14B",
-      "context_length": 131072,
-      "input": 0.12,
-      "output": 0.24,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1745876478,
-      "description": "Qwen3-14B is a dense 14.8B parameter causal language model from the Qwen3 series, designed for both complex reasoning and efficient dialogue. It supports seamle",
-      "hugging_face_id": "Qwen/Qwen3-14B"
     },
     {
       "id": "amazon/nova-lite-v1",
@@ -12771,6 +12731,46 @@
       "created": 1787846290,
       "description": "Ling 3.0 Flash Fin is a finance-focused mixture-of-experts model from InclusionAI, built on Ling 3.0 Flash with 5.1B active parameters out of 124B total. It is ",
       "hugging_face_id": null
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-0731",
+      "name": "DeepSeek: DeepSeek V4 Flash 0731",
+      "context_length": 1310720,
+      "input": 0.065,
+      "output": 0.18,
+      "cache_read_price": 0.016,
+      "max_completion_tokens": 943718,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1785478908,
+      "description": "DeepSeek V4 Flash 0731 is a sparse mixture-of-experts model from DeepSeek, with 13B active parameters out of 284B total. This re-post-trained revision is suited",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-0731"
     },
     {
       "id": "poolside/laguna-s-2.1",
