@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-09-09T09:24:41.041Z",
+  "syncedAt": "2026-09-10T09:23:53.935Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 11,
     "missed": 1,
-    "catalog": 405,
+    "catalog": 410,
     "bannerSlots": 7
   },
   "models": [
@@ -687,6 +687,12 @@
   },
   "untracked": [
     {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "outputPrice": 1.2,
+      "created": 1789021285
+    },
+    {
       "id": "openai/gpt-6-astra",
       "name": "OpenAI: GPT-6 Astra",
       "outputPrice": 50,
@@ -738,12 +744,6 @@
       "id": "google/gemini-3.6-flash",
       "name": "Google: Gemini 3.6 Flash",
       "outputPrice": 3.75,
-      "created": 1784646733
-    },
-    {
-      "id": "google/gemini-3.6-flash:batch",
-      "name": "Google: Gemini 3.6 Flash (batch)",
-      "outputPrice": 1.875,
       "created": 1784646733
     }
   ],
@@ -4818,7 +4818,7 @@
       "input": 1,
       "output": 4.05,
       "cache_read_price": 0.16999999999999998,
-      "max_completion_tokens": 471859,
+      "max_completion_tokens": 32768,
       "modality": "text+image+audio->text",
       "input_modalities": [
         "text",
@@ -5448,9 +5448,9 @@
       "id": "~z-ai/glm-latest",
       "name": "Z.ai: GLM Latest",
       "context_length": 1310720,
-      "input": 1.113,
-      "output": 3.4979999999999998,
-      "cache_read_price": 0.2067,
+      "input": 1.085,
+      "output": 3.41,
+      "cache_read_price": 0.20149999999999998,
       "max_completion_tokens": 128000,
       "modality": "text->text",
       "input_modalities": [
@@ -5722,6 +5722,7 @@
         "temperature",
         "tool_choice",
         "tools",
+        "top_a",
         "top_k",
         "top_logprobs",
         "top_p"
@@ -6165,8 +6166,8 @@
       "context_length": 262144,
       "input": 0.6,
       "output": 2.5,
-      "cache_read_price": null,
-      "max_completion_tokens": 235929,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 100352,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -6347,45 +6348,6 @@
       "created": 1737381095,
       "description": "DeepSeek R1 is here: Performance on par with [OpenAI o1](/openai/o1), but open-sourced and with fully open reasoning tokens. It's 671B parameters in size, with ",
       "hugging_face_id": "deepseek-ai/DeepSeek-R1"
-    },
-    {
-      "id": "qwen/qwen3.5-122b-a10b",
-      "name": "Qwen: Qwen3.5-122B-A10B",
-      "context_length": 262144,
-      "input": 0.29,
-      "output": 2.4,
-      "cache_read_price": null,
-      "max_completion_tokens": 81920,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1772053789,
-      "description": "The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-exper",
-      "hugging_face_id": "Qwen/Qwen3.5-122B-A10B"
     },
     {
       "id": "openai/gpt-audio-mini",
@@ -6872,6 +6834,45 @@
       "created": 1760463746,
       "description": "Qwen3-VL-8B-Thinking is the reasoning-optimized variant of the Qwen3-VL-8B multimodal model, designed for advanced visual and textual reasoning across complex s",
       "hugging_face_id": "Qwen/Qwen3-VL-8B-Thinking"
+    },
+    {
+      "id": "qwen/qwen3.5-122b-a10b",
+      "name": "Qwen: Qwen3.5-122B-A10B",
+      "context_length": 262144,
+      "input": 0.26,
+      "output": 2.08,
+      "cache_read_price": null,
+      "max_completion_tokens": 65536,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1772053789,
+      "description": "The Qwen3.5 122B-A10B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-of-exper",
+      "hugging_face_id": "Qwen/Qwen3.5-122B-A10B"
     },
     {
       "id": "x-ai/grok-build-0.1",
@@ -8407,6 +8408,39 @@
       "hugging_face_id": null
     },
     {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "context_length": 1048576,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.006,
+      "max_completion_tokens": 384000,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1789021285,
+      "description": "DeepSeek V4.1 Flash is a sparse mixture-of-experts model from DeepSeek, and the cost-efficient tier of the V4.1 family. DeepSeek reports that it exceeds V4 Pro ",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash"
+    },
+    {
       "id": "thinkingmachines/inkling-small",
       "name": "Thinking Machines: Inkling Small",
       "context_length": 1048576,
@@ -8718,6 +8752,43 @@
       "created": 1773836697,
       "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
       "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
+    },
+    {
+      "id": "minimax/minimax-m2.5",
+      "name": "MiniMax: MiniMax M2.5",
+      "context_length": 204800,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1770908502,
+      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
     },
     {
       "id": "minimax/minimax-m2-her",
@@ -9036,26 +9107,23 @@
       "hugging_face_id": "MiniMaxAI/MiniMax-Text-01"
     },
     {
-      "id": "minimax/minimax-m2.5",
-      "name": "MiniMax: MiniMax M2.5",
-      "context_length": 204800,
-      "input": 0.27,
-      "output": 1.08,
-      "cache_read_price": 0.027,
-      "max_completion_tokens": 128000,
+      "id": "deepseek/deepseek-chat",
+      "name": "DeepSeek: DeepSeek V3",
+      "context_length": 163840,
+      "input": 0.2574,
+      "output": 1.0287,
+      "cache_read_price": null,
+      "max_completion_tokens": 16000,
       "modality": "text->text",
       "input_modalities": [
         "text"
       ],
       "supported_parameters": [
         "frequency_penalty",
-        "include_reasoning",
         "logit_bias",
-        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
-        "reasoning",
         "repetition_penalty",
         "response_format",
         "seed",
@@ -9065,12 +9133,11 @@
         "tool_choice",
         "tools",
         "top_k",
-        "top_logprobs",
         "top_p"
       ],
-      "created": 1770908502,
-      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
+      "created": 1735241320,
+      "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on ne",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3"
     },
     {
       "id": "minimax/minimax-m2",
@@ -9141,6 +9208,37 @@
       "created": 1758548275,
       "description": "DeepSeek-V3.1 Terminus is an update to [DeepSeek V3.1](/deepseek/deepseek-chat-v3.1) that maintains the model's original capabilities while addressing issues re",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1-Terminus"
+    },
+    {
+      "id": "mistralai/mistral-medium-3.1:batch",
+      "name": "Mistral: Mistral Medium 3.1 (batch)",
+      "context_length": 131072,
+      "input": 0.19999999999999998,
+      "output": 1,
+      "cache_read_price": 0.02,
+      "max_completion_tokens": 104857,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1755095639,
+      "description": "Mistral Medium 3.1 is an updated version of Mistral Medium 3, which is a high-performance enterprise-grade language model designed to deliver frontier-level cap",
+      "hugging_face_id": null
     },
     {
       "id": "openai/gpt-5-mini:batch",
@@ -9597,39 +9695,6 @@
       "hugging_face_id": "cognitivecomputations/Dolphin-Mistral-24B-Venice-Edition"
     },
     {
-      "id": "deepseek/deepseek-chat",
-      "name": "DeepSeek: DeepSeek V3",
-      "context_length": 163840,
-      "input": 0.32,
-      "output": 0.8899999999999999,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1735241320,
-      "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on ne",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3"
-    },
-    {
       "id": "qwen/qwen3-235b-a22b-2507",
       "name": "Qwen: Qwen3 235B A22B Instruct 2507",
       "context_length": 262144,
@@ -10076,6 +10141,37 @@
       ],
       "created": 1772636275,
       "description": "Mercury 2 is an extremely fast reasoning LLM, and the first reasoning diffusion LLM (dLLM). Instead of generating tokens sequentially, Mercury 2 produces and re",
+      "hugging_face_id": null
+    },
+    {
+      "id": "mistralai/mistral-large-2512:batch",
+      "name": "Mistral: Mistral Large 3 2512 (batch)",
+      "context_length": 262144,
+      "input": 0.25,
+      "output": 0.75,
+      "cache_read_price": 0.024999999999999998,
+      "max_completion_tokens": 209715,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1764624472,
+      "description": "Mistral Large 3 2512 is Mistral’s most capable model to date, featuring a sparse mixture-of-experts architecture with 41B active parameters (675B total), and re",
       "hugging_face_id": null
     },
     {
@@ -10931,10 +11027,13 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "logit_bias",
         "logprobs",
         "max_tokens",
+        "min_p",
         "presence_penalty",
         "reasoning",
+        "repetition_penalty",
         "response_format",
         "seed",
         "stop",
@@ -11015,6 +11114,37 @@
       "created": 1745876632,
       "description": "Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seam",
       "hugging_face_id": "Qwen/Qwen3-8B"
+    },
+    {
+      "id": "mistralai/codestral-2508:batch",
+      "name": "Mistral: Codestral 2508 (batch)",
+      "context_length": 256000,
+      "input": 0.15,
+      "output": 0.44999999999999996,
+      "cache_read_price": 0.015,
+      "max_completion_tokens": 204800,
+      "modality": "text+file->text",
+      "input_modalities": [
+        "text",
+        "file"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "prediction",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1754079630,
+      "description": "Mistral's cutting-edge language model for coding released end of July 2025. Codestral specializes in low-latency, high-frequency tasks such as fill-in-the-middl",
+      "hugging_face_id": null
     },
     {
       "id": "google/gemma-3-27b-it",
@@ -11262,34 +11392,6 @@
       "created": 1764594642,
       "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
-    },
-    {
-      "id": "nousresearch/hermes-4-70b",
-      "name": "Nous: Hermes 4 70B",
-      "context_length": 131072,
-      "input": 0.13,
-      "output": 0.39999999999999997,
-      "cache_read_price": null,
-      "max_completion_tokens": 117964,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "temperature",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1756236182,
-      "description": "Hermes 4 70B is a hybrid reasoning model from Nous Research, built on Meta-Llama-3.1-70B. It introduces the same hybrid mode as the larger 405B release, allowin",
-      "hugging_face_id": "NousResearch/Hermes-4-70B"
     },
     {
       "id": "openai/gpt-5-nano",
@@ -11703,6 +11805,39 @@
       "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
     },
     {
+      "id": "mistralai/mistral-small-2603:batch",
+      "name": "Mistral: Mistral Small 4 (batch)",
+      "context_length": 262144,
+      "input": 0.075,
+      "output": 0.3,
+      "cache_read_price": 0.0075,
+      "max_completion_tokens": 209715,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1773695685,
+      "description": "Mistral Small 4 is the next major release in the Mistral Small family, unifying the capabilities of several flagship Mistral models into a single system. It com",
+      "hugging_face_id": "mistralai/Mistral-Small-4-119B-2603"
+    },
+    {
       "id": "stepfun/step-3.5-flash",
       "name": "StepFun: Step 3.5 Flash",
       "context_length": 262144,
@@ -11819,6 +11954,40 @@
       "created": 1761752836,
       "description": "gpt-oss-safeguard-20b is a safety reasoning model from OpenAI built upon gpt-oss-20b. This open-weight, 21B-parameter Mixture-of-Experts (MoE) model offers lowe",
       "hugging_face_id": "openai/gpt-oss-safeguard-20b"
+    },
+    {
+      "id": "qwen/qwen3-30b-a3b-instruct-2507",
+      "name": "Qwen: Qwen3 30B A3B Instruct 2507",
+      "context_length": 262144,
+      "input": 0.09,
+      "output": 0.3,
+      "cache_read_price": null,
+      "max_completion_tokens": 235929,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1753806965,
+      "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
+      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
     },
     {
       "id": "meta-llama/llama-4-scout",
@@ -12123,7 +12292,7 @@
       "input": 0.075,
       "output": 0.25,
       "cache_read_price": 0.015,
-      "max_completion_tokens": 943718,
+      "max_completion_tokens": 131072,
       "modality": "text+image+video->text",
       "input_modalities": [
         "text",
@@ -12783,40 +12952,6 @@
       "created": 1729036800,
       "description": "Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has grea",
       "hugging_face_id": "Qwen/Qwen2.5-7B-Instruct"
-    },
-    {
-      "id": "qwen/qwen3-30b-a3b-instruct-2507",
-      "name": "Qwen: Qwen3 30B A3B Instruct 2507",
-      "context_length": 262144,
-      "input": 0.04815,
-      "output": 0.19305,
-      "cache_read_price": null,
-      "max_completion_tokens": 32000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1753806965,
-      "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
-      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
     },
     {
       "id": "inclusionai/ling-3.0-flash-fin",
@@ -13619,6 +13754,36 @@
       "created": 1721692800,
       "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient. It has demonstrated s",
       "hugging_face_id": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    },
+    {
+      "id": "mistralai/ministral-8b-2512:batch",
+      "name": "Mistral: Ministral 3 8B 2512 (batch)",
+      "context_length": 262144,
+      "input": 0.075,
+      "output": 0.075,
+      "cache_read_price": 0.0075,
+      "max_completion_tokens": 209715,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1764681654,
+      "description": "A balanced model in the Ministral 3 family, Ministral 3 8B is a powerful, efficient tiny language model with vision capabilities.",
+      "hugging_face_id": "mistralai/Ministral-3-8B-Instruct-2512"
     },
     {
       "id": "inclusionai/ling-3.0-flash",
