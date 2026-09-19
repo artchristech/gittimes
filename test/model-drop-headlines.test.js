@@ -91,4 +91,17 @@ describe("renderModelDrops with headlines", () => {
     const html = renderModelDrops([{ ...DROPS[0], headline: "<script>x</script>" }]);
     assert.doesNotMatch(html, /<script>/);
   });
+
+  it("drops stale cards (9d / 11d) rather than printing them as newest", () => {
+    const html = renderModelDrops([
+      { ...DROPS[0], ageDays: 2 },
+      { id: "old-9", author: "acme", name: "stale-nine", likes: 400, ageDays: 9, url: "https://hf.co/n" },
+      { id: "old-11", author: "acme", name: "stale-eleven", likes: 500, ageDays: 11, url: "https://hf.co/e" },
+    ]);
+    assert.match(html, /Nemotron-3-Embed/);
+    assert.doesNotMatch(html, /stale-nine/);
+    assert.doesNotMatch(html, /stale-eleven/);
+    assert.doesNotMatch(html, /9d ago/);
+    assert.doesNotMatch(html, /11d ago/);
+  });
 });

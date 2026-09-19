@@ -243,23 +243,52 @@ function buildBusinessDesks(entities = [], opts = {}) {
 }
 
 /**
- * The front-page Business strip — one line per desk. Cheap placement that
- * carries all three without making the actor axis compete with the topic
- * sections for slots, same shape that worked for the Model Drops band.
+ * Empty-desk / empty-board copy that used to occupy the front-page strip.
+ * A dark desk still exists as a desk page; it just does not take prime strip.
+ */
+const EMPTY_STRIP_LINE_RE = /^No (price baseline|material price moves|.+ movement)\b/i;
+
+function isEmptyStripRow(row) {
+  if (!row) return true;
+  if (row.empty) return true;
+  const line = typeof row.line === "string" ? row.line.trim() : "";
+  if (!line) return true;
+  return EMPTY_STRIP_LINE_RE.test(line);
+}
+
+function deskHasStripContent(desk) {
+  return Boolean(desk && !desk.empty && Array.isArray(desk.items) && desk.items.length > 0);
+}
+
+function priceBoardHasStripContent(board) {
+  return Boolean(board && Array.isArray(board.movers) && board.movers.length > 0);
+}
+
+/**
+ * The front-page Business strip — one line per desk that actually has rows.
+ *
+ * Cheap placement that carries the actor axis without making it compete with
+ * the topic sections for slots, same shape that worked for the Model Drops band.
+ *
+ * Empty desks (and a Price Board with no movers / no baseline) stay off the
+ * strip. Printing "No startups movement…" in prime real estate taught the
+ * reader the paper was empty, not that the beat was quiet — and it crowded
+ * out desks that did ship. The desk *pages* still render their dark state.
  * @param {object} desks - buildBusinessDesks() output
  */
 function buildBusinessStrip(desks = {}, opts = {}) {
   // The Price Board leads the strip when it has a mover. A lab changing what it
   // charges is a harder, more decision-relevant fact than a repo getting tagged,
-  // and unlike release cadence it is a number the reader can act on.
-  const priceRow = opts.priceBoard
+  // and unlike release cadence it is a number the reader can act on. No mover
+  // (or no baseline yet) is not a row — hide the placeholder.
+  const priceRow = priceBoardHasStripContent(opts.priceBoard)
     ? [
         {
           deskId: "prices",
           label: "Price Board",
           slug: "prices",
           line: opts.priceHeadline || null,
-          signal: (opts.priceBoard.movers || []).length > 0 ? "up" : "quiet",
+          signal: "up",
           url: null,
         },
       ]
@@ -267,17 +296,19 @@ function buildBusinessStrip(desks = {}, opts = {}) {
 
   return priceRow.concat(DESK_ORDER.map((id) => {
     const desk = desks[id];
-    if (!desk) return null;
+    if (!deskHasStripContent(desk)) return null;
     const top = desk.items[0];
+    const line = stripLine(id, top);
+    if (!line) return null;
     return {
       deskId: id,
       label: desk.label,
       slug: desk.slug,
-      line: desk.empty ? desk.reason : stripLine(id, top),
-      signal: desk.empty ? "quiet" : signalFor(id, desk),
+      line,
+      signal: signalFor(id, desk),
       url: top ? top.url || top.shippedUrl || null : null,
     };
-  })).filter(Boolean);
+  })).filter((row) => row && !isEmptyStripRow(row));
 }
 
 function stripLine(deskId, item) {
@@ -303,6 +334,9 @@ module.exports = {
   buildDesk,
   buildBusinessDesks,
   buildBusinessStrip,
+  isEmptyStripRow,
+  deskHasStripContent,
+  priceBoardHasStripContent,
   ledgerRow,
   card,
   humanDays,

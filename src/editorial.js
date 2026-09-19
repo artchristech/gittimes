@@ -74,6 +74,35 @@ function _hasNonEnglishContent(repo) {
   return matches !== null && matches.length > text.length * 0.15;
 }
 
+// Evergreen stock, not FLOW: `awesome-*` lists and "curated list of X" repos
+// accrete stars for years and crowd the front page without a ship/event.
+// They may still land in Deep Cuts / Quick Hits; they must not compete for
+// the lead or "More on the Front Page".
+const AWESOME_NAME_RE = /^awesome(?:[-_]|$)/i;
+const CURATED_LIST_DESC_RE = /\b(?:a\s+)?curated list of\b|\bawesome[- ]list\b|\bcurated collection of\b/i;
+
+function _repoShortName(repo) {
+  const full = String((repo && (repo.full_name || repo.name)) || "");
+  return full.includes("/") ? full.slice(full.lastIndexOf("/") + 1) : full;
+}
+
+/**
+ * True for awesome-* / "curated list of X" repos. A real release (e.g.
+ * neurocyte/flow, a Zig editor) does not match — name and description have
+ * to look like a list, not merely contain the word "awesome".
+ */
+function isCuratedList(repo) {
+  if (!repo) return false;
+  if (AWESOME_NAME_RE.test(_repoShortName(repo))) return true;
+  if (CURATED_LIST_DESC_RE.test(String(repo.description || ""))) return true;
+  const topics = Array.isArray(repo.topics) ? repo.topics : [];
+  for (const t of topics) {
+    const s = String(t).toLowerCase();
+    if (s === "awesome-list" || s === "curated-list") return true;
+  }
+  return false;
+}
+
 /**
  * Rank breakout candidates by star-momentum score. This is the FILTER step —
  * it shortlists who is moving — not the editorial decision of what leads. The
@@ -89,6 +118,8 @@ function rankBreakoutCandidates(repos, deltas, limit = 6) {
     if (!delta || delta.starDelta === null || delta.starDelta < 100) continue;
     // Skip non-English repos from breakout lead — audience is English-speaking
     if (_hasNonEnglishContent(repo)) continue;
+    // Awesome / curated lists are stock, not a breakout ship.
+    if (isCuratedList(repo)) continue;
 
     const absoluteGain = delta.starDelta;
     const relativeGain = delta.previousStars > 0 ? absoluteGain / delta.previousStars : 10;
@@ -131,7 +162,7 @@ function selectLeadCandidates(repos, deltas, opts = {}) {
 
   const add = (repo, reason, score) => {
     const id = repo.full_name || repo.name;
-    if (have.has(id) || _hasNonEnglishContent(repo)) return;
+    if (have.has(id) || _hasNonEnglishContent(repo) || isCuratedList(repo)) return;
     have.add(id);
     out.push({ repo, delta: (deltas && deltas.get(repo.full_name)) || null, reason, score });
   };
@@ -188,6 +219,7 @@ function clusterTrends(repos) {
   const clusters = {};
 
   for (const repo of repos) {
+    if (isCuratedList(repo)) continue;
     const text = _repoText(repo);
 
     for (const [theme, keywords] of Object.entries(THEME_KEYWORDS)) {
@@ -312,4 +344,4 @@ function makeEditorialPlan(allRepos, deltas) {
   return { breakout, breakoutCandidates, trends, sleepers, remaining };
 }
 
-module.exports = { identifyBreakout, rankBreakoutCandidates, selectLeadCandidates, clusterTrends, identifySleepers, makeEditorialPlan, isVersionChurn, TRAJECTORY_MULTIPLIERS };
+module.exports = { identifyBreakout, rankBreakoutCandidates, selectLeadCandidates, clusterTrends, identifySleepers, makeEditorialPlan, isVersionChurn, isCuratedList, TRAJECTORY_MULTIPLIERS };
