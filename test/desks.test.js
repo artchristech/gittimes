@@ -194,13 +194,25 @@ describe("buildBusinessDesks / strip", () => {
     assert.deepEqual(Object.keys(desks), DESK_ORDER);
   });
 
-  it("emits one strip line per desk, with the empty ones saying why", () => {
+  it("emits a strip line only for desks that have real rows", () => {
     const { entities } = fixture();
     const strip = buildBusinessStrip(buildBusinessDesks(entities));
-    assert.equal(strip.length, 3);
-    for (const s of strip) assert.ok(s.line, `${s.label} strip line is blank`);
-    const unicorns = strip.find((s) => s.deskId === "unicorns");
-    assert.equal(unicorns.signal === "quiet" || unicorns.signal === "flat" || unicorns.signal === "up", true);
+    assert.ok(strip.length >= 1);
+    for (const s of strip) {
+      assert.ok(s.line, `${s.label} strip line is blank`);
+      assert.equal(/^No .+ movement/i.test(s.line), false, `${s.label} must not print an empty placeholder`);
+    }
+  });
+
+  it("omits empty desks from the strip instead of printing their dark-state reason", () => {
+    const { entities } = buildRegistry({ modelDrops: [drop("Qwen/Qwen3-Next", 1)] }, { nowMs: NOW });
+    const strip = buildBusinessStrip(buildBusinessDesks(entities));
+    assert.equal(strip.some((s) => s.deskId === "startups"), false);
+    assert.equal(strip.some((s) => s.deskId === "unicorns"), false);
+    assert.equal(strip.some((s) => /No startups movement/i.test(s.line || "")), false);
+    const labs = strip.find((s) => s.deskId === "bigLabs");
+    assert.ok(labs, "Big Labs still ships a real row");
+    assert.ok(/shipped/i.test(labs.line));
   });
 
   it("writes silence as silence on the strip", () => {

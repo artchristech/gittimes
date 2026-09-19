@@ -13,6 +13,10 @@
 
 const { ageDays } = require("./recency");
 
+// Front-page Model Drops copy says "newest". Cards older than this are stock,
+// not a drop — they made the live band read stale (9d / 11d ago). Tune here.
+const MODEL_DROPS_WINDOW_DAYS = 7;
+
 // Labs whose releases are news the moment they land, before likes accumulate.
 const TRUSTED_ORGS = new Set([
   "meta-llama", "mistralai", "Qwen", "deepseek-ai", "google", "microsoft",
@@ -69,7 +73,7 @@ const isRoleplay = (tags) => tags.some((t) => ROLEPLAY_TAGS.has(t.toLowerCase())
 function selectModelDrops(models, opts = {}) {
   const {
     limit = 6,
-    windowDays = 14,
+    windowDays = MODEL_DROPS_WINDOW_DAYS,
     minLikes = 80,
     nowMs = Date.now(),
     gravity = 1.3,
@@ -161,7 +165,7 @@ function selectModelDrops(models, opts = {}) {
 async function fetchModelDrops(options = {}) {
   const {
     limit = 6,
-    windowDays = 14,
+    windowDays = MODEL_DROPS_WINDOW_DAYS,
     minLikes = 80,
     fetchImpl = globalThis.fetch,
     nowMs = Date.now(),
@@ -216,4 +220,4 @@ async function fetchModelDrops(options = {}) {
   return drops;
 }
 
-module.exports = { fetchModelDrops, selectModelDrops, TRUSTED_ORGS };
+module.exports = { fetchModelDrops, selectModelDrops, TRUSTED_ORGS, MODEL_DROPS_WINDOW_DAYS };
