@@ -190,11 +190,35 @@ describe("price board on the strip", () => {
     assert.equal(strip[0].deskId, "prices");
     assert.equal(strip[0].signal, "up");
     assert.match(strip[0].line, /DeepSeek cut/);
-    assert.equal(strip.length, 4, "price row plus the three desks");
+    assert.equal(strip.length, 1, "price row only — empty desks stay off the strip");
   });
 
   it("is omitted entirely when no board was built", () => {
     const strip = buildBusinessStrip(buildBusinessDesks([]));
     assert.equal(strip.some((s) => s.deskId === "prices"), false);
+  });
+
+  it("is omitted when the board has no movers — no 'No price baseline' placeholder", () => {
+    const board = buildPriceBoard({ models: [model("x", 1, 4)], history: [], opts: { nowMs: NOW } });
+    const strip = buildBusinessStrip(buildBusinessDesks([]), {
+      priceBoard: board,
+      priceHeadline: priceHeadline(board),
+    });
+    assert.equal(strip.some((s) => s.deskId === "prices"), false);
+    assert.equal(strip.some((s) => /No price baseline/i.test(s.line || "")), false);
+  });
+
+  it("is omitted when prices are covered but nothing moved", () => {
+    const board = buildPriceBoard({
+      models: [model("steady", 1, 4)],
+      history: [snap(20, [{ key: "steady", input: 1, output: 4 }])],
+      opts: { nowMs: NOW },
+    });
+    const strip = buildBusinessStrip(buildBusinessDesks([]), {
+      priceBoard: board,
+      priceHeadline: priceHeadline(board),
+    });
+    assert.equal(strip.some((s) => s.deskId === "prices"), false);
+    assert.equal(strip.some((s) => /No material price moves/i.test(s.line || "")), false);
   });
 });

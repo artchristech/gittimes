@@ -1803,3 +1803,46 @@ describe("categorizeDiverseForSection — section-lead hook gate", () => {
     assert.equal(lead.full_name, "old/a", "recently-led repo must not headline again");
   });
 });
+
+describe("categorizeDiverseForSection — curated-list demotion", () => {
+  const NOW = Date.parse("2026-09-17T00:00:00Z");
+  const iso = (d) => new Date(NOW - d * 86400000).toISOString();
+  const budget = { secondary: 2, quickHits: 5 };
+
+  it("keeps awesome-* / curated-list repos out of lead and More on the Front Page", () => {
+    const repos = [
+      {
+        full_name: "org/awesome-cloudflare-selfhosted",
+        language: "Markdown",
+        _score: 10,
+        description: "A curated list of Cloudflare self-hosted apps",
+        created_at: iso(900),
+        pushed_at: iso(1),
+        _latestRelease: { published_at: iso(2) },
+      },
+      {
+        full_name: "neurocyte/flow",
+        language: "Zig",
+        _score: 6,
+        description: "A terminal-based text editor written in Zig",
+        created_at: iso(400),
+        pushed_at: iso(1),
+        _latestRelease: { published_at: iso(1) },
+      },
+      {
+        full_name: "acme/sidecar",
+        language: "Go",
+        _score: 5,
+        description: "a small ship",
+        created_at: iso(200),
+        pushed_at: iso(1),
+        _latestRelease: { published_at: iso(3) },
+      },
+    ];
+    const { lead, secondary, quickHits } = categorizeDiverseForSection(repos, budget, { now: NOW });
+    assert.equal(lead.full_name, "neurocyte/flow", "FLOW release still leads");
+    const promoted = [lead, ...secondary].map((r) => r.full_name);
+    assert.equal(promoted.includes("org/awesome-cloudflare-selfhosted"), false);
+    assert.ok(quickHits.some((r) => r.full_name === "org/awesome-cloudflare-selfhosted"), "list may still sit in Quick Hits");
+  });
+});

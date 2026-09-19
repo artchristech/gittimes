@@ -8,6 +8,7 @@ const pLimitP = import("p-limit");
 const { fetchTrajectories } = require("./star-history");
 const { SECTIONS, SECTION_ORDER } = require("./sections");
 const { pickLeadIndex, passesPushedRecency } = require("./recency");
+const { isCuratedList } = require("./editorial");
 
 function _graphqlRequest(query, variables, token) {
   return new Promise((resolve, reject) => {
@@ -286,6 +287,20 @@ function categorizeDiverseForSection(scoredRepos, budget, options = {}) {
     }
   }
 
+  // CURATED-LIST DEMOTION — awesome-* / "curated list of X" is evergreen stock,
+  // not FLOW. Hold them out of lead + secondary (front page / More on the Front
+  // Page / Across the Desk). They rejoin overflow → Quick Hits. If the whole
+  // pool is lists, keep them so the section does not go empty (same grace as
+  // the recency floor). A real release like neurocyte/flow is not a list.
+  let curatedOverflow = [];
+  {
+    const news = scoredRepos.filter((r) => !isCuratedList(r));
+    if (news.length) {
+      curatedOverflow = scoredRepos.filter((r) => isCuratedList(r));
+      scoredRepos = news;
+    }
+  }
+
   // FRONT-PAGE FRESHNESS GATE (section lead): the headline that fronts each
   // section — and so appears on the front-page "Across the Desk" rail — must
   // have a genuine recent hook (a release in the lead window OR a brand-new
@@ -353,6 +368,7 @@ function categorizeDiverseForSection(scoredRepos, budget, options = {}) {
 
   const lead = promoted[0] || null;
   const secondary = promoted.slice(1);
+  overflow.push(...curatedOverflow);
   const quickHits = overflow.slice(0, budget.quickHits);
 
   return { lead, secondary, quickHits };

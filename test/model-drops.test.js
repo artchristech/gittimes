@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { selectModelDrops, fetchModelDrops, TRUSTED_ORGS } = require("../src/model-drops");
+const { selectModelDrops, fetchModelDrops, TRUSTED_ORGS, MODEL_DROPS_WINDOW_DAYS } = require("../src/model-drops");
 
 const NOW = Date.parse("2026-07-01T00:00:00Z");
 const iso = (d) => new Date(NOW - d * 86400000).toISOString();
@@ -98,12 +98,27 @@ describe("selectModelDrops", () => {
   });
 
   it("ranks a fresh drop above an older but more-liked one (velocity, not stock)", () => {
-    // The core "band never updates" bug: a 13d-old 650-like model must NOT outrank
-    // a 2d-old 200-like one. Freshness-decayed score, not raw likes.
-    const out = selectModelDrops([M("acme/old-hit", 650, 13), M("acme/fresh", 200, 2)], {
+    // Both inside the 7d window: a 7d-old 650-like model must NOT outrank a
+    // 1d-old 200-like one. Freshness-decayed score, not raw likes.
+    const out = selectModelDrops([M("acme/old-hit", 650, 7), M("acme/fresh", 200, 1)], {
       nowMs: NOW,
     });
     assert.deepEqual(out.map((d) => d.id), ["acme/fresh", "acme/old-hit"]);
+  });
+
+  it("drops cards older than MODEL_DROPS_WINDOW_DAYS (stale 'newest')", () => {
+    // Live failure: 9d / 11d HF cards sat in a band whose copy says "newest".
+    assert.equal(MODEL_DROPS_WINDOW_DAYS, 7);
+    const out = selectModelDrops(
+      [M("acme/nine", 900, 9), M("acme/eleven", 800, 11), M("acme/fresh", 90, 2)],
+      { nowMs: NOW }
+    );
+    assert.deepEqual(out.map((d) => d.id), ["acme/fresh"]);
+  });
+
+  it("includes a card exactly at the window boundary", () => {
+    const out = selectModelDrops([M("acme/edge", 200, MODEL_DROPS_WINDOW_DAYS)], { nowMs: NOW });
+    assert.equal(out.length, 1);
   });
 
   it("excludes a non-trusted uncensored/roleplay finetune even when popular", () => {

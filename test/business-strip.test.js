@@ -10,7 +10,7 @@ const iso = (d) => new Date(NOW - d * 86400000).toISOString();
 
 const STRIP = [
   { deskId: "bigLabs", label: "Big Labs", slug: "big-labs", line: "Qwen shipped Qwen-Agent v1.2.0", signal: "up", url: "https://github.com/QwenLM/Qwen-Agent" },
-  { deskId: "unicorns", label: "Unicorns", slug: "unicorns", line: "No unicorns movement inside the 30d window.", signal: "quiet", url: null },
+  { deskId: "unicorns", label: "Unicorns", slug: "unicorns", line: "hf: transformers v5.2.0", signal: "flat", url: "https://github.com/huggingface/transformers" },
 ];
 
 describe("renderLensNav", () => {
@@ -55,17 +55,31 @@ describe("renderBusinessStrip", () => {
     assert.match(html, /Unicorns/);
   });
 
-  it("keeps a dark desk on the page instead of hiding it", () => {
-    // The cadence rule made visible: silence renders as silence.
-    const html = renderBusinessStrip(STRIP);
-    assert.match(html, /biz-line-quiet/);
-    assert.match(html, /No unicorns movement/);
+  it("omits empty-desk placeholders instead of occupying the strip", () => {
+    const html = renderBusinessStrip([
+      STRIP[0],
+      { deskId: "startups", label: "Startups", slug: "startups", line: "No startups movement inside the 21d window.", signal: "quiet", url: null },
+      { deskId: "prices", label: "Price Board", slug: "prices", line: "No price baseline in the window yet", signal: "quiet", url: null },
+    ]);
+    assert.equal((html.match(/class="biz-row/g) || []).length, 1);
+    assert.match(html, /Big Labs/);
+    assert.equal(html.includes("No startups movement"), false);
+    assert.equal(html.includes("No price baseline"), false);
+  });
+
+  it("returns nothing when every strip row is an empty placeholder", () => {
+    assert.equal(
+      renderBusinessStrip([
+        { deskId: "startups", label: "Startups", slug: "startups", line: "No startups movement inside the 21d window.", signal: "quiet", url: null },
+      ]),
+      ""
+    );
   });
 
   it("links a live line and leaves a dark one unlinked", () => {
     const html = renderBusinessStrip(STRIP);
     assert.match(html, /<a class="biz-line" href="https:\/\/github\.com\/QwenLM/);
-    assert.equal((html.match(/<a class="biz-line"/g) || []).length, 1);
+    assert.equal((html.match(/<a class="biz-line"/g) || []).length, 2);
   });
 
   it("returns nothing when the strip is absent — band disappears cleanly", () => {

@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, selectLeadCandidates } = require("../src/editorial");
+const { identifyBreakout, clusterTrends, identifySleepers, makeEditorialPlan, selectLeadCandidates, isCuratedList, rankBreakoutCandidates } = require("../src/editorial");
 
 describe("selectLeadCandidates", () => {
   it("backfills below the +100 bar so the editor has a real slate", () => {
@@ -31,6 +31,33 @@ describe("selectLeadCandidates", () => {
     const out = selectLeadCandidates(repos, new Map(), { min: 4, max: 6 });
     assert.equal(out.length, 2);
     assert.equal(out[0].repo.full_name, "org/b", "highest-star first when no momentum");
+  });
+});
+
+describe("isCuratedList — awesome / curated-list stock", () => {
+  it("flags awesome-* repo names (the live awesome-cloudflare-selfhosted case)", () => {
+    assert.equal(isCuratedList({ full_name: "org/awesome-cloudflare-selfhosted", description: "stuff" }), true);
+    assert.equal(isCuratedList({ full_name: "sindresorhus/awesome", description: "lists" }), true);
+    assert.equal(isCuratedList({ name: "awesome-selfhosted" }), true);
+  });
+
+  it("flags a 'curated list of X' description even without the awesome- prefix", () => {
+    assert.equal(
+      isCuratedList({ full_name: "org/cloud-picks", description: "A curated list of Cloudflare self-hosted apps" }),
+      true
+    );
+  });
+
+  it("does not flag a real FLOW release (neurocyte/flow-style Zig editor)", () => {
+    assert.equal(
+      isCuratedList({
+        full_name: "neurocyte/flow",
+        description: "A terminal-based text editor written in Zig",
+        topics: ["zig", "editor"],
+      }),
+      false
+    );
+    assert.equal(isCuratedList({ full_name: "acme/awesomeome", description: "an HTTP client" }), false);
   });
 });
 
@@ -65,6 +92,70 @@ describe("selectLeadCandidates recency gate (lead must have a fresh hook)", () =
     ]);
     const out = selectLeadCandidates(repos, deltas, { min: 1, max: 6, now: NOW });
     assert.ok(out.map((c) => c.repo.full_name).includes("established/withrelease"));
+  });
+
+  it("keeps an awesome-list out of the lead slate when a FLOW release exists", () => {
+    const repos = [
+      {
+        full_name: "org/awesome-cloudflare-selfhosted",
+        stargazers_count: 80000,
+        description: "A curated list of Cloudflare self-hosted apps",
+        pushed_at: iso(1),
+        created_at: iso(900),
+        _latestRelease: { published_at: iso(2) },
+      },
+      {
+        full_name: "neurocyte/flow",
+        stargazers_count: 4000,
+        description: "A terminal-based text editor written in Zig",
+        pushed_at: iso(1),
+        created_at: iso(400),
+        _latestRelease: { published_at: iso(1) },
+      },
+    ];
+    const deltas = new Map([
+      ["org/awesome-cloudflare-selfhosted", { starDelta: 5000, previousStars: 75000, daysSinceSnapshot: 1 }],
+      ["neurocyte/flow", { starDelta: 800, previousStars: 3200, daysSinceSnapshot: 1 }],
+    ]);
+    const out = selectLeadCandidates(repos, deltas, { min: 1, max: 6, now: NOW });
+    const names = out.map((c) => c.repo.full_name);
+    assert.ok(names.includes("neurocyte/flow"), "FLOW release stays lead-eligible");
+    assert.ok(!names.includes("org/awesome-cloudflare-selfhosted"), "awesome list is ABSENT from the lead slate");
+  });
+});
+
+describe("rankBreakoutCandidates / clusterTrends skip curated lists", () => {
+  it("does not breakout an awesome list even with a huge star spike", () => {
+    const repos = [
+      { full_name: "org/awesome-lists", stargazers_count: 20000, description: "A curated list of X" },
+      { full_name: "org/real-ship", stargazers_count: 1500, description: "a Zig editor" },
+    ];
+    const deltas = new Map([
+      ["org/awesome-lists", { starDelta: 4000, previousStars: 16000, daysSinceSnapshot: 1 }],
+      ["org/real-ship", { starDelta: 200, previousStars: 1300, daysSinceSnapshot: 1 }],
+    ]);
+    const ranked = rankBreakoutCandidates(repos, deltas, 6);
+    assert.equal(ranked.some((c) => c.repo.full_name === "org/awesome-lists"), false);
+    assert.equal(ranked[0].repo.full_name, "org/real-ship");
+  });
+
+  it("keeps curated lists out of trend clusters (those become More on the Front Page)", () => {
+    const repos = [
+      { full_name: "org/awesome-selfhosted", description: "a curated list of self-hosted software", topics: ["self-hosted"] },
+      { full_name: "org/homelab-app", description: "self-hosted homelab dashboard", topics: ["self-hosted"] },
+    ];
+    const result = clusterTrends(repos);
+    const names = result.flatMap((c) => c.repos.map((r) => r.full_name));
+    assert.equal(names.includes("org/awesome-selfhosted"), false);
+  });
+
+  it("still allows a curated list into Deep Cuts (sleepers)", () => {
+    const repos = [
+      { full_name: "org/awesome-tiny", stargazers_count: 80, topics: ["cli", "devtools", "productivity"], description: "a curated list of tiny tools" },
+    ];
+    const result = identifySleepers(repos, new Map());
+    assert.equal(result.length, 1);
+    assert.equal(result[0].repo.full_name, "org/awesome-tiny");
   });
 });
 

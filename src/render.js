@@ -3,6 +3,19 @@ const path = require("path");
 const { buildAnalytics } = require("./template-utils");
 
 const { SECTIONS } = require("./sections");
+const { MODEL_DROPS_WINDOW_DAYS } = require("./model-drops");
+
+// Mirrors src/desks.js isEmptyStripRow — kept local so render does not import
+// the desks module (business-pages already pulls render, and that cycle is
+// how escapeHtml went missing once before).
+const EMPTY_STRIP_LINE_RE = /^No (price baseline|material price moves|.+ movement)\b/i;
+function stripRowHasContent(row) {
+  if (!row) return false;
+  if (row.empty) return false;
+  const line = typeof row.line === "string" ? row.line.trim() : "";
+  if (!line) return false;
+  return !EMPTY_STRIP_LINE_RE.test(line);
+}
 
 let markedParse = null;
 
@@ -570,7 +583,12 @@ function compactCount(n) {
 
 function renderModelDrops(drops) {
   if (!Array.isArray(drops) || drops.length === 0) return "";
-  const items = drops
+  // The band copy says "newest". Cards older than the window are stock, not
+  // a drop — drop them here so a stale fetch/cache cannot print "9d ago"
+  // under a newest kicker. Tune MODEL_DROPS_WINDOW_DAYS in src/model-drops.js.
+  const fresh = drops.filter((d) => d.ageDays == null || d.ageDays <= MODEL_DROPS_WINDOW_DAYS);
+  if (fresh.length === 0) return "";
+  const items = fresh
     .map((d) => {
       const task = d.task
         ? `<span class="drop-task">${escapeHtml(String(d.task).replace(/-/g, " "))}</span>`
@@ -618,16 +636,19 @@ function renderModelDrops(drops) {
  * artifact. One row per desk carries all three without that collision — the same
  * placement logic that worked for Model Drops.
  *
- * A dark desk prints its reason instead of being hidden. That's the point of the
- * cadence rule: unicorn-tier movement is monthly at best, and a strip that only
- * ever shows activity teaches the generator that silence is a hole to fill.
+ * Empty desks stay off the strip. A dark Price Board / Startups row is not
+ * news — it is a placeholder occupying prime real estate. The desk pages
+ * still render their empty state; the front-page strip only shows desks
+ * with real rows for the window.
  * @param {Array<{deskId,label,slug,line,signal,url}>} strip - buildBusinessStrip() output
  */
 function renderBusinessStrip(strip, options = {}) {
   if (!Array.isArray(strip) || strip.length === 0) return "";
+  const live = strip.filter(stripRowHasContent);
+  if (live.length === 0) return "";
   const basePath = options.basePath || "";
   const signalMark = { up: "&#9650;", flat: "&ndash;", quiet: "&#9679;" };
-  const rows = strip
+  const rows = live
     .map((s) => {
       const line = s.line ? escapeHtml(s.line) : "";
       const body = s.url
