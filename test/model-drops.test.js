@@ -98,9 +98,9 @@ describe("selectModelDrops", () => {
   });
 
   it("ranks a fresh drop above an older but more-liked one (velocity, not stock)", () => {
-    // Both inside the window: a 6d-old 650-like model must NOT outrank a 2d-old
-    // 200-like one. Freshness-decayed score, not raw likes.
-    const out = selectModelDrops([M("acme/old-hit", 650, 6), M("acme/fresh", 200, 2)], {
+    // Both inside the 7d window: a 7d-old 650-like model must NOT outrank a
+    // 1d-old 200-like one. Freshness-decayed score, not raw likes.
+    const out = selectModelDrops([M("acme/old-hit", 650, 7), M("acme/fresh", 200, 1)], {
       nowMs: NOW,
     });
     assert.deepEqual(out.map((d) => d.id), ["acme/fresh", "acme/old-hit"]);
