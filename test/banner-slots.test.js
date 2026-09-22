@@ -284,16 +284,29 @@ describe("sync-models offline safety (AC9)", () => {
 });
 
 describe("detectUntracked — ranked by recency, not price (AC8)", () => {
+  // The two candidates and the assertion are unchanged from when this AC was
+  // written. The surrounding population is not: the radar's standing lane now
+  // takes its bar as a percentile of the live catalog (see src/sync-models.js),
+  // and a percentile over a two-row fixture crowns whichever row is bigger.
+  // Padding it out is what makes "expensive" mean anything here.
+  const MARKET = Array.from({ length: 60 }, (_, i) => ({
+    id: `filler/model-${i}`,
+    name: `Filler ${i}`,
+    created: 150,
+    pricing: { prompt: "0.0000005", completion: "0.000002" }, // $2/M — the middle of this market
+  }));
+
   it("an old-but-expensive model ranks below a new-but-cheap one", () => {
     const catalog = [
       { id: "openai/o1-pro-legacy", name: "OpenAI: o1-pro", created: 100, pricing: { prompt: "0.00015", completion: "0.0006" } },   // $600/M, ancient
       { id: "openai/gpt-brandnew", name: "OpenAI: GPT Brand New", created: 200, pricing: { prompt: "0.000002", completion: "0.000005" } }, // $5/M, new
+      ...MARKET,
     ];
     const out = detectUntracked(catalog, []);
-    assert.equal(out.length, 2);
     assert.equal(out[0].created, 200, "newest first, regardless of price");
     assert.equal(out[0].id, "openai/gpt-brandnew");
     assert.equal(out[1].id, "openai/o1-pro-legacy");
+    assert.ok(!out.some((m) => m.id.startsWith("filler/")), "the middle of the market is not radar material");
   });
 });
 

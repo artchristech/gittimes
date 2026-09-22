@@ -87,25 +87,56 @@ function renderNewModelsSection(tickerData, fullMarket) {
   </div>`;
 }
 
+/**
+ * "Listed 44 months ago" beside a NEW badge is a contradiction on its face, and
+ * it is also the most interesting kind of row on this table: a listing whose
+ * upstream date is old but which only appeared to us today — a relisting, a
+ * backdated entry, a model that was hidden and isn't any more. The resolution is
+ * to print both dates rather than to trust one and suppress the other. Silent
+ * where there is nothing to reconcile.
+ */
+function firstSeenNote(m) {
+  if (!m.isNew || !m.firstSeenOn || !m.created) return "";
+  const listedDaysAgo = (Date.now() / 1000 - m.created) / 86400;
+  if (listedDaysAgo <= 7) return "";
+  return `<span class="radar-firstseen">first seen ${escapeHtml(m.firstSeenOn)}</span>`;
+}
+
+/**
+ * On Our Radar — frontier-class listings the desk isn't tracking yet.
+ *
+ * The table carries the WHY, not just the row: a reader who sees an anonymous
+ * namespace at $0 deserves to be told which specs put it here. Two facts get
+ * badges because they are the reasons a listing is news rather than inventory —
+ * it is FREE, and it is NEW — and both are drawn from the listing itself, never
+ * inferred. A radar entry is a "we noticed this", not an endorsement, so the
+ * copy claims nothing about who is behind a model or how good it is.
+ */
 function renderRadarSection(untracked) {
   if (!untracked || untracked.length === 0) return "";
   const entries = untracked.slice(0, 8);
   const rows = entries.map((m) => {
     const provider = (m.id || "").split("/")[0] || "—";
+    // "free" and "new listing" ride as badges; don't say them twice.
+    const why = (m.signals || []).filter((sig) => sig !== "free" && sig !== "new listing");
+    const badges =
+      (m.free ? '<span class="radar-badge radar-badge-free">FREE</span>' : "") +
+      (m.isNew ? '<span class="radar-badge radar-badge-new">NEW</span>' : "");
     return `<tr>
-      <td class="model-name">${escapeHtml(m.name)}</td>
+      <td class="model-name">${escapeHtml(m.name)}${badges}</td>
       <td class="model-provider">${escapeHtml(provider)}</td>
-      <td class="model-price">${formatPrice(m.outputPrice)}</td>
-      <td class="model-added">${m.created ? timeAgo(m.created) : "—"}</td>
+      <td class="model-why">${why.length > 0 ? why.map(escapeHtml).join(" &middot; ") : "—"}</td>
+      <td class="model-price">${m.free ? "Free" : formatPrice(m.outputPrice)}</td>
+      <td class="model-added">${m.created ? timeAgo(m.created) : "—"}${firstSeenNote(m)}</td>
     </tr>`;
   }).join("\n");
 
   return `<div class="markets-section">
     <h2 class="markets-section-title">On Our Radar</h2>
-    <p class="markets-section-desc">Frontier models in the catalog the desk isn't tracking yet &middot; auto-detected daily</p>
+    <p class="markets-section-desc">Frontier-class listings the desk isn't tracking yet &mdash; picked by what they can do, not who ships them, so a model launched anonymously or priced at zero still shows up &middot; auto-detected daily</p>
     <div class="markets-table-wrap">
       <table class="markets-table">
-        <thead><tr><th>Model</th><th>Provider</th><th>Output</th><th>Listed</th></tr></thead>
+        <thead><tr><th>Model</th><th>Provider</th><th>Why it's here</th><th>Output</th><th>Listed</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>

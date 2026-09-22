@@ -108,37 +108,253 @@ function applyPromos(catalogRows, promos) {
   });
 }
 
-/**
- * Detect notable models in the catalog that aren't being tracked.
- * Filters for high-output-price models from major providers.
- */
-function detectUntracked(catalog, trackedIds) {
-  const majorProviders = ["anthropic", "openai", "google", "x-ai", "deepseek", "meta-llama", "mistralai"];
-  const tracked = new Set(trackedIds);
+// --- The Radar --------------------------------------------------------------
+//
+// WHAT THIS DESK IS FOR. The Radar is the paper's only intake for a model that
+// arrives as an ENDPOINT rather than as an artifact: no weights on Hugging
+// Face, no GitHub release, nothing for the trending funnel to catch. Every
+// other surface needs either a public artifact (the model-drops band reads HF,
+// the front page reads GitHub) or a hand-written roster entry (the ticker and
+// the Price Board read the curated twelve). This one reads the raw catalog, so
+// it is the only place a launch nobody put a repo behind can show up at all.
+//
+// WHY IT WAS REBUILT (2026-08-24). The first version asked two questions that
+// were both really the same question — "is this a big lab charging a lot?":
+//   1. an allowlist of seven provider prefixes, and
+//   2. output price > $1/M, commented "frontier territory".
+// Ox Alpha — 1M context, multimodal in, tool calling, listed 2026-08-20 in an
+// anonymous `stealth/` namespace at $0 — failed both gates, and the paper sat
+// silent through the month's biggest model story while the wires ran it.
+//
+// The lesson generalises past that one model. PROVENANCE and PRICE are exactly
+// the two things a stealth launch withholds; gating on either guarantees the
+// desk is blind to the launches most worth covering. CAPABILITY cannot be
+// withheld — it is published in the listing, because it is what the endpoint is
+// FOR. So capability is the gate, and price is a CLASSIFICATION instead of a
+// filter: a frontier-spec model listed at zero is not a non-event to discard,
+// it is the loudest pricing signal this market produces. That is the same read
+// the Price Board takes on a cut — "a price cut is strategy made public" — and
+// zero is the limit case of a cut.
+//
+// WHAT IT STILL WON'T DO. Qualifying for the Radar is not a claim that a model
+// is good, or that the anonymous operator is who the forums think. It says the
+// listing carries frontier specs and the desk is not tracking it. Naming the
+// lab behind a stealth model is a reporting job, not a filter's job.
 
-  return catalog
-    .filter((m) => {
-      if (!m.pricing || !m.id) return false;
-      const provider = m.id.split("/")[0];
-      if (!majorProviders.includes(provider)) return false;
-      if (tracked.has(m.id)) return false;
-      // Check if any tracked ID is a prefix of this model (already covered)
-      for (const tid of tracked) {
-        if (m.id.startsWith(tid)) return false;
-      }
-      const outputPrice = parseFloat(m.pricing.completion) * 1_000_000;
-      return outputPrice > 1.0; // $1/M output threshold — frontier territory
-    })
-    .map((m) => ({
+// TWO LANES, and the distinction is the whole design.
+//
+// The EVENT lane is what the old radar had no concept of: something HAPPENED to
+// this listing — it arrived, or it is being given away. That is news on the day
+// it is true, and it is the lane Ox Alpha needed. Its floor is deliberately low
+// and absolute, because the event carries the newsworthiness and the floor only
+// has to exclude toys.
+//
+// The STANDING lane is the old radar's job, kept: an untracked model that is an
+// outlier on capability is a gap in the roster whether or not anything happened
+// today. Its threshold is RELATIVE to the live catalog, because that is exactly
+// what rotted last time — "$1/M output = frontier territory" was true when it
+// was written and admitted 256 of 395 models by the time it failed. A percentile
+// re-reads the market every morning and cannot go stale in the same way.
+//
+// This is the same STOCK-vs-FLOW correction the front page already made: rank by
+// what shipped, backfill with what's merely big.
+const EVENT_MIN_CONTEXT = 200_000;
+const EVENT_MIN_OUTPUT_PRICE = 1.0;
+const STANDING_PERCENTILE = 0.9;
+// How long a listing counts as "new". A week is the reporting window for "this
+// appeared and nobody has explained it yet".
+const NEW_LISTING_DAYS = 7;
+const RADAR_LIMIT = 10;
+
+function perMillion(raw) {
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n * 1_000_000 : null;
+}
+
+/** Does the listing accept anything other than text in? */
+function acceptsNonTextInput(model) {
+  const mods = model.architecture?.input_modalities;
+  if (!Array.isArray(mods)) return false;
+  return mods.some((mod) => String(mod).toLowerCase() !== "text");
+}
+
+/** Does the listing advertise function/tool calling? */
+function supportsToolCalling(model) {
+  const params = model.supported_parameters;
+  if (!Array.isArray(params)) return false;
+  return params.some((p) => /^(tools|tool_choice)$/i.test(String(p)));
+}
+
+function formatContextLabel(ctx) {
+  if (ctx >= 1_000_000) {
+    const m = ctx / 1_000_000;
+    return `${m >= 10 ? Math.round(m) : Math.round(m * 10) / 10}M context`.replace(".0M", "M");
+  }
+  return `${Math.round(ctx / 1000)}k context`;
+}
+
+/**
+ * The first date THIS PAPER saw each catalogued id, carried forward across
+ * syncs in data/ai-models.json.
+ *
+ * Why keep our own record when OpenRouter ships a `created` timestamp: the two
+ * answer different questions. `created` is upstream's listing date and is the
+ * right basis for "is this new"; `firstSeenOn` is what the paper can actually
+ * attest to, and the house rule is no number without a record behind it. When
+ * they disagree — a backdated listing, a sync outage — the honest sentence is
+ * "listed the 20th, we first saw it the 24th", which needs both.
+ *
+ * BOOTSTRAP. On the first run after this shipped there is no prior map, so
+ * every id would otherwise date to that day and read as 395 simultaneous
+ * arrivals. `bootstrapped: true` says the map was seeded wholesale and no
+ * first-seen date in it is evidence of anything yet.
+ *
+ * Entries for delisted ids are KEPT, not pruned: a model that drops out of one
+ * fetch and returns must not come back with its history reset to "new today".
+ * Growth is bounded by the size of the catalog over time (hundreds a year).
+ *
+ * Pure. @returns {{firstSeen: object, bootstrapped: boolean, added: string[]}}
+ */
+function buildFirstSeen(catalog, previous, today) {
+  const prior = previous && typeof previous === "object" ? previous : null;
+  const firstSeen = { ...(prior || {}) };
+  const bootstrapped = !prior || Object.keys(prior).length === 0;
+  const added = [];
+  for (const m of catalog) {
+    if (!m || !m.id) continue;
+    if (firstSeen[m.id]) continue;
+    firstSeen[m.id] = today;
+    if (!bootstrapped) added.push(m.id);
+  }
+  return { firstSeen, bootstrapped, added };
+}
+
+/**
+ * The value at `p` through a sorted numeric series. Nearest-rank, so it always
+ * returns a value that is actually in the data rather than an interpolation
+ * between two real listings.
+ */
+function percentile(values, p) {
+  const sorted = values.filter((n) => Number.isFinite(n) && n > 0).sort((a, b) => a - b);
+  if (sorted.length === 0) return Infinity;
+  return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
+}
+
+/**
+ * The STANDING lane's bar, read off today's catalog rather than hardcoded.
+ * Exported so the desk can check what the market currently considers unusual.
+ * @returns {{context: number, outputPrice: number}}
+ */
+function catalogThresholds(catalog) {
+  const rows = Array.isArray(catalog) ? catalog.filter(Boolean) : [];
+  return {
+    context: percentile(rows.map((m) => m.context_length || 0), STANDING_PERCENTILE),
+    outputPrice: percentile(rows.map((m) => (m.pricing ? perMillion(m.pricing.completion) : null)), STANDING_PERCENTILE),
+  };
+}
+
+/**
+ * Detect frontier-class models in the catalog the desk isn't tracking.
+ *
+ * @param {object[]} catalog - raw OpenRouter /models rows
+ * @param {string[]} trackedIds - curated openrouterIds already on the roster
+ * @param {object} [options]
+ * @param {object} [options.firstSeen] - id → YYYY-MM-DD, from buildFirstSeen
+ * @param {string[]|Set} [options.arrivals] - ids that appeared to us this run,
+ *   from buildFirstSeen's `added`. Empty on a bootstrapped ledger, which is the
+ *   point: seeding the ledger is not 395 simultaneous arrivals.
+ * @param {number} [options.nowMs] - clock injection for tests
+ * @returns {object[]} radar entries, most newsworthy first
+ */
+function detectUntracked(catalog, trackedIds, options = {}) {
+  const { firstSeen = {}, arrivals = [], nowMs = Date.now() } = options;
+  const tracked = new Set(trackedIds || []);
+  const arrived = arrivals instanceof Set ? arrivals : new Set(arrivals);
+  const rows = Array.isArray(catalog) ? catalog : [];
+  const bar = catalogThresholds(rows);
+
+  const covered = (id) => {
+    if (tracked.has(id)) return true;
+    // A tracked id is a prefix of this one (e.g. the `:thinking` variant of a
+    // model already on the roster) — same product, already on the board.
+    for (const tid of tracked) {
+      if (id.startsWith(tid)) return true;
+    }
+    return false;
+  };
+
+  const entries = [];
+  for (const m of rows) {
+    if (!m || !m.id || !m.pricing) continue;
+    if (covered(m.id)) continue;
+
+    const outputPrice = perMillion(m.pricing.completion);
+    const inputPrice = perMillion(m.pricing.prompt);
+    const contextLength = m.context_length || 0;
+
+    // --- What it can do. Provenance-blind by construction: nothing here reads
+    // the namespace, because the namespace is the one thing a stealth launch
+    // gets to choose freely.
+    const capabilities = [];
+    if (contextLength >= EVENT_MIN_CONTEXT) capabilities.push(formatContextLabel(contextLength));
+    if (supportsToolCalling(m) && acceptsNonTextInput(m)) capabilities.push("multimodal + tool calling");
+    if (outputPrice != null && outputPrice > EVENT_MIN_OUTPUT_PRICE) capabilities.push("premium priced");
+
+    // --- What happened to it. Free is a CLASSIFICATION, never a rejection: a
+    // frontier-spec listing at zero is the loudest pricing signal this market
+    // produces, which is the same read the Price Board takes on a cut.
+    const free = outputPrice === 0 && inputPrice === 0;
+    const ageDays = m.created ? (nowMs - m.created * 1000) / 86400000 : Infinity;
+    // Two independent claims to newness, because they fail in different ways:
+    // upstream's listing date can be backdated or absent, and our own ledger
+    // can't see anything that predates it. Either one is enough.
+    const newlyListed = ageDays >= 0 && ageDays <= NEW_LISTING_DAYS;
+    const isNew = newlyListed || arrived.has(m.id);
+
+    // The relative bar sits on top of the absolute floor, never below it. Two
+    // reasons: a percentile taken over a handful of rows (a truncated fetch, a
+    // test fixture) would otherwise crown whatever it was handed, and an
+    // "outlier" that can't clear the toy floor isn't one in any useful sense.
+    const standing =
+      contextLength >= Math.max(bar.context, EVENT_MIN_CONTEXT) ||
+      (outputPrice != null && outputPrice > Math.max(bar.outputPrice, EVENT_MIN_OUTPUT_PRICE));
+
+    // EVENT lane needs a capability floor AND something to have happened;
+    // STANDING lane needs to be an outlier on today's catalog. Either admits.
+    if (!((capabilities.length > 0 && (isNew || free)) || standing)) continue;
+
+    // Every admitted row has at least one capability signal: the event lane
+    // requires one outright, and the standing lane's floor is the same pair of
+    // thresholds the capability list is built from.
+    const signals = [...capabilities];
+    if (free) signals.unshift("free");
+    if (isNew) signals.push("new listing");
+
+    entries.push({
       id: m.id,
       name: m.name || m.id,
-      outputPrice: parseFloat(m.pricing.completion) * 1_000_000,
+      outputPrice,
+      inputPrice,
+      contextLength: contextLength || null,
       created: m.created || null,
-    }))
-    // Rank by recency, not price: the radar should surface NEW frontier models,
-    // not ancient-but-expensive legacy ones (o1-pro $600, gpt-4 $60).
-    .sort((a, b) => (b.created || 0) - (a.created || 0))
-    .slice(0, 10);
+      free,
+      isNew,
+      firstSeenOn: firstSeen[m.id] || null,
+      signals,
+    });
+  }
+
+  // Rank by newsworthiness, not by price. A free frontier listing outranks an
+  // expensive one; an arrival outranks a standing gap; ties break on recency so
+  // the radar re-sorts as the catalog moves rather than pinning a favourite at
+  // the top for weeks — the same freshness-decay lesson the model-drops band
+  // learned when its most-liked row sat frozen for days.
+  return entries
+    .sort((a, b) => {
+      const rank = (e) => (e.free ? 2 : 0) + (e.isNew ? 1 : 0);
+      return rank(b) - rank(a) || (b.created || 0) - (a.created || 0) || a.id.localeCompare(b.id);
+    })
+    .slice(0, RADAR_LIMIT);
 }
 
 /**
@@ -491,9 +707,13 @@ async function main() {
   const bannerSlots = Array.isArray(curated.bannerSlots) ? curated.bannerSlots : [];
   const bannerModels = resolveBannerSlots(catalog, bannerSlots, curated.trackedModels);
 
-  // Detect untracked frontier models
+  // The Radar. Two steps: carry forward the first-seen ledger (so a new arrival
+  // has a date the paper can stand behind), then read the catalog through the
+  // capability gate. Both are pure — the fetch already happened above.
+  const today = new Date().toISOString().slice(0, 10);
+  const { firstSeen, bootstrapped, added } = buildFirstSeen(catalog, existing && existing.catalogFirstSeen, today);
   const trackedIds = curated.trackedModels.map((t) => t.openrouterId);
-  const untracked = detectUntracked(catalog, trackedIds);
+  const untracked = detectUntracked(catalog, trackedIds, { firstSeen, arrivals: added });
 
   // Persist the full priced catalog so the markets page renders it every day
   const fullCatalog = applyPromos(buildCatalog(catalog), curated.promos);
@@ -510,6 +730,9 @@ async function main() {
     images: curated.images,
     evals: curated.evals,
     untracked: untracked.length > 0 ? untracked : undefined,
+    // The Radar's own record of when each listing first appeared to us. Written
+    // every sync so `firstSeenOn` means something on the next one.
+    catalogFirstSeen: firstSeen,
     catalog: fullCatalog,
   };
 
@@ -523,7 +746,6 @@ async function main() {
   // Non-fatal: a broken tape must never take down the daily sync.
   try {
     const { saveModelPrices } = require("./db");
-    const today = new Date().toISOString().slice(0, 10);
     const n = saveModelPrices(DATA_DIR, today, fullCatalog);
     const promoCount = fullCatalog.filter((m) => m.is_promotional).length;
     console.log(`[sync-models] Price tape: ${n} rows for ${today} (${promoCount} promotional)`);
@@ -543,11 +765,19 @@ async function main() {
     console.log(`[sync-models] ${roster.warnings.length} roster warning(s) above — the catalog may lag a known launch.`);
   }
 
-  if (untracked.length > 0) {
-    console.log(`[sync-models] ${untracked.length} untracked frontier models detected:`);
-    for (const u of untracked) {
-      console.log(`  - ${u.name} (${u.id}) $${u.outputPrice.toFixed(2)}/M output`);
-    }
+  // --- Easy check: the Radar report ------------------------------------------
+  // Printed loudly because this is the desk that failed silently before. A free
+  // or brand-new frontier listing is flagged inline so it is visible in the CI
+  // log of the daily sync, not just in a JSON field nobody opens.
+  console.log(
+    `\n[sync-models] Radar: ${untracked.length} untracked frontier model(s)` +
+      ` — ${added.length} new to the catalog today` +
+      (bootstrapped ? " (first-seen ledger seeded this run; no arrival dates are meaningful yet)" : "")
+  );
+  for (const u of untracked) {
+    const price = u.free ? "FREE" : u.outputPrice == null ? "price unknown" : `$${u.outputPrice.toFixed(2)}/M out`;
+    const flag = u.free ? " ← FREE FRONTIER LISTING" : u.isNew ? " ← NEW" : "";
+    console.log(`  - ${u.name} (${u.id}) ${price} · ${u.signals.join(", ")}${flag}`);
   }
 }
 
@@ -555,4 +785,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { buildCatalog, applyPromos, detectUntracked, findModel, buildTrackedModels, resolveBannerSlots, applyBannerSlots, buildBannerRoster };
+module.exports = { buildCatalog, applyPromos, buildFirstSeen, catalogThresholds, detectUntracked, findModel, buildTrackedModels, resolveBannerSlots, applyBannerSlots, buildBannerRoster };

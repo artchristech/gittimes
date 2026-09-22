@@ -47,6 +47,34 @@ shipped this week). Fix is layered:
   scripts → a self-hosted client script can re-fetch + re-rank on every page load, with graceful
   fallback to the server-baked band. Deploy mechanics = same as `chat.js` (asset to gh-pages root +
   mirror on main so the daily publish copies it).
+- **Layer 2 v2 — the Radar rebuilt as an EVENT desk. DONE, tested, UNCOMMITTED (2026-08-25).**
+  Owner flagged that **Ox Alpha** — an anonymous "stealth" model listed on OpenRouter 2026-08-20 at
+  **$0** with a 1M context, multimodal in and tool calling, covered by Bloomberg/TechCrunch — never
+  reached the paper. Root cause in `src/sync-models.js detectUntracked` (which feeds "On Our Radar"
+  on `/markets`): it gated on (a) an allowlist of 7 provider prefixes and (b) `outputPrice > $1/M`,
+  commented "frontier territory". Ox Alpha's `stealth/` namespace and $0 price failed both. **The
+  general lesson: provenance and price are exactly the two things a stealth launch withholds, so
+  neither can be the gate.** Capability can't be withheld — it's what the endpoint is for.
+  Rebuilt as two lanes: an **EVENT lane** (frontier-capable AND newly arrived or free — free is now
+  a *classification*, never a rejection) and a **STANDING lane** (untracked outliers, bar taken as a
+  **p90 of the live catalog** so it can't rot the way "$1/M" did, with an absolute floor beneath it).
+  Adds `catalogFirstSeen`, a persisted first-seen ledger, so an arrival has a date the paper can
+  attest to and a **backdated `created` can't hide a listing**. 20 new tests
+  (`test/radar.test.js`) + 3 render tests; 1011/1011 green, lint clean. Verified offline against the
+  real 395-model catalog with Ox Alpha injected: it leads the Radar, 5 event rows + 5 standing.
+  Files: `src/sync-models.js`, `src/markets.js`, `src/publish.js`, `templates/markets.html`.
+  **DEPLOY (owner action):** the next `node src/sync-models.js` picks it up; the first run seeds the
+  ledger (reports 0 arrivals by design — that is not a bug).
+  **STILL OPEN — the other three blind spots this exposed, NOT built:**
+  1. **The Radar is markets-page-only.** A free frontier model is front-page news; nothing promotes
+     a Radar row to a story. Same missing lever as Phase 2 #3 below.
+  2. **`buildCatalog` drops every $0 model** (`parseFloat(m.pricing.prompt) > 0`), so a free listing
+     is absent from the markets table AND the `model_prices` tape. When Ox Alpha exits stealth and
+     gets priced, there is no baseline to compare against. Needs care: a $0 → $N transition must
+     read as "the free preview ended", not as an infinite price hike.
+  3. **The AI Wire's 48h window** (`src/recency.js aiWire`) expires a story that *builds* over days
+     — launch Monday, speculation midweek, Bloomberg Sunday. Ox Alpha was outside it by the time it
+     peaked.
 - **Layer 2 Phase 2 — NOT built (rest of Thread A):**
   1. **GitHub Releases firehose** over a curated high-signal repo watchlist.
   2. Promote **arXiv / HN wire items to LEAD-eligible**.
