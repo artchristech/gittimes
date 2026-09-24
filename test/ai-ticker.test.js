@@ -6,6 +6,8 @@ const os = require("os");
 
 const {
   renderTickerBanner,
+  getTickerData,
+  reconcileWithCatalog,
   formatPrice,
   formatTokPerSec,
   saveSnapshot,
@@ -284,18 +286,24 @@ describe("curated data integrity", () => {
     }
   });
 
-  it("tracks only models that exist in the synced catalog", () => {
-    // Catches a typo'd or retired id at test time rather than as a silently
-    // missing row on the Price Board and markets table.
-    const fs = require("fs");
-    const p = require("path").join(__dirname, "..", "data", "ai-models.json");
+  it("renders only curated models that exist in the synced catalog (drift is reported, not fatal)", (t) => {
+    // Upstream catalog drift (OpenRouter retiring an id) used to fail this test,
+    // and because `npm test` gates the Daily Edition, one retired id took the
+    // paper down for a week. The invariant that matters is the RENDER one — no
+    // model absent from the catalog reaches the page — and that holds by
+    // construction via reconcileWithCatalog. Drift itself is surfaced as a
+    // diagnostic + warning for the desk, not a publish-blocking failure.
+    const p = path.join(__dirname, "..", "data", "ai-models.json");
     if (!fs.existsSync(p)) return;
     const synced = JSON.parse(fs.readFileSync(p, "utf-8"));
     const catalog = new Set((synced.catalog || []).map((m) => m.id));
     if (catalog.size === 0) return;
-    for (const m of TRACKED_MODELS) {
-      assert.ok(catalog.has(m.openrouterId), `${m.key} -> ${m.openrouterId} is not in the catalog`);
-    }
+    const warnings = [];
+    const { models, dropped } = reconcileWithCatalog(TRACKED_MODELS, synced.catalog, (w) => warnings.push(w));
+    for (const m of models) assert.ok(catalog.has(m.openrouterId), `${m.key} rendered but not in catalog`);
+    assert.equal(models.length + dropped.length, TRACKED_MODELS.length);
+    assert.equal(warnings.length, dropped.length, "every dropped model is warned about");
+    for (const w of warnings) t.diagnostic(`curated drift: ${w}`);
   });
 
   it("has banner keys that are subset of tracked models", () => {
@@ -320,5 +328,56 @@ describe("curated data integrity", () => {
       assert.ok(img.price >= 0);
       assert.ok(img.grade);
     }
+  });
+});
+
+describe("curated ↔ catalog drift degradation", () => {
+  const curated = {
+    trackedModels: [
+      { key: "alive", openrouterId: "lab/alive-1", label: "Alive 1", provider: "Lab" },
+      { key: "retired", openrouterId: "lab/retired-2512", label: "Retired", provider: "Lab" },
+    ],
+    bannerKeys: ["alive", "retired"],
+  };
+  const row = (key, openrouterId) => ({ key, openrouterId, label: key, provider: "Lab", input: 1, output: 2, source: "openrouter" });
+  const synced = {
+    syncedAt: new Date().toISOString(),
+    // The retired model still has a (carried-forward) price row — exactly the
+    // state that would otherwise leak a stale price onto the page.
+    models: [row("alive", "lab/alive-1"), { ...row("retired", "lab/retired-2512"), source: "previous-sync" }],
+    // Catalog lists only the ":batch" twin of the retired id — must NOT count.
+    catalog: [{ id: "lab/alive-1" }, { id: "lab/retired-2512:batch" }],
+  };
+
+  it("reconcileWithCatalog skips + warns on a curated id missing from the catalog", () => {
+    const warnings = [];
+    const { models, dropped } = reconcileWithCatalog(curated.trackedModels, synced.catalog, (w) => warnings.push(w));
+    assert.deepEqual(models.map((m) => m.key), ["alive"]);
+    assert.deepEqual(dropped.map((m) => m.key), ["retired"]);
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /lab\/retired-2512/);
+    assert.match(warnings[0], /skipped/);
+  });
+
+  it("keeps the whole roster when there is no catalog to judge against", () => {
+    const warnings = [];
+    assert.equal(reconcileWithCatalog(curated.trackedModels, [], (w) => warnings.push(w)).models.length, 2);
+    assert.equal(reconcileWithCatalog(curated.trackedModels, undefined, (w) => warnings.push(w)).models.length, 2);
+    assert.equal(warnings.length, 0);
+  });
+
+  it("getTickerData degrades instead of failing: drifted model never rendered, warned, reported", async (t) => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "ticker-drift-"));
+    const warnings = [];
+    t.mock.method(console, "warn", (...a) => warnings.push(a.join(" ")));
+    t.mock.method(console, "log", () => {});
+    const data = await getTickerData(tmpDir, { synced, curated });
+    assert.deepEqual(data.models.map((m) => m.key), ["alive"]);
+    assert.deepEqual(data.dropped, [{ key: "retired", openrouterId: "lab/retired-2512" }]);
+    assert.ok(warnings.some((w) => w.includes("lab/retired-2512")), "drift must be warned");
+    const banner = renderTickerBanner(data);
+    assert.ok(banner.includes("Alive 1"), "surviving model still renders");
+    assert.ok(!banner.includes("Retired"), "retired model must not reach the banner");
+    fs.rmSync(tmpDir, { recursive: true });
   });
 });

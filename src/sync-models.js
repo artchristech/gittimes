@@ -37,13 +37,14 @@ async function fetchOpenRouter() {
 }
 
 /**
- * Match a tracked model against the OpenRouter catalog.
- * Exact match first, then prefix match (but only if no exact match exists).
+ * Match a tracked model against the OpenRouter catalog — exact id only.
+ * A variant (":batch", ":free", ":thinking") is a different price product: when
+ * OpenRouter retired mistral-large-2512 and kept only its ":batch" twin, prefix
+ * matching silently re-priced the row at batch rates. A missing base id is drift
+ * and is reported as such (see buildTrackedModels + ai-ticker reconcileWithCatalog).
  */
 function findModel(catalog, openrouterId) {
-  const exact = catalog.find((m) => m.id === openrouterId);
-  if (exact) return exact;
-  return catalog.find((m) => m.id.startsWith(openrouterId + ":"));
+  return catalog.find((m) => m.id === openrouterId);
 }
 
 /**

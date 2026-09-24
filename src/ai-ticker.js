@@ -67,10 +67,8 @@ async function fetchOpenRouterPrices(trackedModels) {
 
     const prices = {};
     for (const model of trackedModels) {
-      // Exact match first, then variant match (e.g. model:thinking)
-      const found =
-        data.data.find((m) => m.id === model.openrouterId) ||
-        data.data.find((m) => m.id.startsWith(model.openrouterId + ":"));
+      // Exact id only: a ":batch"/":free" variant is a different price product.
+      const found = data.data.find((m) => m.id === model.openrouterId);
       if (found && found.pricing) {
         const input = parseFloat(found.pricing.prompt) * 1_000_000;
         const output = parseFloat(found.pricing.completion) * 1_000_000;
@@ -154,22 +152,67 @@ function saveSnapshot(outDir, tickerData) {
   fs.writeFileSync(snapshotPath, JSON.stringify(entry, null, 2));
 }
 
+// --- Curated ↔ catalog reconciliation ---
+
+/**
+ * Split the curated roster into models that exist in the synced catalog and
+ * models that have drifted out of it (retired, renamed, or typo'd upstream).
+ *
+ * The ticker must never render a model the catalog doesn't list — a row priced
+ * from a stale carry-forward is a lie on the front page. But upstream drift is
+ * routine (OpenRouter retires ids without notice), so it must never take the
+ * daily publish down either. Drifted models are skipped and warned about, loudly,
+ * so the desk fixes data/ai-models-curated.json instead of the paper going dark.
+ *
+ * Exact id membership only: a ":batch"/":free" variant is a different price
+ * product and does not stand in for its base id.
+ *
+ * With no catalog (missing/empty — e.g. the live-fetch fallback) there is no
+ * ground truth to judge against, so every curated model is kept.
+ *
+ * @param {object[]} trackedModels - curated roster ({key, openrouterId, ...})
+ * @param {object[]|null|undefined} catalog - synced catalog rows ({id, ...})
+ * @param {(msg: string) => void} [warn] - sink for drift warnings
+ * @returns {{ models: object[], dropped: object[] }}
+ */
+function reconcileWithCatalog(trackedModels, catalog, warn = console.warn) {
+  const roster = Array.isArray(trackedModels) ? trackedModels : [];
+  if (!Array.isArray(catalog) || catalog.length === 0) return { models: roster, dropped: [] };
+  const ids = new Set(catalog.map((m) => m && m.id).filter(Boolean));
+  const models = [];
+  const dropped = [];
+  for (const m of roster) {
+    if (m && ids.has(m.openrouterId)) models.push(m);
+    else dropped.push(m);
+  }
+  for (const m of dropped) {
+    warn(`[ai-ticker] WARNING: curated model ${m?.key} (${m?.openrouterId}) is not in the synced catalog — skipped. Update data/ai-models-curated.json.`);
+  }
+  return { models, dropped };
+}
+
 // --- Core ticker data ---
 
 /**
  * Get complete ticker data: prices from synced data (or live fallback), deltas, speed, images.
+ *
+ * @param {string} outDir - site output dir (history/snapshot live here)
+ * @param {{synced?: object|null, curated?: object|null}} [sources] - override the
+ *   on-disk data files (tests); omitted keys load from data/ as usual.
  */
-async function getTickerData(outDir) {
-  const synced = loadSyncedData();
-  const curated = loadCuratedConfig();
+async function getTickerData(outDir, sources = {}) {
+  const synced = "synced" in sources ? sources.synced : loadSyncedData();
+  const curated = "curated" in sources ? sources.curated : loadCuratedConfig();
 
   // Determine model definitions — synced data has everything, curated is the editorial source
-  const trackedModels = curated?.trackedModels || synced?.models?.map((m) => ({
+  const roster = curated?.trackedModels || synced?.models?.map((m) => ({
     key: m.key,
     openrouterId: m.openrouterId,
     label: m.label,
     provider: m.provider,
   })) || [];
+  // Drifted models are skipped (and warned), never rendered and never fatal.
+  const { models: trackedModels, dropped } = reconcileWithCatalog(roster, synced?.catalog);
 
   const bannerKeys = synced?.bannerKeys || curated?.bannerKeys || [];
   const speedData = synced?.speed || curated?.speed || [];
@@ -294,6 +337,7 @@ async function getTickerData(outDir) {
     bannerModels,
     evals: synced?.evals || curated?.evals || null,
     untracked: synced?.untracked || [],
+    dropped: dropped.map((m) => ({ key: m?.key, openrouterId: m?.openrouterId })),
     syncedAt: synced?.syncedAt || null,
   };
 }
@@ -402,6 +446,7 @@ const IMAGE_DATA = _curated.images || [];
 
 module.exports = {
   getTickerData,
+  reconcileWithCatalog,
   getFullMarketData,
   saveSnapshot,
   loadSnapshot,

@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { buildTrackedModels } = require("../src/sync-models");
+const { buildTrackedModels, findModel } = require("../src/sync-models");
 
 // These tests exercise the editorial curated-seed fallback WITHOUT any network:
 // buildTrackedModels is pure — it takes a catalog array, the curated config, and
@@ -57,5 +57,13 @@ describe("buildTrackedModels — curated seed fallback", () => {
     assert.equal(models[0].input, null);
     assert.equal(models[0].source, "missing");
     assert.equal(missed, 1);
+  });
+});
+
+describe("findModel — exact id only", () => {
+  it("does not let a :batch variant stand in for a retired base id", () => {
+    const catalog = [{ id: "mistralai/mistral-large-2512:batch", pricing: { prompt: "0.00000025", completion: "0.00000075" } }];
+    assert.equal(findModel(catalog, "mistralai/mistral-large-2512"), undefined);
+    assert.equal(findModel(catalog, "mistralai/mistral-large-2512:batch").id, "mistralai/mistral-large-2512:batch");
   });
 });
