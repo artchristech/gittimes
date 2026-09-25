@@ -167,8 +167,10 @@ function saveSnapshot(outDir, tickerData) {
  * Exact id membership only: a ":batch"/":free" variant is a different price
  * product and does not stand in for its base id.
  *
- * With no catalog (missing/empty — e.g. the live-fetch fallback) there is no
- * ground truth to judge against, so every curated model is kept.
+ * With no catalog at all (undefined/null — e.g. no synced file, live-fetch
+ * fallback) there is nothing to judge against, so the roster is kept. A catalog
+ * that is PRESENT but EMPTY is ground truth saying "nothing is listed": every
+ * curated model is absent from it, so none is rendered — loudly, never fatally.
  *
  * @param {object[]} trackedModels - curated roster ({key, openrouterId, ...})
  * @param {object[]|null|undefined} catalog - synced catalog rows ({id, ...})
@@ -177,7 +179,10 @@ function saveSnapshot(outDir, tickerData) {
  */
 function reconcileWithCatalog(trackedModels, catalog, warn = console.warn) {
   const roster = Array.isArray(trackedModels) ? trackedModels : [];
-  if (!Array.isArray(catalog) || catalog.length === 0) return { models: roster, dropped: [] };
+  if (!Array.isArray(catalog)) return { models: roster, dropped: [] };
+  if (catalog.length === 0 && roster.length > 0) {
+    warn(`[ai-ticker] WARNING: the synced catalog is EMPTY — all ${roster.length} curated models skipped. Re-run src/sync-models.js; data/ai-models.json has no ground truth.`);
+  }
   const ids = new Set(catalog.map((m) => m && m.id).filter(Boolean));
   const models = [];
   const dropped = [];

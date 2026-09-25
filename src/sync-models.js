@@ -37,6 +37,26 @@ async function fetchOpenRouter() {
 }
 
 /**
+ * Plausibility gate for a freshly fetched catalog. OpenRouter can answer 200
+ * with `{data: []}` (or a truncated list); persisting that would wipe the
+ * ground truth the ticker judges curated models against. An empty catalog, or
+ * one that shrank below MIN_CATALOG_RETENTION of the previously stored count,
+ * is rejected so the caller keeps the existing file.
+ *
+ * @param {number} count - priced models in the new catalog
+ * @param {number} previousCount - priced models in the stored catalog (0 if none)
+ * @returns {{ ok: boolean, reason?: string }}
+ */
+const MIN_CATALOG_RETENTION = 0.5;
+function assessCatalog(count, previousCount) {
+  if (!Number.isFinite(count) || count <= 0) return { ok: false, reason: "OpenRouter returned an empty catalog" };
+  if (previousCount > 0 && count < previousCount * MIN_CATALOG_RETENTION) {
+    return { ok: false, reason: `catalog shrank implausibly: ${count} models vs ${previousCount} stored (<${MIN_CATALOG_RETENTION * 100}%)` };
+  }
+  return { ok: true };
+}
+
+/**
  * Match a tracked model against the OpenRouter catalog — exact id only.
  * A variant (":batch", ":free", ":thinking") is a different price product: when
  * OpenRouter retired mistral-large-2512 and kept only its ":batch" twin, prefix
@@ -481,6 +501,19 @@ async function main() {
     process.exit(1);
   }
 
+  // Never persist an empty or implausibly shrunken catalog (HTTP 200 + {data: []}).
+  const previousCount = Array.isArray(existing?.catalog) ? existing.catalog.length : 0;
+  const verdict = assessCatalog(buildCatalog(catalog).length, previousCount);
+  if (!verdict.ok) {
+    console.error(`[sync-models] ⚠️  WARNING: ${verdict.reason} — refusing to overwrite the catalog.`);
+    if (existing) {
+      console.error("[sync-models] ⚠️  Keeping existing data/ai-models.json (stale but usable)");
+      process.exit(0);
+    }
+    console.error("[sync-models] No existing data to fall back on, exiting with error");
+    process.exit(1);
+  }
+
   // Build the tracked-model price rows (the curated set). This is the SOLE source
   // of `output.models` — the markets table and the Cost-of-Intelligence index both
   // read `models`, so the auto-latest banner roster must NOT be mixed in here.
@@ -556,4 +589,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { buildCatalog, applyPromos, detectUntracked, findModel, buildTrackedModels, resolveBannerSlots, applyBannerSlots, buildBannerRoster };
+module.exports = { assessCatalog, buildCatalog, applyPromos, detectUntracked, findModel, buildTrackedModels, resolveBannerSlots, applyBannerSlots, buildBannerRoster };

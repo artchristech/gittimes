@@ -296,13 +296,17 @@ describe("curated data integrity", () => {
     const p = path.join(__dirname, "..", "data", "ai-models.json");
     if (!fs.existsSync(p)) return;
     const synced = JSON.parse(fs.readFileSync(p, "utf-8"));
-    const catalog = new Set((synced.catalog || []).map((m) => m.id));
-    if (catalog.size === 0) return;
+    // A missing or empty catalog is NOT a pass: it must degrade to "render nothing".
+    const rows = Array.isArray(synced.catalog) ? synced.catalog : [];
+    const catalog = new Set(rows.map((m) => m.id));
     const warnings = [];
-    const { models, dropped } = reconcileWithCatalog(TRACKED_MODELS, synced.catalog, (w) => warnings.push(w));
+    const { models, dropped } = reconcileWithCatalog(TRACKED_MODELS, rows, (w) => warnings.push(w));
     for (const m of models) assert.ok(catalog.has(m.openrouterId), `${m.key} rendered but not in catalog`);
     assert.equal(models.length + dropped.length, TRACKED_MODELS.length);
-    assert.equal(warnings.length, dropped.length, "every dropped model is warned about");
+    if (catalog.size === 0) assert.equal(models.length, 0, "empty catalog renders no curated model");
+    for (const m of dropped) {
+      assert.ok(warnings.some((w) => w.includes(m.openrouterId)), `${m.key} dropped without a warning`);
+    }
     for (const w of warnings) t.diagnostic(`curated drift: ${w}`);
   });
 
@@ -359,11 +363,20 @@ describe("curated ↔ catalog drift degradation", () => {
     assert.match(warnings[0], /skipped/);
   });
 
-  it("keeps the whole roster when there is no catalog to judge against", () => {
+  it("keeps the whole roster only when there is no catalog at all", () => {
     const warnings = [];
-    assert.equal(reconcileWithCatalog(curated.trackedModels, [], (w) => warnings.push(w)).models.length, 2);
     assert.equal(reconcileWithCatalog(curated.trackedModels, undefined, (w) => warnings.push(w)).models.length, 2);
+    assert.equal(reconcileWithCatalog(curated.trackedModels, null, (w) => warnings.push(w)).models.length, 2);
     assert.equal(warnings.length, 0);
+  });
+
+  it("an empty-but-present catalog renders no curated model, warns loudly, does not throw", () => {
+    const warnings = [];
+    const { models, dropped } = reconcileWithCatalog([{ key: "x", openrouterId: "fake/nonexistent" }], [], (w) => warnings.push(w));
+    assert.deepEqual(models, []);
+    assert.deepEqual(dropped.map((m) => m.key), ["x"]);
+    assert.ok(warnings.some((w) => /catalog is EMPTY/.test(w)));
+    assert.ok(warnings.some((w) => w.includes("fake/nonexistent")));
   });
 
   it("getTickerData degrades instead of failing: drifted model never rendered, warned, reported", async (t) => {

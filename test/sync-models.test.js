@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { buildTrackedModels, findModel } = require("../src/sync-models");
+const { assessCatalog, buildTrackedModels, findModel } = require("../src/sync-models");
 
 // These tests exercise the editorial curated-seed fallback WITHOUT any network:
 // buildTrackedModels is pure — it takes a catalog array, the curated config, and
@@ -65,5 +65,25 @@ describe("findModel — exact id only", () => {
     const catalog = [{ id: "mistralai/mistral-large-2512:batch", pricing: { prompt: "0.00000025", completion: "0.00000075" } }];
     assert.equal(findModel(catalog, "mistralai/mistral-large-2512"), undefined);
     assert.equal(findModel(catalog, "mistralai/mistral-large-2512:batch").id, "mistralai/mistral-large-2512:batch");
+  });
+});
+
+describe("assessCatalog — never persist an empty or shrunken catalog", () => {
+  it("rejects an empty catalog (HTTP 200 with {data: []})", () => {
+    assert.equal(assessCatalog(0, 300).ok, false);
+    assert.equal(assessCatalog(0, 0).ok, false);
+    assert.match(assessCatalog(0, 300).reason, /empty/);
+  });
+
+  it("rejects a catalog that shrank below 50% of the stored count", () => {
+    const v = assessCatalog(149, 300);
+    assert.equal(v.ok, false);
+    assert.match(v.reason, /149.*300/);
+  });
+
+  it("accepts normal churn and a first sync with no stored catalog", () => {
+    assert.equal(assessCatalog(150, 300).ok, true);
+    assert.equal(assessCatalog(310, 300).ok, true);
+    assert.equal(assessCatalog(5, 0).ok, true);
   });
 });
