@@ -612,6 +612,53 @@ function isDisposableEmail(email) {
   return DISPOSABLE_EMAIL_DOMAINS.has(email.slice(at + 1));
 }
 
+// --- Your Lineup: the reader's own build history (Claude Agent SDK / Claude
+// Code sessions + Ghostty terminal bursts), pushed by `gittimes lineup sync`.
+// Summaries only — never transcripts or raw shell history. Stored under
+// `lineup:<email>` in USERS KV (excluded from user-count scans), newest-first,
+// deduped by event id so re-syncs are idempotent, capped to LINEUP_MAX_EVENTS.
+const LINEUP_MAX_EVENTS = 500;
+const LINEUP_MAX_BATCH = 200;
+const LINEUP_SOURCES = new Set(["claude", "ghostty", "shell"]);
+
+/** Validate + clamp one incoming lineup event. Null = rejected. */
+function sanitizeLineupEvent(e) {
+  if (!e || typeof e !== "object") return null;
+  const id = typeof e.id === "string" ? e.id.trim().slice(0, 64) : "";
+  const kind = e.kind === "session" || e.kind === "terminal" ? e.kind : null;
+  const at = typeof e.at === "string" ? Date.parse(e.at) : NaN;
+  if (!id || !kind || Number.isNaN(at)) return null;
+  const endMs = typeof e.end === "string" ? Date.parse(e.end) : NaN;
+  const str = (v, n) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, n) : "");
+  const num = (v, max) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.min(max, Math.round(v)) : 0);
+  const stats = e.stats && typeof e.stats === "object" ? e.stats : {};
+  return {
+    id,
+    kind,
+    source: LINEUP_SOURCES.has(e.source) ? e.source : "other",
+    at: new Date(at).toISOString(),
+    end: Number.isNaN(endMs) ? null : new Date(Math.max(at, endMs)).toISOString(),
+    title: str(e.title, 200) || (kind === "session" ? "Untitled session" : "Terminal session"),
+    project: str(e.project, 120),
+    branch: str(e.branch, 80),
+    stats: {
+      turns: num(stats.turns, 100000),
+      tools: num(stats.tools, 1000000),
+      files: num(stats.files, 100000),
+      commands: num(stats.commands, 1000000),
+      minutes: num(stats.minutes, 1000000),
+      model: str(stats.model, 80),
+    },
+    sample: Array.isArray(e.sample)
+      ? e.sample.filter((s) => typeof s === "string").map((s) => str(s, 160)).filter(Boolean).slice(0, 5)
+      : [],
+  };
+}
+
+function lineupByNewest(a, b) {
+  return Date.parse(b.at) - Date.parse(a.at) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+}
+
 async function getSessionUser(request, env) {
   const auth = request.headers.get("Authorization") || "";
   if (!auth.startsWith("Bearer ")) return null;
@@ -1165,6 +1212,103 @@ const handler = {
       });
     }
 
+    // GET /lineup — the user's synced lineup, newest first. ?limit=N to trim.
+    if (url.pathname === "/lineup" && request.method === "GET") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const stored = (await env.USERS.get(`lineup:${user.email}`, "json")) || {};
+      const all = Array.isArray(stored.events) ? stored.events : [];
+      const limitParam = parseInt(url.searchParams.get("limit") || "", 10);
+      const events = Number.isFinite(limitParam) && limitParam > 0 ? all.slice(0, limitParam) : all;
+      return new Response(JSON.stringify({ ok: true, events, count: all.length, updatedAt: stored.updatedAt || null }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // POST /lineup — merge a batch { events: [...] } into the user's lineup.
+    // Idempotent on event id: a re-sync updates in place instead of doubling.
+    if (url.pathname === "/lineup" && request.method === "POST") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const syncAllowed = await checkRateLimit(env.MAGIC_LINKS, `ratelimit:lineup:${user.email}`, 60, 3600);
+      if (!syncAllowed) {
+        return new Response(JSON.stringify({ ok: false, error: "Too many syncs. Try again in an hour." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ ok: false, error: "Invalid JSON" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!body || !Array.isArray(body.events)) {
+        return new Response(JSON.stringify({ ok: false, error: "Missing events" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (body.events.length > LINEUP_MAX_BATCH) {
+        return new Response(JSON.stringify({ ok: false, error: `Too many events; send at most ${LINEUP_MAX_BATCH} per request` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const key = `lineup:${user.email}`;
+      const stored = (await env.USERS.get(key, "json")) || {};
+      const byId = new Map();
+      for (const ev of Array.isArray(stored.events) ? stored.events : []) byId.set(ev.id, ev);
+      let accepted = 0;
+      let rejected = 0;
+      for (const raw of body.events) {
+        const ev = sanitizeLineupEvent(raw);
+        if (!ev) {
+          rejected++;
+          continue;
+        }
+        byId.set(ev.id, ev);
+        accepted++;
+      }
+      const events = Array.from(byId.values()).sort(lineupByNewest).slice(0, LINEUP_MAX_EVENTS);
+      const updatedAt = new Date().toISOString();
+      if (accepted > 0) await env.USERS.put(key, JSON.stringify({ events, updatedAt }));
+      return new Response(JSON.stringify({ ok: true, accepted, rejected, count: events.length, updatedAt: accepted > 0 ? updatedAt : stored.updatedAt || null }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // POST /lineup/clear — wipe the user's lineup.
+    if (url.pathname === "/lineup/clear" && request.method === "POST") {
+      const user = await getSessionUser(request, env);
+      if (!user) {
+        return new Response(JSON.stringify({ ok: false, error: "Not authenticated" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      await env.USERS.delete(`lineup:${user.email}`);
+      return new Response(JSON.stringify({ ok: true, count: 0 }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // GET /auth/settings — the logged-in user's saved reader settings (Theme/
     // Font/Size/Width + custom colors), so preferences follow them across
     // browsers and devices instead of living in per-browser localStorage.
@@ -1284,6 +1428,7 @@ const handler = {
         env.USERS.delete(user.email),
         env.USERS.delete(`transcript:${user.email}`),
         env.USERS.delete(`saved:${user.email}`),
+        env.USERS.delete(`lineup:${user.email}`),
         env.SUBSCRIBERS.delete(user.email),
         env.SESSIONS.delete(token),
       ]);
@@ -2113,7 +2258,7 @@ const handler = {
           if (cursor) listOpts.cursor = cursor;
           const result = await env.USERS.list(listOpts);
           for (const key of result.keys) {
-            if (key.name.startsWith("stats:") || key.name.startsWith("transcript:") || key.name.startsWith("saved:")) continue;
+            if (key.name.startsWith("stats:") || key.name.startsWith("transcript:") || key.name.startsWith("saved:") || key.name.startsWith("lineup:")) continue;
             const u = await env.USERS.get(key.name, "json");
             if (u) {
               scannedTotal++;
@@ -2172,7 +2317,7 @@ const handler = {
       if (cursor) listOpts.cursor = cursor;
       const result = await env.USERS.list(listOpts);
       for (const key of result.keys) {
-        if (key.name.startsWith("stats:") || key.name.startsWith("transcript:")) continue;
+        if (key.name.startsWith("stats:") || key.name.startsWith("transcript:") || key.name.startsWith("saved:") || key.name.startsWith("lineup:")) continue;
         const u = await env.USERS.get(key.name, "json");
         if (u && u.gracePeriodEndsAt) {
           const before = u.plan;

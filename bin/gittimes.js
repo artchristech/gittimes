@@ -36,6 +36,10 @@ const COMMANDS = {
     script: "migrate-db.js",
     summary: "Migrate legacy JSON output into SQLite",
   },
+  lineup: {
+    script: "src/lineup-cli.js",
+    summary: "Your build history from Claude sessions + Ghostty (show | sync | login | clear)",
+  },
   promo: {
     summary: "Promo video pipeline",
     subcommands: {
