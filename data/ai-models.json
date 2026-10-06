@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-10-05T12:03:41.803Z",
+  "syncedAt": "2026-10-06T11:48:51.441Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
@@ -270,11 +270,11 @@
       "openrouterId": "deepseek/deepseek-v4-pro-0813",
       "label": "DeepSeek V4 Pro 0813",
       "provider": "DeepSeek",
-      "input": 0.39999999999999997,
-      "output": 5,
+      "input": 0.66,
+      "output": 1.9800000000000002,
       "context_length": 1048576,
-      "cache_read_price": 0.36,
-      "max_completion_tokens": 943718,
+      "cache_read_price": 0.022,
+      "max_completion_tokens": 393216,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -353,10 +353,10 @@
       "openrouterId": "moonshotai/kimi-k3",
       "label": "Kimi K3",
       "provider": "Moonshot",
-      "input": 0.67,
+      "input": 0.95,
       "output": 14,
       "context_length": 1048576,
-      "cache_read_price": 0.22,
+      "cache_read_price": 0.31,
       "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -435,10 +435,10 @@
       "openrouterId": "z-ai/glm-5.2",
       "label": "GLM 5.2",
       "provider": "Z.ai",
-      "input": 0.0224,
-      "output": 16,
+      "input": 0.16,
+      "output": 12,
       "context_length": 1048576,
-      "cache_read_price": 0.0224,
+      "cache_read_price": 0.16,
       "max_completion_tokens": 131072,
       "modality": "text->text",
       "input_modalities": [
@@ -524,8 +524,8 @@
       "label": "DeepSeek V4 Pro 0813",
       "openrouterId": "deepseek/deepseek-v4-pro-0813",
       "provider": "DeepSeek",
-      "input": 0.39999999999999997,
-      "output": 5,
+      "input": 0.66,
+      "output": 1.9800000000000002,
       "context_length": 1048576,
       "created": 1786549364,
       "source": "banner-slot"
@@ -546,7 +546,7 @@
       "label": "Kimi K3",
       "openrouterId": "moonshotai/kimi-k3",
       "provider": "Moonshot",
-      "input": 0.67,
+      "input": 0.95,
       "output": 14,
       "context_length": 1048576,
       "created": 1784215858,
@@ -730,7 +730,7 @@
     {
       "id": "deepseek/deepseek-v4.1-flash",
       "name": "DeepSeek: DeepSeek V4.1 Flash",
-      "outputPrice": 1.2,
+      "outputPrice": 1.32,
       "created": 1789021285
     },
     {
@@ -1804,46 +1804,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "~moonshotai/kimi-latest",
-      "name": "MoonshotAI: Kimi Latest",
-      "context_length": 1048576,
-      "input": 0.3,
-      "output": 20,
-      "cache_read_price": 0.3,
-      "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777318428,
-      "description": "This model always redirects to the latest model in the Kimi family.",
-      "hugging_face_id": null
-    },
-    {
       "id": "~anthropic/claude-opus-latest",
       "name": "Anthropic: Claude Opus Latest",
       "context_length": 1000000,
@@ -1874,45 +1834,6 @@
       "created": 1776795361,
       "description": "This model always redirects to the latest model in the Claude Opus family.",
       "hugging_face_id": null
-    },
-    {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.0224,
-      "output": 16,
-      "cache_read_price": 0.0224,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "fireworks/ember-1",
@@ -2266,9 +2187,9 @@
       "id": "moonshotai/kimi-k3",
       "name": "MoonshotAI: Kimi K3",
       "context_length": 1048576,
-      "input": 0.67,
+      "input": 0.95,
       "output": 14,
-      "cache_read_price": 0.22,
+      "cache_read_price": 0.31,
       "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -2418,6 +2339,46 @@
       ],
       "created": 1765389775,
       "description": "GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reas",
+      "hugging_face_id": null
+    },
+    {
+      "id": "~moonshotai/kimi-latest",
+      "name": "MoonshotAI: Kimi Latest",
+      "context_length": 1048576,
+      "input": 0.83,
+      "output": 13,
+      "cache_read_price": 0.44999999999999996,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777318428,
+      "description": "This model always redirects to the latest model in the Kimi family.",
       "hugging_face_id": null
     },
     {
@@ -2795,6 +2756,45 @@
       "created": 1781754054,
       "description": "Nano Banana Pro is Google’s most advanced image-generation and editing model, built on Gemini 3 Pro. It extends the original Nano Banana with significantly impr",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.16,
+      "output": 12,
+      "cache_read_price": 0.16,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
     },
     {
       "id": "~google/gemini-pro-latest",
@@ -4096,9 +4096,9 @@
       "id": "z-ai/glm-5.3",
       "name": "Z.ai: GLM 5.3",
       "context_length": 1048576,
-      "input": 0.049999999999999996,
+      "input": 0.07,
       "output": 7,
-      "cache_read_price": 0.045,
+      "cache_read_price": 0.065,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -4780,44 +4780,6 @@
       "created": 1790100775,
       "description": "GPT-6 Sol is the cost-efficient high-end model in OpenAI's GPT-6 series, positioned below the flagship GPT-6 Astra and above the fast GPT-6 Luna tier. It is sui",
       "hugging_face_id": null
-    },
-    {
-      "id": "deepseek/deepseek-v4-pro-0813",
-      "name": "DeepSeek: DeepSeek V4 Pro 0813",
-      "context_length": 1048576,
-      "input": 0.39999999999999997,
-      "output": 5,
-      "cache_read_price": 0.36,
-      "max_completion_tokens": 943718,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786549364,
-      "description": "DeepSeek V4 Pro 0813 is a large-scale mixture-of-experts model from DeepSeek. This is the GA release of DeepSeek V4 Pro.",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro-0813"
     },
     {
       "id": "openai/gpt-5.6-sol-pro:batch",
@@ -5518,9 +5480,9 @@
       "id": "~deepseek/deepseek-pro-latest",
       "name": "DeepSeek: DeepSeek Pro Latest",
       "context_length": 1048576,
-      "input": 0.1901,
+      "input": 0.2572,
       "output": 4.199999999999999,
-      "cache_read_price": 0.19,
+      "cache_read_price": 0.26,
       "max_completion_tokens": 393216,
       "modality": "text->text",
       "input_modalities": [
@@ -6072,45 +6034,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3.5-397b-a17b",
-      "name": "Qwen: Qwen3.5 397B A17B",
-      "context_length": 262144,
-      "input": 0.55,
-      "output": 3.5,
-      "cache_read_price": 0.22499999999999998,
-      "max_completion_tokens": 235929,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1771223018,
-      "description": "The Qwen3.5 series 397B-A17B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-o",
-      "hugging_face_id": "Qwen/Qwen3.5-397B-A17B"
-    },
-    {
       "id": "moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "context_length": 262144,
@@ -6356,6 +6279,45 @@
       "created": 1772119558,
       "description": "Gemini 3.1 Flash Image Preview, a.k.a. \"Nano Banana 2,\" is Google’s latest state of the art image generation and editing model, delivering Pro-level visual qual",
       "hugging_face_id": null
+    },
+    {
+      "id": "qwen/qwen3.5-397b-a17b",
+      "name": "Qwen: Qwen3.5 397B A17B",
+      "context_length": 262144,
+      "input": 0.44999999999999996,
+      "output": 3,
+      "cache_read_price": 0.22,
+      "max_completion_tokens": 81920,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1771223018,
+      "description": "The Qwen3.5 series 397B-A17B native vision-language model is built on a hybrid architecture that integrates a linear attention mechanism with a sparse mixture-o",
+      "hugging_face_id": "Qwen/Qwen3.5-397B-A17B"
     },
     {
       "id": "google/gemini-3-flash-preview",
@@ -6934,45 +6896,6 @@
       "created": 1737381095,
       "description": "DeepSeek R1 is here: Performance on par with [OpenAI o1](/openai/o1), but open-sourced and with fully open reasoning tokens. It's 671B parameters in size, with ",
       "hugging_face_id": "deepseek-ai/DeepSeek-R1"
-    },
-    {
-      "id": "~deepseek/deepseek-flash-latest",
-      "name": "DeepSeek: DeepSeek Flash Latest",
-      "context_length": 1048576,
-      "input": 0.003,
-      "output": 2.4,
-      "cache_read_price": 0.003,
-      "max_completion_tokens": 943718,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1789399150,
-      "description": "This model always redirects to the latest model in the DeepSeek Flash family.",
-      "hugging_face_id": null
     },
     {
       "id": "openai/gpt-audio-mini",
@@ -7910,6 +7833,44 @@
       "hugging_face_id": null
     },
     {
+      "id": "deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek: DeepSeek V4 Pro 0813",
+      "context_length": 1048576,
+      "input": 0.66,
+      "output": 1.9800000000000002,
+      "cache_read_price": 0.022,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786549364,
+      "description": "DeepSeek V4 Pro 0813 is a large-scale mixture-of-experts model from DeepSeek. This is the GA release of DeepSeek V4 Pro.",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro-0813"
+    },
+    {
       "id": "qwen/qwen3.6-plus",
       "name": "Qwen: Qwen3.6 Plus",
       "context_length": 1000000,
@@ -8489,43 +8450,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "meta/muse-glimmer-30b",
-      "name": "Meta: Muse Glimmer 30B",
-      "context_length": 131072,
-      "input": 0.35,
-      "output": 1.5,
-      "cache_read_price": 0.04,
-      "max_completion_tokens": 117964,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1786302394,
-      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
-      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
-    },
-    {
       "id": "google/gemini-3.1-flash-lite-image",
       "name": "Google: Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)",
       "context_length": 65536,
@@ -8799,12 +8723,51 @@
       "hugging_face_id": null
     },
     {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "context_length": 1048576,
+      "input": 0.0495,
+      "output": 1.32,
+      "cache_read_price": 0.016499999999999997,
+      "max_completion_tokens": 943718,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1789021285,
+      "description": "DeepSeek V4.1 Flash is a sparse mixture-of-experts model from DeepSeek, and the first built on the company's Causal Encoder-Decoder (CED) architecture. It activ",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash"
+    },
+    {
       "id": "~deepseek/deepseek-v4-flash-latest",
       "name": "DeepSeek: DeepSeek V4 Flash Latest",
       "context_length": 1048576,
-      "input": 0.0152,
+      "input": 0.006,
       "output": 1.28,
-      "cache_read_price": 0.0152,
+      "cache_read_price": 0.006,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -8842,9 +8805,9 @@
       "id": "deepseek/deepseek-v4-flash-0731",
       "name": "DeepSeek: DeepSeek V4 Flash 0731",
       "context_length": 1048576,
-      "input": 0.0152,
+      "input": 0.006,
       "output": 1.28,
-      "cache_read_price": 0.0152,
+      "cache_read_price": 0.006,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -8917,9 +8880,9 @@
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash 0423",
       "context_length": 1048576,
-      "input": 0.03,
+      "input": 0.017900000000000003,
       "output": 1.28,
-      "cache_read_price": 0.03,
+      "cache_read_price": 0.017900000000000003,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -9131,12 +9094,12 @@
       "hugging_face_id": null
     },
     {
-      "id": "deepseek/deepseek-v4.1-flash",
-      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "id": "~deepseek/deepseek-flash-latest",
+      "name": "DeepSeek: DeepSeek Flash Latest",
       "context_length": 1048576,
-      "input": 0.3,
+      "input": 0.045,
       "output": 1.2,
-      "cache_read_price": 0.006,
+      "cache_read_price": 0.015,
       "max_completion_tokens": 943718,
       "modality": "text+image->text",
       "input_modalities": [
@@ -9165,9 +9128,46 @@
         "top_logprobs",
         "top_p"
       ],
-      "created": 1789021285,
-      "description": "DeepSeek V4.1 Flash is a sparse mixture-of-experts model from DeepSeek, and the first built on the company's Causal Encoder-Decoder (CED) architecture. It activ",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash"
+      "created": 1789399150,
+      "description": "This model always redirects to the latest model in the DeepSeek Flash family.",
+      "hugging_face_id": null
+    },
+    {
+      "id": "meta/muse-glimmer-30b",
+      "name": "Meta: Muse Glimmer 30B",
+      "context_length": 131072,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1786302394,
+      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
+      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
     },
     {
       "id": "thinkingmachines/inkling-small",
@@ -9754,45 +9754,6 @@
       "hugging_face_id": "Qwen/Qwen3.6-35B-A3B"
     },
     {
-      "id": "qwen/qwen3.5-35b-a3b",
-      "name": "Qwen: Qwen3.5-35B-A3B",
-      "context_length": 262144,
-      "input": 0.15,
-      "output": 1,
-      "cache_read_price": 0.049999999999999996,
-      "max_completion_tokens": 235929,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1772053822,
-      "description": "The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixtur",
-      "hugging_face_id": "Qwen/Qwen3.5-35B-A3B"
-    },
-    {
       "id": "deepseek/deepseek-v3.1-terminus",
       "name": "DeepSeek: DeepSeek V3.1 Terminus",
       "context_length": 163840,
@@ -9807,14 +9768,9 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "logit_bias",
         "max_tokens",
-        "min_p",
-        "presence_penalty",
         "reasoning",
-        "repetition_penalty",
         "response_format",
-        "seed",
         "stop",
         "structured_outputs",
         "temperature",
@@ -10619,6 +10575,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "qwen/qwen3.5-35b-a3b",
+      "name": "Qwen: Qwen3.5-35B-A3B",
+      "context_length": 262144,
+      "input": 0.08,
+      "output": 0.75,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 32768,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1772053822,
+      "description": "The Qwen3.5 Series 35B-A3B is a native vision-language model designed with a hybrid architecture that integrates linear attention mechanisms and a sparse mixtur",
+      "hugging_face_id": "Qwen/Qwen3.5-35B-A3B"
+    },
+    {
       "id": "mistralai/mistral-large-2512:batch",
       "name": "Mistral: Mistral Large 3 2512 (batch)",
       "context_length": 262144,
@@ -11351,6 +11346,41 @@
       "hugging_face_id": "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
     },
     {
+      "id": "qwen/qwen3-235b-a22b-2507",
+      "name": "Qwen: Qwen3 235B A22B Instruct 2507",
+      "context_length": 262144,
+      "input": 0.09,
+      "output": 0.55,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1753119555,
+      "description": "Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-235B architecture, with 22B active param",
+      "hugging_face_id": "Qwen/Qwen3-235B-A22B-Instruct-2507"
+    },
+    {
       "id": "tencent/hy3",
       "name": "Tencent: Hy3",
       "context_length": 262144,
@@ -11521,9 +11551,9 @@
       "id": "~z-ai/glm-flash-latest",
       "name": "Z.ai: GLM Flash Latest",
       "context_length": 1048576,
-      "input": 0.035199999999999995,
+      "input": 0.0214,
       "output": 0.5,
-      "cache_read_price": 0.0232,
+      "cache_read_price": 0.0214,
       "max_completion_tokens": 131072,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -11665,6 +11695,41 @@
       "created": 1745878604,
       "description": "Qwen3, the latest generation in the Qwen large language model series, features both dense and mixture-of-experts (MoE) architectures to excel in reasoning, mult",
       "hugging_face_id": "Qwen/Qwen3-30B-A3B"
+    },
+    {
+      "id": "meta-llama/llama-3.3-70b-instruct",
+      "name": "Meta: Llama 3.3 70B Instruct",
+      "context_length": 131072,
+      "input": 0.22,
+      "output": 0.5,
+      "cache_read_price": 0.11,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1733506137,
+      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
+      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
     },
     {
       "id": "qwen/qwen3.8-omni-flash",
@@ -12339,41 +12404,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3-235b-a22b-2507",
-      "name": "Qwen: Qwen3 235B A22B Instruct 2507",
-      "context_length": 262144,
-      "input": 0.0875,
-      "output": 0.35,
-      "cache_read_price": 0.0175,
-      "max_completion_tokens": 235929,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1753119555,
-      "description": "Qwen3-235B-A22B-Instruct-2507 is a multilingual, instruction-tuned mixture-of-experts language model based on the Qwen3-235B architecture, with 22B active param",
-      "hugging_face_id": "Qwen/Qwen3-235B-A22B-Instruct-2507"
-    },
-    {
       "id": "google/gemma-4-31b-it",
       "name": "Google: Gemma 4 31B",
       "context_length": 262144,
@@ -12480,41 +12510,6 @@
       "created": 1727222400,
       "description": "Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reas",
       "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
-    },
-    {
-      "id": "meta-llama/llama-3.3-70b-instruct",
-      "name": "Meta: Llama 3.3 70B Instruct",
-      "context_length": 131072,
-      "input": 0.09999999999999999,
-      "output": 0.32,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1733506137,
-      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
-      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
     },
     {
       "id": "google/gemma-4-26b-a4b-it",
@@ -12705,6 +12700,40 @@
       "created": 1761752836,
       "description": "gpt-oss-safeguard-20b is a safety reasoning model from OpenAI built upon gpt-oss-20b. This open-weight, 21B-parameter Mixture-of-Experts (MoE) model offers lowe",
       "hugging_face_id": "openai/gpt-oss-safeguard-20b"
+    },
+    {
+      "id": "qwen/qwen3-30b-a3b-instruct-2507",
+      "name": "Qwen: Qwen3 30B A3B Instruct 2507",
+      "context_length": 262144,
+      "input": 0.09999999999999999,
+      "output": 0.3,
+      "cache_read_price": null,
+      "max_completion_tokens": 235929,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1753806965,
+      "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
+      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
     },
     {
       "id": "meta-llama/llama-4-scout",
@@ -13711,40 +13740,6 @@
       "created": 1729036800,
       "description": "Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has grea",
       "hugging_face_id": "Qwen/Qwen2.5-7B-Instruct"
-    },
-    {
-      "id": "qwen/qwen3-30b-a3b-instruct-2507",
-      "name": "Qwen: Qwen3 30B A3B Instruct 2507",
-      "context_length": 262144,
-      "input": 0.04815,
-      "output": 0.19305,
-      "cache_read_price": null,
-      "max_completion_tokens": 32000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1753806965,
-      "description": "Qwen3-30B-A3B-Instruct-2507 is a 30.5B-parameter mixture-of-experts language model from Qwen, with 3.3B active parameters per inference. It operates in non-thin",
-      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Instruct-2507"
     },
     {
       "id": "poolside/laguna-s-2.1",
