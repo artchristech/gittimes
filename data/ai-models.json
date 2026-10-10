@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-10-09T11:40:00.662Z",
+  "syncedAt": "2026-10-10T10:57:24.369Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 12,
     "missed": 0,
-    "catalog": 443,
+    "catalog": 432,
     "bannerSlots": 7
   },
   "models": [
@@ -352,10 +352,10 @@
       "openrouterId": "moonshotai/kimi-k3",
       "label": "Kimi K3",
       "provider": "Moonshot",
-      "input": 0.5,
-      "output": 12,
+      "input": 0.64,
+      "output": 13.5,
       "context_length": 1048576,
-      "cache_read_price": 0.3,
+      "cache_read_price": 0.28,
       "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -435,7 +435,7 @@
       "label": "GLM 5.2",
       "provider": "Z.ai",
       "input": 0.06,
-      "output": 6,
+      "output": 7,
       "context_length": 1048576,
       "cache_read_price": 0.059,
       "max_completion_tokens": 943718,
@@ -545,8 +545,8 @@
       "label": "Kimi K3",
       "openrouterId": "moonshotai/kimi-k3",
       "provider": "Moonshot",
-      "input": 0.5,
-      "output": 12,
+      "input": 0.64,
+      "output": 13.5,
       "context_length": 1048576,
       "created": 1784215858,
       "source": "banner-slot"
@@ -2179,6 +2179,46 @@
       "hugging_face_id": null
     },
     {
+      "id": "~moonshotai/kimi-latest",
+      "name": "MoonshotAI: Kimi Latest",
+      "context_length": 1048576,
+      "input": 0.33,
+      "output": 14.89,
+      "cache_read_price": 0.3,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777318428,
+      "description": "This model always redirects to the latest model in the Kimi family.",
+      "hugging_face_id": null
+    },
+    {
       "id": "openai/gpt-5.3-codex",
       "name": "OpenAI: GPT-5.3-Codex",
       "context_length": 400000,
@@ -2297,12 +2337,12 @@
       "hugging_face_id": null
     },
     {
-      "id": "~moonshotai/kimi-latest",
-      "name": "MoonshotAI: Kimi Latest",
+      "id": "moonshotai/kimi-k3",
+      "name": "MoonshotAI: Kimi K3",
       "context_length": 1048576,
-      "input": 0.49,
-      "output": 13,
-      "cache_read_price": 0.3,
+      "input": 0.64,
+      "output": 13.5,
+      "cache_read_price": 0.28,
       "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -2332,9 +2372,9 @@
         "top_logprobs",
         "top_p"
       ],
-      "created": 1777318428,
-      "description": "This model always redirects to the latest model in the Kimi family.",
-      "hugging_face_id": null
+      "created": 1784215858,
+      "description": "Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic w",
+      "hugging_face_id": "moonshotai/Kimi-K3"
     },
     {
       "id": "anthropic/claude-opus-5:batch",
@@ -2580,46 +2620,6 @@
       "created": 1789130925,
       "description": "This model always redirects to the latest model in the GPT Terra family.",
       "hugging_face_id": null
-    },
-    {
-      "id": "moonshotai/kimi-k3",
-      "name": "MoonshotAI: Kimi K3",
-      "context_length": 1048576,
-      "input": 0.5,
-      "output": 12,
-      "cache_read_price": 0.3,
-      "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1784215858,
-      "description": "Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic w",
-      "hugging_face_id": "moonshotai/Kimi-K3"
     },
     {
       "id": "openai/gpt-5.6-terra-pro",
@@ -3744,44 +3744,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "~deepseek/deepseek-pro-latest",
-      "name": "DeepSeek: DeepSeek Pro Latest",
-      "context_length": 1048576,
-      "input": 0.198,
-      "output": 8,
-      "cache_read_price": 0.19999999999999998,
-      "max_completion_tokens": 393216,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1789399174,
-      "description": "This model always redirects to the latest model in the DeepSeek Pro family.",
-      "hugging_face_id": null
-    },
-    {
       "id": "openai/o3",
       "name": "OpenAI: o3",
       "context_length": 200000,
@@ -4076,6 +4038,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "z-ai/glm-5.2",
+      "name": "Z.ai: GLM 5.2",
+      "context_length": 1048576,
+      "input": 0.06,
+      "output": 7,
+      "cache_read_price": 0.059,
+      "max_completion_tokens": 943718,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1781631930,
+      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
+      "hugging_face_id": "zai-org/GLM-5.2"
+    },
+    {
       "id": "openai/gpt-5.2:batch",
       "name": "OpenAI: GPT-5.2 (batch)",
       "context_length": 400000,
@@ -4103,40 +4104,6 @@
       ],
       "created": 1765389775,
       "description": "GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reas",
-      "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3.6-max-preview",
-      "name": "Qwen: Qwen3.6 Max Preview",
-      "context_length": 262144,
-      "input": 1.0270000000000001,
-      "output": 6.162,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777260242,
-      "description": "Qwen3.6-Max-Preview is a proprietary frontier model from Alibaba Cloud built on a sparse mixture-of-experts architecture with approximately 1 trillion total par",
       "hugging_face_id": null
     },
     {
@@ -4489,45 +4456,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "z-ai/glm-5.2",
-      "name": "Z.ai: GLM 5.2",
-      "context_length": 1048576,
-      "input": 0.06,
-      "output": 6,
-      "cache_read_price": 0.059,
-      "max_completion_tokens": 943718,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1781631930,
-      "description": "GLM 5.2 is a large-scale reasoning model from Z.ai. It supports text input and output with a 1M-token context window, and is suited for long-horizon agent workf",
-      "hugging_face_id": "zai-org/GLM-5.2"
-    },
-    {
       "id": "google/gemini-3.1-pro-preview:batch",
       "name": "Google: Gemini 3.1 Pro Preview (batch)",
       "context_length": 1048576,
@@ -4825,6 +4753,44 @@
       "hugging_face_id": null
     },
     {
+      "id": "~deepseek/deepseek-pro-latest",
+      "name": "DeepSeek: DeepSeek Pro Latest",
+      "context_length": 1048576,
+      "input": 0.3,
+      "output": 5,
+      "cache_read_price": 0.219,
+      "max_completion_tokens": 943718,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1789399174,
+      "description": "This model always redirects to the latest model in the DeepSeek Pro family.",
+      "hugging_face_id": null
+    },
+    {
       "id": "openai/gpt-5.6-sol-pro:batch",
       "name": "OpenAI: GPT-5.6 Sol Pro (batch)",
       "context_length": 1050000,
@@ -5110,6 +5076,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "~z-ai/glm-latest",
+      "name": "Z.ai: GLM Latest",
+      "context_length": 1048576,
+      "input": 0.039,
+      "output": 4.8,
+      "cache_read_price": 0.038000000000000006,
+      "max_completion_tokens": 943718,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787151053,
+      "description": "This model always redirects to the latest GLM model from Z.ai.",
+      "hugging_face_id": null
+    },
+    {
       "id": "z-ai/glm-5.3",
       "name": "Z.ai: GLM 5.3",
       "context_length": 1048576,
@@ -5276,45 +5281,6 @@
       ],
       "created": 1779376861,
       "description": "Qwen3.7-Max is the flagship model in Alibaba's Qwen3.7 series. It supports text input and output and is designed for agent-centric workloads, with particular st",
-      "hugging_face_id": null
-    },
-    {
-      "id": "~z-ai/glm-latest",
-      "name": "Z.ai: GLM Latest",
-      "context_length": 1048576,
-      "input": 0.031200000000000002,
-      "output": 4.4,
-      "cache_read_price": 0.029,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1787151053,
-      "description": "This model always redirects to the latest GLM model from Z.ai.",
       "hugging_face_id": null
     },
     {
@@ -5648,41 +5614,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3-vl-235b-a22b-thinking",
-      "name": "Qwen: Qwen3 VL 235B A22B Thinking",
-      "context_length": 131072,
-      "input": 0.39999999999999997,
-      "output": 4,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1758668690,
-      "description": "Qwen3-VL-235B-A22B Thinking is a multimodal model that unifies strong text generation with visual understanding across images and video. The Thinking model is o",
-      "hugging_face_id": "Qwen/Qwen3-VL-235B-A22B-Thinking"
-    },
-    {
       "id": "openai/o3:batch",
       "name": "OpenAI: o3 (batch)",
       "context_length": 200000,
@@ -5769,72 +5700,6 @@
       ],
       "created": 1693180800,
       "description": "This model offers four times the context length of gpt-3.5-turbo, allowing it to support approximately 20 pages of text in a single request at a higher cost. Tr",
-      "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3-max-thinking",
-      "name": "Qwen: Qwen3 Max Thinking",
-      "context_length": 262144,
-      "input": 0.78,
-      "output": 3.9,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1770671901,
-      "description": "Qwen3-Max-Thinking is the flagship reasoning model in the Qwen3 series, designed for high-stakes cognitive tasks that require deep, multi-step reasoning. By sig",
-      "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3-max",
-      "name": "Qwen: Qwen3 Max",
-      "context_length": 262144,
-      "input": 0.78,
-      "output": 3.9,
-      "cache_read_price": 0.156,
-      "max_completion_tokens": 65536,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1758662808,
-      "description": "Qwen3-Max is an updated release built on the Qwen3 series, offering major improvements in reasoning, instruction following, multilingual support, and long-tail ",
       "hugging_face_id": null
     },
     {
@@ -6047,6 +5912,35 @@
       "hugging_face_id": "Qwen/Qwen3.5-397B-A17B"
     },
     {
+      "id": "qwen/qwen3-235b-a22b-thinking-2507",
+      "name": "Qwen: Qwen3 235B A22B Thinking 2507",
+      "context_length": 128000,
+      "input": 0.44999999999999996,
+      "output": 3.5,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1753449557,
+      "description": "Qwen3-235B-A22B-Thinking-2507 is a high-performance, open-weight Mixture-of-Experts (MoE) language model optimized for complex reasoning tasks. It activates 22B",
+      "hugging_face_id": "Qwen/Qwen3-235B-A22B-Thinking-2507"
+    },
+    {
       "id": "moonshotai/kimi-k2.7-code",
       "name": "MoonshotAI: Kimi K2.7 Code",
       "context_length": 262144,
@@ -6086,38 +5980,6 @@
       "hugging_face_id": "moonshotai/Kimi-K2.7-Code"
     },
     {
-      "id": "qwen/qwen3-coder-plus",
-      "name": "Qwen: Qwen3 Coder Plus",
-      "context_length": 1000000,
-      "input": 0.65,
-      "output": 3.25,
-      "cache_read_price": 0.13,
-      "max_completion_tokens": 65536,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1758662707,
-      "description": "Qwen3 Coder Plus is Alibaba's proprietary version of the Open Source Qwen3 Coder 480B A35B. It is a powerful coding agent model specializing in autonomous progr",
-      "hugging_face_id": null
-    },
-    {
       "id": "unbiased/pareto-26.10-preview",
       "name": "Pareto 26.10 Preview",
       "context_length": 1048576,
@@ -6140,6 +6002,45 @@
       "created": 1790863623,
       "description": "Pareto is a multimodal composite model built for research, coding, and agentic workflows, while delivering frontier-level performance across a broad range of ge",
       "hugging_face_id": null
+    },
+    {
+      "id": "qwen/qwen3.6-27b",
+      "name": "Qwen: Qwen3.6 27B",
+      "context_length": 262144,
+      "input": 0.32,
+      "output": 3.1999999999999997,
+      "cache_read_price": null,
+      "max_completion_tokens": 81920,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777255064,
+      "description": "Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a",
+      "hugging_face_id": "Qwen/Qwen3.6-27B"
     },
     {
       "id": "amazon/nova-pro-v1",
@@ -6411,45 +6312,6 @@
       "created": 1791462849,
       "description": "Step 5 Preview is StepFun's flagship model for agentic work, built on a sparse Mixture-of-Experts architecture (27B active / 600B total parameters). It performs",
       "hugging_face_id": null
-    },
-    {
-      "id": "qwen/qwen3.6-27b",
-      "name": "Qwen: Qwen3.6 27B",
-      "context_length": 262144,
-      "input": 0.44999999999999996,
-      "output": 2.7,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777255064,
-      "description": "Qwen3.6 27B is a dense 27-billion-parameter language model from the Qwen Team at Alibaba, released in April 2026. It features hybrid multimodal capabilities — a",
-      "hugging_face_id": "Qwen/Qwen3.6-27B"
     },
     {
       "id": "qwen/qwen3.5-27b",
@@ -6730,6 +6592,44 @@
       "hugging_face_id": null
     },
     {
+      "id": "moonshotai/kimi-k2.5",
+      "name": "MoonshotAI: Kimi K2.5",
+      "context_length": 262144,
+      "input": 0.5,
+      "output": 2.5,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 235929,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1769487076,
+      "description": "Kimi K2.5 is Moonshot AI's native multimodal model, delivering state-of-the-art visual coding capability and a self-directed agent swarm paradigm. Built on Kimi",
+      "hugging_face_id": "moonshotai/Kimi-K2.5"
+    },
+    {
       "id": "amazon/nova-2-lite-v1",
       "name": "Amazon: Nova 2 Lite",
       "context_length": 1000000,
@@ -6765,8 +6665,8 @@
       "context_length": 262144,
       "input": 0.6,
       "output": 2.5,
-      "cache_read_price": null,
-      "max_completion_tokens": 235929,
+      "cache_read_price": 0.15,
+      "max_completion_tokens": 98304,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -6953,7 +6853,7 @@
       "context_length": 262144,
       "input": 0.46499999999999997,
       "output": 2.4499999999999997,
-      "cache_read_price": 0.0975,
+      "cache_read_price": 0.0875,
       "max_completion_tokens": 235929,
       "modality": "text+image->text",
       "input_modalities": [
@@ -7020,103 +6920,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3-vl-30b-a3b-thinking",
-      "name": "Qwen: Qwen3 VL 30B A3B Thinking",
-      "context_length": 262144,
-      "input": 0.19999999999999998,
-      "output": 2.4,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1759794479,
-      "description": "Qwen3-VL-30B-A3B-Thinking is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Thinking variant enhanc",
-      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Thinking"
-    },
-    {
-      "id": "qwen/qwen3-30b-a3b-thinking-2507",
-      "name": "Qwen: Qwen3 30B A3B Thinking 2507",
-      "context_length": 81920,
-      "input": 0.19999999999999998,
-      "output": 2.4,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1756399192,
-      "description": "Qwen3-30B-A3B-Thinking-2507 is a 30B parameter Mixture-of-Experts reasoning model optimized for complex tasks requiring extended multi-step thinking. The model ",
-      "hugging_face_id": "Qwen/Qwen3-30B-A3B-Thinking-2507"
-    },
-    {
-      "id": "qwen/qwen3-235b-a22b-thinking-2507",
-      "name": "Qwen: Qwen3 235B A22B Thinking 2507",
-      "context_length": 131072,
-      "input": 0.22999999999999998,
-      "output": 2.3,
-      "cache_read_price": null,
-      "max_completion_tokens": 117964,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1753449557,
-      "description": "Qwen3-235B-A22B-Thinking-2507 is a high-performance, open-weight Mixture-of-Experts (MoE) language model optimized for complex reasoning tasks. It activates 22B",
-      "hugging_face_id": "Qwen/Qwen3-235B-A22B-Thinking-2507"
-    },
-    {
       "id": "moonshotai/kimi-k2",
       "name": "MoonshotAI: Kimi K2 0711",
       "context_length": 131072,
@@ -7174,44 +6977,6 @@
       "created": 1773748178,
       "description": "GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput workloads. It supports text and image input",
       "hugging_face_id": null
-    },
-    {
-      "id": "moonshotai/kimi-k2.5",
-      "name": "MoonshotAI: Kimi K2.5",
-      "context_length": 262144,
-      "input": 0.44999999999999996,
-      "output": 2.25,
-      "cache_read_price": 0.07,
-      "max_completion_tokens": 235929,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1769487076,
-      "description": "Kimi K2.5 is Moonshot AI's native multimodal model, delivering state-of-the-art visual coding capability and a self-directed agent swarm paradigm. Built on Kimi",
-      "hugging_face_id": "moonshotai/Kimi-K2.5"
     },
     {
       "id": "nvidia/nemotron-3-ultra-550b-a55b",
@@ -7434,41 +7199,6 @@
       "created": 1748455170,
       "description": "May 28th update to the [original DeepSeek R1](/deepseek/deepseek-r1) Performance on par with [OpenAI o1](/openai/o1), but open-sourced and with fully open reaso",
       "hugging_face_id": "deepseek-ai/DeepSeek-R1-0528"
-    },
-    {
-      "id": "qwen/qwen3-vl-8b-thinking",
-      "name": "Qwen: Qwen3 VL 8B Thinking",
-      "context_length": 131072,
-      "input": 0.18,
-      "output": 2.0999999999999996,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1760463746,
-      "description": "Qwen3-VL-8B-Thinking is the reasoning-optimized variant of the Qwen3-VL-8B multimodal model, designed for advanced visual and textual reasoning across complex s",
-      "hugging_face_id": "Qwen/Qwen3-VL-8B-Thinking"
     },
     {
       "id": "mistralai/mistral-large-4-0",
@@ -7799,6 +7529,41 @@
       "hugging_face_id": null
     },
     {
+      "id": "z-ai/glm-4.6",
+      "name": "Z.ai: GLM 4.6",
+      "context_length": 204800,
+      "input": 0.5,
+      "output": 2,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1759235576,
+      "description": "Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en",
+      "hugging_face_id": "zai-org/GLM-4.6"
+    },
+    {
       "id": "mistralai/mistral-medium-3.1",
       "name": "Mistral: Mistral Medium 3.1",
       "context_length": 131072,
@@ -8063,45 +7828,6 @@
       "hugging_face_id": "zai-org/GLM-5"
     },
     {
-      "id": "deepseek/deepseek-v4-pro",
-      "name": "DeepSeek: DeepSeek V4 Pro 0423",
-      "context_length": 1048576,
-      "input": 0.9552599999999999,
-      "output": 1.9105199999999998,
-      "cache_read_price": 0.07960500000000001,
-      "max_completion_tokens": 384000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777000679,
-      "description": "DeepSeek V4 Pro is a large-scale Mixture-of-Experts model from DeepSeek with 1.6T total parameters and 49B activated parameters, supporting a 1M-token context w",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro"
-    },
-    {
       "id": "qwen/qwen3-vl-235b-a22b-instruct",
       "name": "Qwen: Qwen3 VL 235B A22B Instruct",
       "context_length": 262144,
@@ -8161,6 +7887,45 @@
       "created": 1751910858,
       "description": "Morph's high-accuracy apply model for complex code edits. ~4,500 tokens/sec with 98% accuracy for precise code transformations. The model requires the prompt to",
       "hugging_face_id": null
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "name": "DeepSeek: DeepSeek V4 Pro 0423",
+      "context_length": 1048576,
+      "input": 0.9483,
+      "output": 1.8966,
+      "cache_read_price": 0.079025,
+      "max_completion_tokens": 384000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000679,
+      "description": "DeepSeek V4 Pro is a large-scale Mixture-of-Experts model from DeepSeek with 1.6T total parameters and 49B activated parameters, supporting a 1M-token context w",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro"
     },
     {
       "id": "google/gemini-3.8-flash:batch",
@@ -8259,37 +8024,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3-235b-a22b",
-      "name": "Qwen: Qwen3 235B A22B",
-      "context_length": 131072,
-      "input": 0.45499999999999996,
-      "output": 1.8199999999999998,
-      "cache_read_price": null,
-      "max_completion_tokens": 8192,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1745875757,
-      "description": "Qwen3-235B-A22B is a 235B parameter mixture-of-experts (MoE) model developed by Qwen, activating 22B parameters per forward pass. It supports seamless switching",
-      "hugging_face_id": "Qwen/Qwen3-235B-A22B"
-    },
-    {
       "id": "qwen/qwen3.5-plus-20260420",
       "name": "Qwen: Qwen3.5 Plus 2026-04-20",
       "context_length": 1000000,
@@ -8357,41 +8091,6 @@
       "created": 1754922288,
       "description": "GLM-4.5V is a vision-language foundation model for multimodal agent applications. Built on a Mixture-of-Experts (MoE) architecture with 106B parameters and 12B ",
       "hugging_face_id": "zai-org/GLM-4.5V"
-    },
-    {
-      "id": "z-ai/glm-4.6",
-      "name": "Z.ai: GLM 4.6",
-      "context_length": 204800,
-      "input": 0.43,
-      "output": 1.75,
-      "cache_read_price": 0.08,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1759235576,
-      "description": "Compared with GLM-4.5, this generation brings several key improvements: Longer context window: The context window has been expanded from 128K to 200K tokens, en",
-      "hugging_face_id": "zai-org/GLM-4.6"
     },
     {
       "id": "aion-labs/aion-2.0",
@@ -8847,9 +8546,9 @@
       "id": "~deepseek/deepseek-v4-flash-latest",
       "name": "DeepSeek: DeepSeek V4 Flash Latest",
       "context_length": 1048576,
-      "input": 0.007899999999999999,
+      "input": 0.009500000000000001,
       "output": 1.28,
-      "cache_read_price": 0.007899999999999999,
+      "cache_read_price": 0.009500000000000001,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -8887,9 +8586,9 @@
       "id": "deepseek/deepseek-v4-flash-0731",
       "name": "DeepSeek: DeepSeek V4 Flash 0731",
       "context_length": 1048576,
-      "input": 0.007899999999999999,
+      "input": 0.009500000000000001,
       "output": 1.28,
-      "cache_read_price": 0.007899999999999999,
+      "cache_read_price": 0.009500000000000001,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -8962,9 +8661,9 @@
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash 0423",
       "context_length": 1048576,
-      "input": 0.0173,
+      "input": 0.0175,
       "output": 1.28,
-      "cache_read_price": 0.0173,
+      "cache_read_price": 0.0175,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -9143,45 +8842,6 @@
       ],
       "created": 1750172488,
       "description": "Gemini 2.5 Flash is Google's state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mathematics, and scientific tasks. It inclu",
-      "hugging_face_id": null
-    },
-    {
-      "id": "~deepseek/deepseek-flash-latest",
-      "name": "DeepSeek: DeepSeek Flash Latest",
-      "context_length": 1048576,
-      "input": 0.016,
-      "output": 1.2,
-      "cache_read_price": 0.01,
-      "max_completion_tokens": 943718,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1789399150,
-      "description": "This model always redirects to the latest model in the DeepSeek Flash family.",
       "hugging_face_id": null
     },
     {
@@ -9519,7 +9179,7 @@
       "input": 0.15,
       "output": 1.2,
       "cache_read_price": null,
-      "max_completion_tokens": 32768,
+      "max_completion_tokens": 235929,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -9804,6 +9464,36 @@
       "created": 1777260255,
       "description": "Qwen3.6-35B-A3B is an open-weight multimodal model from Alibaba Cloud with 35 billion total parameters and 3 billion active parameters per token. It uses a hybr",
       "hugging_face_id": "Qwen/Qwen3.6-35B-A3B"
+    },
+    {
+      "id": "qwen/qwen3-vl-30b-a3b-thinking",
+      "name": "Qwen: Qwen3 VL 30B A3B Thinking",
+      "context_length": 262144,
+      "input": 0.29,
+      "output": 1,
+      "cache_read_price": null,
+      "max_completion_tokens": 235929,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1759794479,
+      "description": "Qwen3-VL-30B-A3B-Thinking is a multimodal model that unifies strong text generation with visual understanding for images and videos. Its Thinking variant enhanc",
+      "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Thinking"
     },
     {
       "id": "deepseek/deepseek-v3.1-terminus",
@@ -10472,6 +10162,43 @@
       "hugging_face_id": "Qwen/Qwen3-Coder-Next"
     },
     {
+      "id": "deepseek/deepseek-v3.2",
+      "name": "DeepSeek: DeepSeek V3.2",
+      "context_length": 163840,
+      "input": 0.25899999999999995,
+      "output": 0.7999999999999999,
+      "cache_read_price": 0.14,
+      "max_completion_tokens": 147456,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1764594642,
+      "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
+    },
+    {
       "id": "openai/gpt-4.1-mini:batch",
       "name": "OpenAI: GPT-4.1 Mini (batch)",
       "context_length": 1047576,
@@ -10530,38 +10257,6 @@
       "created": 1741636566,
       "description": "Skyfall 36B v2 is an enhanced iteration of Mistral Small 2501, specifically fine-tuned for improved creativity, nuanced writing, role-playing, and coherent stor",
       "hugging_face_id": "TheDrummer/Skyfall-36B-v2"
-    },
-    {
-      "id": "qwen/qwen-plus-2025-07-28",
-      "name": "Qwen: Qwen Plus 0728",
-      "context_length": 1000000,
-      "input": 0.26,
-      "output": 0.78,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1757347599,
-      "description": "Qwen Plus 0728, based on the Qwen3 foundation model, is a 1 million context hybrid reasoning model with a balanced performance, speed, and cost combination.",
-      "hugging_face_id": null
     },
     {
       "id": "qwen/qwen-plus",
@@ -10726,6 +10421,41 @@
       "created": 1764624472,
       "description": "Mistral Large 3 2512 is Mistral’s most capable model to date, featuring a sparse mixture-of-experts architecture with 41B active parameters (675B total), and re",
       "hugging_face_id": null
+    },
+    {
+      "id": "qwen/qwen3-vl-8b-instruct",
+      "name": "Qwen: Qwen3 VL 8B Instruct",
+      "context_length": 262144,
+      "input": 0.25,
+      "output": 0.75,
+      "cache_read_price": 0.12,
+      "max_completion_tokens": 235929,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "image",
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1760463308,
+      "description": "Qwen3-VL-8B-Instruct is a multimodal vision-language model from the Qwen3-VL series, built for high-fidelity understanding and reasoning across text, images, an",
+      "hugging_face_id": "Qwen/Qwen3-VL-8B-Instruct"
     },
     {
       "id": "sao10k/l3.3-euryale-70b",
@@ -11047,18 +10777,17 @@
       "hugging_face_id": "microsoft/WizardLM-2-8x22B"
     },
     {
-      "id": "~z-ai/glm-flash-latest",
-      "name": "Z.ai: GLM Flash Latest",
+      "id": "~deepseek/deepseek-flash-latest",
+      "name": "DeepSeek: DeepSeek Flash Latest",
       "context_length": 1048576,
-      "input": 0.032,
-      "output": 0.614956,
-      "cache_read_price": 0.02,
+      "input": 0.0001,
+      "output": 0.6,
+      "cache_read_price": 0.005,
       "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
+      "modality": "text+image->text",
       "input_modalities": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "supported_parameters": [
         "frequency_penalty",
@@ -11067,7 +10796,6 @@
         "logprobs",
         "max_tokens",
         "min_p",
-        "parallel_tool_calls",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
@@ -11083,8 +10811,8 @@
         "top_logprobs",
         "top_p"
       ],
-      "created": 1787817633,
-      "description": "This model always redirects to the latest model in the GLM Flash family.",
+      "created": 1789399150,
+      "description": "This model always redirects to the latest model in the DeepSeek Flash family.",
       "hugging_face_id": null
     },
     {
@@ -11703,6 +11431,47 @@
       "hugging_face_id": null
     },
     {
+      "id": "~z-ai/glm-flash-latest",
+      "name": "Z.ai: GLM Flash Latest",
+      "context_length": 1048576,
+      "input": 0.04,
+      "output": 0.5,
+      "cache_read_price": 0.012499999999999999,
+      "max_completion_tokens": 131072,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787817633,
+      "description": "This model always redirects to the latest model in the GLM Flash family.",
+      "hugging_face_id": null
+    },
+    {
       "id": "z-ai/glm-5.3-flash",
       "name": "Z.ai: GLM 5.3 Flash",
       "context_length": 1048576,
@@ -11809,7 +11578,7 @@
     {
       "id": "qwen/qwen3-30b-a3b",
       "name": "Qwen: Qwen3 30B A3B",
-      "context_length": 131072,
+      "context_length": 40960,
       "input": 0.12,
       "output": 0.5,
       "cache_read_price": null,
@@ -11950,72 +11719,6 @@
       "hugging_face_id": "Qwen/Qwen3.8-Flash-Next"
     },
     {
-      "id": "qwen/qwen3-vl-8b-instruct",
-      "name": "Qwen: Qwen3 VL 8B Instruct",
-      "context_length": 262144,
-      "input": 0.117,
-      "output": 0.45499999999999996,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "image",
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1760463308,
-      "description": "Qwen3-VL-8B-Instruct is a multimodal vision-language model from the Qwen3-VL series, built for high-fidelity understanding and reasoning across text, images, an",
-      "hugging_face_id": "Qwen/Qwen3-VL-8B-Instruct"
-    },
-    {
-      "id": "qwen/qwen3-8b",
-      "name": "Qwen: Qwen3 8B",
-      "context_length": 131072,
-      "input": 0.117,
-      "output": 0.45499999999999996,
-      "cache_read_price": null,
-      "max_completion_tokens": 8192,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1745876632,
-      "description": "Qwen3-8B is a dense 8.2B parameter causal language model from the Qwen3 series, designed for both reasoning-heavy tasks and efficient dialogue. It supports seam",
-      "hugging_face_id": "Qwen/Qwen3-8B"
-    },
-    {
       "id": "nvidia/nemotron-3-super-120b-a12b",
       "name": "NVIDIA: Nemotron 3 Super",
       "context_length": 262144,
@@ -12119,76 +11822,6 @@
       "created": 1741756359,
       "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
       "hugging_face_id": "google/gemma-3-27b-it"
-    },
-    {
-      "id": "deepseek/deepseek-v3.2",
-      "name": "DeepSeek: DeepSeek V3.2",
-      "context_length": 163840,
-      "input": 0.25899999999999995,
-      "output": 0.42,
-      "cache_read_price": 0.135,
-      "max_completion_tokens": 147456,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1764594642,
-      "description": "DeepSeek-V3.2 is a large language model designed to harmonize high computational efficiency with strong reasoning and agentic tool-use performance. It introduce",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V3.2"
-    },
-    {
-      "id": "qwen/qwen3-vl-32b-instruct",
-      "name": "Qwen: Qwen3 VL 32B Instruct",
-      "context_length": 131072,
-      "input": 0.10400000000000001,
-      "output": 0.41600000000000004,
-      "cache_read_price": null,
-      "max_completion_tokens": 32768,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1761231332,
-      "description": "Qwen3-VL-32B-Instruct is a large-scale multimodal vision-language model designed for high-precision understanding and reasoning across text, images, and video. ",
-      "hugging_face_id": "Qwen/Qwen3-VL-32B-Instruct"
     },
     {
       "id": "deepseek/deepseek-v3.2-exp",
@@ -12618,45 +12251,6 @@
       "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
     },
     {
-      "id": "google/gemma-4-26b-a4b-it",
-      "name": "Google: Gemma 4 26B A4B ",
-      "context_length": 262144,
-      "input": 0.09,
-      "output": 0.3,
-      "cache_read_price": 0.049999999999999996,
-      "max_completion_tokens": 235929,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "image",
-        "text",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1775227989,
-      "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur",
-      "hugging_face_id": "google/gemma-4-26B-A4B-it"
-    },
-    {
       "id": "mistralai/mistral-small-2603:batch",
       "name": "Mistral: Mistral Small 4 (batch)",
       "context_length": 262144,
@@ -13049,18 +12643,14 @@
       ],
       "supported_parameters": [
         "frequency_penalty",
-        "logprobs",
         "max_tokens",
-        "presence_penalty",
         "response_format",
-        "seed",
         "stop",
         "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
         "top_k",
-        "top_logprobs",
         "top_p"
       ],
       "created": 1753972379,
@@ -13083,6 +12673,7 @@
         "frequency_penalty",
         "include_reasoning",
         "logit_bias",
+        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -13095,7 +12686,9 @@
         "temperature",
         "tool_choice",
         "tools",
+        "top_a",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "created": 1745875945,
@@ -13370,7 +12963,7 @@
     {
       "id": "qwen/qwen3-14b",
       "name": "Qwen: Qwen3 14B",
-      "context_length": 131072,
+      "context_length": 40960,
       "input": 0.12,
       "output": 0.24,
       "cache_read_price": null,
@@ -13459,6 +13052,45 @@
       "created": 1789176933,
       "description": "Schematron V2 Small is a 3B-parameter HTML-to-JSON extraction model from Inference.net. It prioritizes extraction quality for complex schemas and long pages. Ex",
       "hugging_face_id": "inference-net/schematron-v2-llama-3.2-3b"
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it",
+      "name": "Google: Gemma 4 26B A4B ",
+      "context_length": 262144,
+      "input": 0.0675,
+      "output": 0.22499999999999998,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 235929,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "image",
+        "text",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1775227989,
+      "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token dur",
+      "hugging_face_id": "google/gemma-4-26B-A4B-it"
     },
     {
       "id": "meta-llama/llama-3.2-1b-instruct",
@@ -13623,6 +13255,43 @@
       "created": 1787336476,
       "description": "Muse Spark 1.2 contributor tier is a reasoning model from Meta designed for developers who want to start building at an even lower cost. It’s meaningfully cheap",
       "hugging_face_id": null
+    },
+    {
+      "id": "nvidia/nemotron-3.5-lightning",
+      "name": "NVIDIA: Nemotron 3.5 Lightning",
+      "context_length": 262144,
+      "input": 0.07,
+      "output": 0.19999999999999998,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 235929,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786452751,
+      "description": "NVIDIA Nemotron 3.5 Lightning is an open mixture-of-experts model from NVIDIA, with 3B active parameters out of 30B total. It is suited for high-throughput agen",
+      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
     },
     {
       "id": "nvidia/nemotron-3.5-content-safety",
@@ -14269,43 +13938,6 @@
       "hugging_face_id": "openai/gpt-oss-120b"
     },
     {
-      "id": "nvidia/nemotron-3.5-lightning",
-      "name": "NVIDIA: Nemotron 3.5 Lightning",
-      "context_length": 262144,
-      "input": 0.046900000000000004,
-      "output": 0.134,
-      "cache_read_price": 0.023450000000000002,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786452751,
-      "description": "NVIDIA Nemotron 3.5 Lightning is an open mixture-of-experts model from NVIDIA, with 3B active parameters out of 30B total. It is suited for high-throughput agen",
-      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16"
-    },
-    {
       "id": "qwen/qwen3.7-flash",
       "name": "Qwen: Qwen3.7 Flash",
       "context_length": 1000000,
@@ -14385,16 +14017,13 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "logit_bias",
         "logprobs",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "reasoning",
         "repetition_penalty",
         "seed",
         "stop",
-        "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
