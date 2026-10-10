@@ -54,6 +54,34 @@ describe("renderAccountPage", () => {
   });
 });
 
+describe("renderAccountPage — Your Lineup", () => {
+  it("renders the lineup section inside the dashboard with its controls", () => {
+    const html = renderAccountPage({ basePath: "" });
+    assert.ok(html.includes('id="account-lineup"'));
+    assert.ok(html.includes('id="lineup-list"'));
+    assert.ok(html.includes('id="lineup-empty"'));
+    assert.ok(html.includes('id="lineup-token"'));
+    assert.ok(html.includes('id="lineup-clear"'));
+    assert.ok(html.includes("gittimes lineup sync"));
+    assert.ok(html.includes("WORKER + '/lineup'"), "loads the lineup from the account worker");
+    assert.ok(html.includes("/lineup/clear"));
+    // The section sits inside the dashboard, so it is hidden until sign-in.
+    const dash = html.indexOf('id="account-dashboard"');
+    const lineup = html.indexOf('id="account-lineup"');
+    const end = html.indexOf('id="account-error"');
+    assert.ok(dash < lineup && lineup < end);
+  });
+
+  it("wires every control with addEventListener, never inline handlers (CSP)", () => {
+    const html = renderAccountPage({ basePath: "" });
+    const section = html.slice(html.indexOf('id="account-lineup"'), html.indexOf('id="account-error"'));
+    assert.doesNotMatch(section, /\son(click|load|error)=/);
+    for (const id of ["lineupTokenBtn", "lineupRefreshBtn", "lineupClearBtn"]) {
+      assert.ok(html.includes(`${id}.addEventListener('click'`), `${id} is wired`);
+    }
+  });
+});
+
 describe("renderAccountPage — Clerk", () => {
   const KEYS = ["CLERK_PUBLISHABLE_KEY", "CLERK_FRONTEND_API"];
   let saved;
