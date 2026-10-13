@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-10-12T12:47:17.106Z",
+  "syncedAt": "2026-10-13T12:28:21.357Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 12,
     "missed": 0,
-    "catalog": 432,
+    "catalog": 435,
     "bannerSlots": 7
   },
   "models": [
@@ -1766,6 +1766,40 @@
       ],
       "created": 1764010580,
       "description": "Claude Opus 4.5 is Anthropic’s frontier reasoning model optimized for complex software engineering, agentic workflows, and long-horizon computer use. It offers ",
+      "hugging_face_id": null
+    },
+    {
+      "id": "meta/muse-wonder",
+      "name": "Meta: Muse Wonder",
+      "context_length": 1048576,
+      "input": 4,
+      "output": 20,
+      "cache_read_price": 0.19999999999999998,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1791807945,
+      "description": "Muse Wonder is a frontier reasoning model from Meta, designed for complex personal and professional agentic tasks. It accepts text, images, video, audio, and PD",
       "hugging_face_id": null
     },
     {
@@ -4756,7 +4790,7 @@
       "id": "~deepseek/deepseek-pro-latest",
       "name": "DeepSeek: DeepSeek Pro Latest",
       "context_length": 1048576,
-      "input": 0.25,
+      "input": 0.26,
       "output": 5,
       "cache_read_price": 0.19999999999999998,
       "max_completion_tokens": 943718,
@@ -5118,7 +5152,7 @@
       "id": "z-ai/glm-5.3",
       "name": "Z.ai: GLM 5.3",
       "context_length": 1048576,
-      "input": 0.08900000000000001,
+      "input": 0.079,
       "output": 4.8,
       "cache_read_price": 0.059,
       "max_completion_tokens": 943718,
@@ -6407,6 +6441,7 @@
         "frequency_penalty",
         "include_reasoning",
         "logit_bias",
+        "logprobs",
         "max_completion_tokens",
         "max_tokens",
         "min_p",
@@ -6422,6 +6457,7 @@
         "tool_choice",
         "tools",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "created": 1787897375,
@@ -7828,6 +7864,45 @@
       "hugging_face_id": "zai-org/GLM-5"
     },
     {
+      "id": "deepseek/deepseek-v4-pro",
+      "name": "DeepSeek: DeepSeek V4 Pro 0423",
+      "context_length": 1048576,
+      "input": 0.9552599999999999,
+      "output": 1.9105199999999998,
+      "cache_read_price": 0.07960500000000001,
+      "max_completion_tokens": 384000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000679,
+      "description": "DeepSeek V4 Pro is a large-scale Mixture-of-Experts model from DeepSeek with 1.6T total parameters and 49B activated parameters, supporting a 1M-token context w",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro"
+    },
+    {
       "id": "qwen/qwen3-vl-235b-a22b-instruct",
       "name": "Qwen: Qwen3 VL 235B A22B Instruct",
       "context_length": 262144,
@@ -8542,9 +8617,9 @@
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek: DeepSeek V4 Flash 0423",
       "context_length": 1048576,
-      "input": 0.03,
+      "input": 0.049999999999999996,
       "output": 1.28,
-      "cache_read_price": 0.03,
+      "cache_read_price": 0.049999999999999996,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -8724,88 +8799,6 @@
       "created": 1750172488,
       "description": "Gemini 2.5 Flash is Google's state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mathematics, and scientific tasks. It inclu",
       "hugging_face_id": null
-    },
-    {
-      "id": "~z-ai/glm-flash-latest",
-      "name": "Z.ai: GLM Flash Latest",
-      "context_length": 1048576,
-      "input": 0.0232,
-      "output": 1.2,
-      "cache_read_price": 0.0232,
-      "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1787817633,
-      "description": "This model always redirects to the latest model in the GLM Flash family.",
-      "hugging_face_id": null
-    },
-    {
-      "id": "z-ai/glm-5.3-flash",
-      "name": "Z.ai: GLM 5.3 Flash",
-      "context_length": 1048576,
-      "input": 0.0232,
-      "output": 1.2,
-      "cache_read_price": 0.0232,
-      "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1787752741,
-      "description": "GLM-5.3-Flash is a native multimodal model from Z.ai. It is suited for efficient coding and long-horizon agent tasks. Its hybrid sparse and linear attention arc",
-      "hugging_face_id": "zai-org/GLM-5.3-Flash"
     },
     {
       "id": "meta/muse-glimmer-30b",
@@ -9015,6 +9008,40 @@
       "hugging_face_id": "MiniMaxAI/Minimax-M3"
     },
     {
+      "id": "minimax/minimax-m2.7",
+      "name": "MiniMax: MiniMax M2.7",
+      "context_length": 204800,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.06,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1773836697,
+      "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
+    },
+    {
       "id": "minimax/minimax-m2-her",
       "name": "MiniMax: MiniMax M2-her",
       "context_length": 65536,
@@ -9150,45 +9177,6 @@
       ],
       "created": 1751910002,
       "description": "Morph's fastest apply model for code edits. ~10,500 tokens/sec with 96% accuracy for rapid code transformations. The model requires the prompt to be in the foll",
-      "hugging_face_id": null
-    },
-    {
-      "id": "~deepseek/deepseek-flash-latest",
-      "name": "DeepSeek: DeepSeek Flash Latest",
-      "context_length": 1048576,
-      "input": 0.033600000000000005,
-      "output": 1.1880000000000002,
-      "cache_read_price": 0.033600000000000005,
-      "max_completion_tokens": 943718,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1789399150,
-      "description": "This model always redirects to the latest model in the DeepSeek Flash family.",
       "hugging_face_id": null
     },
     {
@@ -9773,12 +9761,94 @@
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.1"
     },
     {
+      "id": "~z-ai/glm-flash-latest",
+      "name": "Z.ai: GLM Flash Latest",
+      "context_length": 1048576,
+      "input": 0.026099999999999998,
+      "output": 0.8999999999999999,
+      "cache_read_price": 0.0108,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787817633,
+      "description": "This model always redirects to the latest model in the GLM Flash family.",
+      "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.3-flash",
+      "name": "Z.ai: GLM 5.3 Flash",
+      "context_length": 1048576,
+      "input": 0.026099999999999998,
+      "output": 0.8999999999999999,
+      "cache_read_price": 0.0108,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787752741,
+      "description": "GLM-5.3-Flash is a native multimodal model from Z.ai. It is suited for efficient coding and long-horizon agent tasks. Its hybrid sparse and linear attention arc",
+      "hugging_face_id": "zai-org/GLM-5.3-Flash"
+    },
+    {
       "id": "z-ai/glm-4.6v",
       "name": "Z.ai: GLM 4.6V",
       "context_length": 131072,
       "input": 0.3,
       "output": 0.8999999999999999,
-      "cache_read_price": 0.049999999999999996,
+      "cache_read_price": 0.055,
       "max_completion_tokens": 32768,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -9862,45 +9932,6 @@
       "created": 1752094966,
       "description": "Venice Uncensored Dolphin Mistral 24B Venice Edition is a fine-tuned variant of Mistral-Small-24B-Instruct-2501, developed by dphn.ai in collaboration with Veni",
       "hugging_face_id": "cognitivecomputations/Dolphin-Mistral-24B-Venice-Edition"
-    },
-    {
-      "id": "deepseek/deepseek-v4-pro",
-      "name": "DeepSeek: DeepSeek V4 Pro 0423",
-      "context_length": 1048576,
-      "input": 0.447876,
-      "output": 0.895752,
-      "cache_read_price": 0.037323,
-      "max_completion_tokens": 384000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777000679,
-      "description": "DeepSeek V4 Pro is a large-scale Mixture-of-Experts model from DeepSeek with 1.6T total parameters and 49B activated parameters, supporting a 1M-token context w",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro"
     },
     {
       "id": "deepseek/deepseek-chat",
@@ -10070,40 +10101,6 @@
       "hugging_face_id": "Sao10K/L3.1-70B-Euryale-v2.2"
     },
     {
-      "id": "minimax/minimax-m2.7",
-      "name": "MiniMax: MiniMax M2.7",
-      "context_length": 204800,
-      "input": 0.21,
-      "output": 0.84,
-      "cache_read_price": 0.041999999999999996,
-      "max_completion_tokens": 176947,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1773836697,
-      "description": "MiniMax-M2.7 is a next-generation large language model designed for autonomous, real-world productivity and continuous improvement. Built to actively participat",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
-    },
-    {
       "id": "arcee-ai/trinity-large-thinking",
       "name": "Arcee AI: Trinity Large Thinking",
       "context_length": 262144,
@@ -10261,6 +10258,41 @@
       "hugging_face_id": "TheDrummer/Skyfall-36B-v2"
     },
     {
+      "id": "meta-llama/llama-3.3-70b-instruct",
+      "name": "Meta: Llama 3.3 70B Instruct",
+      "context_length": 131072,
+      "input": 0.59,
+      "output": 0.7899999999999999,
+      "cache_read_price": 0.295,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1733506137,
+      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
+      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
+    },
+    {
       "id": "qwen/qwen-plus",
       "name": "Qwen: Qwen-Plus",
       "context_length": 1000000,
@@ -10293,16 +10325,17 @@
       "hugging_face_id": null
     },
     {
-      "id": "~deepseek/deepseek-v4-flash-latest",
-      "name": "DeepSeek: DeepSeek V4 Flash Latest",
+      "id": "~deepseek/deepseek-flash-latest",
+      "name": "DeepSeek: DeepSeek Flash Latest",
       "context_length": 1048576,
-      "input": 0.0128,
-      "output": 0.768,
-      "cache_read_price": 0.0128,
+      "input": 0.0441,
+      "output": 0.765,
+      "cache_read_price": 0.0054,
       "max_completion_tokens": 943718,
-      "modality": "text->text",
+      "modality": "text+image->text",
       "input_modalities": [
-        "text"
+        "text",
+        "image"
       ],
       "supported_parameters": [
         "frequency_penalty",
@@ -10311,7 +10344,6 @@
         "logprobs",
         "max_tokens",
         "min_p",
-        "parallel_tool_calls",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
@@ -10323,13 +10355,12 @@
         "temperature",
         "tool_choice",
         "tools",
-        "top_a",
         "top_k",
         "top_logprobs",
         "top_p"
       ],
-      "created": 1785606009,
-      "description": "This model always redirects to the latest model in the DeepSeek V4 Flash family.",
+      "created": 1789399150,
+      "description": "This model always redirects to the latest model in the DeepSeek Flash family.",
       "hugging_face_id": null
     },
     {
@@ -11085,6 +11116,45 @@
       "hugging_face_id": "Qwen/Qwen3-VL-30B-A3B-Instruct"
     },
     {
+      "id": "openai/gpt-oss-120b",
+      "name": "OpenAI: gpt-oss-120b",
+      "context_length": 131072,
+      "input": 0.15,
+      "output": 0.6,
+      "cache_read_price": 0.075,
+      "max_completion_tokens": 65536,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1754414231,
+      "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose pro",
+      "hugging_face_id": "openai/gpt-oss-120b"
+    },
+    {
       "id": "mistralai/mistral-saba",
       "name": "Mistral: Saba",
       "context_length": 32768,
@@ -11250,6 +11320,46 @@
       "created": 1743881519,
       "description": "Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion parameters out of a total of 109B. It sup",
       "hugging_face_id": "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+    },
+    {
+      "id": "~deepseek/deepseek-v4-flash-latest",
+      "name": "DeepSeek: DeepSeek V4 Flash Latest",
+      "context_length": 1048576,
+      "input": 0.0144,
+      "output": 0.576,
+      "cache_read_price": 0.0108,
+      "max_completion_tokens": 943718,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1785606009,
+      "description": "This model always redirects to the latest model in the DeepSeek V4 Flash family.",
+      "hugging_face_id": null
     },
     {
       "id": "tencent/hunyuan-a13b-instruct",
@@ -11643,41 +11753,6 @@
       "created": 1745878604,
       "description": "Qwen3, the latest generation in the Qwen large language model series, features both dense and mixture-of-experts (MoE) architectures to excel in reasoning, mult",
       "hugging_face_id": "Qwen/Qwen3-30B-A3B"
-    },
-    {
-      "id": "meta-llama/llama-3.3-70b-instruct",
-      "name": "Meta: Llama 3.3 70B Instruct",
-      "context_length": 131072,
-      "input": 0.22,
-      "output": 0.5,
-      "cache_read_price": 0.11,
-      "max_completion_tokens": 16384,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1733506137,
-      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
-      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
     },
     {
       "id": "qwen/qwen3.8-omni-flash",
@@ -13618,45 +13693,6 @@
       "hugging_face_id": "tencent/Hy-MT2-1.8B"
     },
     {
-      "id": "openai/gpt-oss-120b",
-      "name": "OpenAI: gpt-oss-120b",
-      "context_length": 131072,
-      "input": 0.037,
-      "output": 0.16999999999999998,
-      "cache_read_price": null,
-      "max_completion_tokens": 117964,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1754414231,
-      "description": "gpt-oss-120b is an open-weight, 117B-parameter Mixture-of-Experts (MoE) language model from OpenAI designed for high-reasoning, agentic, and general-purpose pro",
-      "hugging_face_id": "openai/gpt-oss-120b"
-    },
-    {
       "id": "inference-net/schematron-v2-turbo",
       "name": "Inference.net: Schematron V2 Turbo",
       "context_length": 128000,
@@ -14561,6 +14597,48 @@
       "created": 1721347200,
       "description": "A 12B parameter model with a 128k token context length built by Mistral in collaboration with NVIDIA. The model is multilingual, supporting English, French, Ger",
       "hugging_face_id": "mistralai/Mistral-Nemo-Instruct-2407"
+    },
+    {
+      "id": "scaledown/summarize",
+      "name": "ScaleDown: Summarize",
+      "context_length": 1000000,
+      "input": 0.04,
+      "output": 0,
+      "cache_read_price": null,
+      "max_completion_tokens": 4000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "max_tokens"
+      ],
+      "created": 1791893360,
+      "description": "Summarize is an abstractive summarization model from ScaleDown. It condenses long text and documents into a fluent, faithful rewrite rather than lifting sentenc",
+      "hugging_face_id": null
+    },
+    {
+      "id": "scaledown/extract",
+      "name": "ScaleDown: Extract",
+      "context_length": 1000000,
+      "input": 0.04,
+      "output": 0,
+      "cache_read_price": null,
+      "max_completion_tokens": 900000,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "file"
+      ],
+      "supported_parameters": [
+        "max_tokens"
+      ],
+      "created": 1791893351,
+      "description": "Extract is a description-driven entity extraction model from ScaleDown. Instead of a fixed set of entity types, callers describe the fields they want in plain E",
+      "hugging_face_id": null
     }
   ]
 }
