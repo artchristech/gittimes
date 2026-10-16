@@ -22,9 +22,9 @@ const { SECTIONS, SECTION_ORDER } = require("./sections");
 const { mastheadQuote } = require("./quotes");
 const { isVersionChurn } = require("./editorial");
 
-// Provider is env-driven. Defaults to a free OpenRouter model so the daily
-// edition can generate at $0; override with LLM_MODEL / LLM_BASE_URL.
-const MODEL = process.env.LLM_MODEL || "nvidia/nemotron-3-super-120b-a12b:free";
+// Provider is env-driven. Defaults to Claude Haiku 5.5 via OpenRouter;
+// override with LLM_MODEL / LLM_BASE_URL.
+const MODEL = process.env.LLM_MODEL || "anthropic/claude-haiku-5.5";
 const BASE_URL = process.env.LLM_BASE_URL || "https://openrouter.ai/api/v1";
 
 // --- Generation telemetry -------------------------------------------------
