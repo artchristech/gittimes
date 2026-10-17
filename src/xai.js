@@ -106,7 +106,12 @@ async function _chat(client, model, prompt, maxTokens = 1024, options = {}) {
     // OpenRouter: disable model "thinking" so the structured HEADLINE:/BODY:
     // output isn't eaten by a free reasoning model's token budget. Set
     // LLM_REASONING=true to re-enable. Non-OpenRouter providers ignore this.
-    if (process.env.LLM_REASONING !== "true") {
+    // Some models (Claude Opus) reject disabled reasoning: give them a minimal
+    // thinking budget on top of the answer budget instead.
+    if (/claude-opus/.test(model)) {
+      params.reasoning = { max_tokens: 1024 };
+      params.max_tokens = maxTokens + 1024;
+    } else if (process.env.LLM_REASONING !== "true") {
       params.reasoning = { enabled: false };
     }
     if (options.tools) params.tools = options.tools;
