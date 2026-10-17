@@ -25,10 +25,11 @@ const { isVersionChurn } = require("./editorial");
 // Provider is env-driven. Defaults to Claude Haiku 5.5 via OpenRouter;
 // override with LLM_MODEL / LLM_BASE_URL.
 const MODEL = process.env.LLM_MODEL || "anthropic/claude-haiku-5.5";
-// Article prose (lead/secondary/quick hits/breakout/trend/sleeper) is written by
-// a stronger model; routing calls (lead choice, editor panel, headlines) stay on
-// MODEL. Override with WRITER_MODEL.
-const WRITER_MODEL = process.env.WRITER_MODEL || "anthropic/claude-opus-5.5";
+// Producer/writer split: the editorial decisions (editor panel, lead choice,
+// "why this leads" rationale) run on a stronger model; article prose stays on
+// MODEL. Override with EDITOR_MODEL / WRITER_MODEL.
+const EDITOR_MODEL = process.env.EDITOR_MODEL || "anthropic/claude-opus-5.5";
+const WRITER_MODEL = process.env.WRITER_MODEL || MODEL;
 const BASE_URL = process.env.LLM_BASE_URL || "https://openrouter.ai/api/v1";
 
 // --- Generation telemetry -------------------------------------------------
@@ -45,6 +46,7 @@ function resetMetrics() {
 function getMetrics() {
   return {
     model: MODEL,
+    editorModel: EDITOR_MODEL,
     writerModel: WRITER_MODEL,
     llmCalls: _metrics.calls,
     promptTokens: _metrics.promptTokens,
@@ -562,7 +564,7 @@ async function chooseEditorialLead(client, candidates, llmLimit, opts = {}) {
   const threadBlock = opts.threadBlock || null;
   const deskBlock = opts.deskBlock || null;
   try {
-    const raw = await llmLimit(() => chat(client, MODEL, chooseLeadPrompt(candidates, threadBlock, deskBlock), 300));
+    const raw = await llmLimit(() => chat(client, process.env.EDITOR_MODEL || EDITOR_MODEL, chooseLeadPrompt(candidates, threadBlock, deskBlock), 300));
     const whyMatch = lastMatch(raw, /WHY:\s*(.+)/);
     const why = whyMatch?.[1]?.trim() || null;
 
@@ -620,15 +622,14 @@ function parseLeadVote(raw, candidates) {
  * Returns {chosen, why, viaEditor, viaPanel, lensVotes} or NULL to signal the
  * caller to fall back to the single-call chooseEditorialLead. Fully fail-soft:
  * any thrown error, or no usable votes, yields null. Disabled by
- * GT_DISABLE_PANEL=1 or when there is <2 candidates. EDITOR_MODEL (env) overrides
- * the model for this decision only.
+ * GT_DISABLE_PANEL=1 or when there is <2 candidates. Runs on EDITOR_MODEL.
  */
 async function runEditorPanel(client, candidates, llmLimit, opts = {}) {
   if (process.env.GT_DISABLE_PANEL === "1") return null;
   if (!candidates || candidates.length <= 1) return null;
   const threadBlock = opts.threadBlock || null;
   const deskBlock = opts.deskBlock || null;
-  const model = process.env.EDITOR_MODEL || MODEL;
+  const model = process.env.EDITOR_MODEL || EDITOR_MODEL;
 
   try {
     // Run the lenses concurrently; each panelist is independently fail-soft.
@@ -1053,4 +1054,4 @@ async function attachModelDropHeadlines(client, drops, opts = {}) {
   });
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, WRITER_MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote, attachModelDropHeadlines };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, EDITOR_MODEL, WRITER_MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote, attachModelDropHeadlines };

@@ -325,7 +325,7 @@ async function main() {
         generatedAt: new Date().toISOString(),
       });
       console.log(
-        `Telemetry: ${m.llmCalls} LLM calls, ${m.totalTokens} tokens, ${(elapsedMs / 1000).toFixed(1)}s (model=${m.model}, writer=${m.writerModel})`
+        `Telemetry: ${m.llmCalls} LLM calls, ${m.totalTokens} tokens, ${(elapsedMs / 1000).toFixed(1)}s (model=${m.model}, editor=${m.editorModel}, writer=${m.writerModel})`
       );
     }
   } catch (e) {
