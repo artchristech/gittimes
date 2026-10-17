@@ -25,6 +25,10 @@ const { isVersionChurn } = require("./editorial");
 // Provider is env-driven. Defaults to Claude Haiku 5.5 via OpenRouter;
 // override with LLM_MODEL / LLM_BASE_URL.
 const MODEL = process.env.LLM_MODEL || "anthropic/claude-haiku-5.5";
+// Article prose (lead/secondary/quick hits/breakout/trend/sleeper) is written by
+// a stronger model; routing calls (lead choice, editor panel, headlines) stay on
+// MODEL. Override with WRITER_MODEL.
+const WRITER_MODEL = process.env.WRITER_MODEL || "anthropic/claude-opus-5.5";
 const BASE_URL = process.env.LLM_BASE_URL || "https://openrouter.ai/api/v1";
 
 // --- Generation telemetry -------------------------------------------------
@@ -41,6 +45,7 @@ function resetMetrics() {
 function getMetrics() {
   return {
     model: MODEL,
+    writerModel: WRITER_MODEL,
     llmCalls: _metrics.calls,
     promptTokens: _metrics.promptTokens,
     completionTokens: _metrics.completionTokens,
@@ -375,9 +380,9 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
 
   // Lead + material secondary articles in parallel (with parse-level retry)
   const [leadArticle, ...allSecondary] = await Promise.all([
-    generateArticleWithRetry(client, MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit, coverage),
+    generateArticleWithRetry(client, WRITER_MODEL, leadArticlePrompt, sectionData.lead, leadTokens, llmLimit, coverage),
     ...materialSecondary.map((r) =>
-      generateArticleWithRetry(client, MODEL, secondaryArticlePrompt, r, 800, llmLimit, coverage)
+      generateArticleWithRetry(client, WRITER_MODEL, secondaryArticlePrompt, r, 800, llmLimit, coverage)
     ),
   ]);
 
@@ -385,7 +390,7 @@ async function generateSectionContent(sectionData, sectionConfig, client, llmLim
   let quickHits = sectionData.quickHits || [];
   quickHits = quickHits.concat(churnToQuickHits);
   if (quickHits.length > 0) {
-    const quickHitsRaw = await llmLimit(() => chat(client, MODEL, quickHitPrompt(quickHits), 600));
+    const quickHitsRaw = await llmLimit(() => chat(client, WRITER_MODEL, quickHitPrompt(quickHits), 600));
     quickHits = parseQuickHits(quickHitsRaw, quickHits);
   }
 
@@ -789,7 +794,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
       }
 
       const breakoutPrompt = breakoutArticlePrompt(breakoutRepo, editorialPlan.breakout.delta, coverage);
-      const raw = await llmLimit(() => chat(client, MODEL, breakoutPrompt, 2500));
+      const raw = await llmLimit(() => chat(client, WRITER_MODEL, breakoutPrompt, 2500));
       const breakoutArticle = attachPriorCoverage(
         { ...parseArticle(raw, breakoutRepo), repo: breakoutRepo },
         breakoutRepo,
@@ -844,7 +849,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
     try {
       console.log(`  Generating trend article: ${trend.theme}...`);
       const prompt = trendArticlePrompt(trend);
-      const raw = await llmLimit(() => chat(client, MODEL, prompt, 1500));
+      const raw = await llmLimit(() => chat(client, WRITER_MODEL, prompt, 1500));
       const trendArticle = {
         ...parseArticle(raw, null),
         repo: {
@@ -903,7 +908,7 @@ async function generateEditorialContent(sections, apiKey, editorialPlan, options
         }
 
         const prompt = sleeperArticlePrompt({ ...sleeper, repo: sleeperRepo });
-        const raw = await llmLimit(() => chat(client, MODEL, prompt, 1000));
+        const raw = await llmLimit(() => chat(client, WRITER_MODEL, prompt, 1000));
         const sleeperArticle = {
           ...parseArticle(raw, sleeperRepo),
           repo: {
@@ -1048,4 +1053,4 @@ async function attachModelDropHeadlines(client, drops, opts = {}) {
   });
 }
 
-module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote, attachModelDropHeadlines };
+module.exports = { createClient, generateAllContent, generateEditorialContent, generateSectionContent, parseArticle, parseQuickHits, isGibberish, sanitizePrompt, lastMatch, chat, MODEL, WRITER_MODEL, getMetrics, resetMetrics, _attachSentiment, deduplicateContent, chooseEditorialLead, runEditorPanel, parseLeadVote, attachModelDropHeadlines };
