@@ -26,7 +26,7 @@ test("every script in the command table exists on disk", () => {
 
 test("help lists every command", () => {
   const out = cli([]);
-  for (const name of ["generate", "publish", "mock", "sync-models", "migrate", "promo run", "serve api"]) {
+  for (const name of ["generate", "publish", "mock", "sync-models", "migrate", "lineup", "promo run", "serve api"]) {
     assert.match(out, new RegExp(name.replace(/\s+/g, "\\s+")));
   }
 });
@@ -51,4 +51,10 @@ test("bare subcommand group prints its own help and exits zero", () => {
   const out = cli(["promo"]);
   assert.match(out, /gittimes promo <subcommand>/);
   assert.match(out, /gate/);
+});
+
+test("lineup passes its verb and flags through to the script", () => {
+  const out = cli(["lineup", "--help"]);
+  assert.match(out, /gittimes lineup \[show\]/);
+  assert.match(out, /Claude Agent SDK/);
 });
