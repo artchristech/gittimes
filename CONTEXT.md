@@ -135,6 +135,7 @@ PRODUCT / PAYMENTS (Thread B)
   public/chat.js            AI Desk client (ES5, unlinted; RAG citations, thinking, bookmarks)
   api-server.js + src/x402.js   agent REST API + x402 paywall (OFF: no X402_RECEIVER, nonce gate unmet)
   mcp-server.js             8 tools over stdio (unhosted, unmonetized)
+  src/lineup.js + src/lineup-cli.js   Your Lineup: Claude Agent SDK sessions + Ghostty history → account (docs/lineup.md)
 DOCS
   docs/build-out-sheet.md   ★ Thread B plan (gap matrix, funnel-leak trace, P0/P1/P2 by domain)
   docs/first-conversion-sim.md   funnel assumptions the sheet quantifies from

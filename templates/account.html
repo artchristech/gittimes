@@ -69,6 +69,26 @@
       </div>
     </div>
     <div id="account-pricing" class="account-pricing" style="display:none"></div>
+
+    <!-- Your Lineup: the reader's own build history, synced from the CLI -->
+    <div class="account-lineup" id="account-lineup">
+      <h3 class="lineup-heading">Your Lineup</h3>
+      <p class="lineup-intro">What you shipped, from your own terminal. Claude Agent SDK sessions and Ghostty history, printed as a personal edition.</p>
+      <div class="lineup-empty" id="lineup-empty">
+        <p>Nothing synced yet. From a checkout of the Git Times repo:</p>
+        <pre class="lineup-code">gittimes lineup login --token &lt;paste&gt;
+gittimes lineup sync</pre>
+        <p class="lineup-note">Only summaries leave your machine: titles, counts, branches, a few redacted commands. Never transcripts or raw history. <code>gittimes lineup sync --dry-run</code> shows exactly what would be sent.</p>
+      </div>
+      <ol class="lineup-list" id="lineup-list"></ol>
+      <div class="lineup-actions">
+        <button class="account-btn account-btn-secondary" id="lineup-token">Copy CLI Sign-in</button>
+        <button class="account-btn account-btn-secondary" id="lineup-refresh" style="display:none">Refresh</button>
+        <button class="account-btn account-btn-danger" id="lineup-clear" style="display:none">Clear Lineup</button>
+      </div>
+      <div class="subscribe-status" id="lineup-status"></div>
+    </div>
+
     <div class="account-actions">
       <a href="{{BASE_PATH}}/latest/" class="account-btn account-btn-primary">Read Latest Edition</a>
       <a href="#" class="account-btn account-btn-primary" id="account-upgrade" style="display:none">Upgrade to Premium</a>
@@ -267,6 +287,7 @@
         dashSection.style.display = 'block';
         errorSection.style.display = 'none';
         mountClerkProfile();
+        loadLineup();
         document.getElementById('account-email').textContent = user.email;
         document.getElementById('account-plan').textContent = user.plan === 'premium' ? 'Premium' : 'Free';
         updateNewsletterUI(user.subscribedToNewsletter !== false);
@@ -299,6 +320,120 @@
           status.className = 'subscribe-status success';
         }
       }
+
+      // --- Your Lineup ---
+      var lineupList = document.getElementById('lineup-list');
+      var lineupEmpty = document.getElementById('lineup-empty');
+      var lineupTokenBtn = document.getElementById('lineup-token');
+      var lineupRefreshBtn = document.getElementById('lineup-refresh');
+      var lineupClearBtn = document.getElementById('lineup-clear');
+      var lineupStatus = document.getElementById('lineup-status');
+
+      function lineupEl(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+      function lineupDay(iso) {
+        return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      }
+      function lineupTime(iso) {
+        return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+      function lineupPlural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+      function lineupMeta(ev) {
+        var s = ev.stats || {};
+        var parts = [];
+        if (ev.kind === 'session') {
+          if (s.turns) parts.push(lineupPlural(s.turns, 'turn'));
+          if (s.tools) parts.push(lineupPlural(s.tools, 'tool call'));
+          if (s.files) parts.push(lineupPlural(s.files, 'file'));
+        } else if (s.commands) {
+          parts.push(lineupPlural(s.commands, 'command'));
+        }
+        if (s.minutes) parts.push(s.minutes + ' min');
+        if (s.model) parts.push(s.model);
+        return parts.join(' \u00b7 ');
+      }
+      function renderLineup(events) {
+        while (lineupList.firstChild) lineupList.removeChild(lineupList.firstChild);
+        var has = events && events.length > 0;
+        lineupEmpty.style.display = has ? 'none' : 'block';
+        lineupClearBtn.style.display = has ? 'inline-block' : 'none';
+        lineupRefreshBtn.style.display = has ? 'inline-block' : 'none';
+        if (!has) return;
+        var day = null;
+        events.forEach(function(ev) {
+          var d = lineupDay(ev.at);
+          if (d !== day) {
+            day = d;
+            lineupList.appendChild(lineupEl('li', 'lineup-day', d));
+          }
+          var li = lineupEl('li', 'lineup-item lineup-' + (ev.kind === 'session' ? 'session' : 'terminal'));
+          var head = lineupEl('div', 'lineup-item-head');
+          head.appendChild(lineupEl('span', 'lineup-time', lineupTime(ev.at)));
+          head.appendChild(lineupEl('span', 'lineup-kind', ev.kind === 'session' ? 'Session' : 'Terminal'));
+          head.appendChild(lineupEl('span', 'lineup-title', ev.title || ''));
+          li.appendChild(head);
+          var ctx = [];
+          if (ev.project) ctx.push(ev.project + (ev.branch ? ' (' + ev.branch + ')' : ''));
+          var meta = lineupMeta(ev);
+          if (meta) ctx.push(meta);
+          if (ev.kind === 'session' && ev.sample && ev.sample.length) ctx.push(ev.sample.join(', '));
+          if (ctx.length) li.appendChild(lineupEl('div', 'lineup-meta', ctx.join(' \u2014 ')));
+          if (ev.kind === 'terminal' && ev.sample && ev.sample.length) {
+            var sample = lineupEl('div', 'lineup-sample');
+            ev.sample.forEach(function(c) { sample.appendChild(lineupEl('code', null, '$ ' + c)); });
+            li.appendChild(sample);
+          }
+          lineupList.appendChild(li);
+        });
+      }
+      function loadLineup() {
+        if (!session) return;
+        fetch(WORKER + '/lineup', { headers: { 'Authorization': 'Bearer ' + session } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) { if (data.ok) renderLineup(data.events || []); })
+          .catch(function() {});
+      }
+      function lineupSay(msg, cls) {
+        lineupStatus.textContent = msg;
+        lineupStatus.className = 'subscribe-status' + (cls ? ' ' + cls : '');
+      }
+
+      // The CLI signs in with the same session this page holds. Hand it over as
+      // a ready-to-paste command; it is a credential, so it never lands in the DOM.
+      lineupTokenBtn.addEventListener('click', function() {
+        if (!session) return;
+        var cmd = 'gittimes lineup login --token ' + session;
+        var done = function() { lineupSay('Copied. Paste it in your terminal, then run `gittimes lineup sync`. Treat it like a password.', 'success'); };
+        var fail = function() { window.prompt('Copy this command (it is your sign-in \u2014 keep it private):', cmd); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(cmd).then(done, fail);
+        } else {
+          fail();
+        }
+      });
+
+      lineupRefreshBtn.addEventListener('click', loadLineup);
+
+      lineupClearBtn.addEventListener('click', function() {
+        if (!session) return;
+        if (!confirm('Clear your lineup? Re-run `gittimes lineup sync` to rebuild it.')) return;
+        lineupClearBtn.disabled = true;
+        fetch(WORKER + '/lineup/clear', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + session }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) { renderLineup([]); lineupSay('Lineup cleared.', 'success'); }
+          else lineupSay(data.error || 'Could not clear the lineup.', 'error');
+        })
+        .catch(function() { lineupSay('Network error. Please try again.', 'error'); })
+        .finally(function() { lineupClearBtn.disabled = false; });
+      });
 
       // On load: check session
       if (session) {
