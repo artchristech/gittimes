@@ -1668,6 +1668,138 @@ describe("Saved answers", () => {
   });
 });
 
+// --- Your Lineup ---
+describe("Your Lineup", () => {
+  let env;
+  beforeEach(() => { env = createMockEnv(); });
+
+  const T = "2026-09-18T14:02:00.000Z";
+  const session = (over) => ({
+    id: "s:abc", kind: "session", source: "claude", at: T, end: "2026-09-18T14:50:00.000Z",
+    title: "Add personal lineup", project: "gittimes", branch: "main",
+    stats: { turns: 2, tools: 5, files: 2, minutes: 48, model: "claude-fable-5-1" }, sample: ["Edit ×2"],
+    ...(over || {}),
+  });
+
+  it("requires a session for every route", async () => {
+    assert.equal((await worker.fetch(req("GET", "/lineup"), env)).status, 401);
+    assert.equal((await worker.fetch(req("POST", "/lineup", { body: { events: [] } }), env)).status, 401);
+    assert.equal((await worker.fetch(req("POST", "/lineup/clear"), env)).status, 401);
+  });
+
+  it("stores summaries, lists newest-first, dedups on re-sync, and clears", async () => {
+    const token = await createSession(env, "builder@test.com", "free");
+    const h = { Authorization: "Bearer " + token };
+
+    const r1 = await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: [session(), { id: "t:1", kind: "terminal", source: "ghostty", at: "2026-09-18T09:00:00.000Z", title: "3 commands in Ghostty", stats: { commands: 3, minutes: 1 }, sample: ["git status"] }] } }), env);
+    assert.equal(r1.status, 200);
+    const d1 = await r1.json();
+    assert.deepEqual([d1.accepted, d1.rejected, d1.count], [2, 0, 2]);
+    assert.ok(d1.updatedAt);
+
+    // Re-sync the same session with fresher stats: updated in place, not doubled.
+    const r2 = await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: [session({ stats: { turns: 3, tools: 9, files: 2, minutes: 60 } })] } }), env);
+    const d2 = await r2.json();
+    assert.deepEqual([d2.accepted, d2.count], [1, 2]);
+
+    const ld = await (await worker.fetch(req("GET", "/lineup", { headers: h }), env)).json();
+    assert.equal(ld.count, 2);
+    assert.deepEqual(ld.events.map((e) => e.id), ["s:abc", "t:1"], "newest first");
+    assert.equal(ld.events[0].stats.tools, 9, "re-sync updated the story");
+    assert.equal(ld.events[0].stats.model, "", "absent stats fields are normalised");
+    assert.equal(ld.events[1].source, "ghostty");
+    assert.deepEqual(ld.events[1].sample, ["git status"]);
+
+    const lim = await (await worker.fetch(req("GET", "/lineup?limit=1", { headers: h }), env)).json();
+    assert.equal(lim.events.length, 1);
+    assert.equal(lim.count, 2, "count is the whole lineup even when trimmed");
+
+    const cl = await (await worker.fetch(req("POST", "/lineup/clear", { headers: h }), env)).json();
+    assert.equal(cl.ok, true);
+    const ld2 = await (await worker.fetch(req("GET", "/lineup", { headers: h }), env)).json();
+    assert.deepEqual(ld2.events, []);
+    assert.equal(ld2.updatedAt, null);
+  });
+
+  it("rejects malformed batches and drops malformed events without failing the batch", async () => {
+    const token = await createSession(env, "strict@test.com", "free");
+    const h = { Authorization: "Bearer " + token };
+    assert.equal((await worker.fetch(req("POST", "/lineup", { headers: h, rawBody: "{nope" }), env)).status, 400);
+    assert.equal((await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: "x" } }), env)).status, 400);
+    const big = await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: Array.from({ length: 201 }, (_, i) => session({ id: "s:" + i })) } }), env);
+    assert.equal(big.status, 400);
+
+    const mixed = await (await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: [
+      session(),
+      { id: "", kind: "session", at: T },            // no id
+      { id: "s:k", kind: "meeting", at: T },          // bad kind
+      { id: "s:d", kind: "session", at: "yesterday" }, // bad date
+      "not an object",
+    ] } }), env)).json();
+    assert.deepEqual([mixed.accepted, mixed.rejected, mixed.count], [1, 4, 1]);
+  });
+
+  it("clamps oversized fields and unknown sources", async () => {
+    const token = await createSession(env, "clamp@test.com", "free");
+    const h = { Authorization: "Bearer " + token };
+    await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: [session({
+      source: "telepathy", title: "x".repeat(500), project: "p".repeat(300), branch: "b".repeat(300),
+      end: "2026-09-18T13:00:00.000Z", // before `at` — clamped up to `at`
+      stats: { turns: -5, tools: 1e12, files: "many", minutes: 2.6 },
+      sample: ["a".repeat(400), 1, "b", "c", "d", "e", "f"],
+    })] } }), env);
+    const [ev] = (await (await worker.fetch(req("GET", "/lineup", { headers: h }), env)).json()).events;
+    assert.equal(ev.source, "other");
+    assert.equal(ev.title.length, 200);
+    assert.equal(ev.project.length, 120);
+    assert.equal(ev.branch.length, 80);
+    assert.equal(ev.end, T);
+    assert.deepEqual(ev.stats, { turns: 0, tools: 1000000, files: 0, commands: 0, minutes: 3, model: "" });
+    assert.equal(ev.sample.length, 5);
+    assert.equal(ev.sample[0].length, 160);
+  });
+
+  it("caps the lineup at 500 events, keeping the newest", async () => {
+    const token = await createSession(env, "cap@test.com", "free");
+    const h = { Authorization: "Bearer " + token };
+    for (let batch = 0; batch < 3; batch++) {
+      const events = Array.from({ length: 200 }, (_, i) => {
+        const n = batch * 200 + i;
+        return session({ id: "s:" + n, at: new Date(Date.parse(T) + n * 60000).toISOString() });
+      });
+      await worker.fetch(req("POST", "/lineup", { headers: h, body: { events } }), env);
+    }
+    const ld = await (await worker.fetch(req("GET", "/lineup", { headers: h }), env)).json();
+    assert.equal(ld.count, 500);
+    assert.equal(ld.events[0].id, "s:599", "newest kept");
+    assert.equal(ld.events[499].id, "s:100", "oldest 100 dropped");
+  });
+
+  it("rate-limits sync bursts per account", async () => {
+    const token = await createSession(env, "spam@test.com", "free");
+    const h = { Authorization: "Bearer " + token };
+    let last;
+    for (let i = 0; i < 61; i++) {
+      last = await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: [] } }), env);
+    }
+    assert.equal(last.status, 429);
+  });
+
+  it("is wiped with the account and never counted as a user", async () => {
+    const token = await createSession(env, "gone@test.com", "free");
+    const h = { Authorization: "Bearer " + token };
+    await worker.fetch(req("POST", "/lineup", { headers: h, body: { events: [session()] } }), env);
+    assert.ok(env.USERS._store.has("lineup:gone@test.com"));
+
+    const stats = await (await worker.fetch(req("GET", "/admin/stats", { headers: { Authorization: "Bearer " + env.ADMIN_TOKEN } }), env)).json();
+    assert.equal(stats.totalUsers, 1, "lineup: key not counted as a user");
+
+    const del = await worker.fetch(req("POST", "/auth/delete-account", { headers: h }), env);
+    assert.equal(del.status, 200);
+    assert.ok(!env.USERS._store.has("lineup:gone@test.com"), "lineup deleted with the account");
+  });
+});
+
 // --- Clerk hybrid exchange ---
 // Real RS256 keypairs generated in-test; the JWKS endpoint is served through a
 // scoped fetch mock. The worker's JWKS cache is module-scoped with a 1h TTL, so
