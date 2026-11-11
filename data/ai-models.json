@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-11-10T13:15:23.327Z",
+  "syncedAt": "2026-11-11T12:26:59.707Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 12,
     "missed": 0,
-    "catalog": 441,
+    "catalog": 445,
     "bannerSlots": 7
   },
   "models": [
@@ -428,7 +428,7 @@
       "description": "Mistral Medium 3.5 is a dense 128B instruction-following model from Mistral AI. It supports text and image inputs with text output, and is designed for agentic workflows, coding, and complex...",
       "created": 1777570439,
       "expiration_date": null,
-      "hugging_face_id": null,
+      "hugging_face_id": "mistralai/Mistral-Medium-3.5-128B",
       "source": "openrouter"
     },
     {
@@ -436,10 +436,10 @@
       "openrouterId": "z-ai/glm-5.2",
       "label": "GLM 5.2",
       "provider": "Z.ai",
-      "input": 0.0062,
+      "input": 0.007,
       "output": 6.8,
       "context_length": 1048576,
-      "cache_read_price": 0.005200000000000001,
+      "cache_read_price": 0.006,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -499,14 +499,14 @@
       "source": "banner-slot"
     },
     {
-      "key": "google-gemini-4-argon",
-      "label": "Gemini 4 Argon",
-      "openrouterId": "google/gemini-4-argon",
+      "key": "google-gemini-4-carbon",
+      "label": "Gemini 4 Carbon",
+      "openrouterId": "google/gemini-4-carbon",
       "provider": "Google",
       "input": 2,
       "output": 10,
       "context_length": 1048576,
-      "created": 1791907477,
+      "created": 1794326871,
       "source": "banner-slot"
     },
     {
@@ -687,6 +687,18 @@
   },
   "untracked": [
     {
+      "id": "google/gemini-4-carbon",
+      "name": "Google: Gemini 4 Carbon",
+      "outputPrice": 10,
+      "created": 1794326871
+    },
+    {
+      "id": "google/gemini-4-carbon:batch",
+      "name": "Google: Gemini 4 Carbon (batch)",
+      "outputPrice": 5,
+      "created": 1794326871
+    },
+    {
       "id": "anthropic/claude-fable-5.2",
       "name": "Anthropic: Claude Fable 5.2",
       "outputPrice": 40,
@@ -733,18 +745,6 @@
       "name": "OpenAI: GPT-6.1 Terra (batch)",
       "outputPrice": 2.5,
       "created": 1793038409
-    },
-    {
-      "id": "google/gemini-4-argon",
-      "name": "Google: Gemini 4 Argon",
-      "outputPrice": 10,
-      "created": 1791907477
-    },
-    {
-      "id": "google/gemini-4-argon:batch",
-      "name": "Google: Gemini 4 Argon (batch)",
-      "outputPrice": 5,
-      "created": 1791907477
     }
   ],
   "catalog": [
@@ -1765,6 +1765,7 @@
         "reasoning_effort",
         "repetition_penalty",
         "response_format",
+        "seed",
         "structured_outputs",
         "temperature",
         "tool_choice",
@@ -2817,6 +2818,82 @@
       "hugging_face_id": "moonshotai/Kimi-K3"
     },
     {
+      "id": "~moonshotai/kimi-latest",
+      "name": "MoonshotAI: Kimi Latest",
+      "context_length": 1048576,
+      "input": 0.18239999999999998,
+      "output": 11.0055,
+      "cache_read_price": 0.18,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777318428,
+      "description": "This model always redirects to the latest model in the Kimi family.",
+      "hugging_face_id": null
+    },
+    {
+      "id": "google/gemini-4-carbon",
+      "name": "Google: Gemini 4 Carbon",
+      "context_length": 1048576,
+      "input": 2,
+      "output": 10,
+      "cache_read_price": 0.09999999999999999,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "audio",
+        "file",
+        "image",
+        "text",
+        "video"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1794326871,
+      "description": "Gemini 4 Carbon is a frontier Gemini 4 model from Google for coding, agentic and complex reasoning work. It takes text, image, audio, video and file input, supp",
+      "hugging_face_id": null
+    },
+    {
       "id": "moonshotai/kimi-k3.1-pro",
       "name": "MoonshotAI: Kimi K3.1 Pro",
       "context_length": 1048576,
@@ -3609,7 +3686,7 @@
       ],
       "created": 1724976000,
       "description": "command-r-plus-08-2024 is an update of the [Command R+](/models/cohere/command-r-plus) with roughly 50% higher throughput and 25% lower latencies as compared to",
-      "hugging_face_id": null
+      "hugging_face_id": "CohereLabs/c4ai-command-r-plus-08-2024"
     },
     {
       "id": "openai/gpt-4o-2024-08-06",
@@ -3683,48 +3760,6 @@
       ],
       "created": 1715558400,
       "description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turb",
-      "hugging_face_id": null
-    },
-    {
-      "id": "~moonshotai/kimi-latest",
-      "name": "MoonshotAI: Kimi Latest",
-      "context_length": 1048576,
-      "input": 0.18239999999999998,
-      "output": 9.338799999999999,
-      "cache_read_price": 0.18,
-      "max_completion_tokens": 943718,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777318428,
-      "description": "This model always redirects to the latest model in the Kimi family.",
       "hugging_face_id": null
     },
     {
@@ -4119,7 +4154,7 @@
       ],
       "created": 1777570439,
       "description": "Mistral Medium 3.5 is a dense 128B instruction-following model from Mistral AI. It supports text and image inputs with text output, and is designed for agentic ",
-      "hugging_face_id": null
+      "hugging_face_id": "mistralai/Mistral-Medium-3.5-128B"
     },
     {
       "id": "openai/gpt-5.4:batch",
@@ -4248,9 +4283,9 @@
       "id": "z-ai/glm-5.2",
       "name": "Z.ai: GLM 5.2",
       "context_length": 1048576,
-      "input": 0.0062,
+      "input": 0.007,
       "output": 6.8,
-      "cache_read_price": 0.005200000000000001,
+      "cache_read_price": 0.006,
       "max_completion_tokens": 943718,
       "modality": "text->text",
       "input_modalities": [
@@ -4719,7 +4754,7 @@
       ],
       "created": 1731978415,
       "description": "This is Mistral AI's flagship model, Mistral Large 2 (version mistral-large-2407). It's a proprietary weights-available model and excels at reasoning, code, JSO",
-      "hugging_face_id": null
+      "hugging_face_id": "mistralai/Mistral-Large-Instruct-2407"
     },
     {
       "id": "mistralai/mixtral-8x22b-instruct",
@@ -4779,6 +4814,40 @@
       ],
       "created": 1708905600,
       "description": "This is Mistral AI's flagship model, Mistral Large 2 (version `mistral-large-2407`). It's a proprietary weights-available model and excels at reasoning, code, J",
+      "hugging_face_id": null
+    },
+    {
+      "id": "google/gemini-4-carbon:batch",
+      "name": "Google: Gemini 4 Carbon (batch)",
+      "context_length": 1048576,
+      "input": 1,
+      "output": 5,
+      "cache_read_price": 0.049999999999999996,
+      "max_completion_tokens": 943718,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "audio",
+        "file",
+        "image",
+        "text",
+        "video"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1794326871,
+      "description": "Gemini 4 Carbon is a frontier Gemini 4 model from Google for coding, agentic and complex reasoning work. It takes text, image, audio, video and file input, supp",
       "hugging_face_id": null
     },
     {
@@ -5485,50 +5554,13 @@
       "hugging_face_id": null
     },
     {
-      "id": "z-ai/glm-5.1",
-      "name": "Z.ai: GLM 5.1",
-      "context_length": 204800,
-      "input": 1.4,
-      "output": 4.4,
-      "cache_read_price": 0.26,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1775578025,
-      "description": "GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu",
-      "hugging_face_id": "zai-org/GLM-5.1"
-    },
-    {
       "id": "meta/muse-spark-open",
       "name": "Meta: Muse Spark Open",
       "context_length": 1048576,
       "input": 1.25,
       "output": 4.25,
       "cache_read_price": 0.15,
-      "max_completion_tokens": 131072,
+      "max_completion_tokens": 262144,
       "modality": "text+image+file+audio+video->text",
       "input_modalities": [
         "text",
@@ -5585,6 +5617,7 @@
         "reasoning_effort",
         "repetition_penalty",
         "response_format",
+        "seed",
         "structured_outputs",
         "temperature",
         "tool_choice",
@@ -5661,6 +5694,43 @@
       "created": 1784215741,
       "description": "Muse Spark 1.1 is a multimodal reasoning model from Meta, built for agentic tasks. It accepts text, images, video, and PDF documents and returns text, with a 1M",
       "hugging_face_id": null
+    },
+    {
+      "id": "z-ai/glm-5.1",
+      "name": "Z.ai: GLM 5.1",
+      "context_length": 204800,
+      "input": 1.33,
+      "output": 4.18,
+      "cache_read_price": 0.24699999999999997,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1775578025,
+      "description": "GLM-5.1 delivers a major leap in coding capability, with particularly significant gains in handling long-horizon tasks. Unlike previous models built around minu",
+      "hugging_face_id": "zai-org/GLM-5.1"
     },
     {
       "id": "google/gemini-3.8-flash",
@@ -5903,6 +5973,34 @@
       "hugging_face_id": null
     },
     {
+      "id": "baidu/ernie-light-dt-1.0-intl",
+      "name": "Baidu: ERNIE-Light-DT-1.0",
+      "context_length": 1024000,
+      "input": 1.13,
+      "output": 3.9400000000000004,
+      "cache_read_price": 0.113,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1794331260,
+      "description": "ERNIE-Light-DT-1.0 is based on open-source GLM models and includes research findings from Baidu Search's Lightning large model. It features Baidu Sparse Attenti",
+      "hugging_face_id": null
+    },
+    {
       "id": "google/gemini-3.7-flash",
       "name": "Google: Gemini 3.7 Flash",
       "context_length": 1048576,
@@ -6002,7 +6100,7 @@
       ],
       "created": 1777570439,
       "description": "Mistral Medium 3.5 is a dense 128B instruction-following model from Mistral AI. It supports text and image inputs with text output, and is designed for agentic ",
-      "hugging_face_id": null
+      "hugging_face_id": "mistralai/Mistral-Medium-3.5-128B"
     },
     {
       "id": "~google/gemini-flash-latest",
@@ -7216,6 +7314,7 @@
         "frequency_penalty",
         "include_reasoning",
         "logit_bias",
+        "logprobs",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -7230,6 +7329,7 @@
         "tool_choice",
         "tools",
         "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "created": 1780551208,
@@ -8490,7 +8590,7 @@
       ],
       "created": 1738696718,
       "description": "Aion-RP-Llama-3.1-8B ranks the highest in the character evaluation portion of the RPBench-Auto benchmark, a roleplaying-specific variant of Arena-Hard-Auto, whe",
-      "hugging_face_id": null
+      "hugging_face_id": "aion-labs/Aion-RP-Llama-3.1-8B"
     },
     {
       "id": "qwen/qwen3.5-plus-02-15",
@@ -8592,7 +8692,7 @@
       ],
       "created": 1790102896,
       "description": "Command A+ is Cohere's flagship model for enterprise agentic workflows. It accepts text and image inputs with a 192K context window, supports native tool callin",
-      "hugging_face_id": null
+      "hugging_face_id": "CohereLabs/command-a-plus-05-2026-bf16"
     },
     {
       "id": "google/gemini-3.1-flash-lite-image",
@@ -8780,7 +8880,7 @@
       ],
       "created": 1764624472,
       "description": "Mistral Large 3 2512 is Mistral’s most capable model to date, featuring a sparse mixture-of-experts architecture with 41B active parameters (675B total), and re",
-      "hugging_face_id": null
+      "hugging_face_id": "mistralai/Mistral-Large-3-675B-Instruct-2512"
     },
     {
       "id": "aion-labs/aion-3.5-mini",
@@ -9163,6 +9263,37 @@
       "hugging_face_id": null
     },
     {
+      "id": "motif-technologies/motif-3",
+      "name": "Motif Technologies: Motif 3",
+      "context_length": 262144,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.06,
+      "max_completion_tokens": 235929,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1793655334,
+      "description": "Motif 3 is a Mixture-of-Experts language model from Motif Technologies, with 314B total and 13.2B active parameters. It is a general-purpose multilingual model ",
+      "hugging_face_id": "Motif-Technologies/Motif-3"
+    },
+    {
       "id": "meta/muse-glimmer-30b",
       "name": "Meta: Muse Glimmer 30B",
       "context_length": 131072,
@@ -9370,43 +9501,6 @@
       "hugging_face_id": "MiniMaxAI/Minimax-M3"
     },
     {
-      "id": "minimax/minimax-m2.5",
-      "name": "MiniMax: MiniMax M2.5",
-      "context_length": 200000,
-      "input": 0.3,
-      "output": 1.2,
-      "cache_read_price": 0.06,
-      "max_completion_tokens": 58982,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1770908502,
-      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
-      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
-    },
-    {
       "id": "morph/morph-v3-fast",
       "name": "Morph: Morph V3 Fast",
       "context_length": 262144,
@@ -9600,6 +9694,43 @@
       "created": 1753471258,
       "description": "GLM-4.5-Air is the lightweight variant of our latest flagship model family, also purpose-built for agent-centric applications. Like GLM-4.5, it adopts the Mixtu",
       "hugging_face_id": "zai-org/GLM-4.5-Air"
+    },
+    {
+      "id": "minimax/minimax-m2.5",
+      "name": "MiniMax: MiniMax M2.5",
+      "context_length": 200000,
+      "input": 0.27,
+      "output": 1.08,
+      "cache_read_price": 0.027,
+      "max_completion_tokens": 128000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1770908502,
+      "description": "MiniMax-M2.5 is a SOTA large language model designed for real-world productivity. Trained in a diverse range of complex real-world digital working environments,",
+      "hugging_face_id": "MiniMaxAI/MiniMax-M2.5"
     },
     {
       "id": "z-ai/glm-5.2:batch",
@@ -10461,6 +10592,37 @@
       "hugging_face_id": "MiniMaxAI/MiniMax-M2.7"
     },
     {
+      "id": "kt/midm-k-3.0-pro",
+      "name": "KT: Mi:dm K 3.0 Pro",
+      "context_length": 261795,
+      "input": 0.19999999999999998,
+      "output": 0.7999999999999999,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 235615,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1793897701,
+      "description": "Mi:dm K 3.0 Pro is a Mixture-of-Experts reasoning model from KT, with 120B total and 12B active parameters. It uses a hybrid architecture that mixes Mamba, MoE ",
+      "hugging_face_id": null
+    },
+    {
       "id": "qwen/qwen3-coder-next",
       "name": "Qwen: Qwen3 Coder Next",
       "context_length": 262144,
@@ -10691,39 +10853,6 @@
       "hugging_face_id": "Qwen/Qwen3-VL-8B-Instruct"
     },
     {
-      "id": "mancer/weaver",
-      "name": "Mancer: Weaver (alpha)",
-      "context_length": 8000,
-      "input": 0.39999999999999997,
-      "output": 0.75,
-      "cache_read_price": 0.39999999999999997,
-      "max_completion_tokens": 6000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "temperature",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1690934400,
-      "description": "An attempt to recreate Claude-style verbosity, but don't expect the same level of coherence or memory. Meant for use in roleplay/narrative situations.",
-      "hugging_face_id": null
-    },
-    {
       "id": "meta-llama/llama-3.1-70b-instruct",
       "name": "Meta: Llama 3.1 70B Instruct",
       "context_length": 131072,
@@ -10847,40 +10976,6 @@
       "hugging_face_id": "google/gemma-2-27b-it"
     },
     {
-      "id": "undi95/remm-slerp-l2-13b",
-      "name": "ReMM SLERP 13B",
-      "context_length": 6144,
-      "input": 0.35,
-      "output": 0.65,
-      "cache_read_price": 0.35,
-      "max_completion_tokens": 5529,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1689984000,
-      "description": "A recreation trial of the original MythoMax-L2-B13 but with updated models. #merge",
-      "hugging_face_id": "Undi95/ReMM-SLERP-L2-13B"
-    },
-    {
       "id": "openai/gpt-5.4-nano:batch",
       "name": "OpenAI: GPT-5.4 Nano (batch)",
       "context_length": 400000,
@@ -11002,16 +11097,20 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "logprobs",
         "max_tokens",
         "parallel_tool_calls",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
+        "repetition_penalty",
         "response_format",
         "structured_outputs",
         "temperature",
         "tool_choice",
         "tools",
+        "top_k",
+        "top_logprobs",
         "top_p"
       ],
       "created": 1786371636,
@@ -11320,7 +11419,7 @@
       ],
       "created": 1724976000,
       "description": "command-r-08-2024 is an update of the [Command R](/models/cohere/command-r) with improved performance for multilingual retrieval-augmented generation (RAG) and ",
-      "hugging_face_id": null
+      "hugging_face_id": "CohereLabs/c4ai-command-r-08-2024"
     },
     {
       "id": "openai/gpt-4o-mini",
@@ -11423,6 +11522,47 @@
       "hugging_face_id": "tencent/Hunyuan-A13B-Instruct"
     },
     {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "context_length": 1048576,
+      "input": 0.051,
+      "output": 0.5670000000000001,
+      "cache_read_price": 0.018,
+      "max_completion_tokens": 943718,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1789021285,
+      "description": "DeepSeek V4.1 Flash is a sparse mixture-of-experts model from DeepSeek, and the first built on the company's Causal Encoder-Decoder (CED) architecture. It activ",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash"
+    },
+    {
       "id": "mistralai/mistral-small-3.1-24b-instruct",
       "name": "Mistral: Mistral Small 3.1 24B",
       "context_length": 128000,
@@ -11517,6 +11657,7 @@
         "reasoning_effort",
         "repetition_penalty",
         "response_format",
+        "seed",
         "structured_outputs",
         "temperature",
         "tool_choice",
@@ -11810,88 +11951,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "deepseek/deepseek-v4.1-flash",
-      "name": "DeepSeek: DeepSeek V4.1 Flash",
-      "context_length": 1048576,
-      "input": 0.006,
-      "output": 0.5,
-      "cache_read_price": 0.005,
-      "max_completion_tokens": 943718,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1789021285,
-      "description": "DeepSeek V4.1 Flash is a sparse mixture-of-experts model from DeepSeek, and the first built on the company's Causal Encoder-Decoder (CED) architecture. It activ",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash"
-    },
-    {
-      "id": "z-ai/glm-5.3-flash",
-      "name": "Z.ai: GLM 5.3 Flash",
-      "context_length": 1048576,
-      "input": 0.15,
-      "output": 0.5,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": 943717,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1787752741,
-      "description": "GLM-5.3-Flash is a native multimodal model from Z.ai. It is suited for efficient coding and long-horizon agent tasks. Its hybrid sparse and linear attention arc",
-      "hugging_face_id": "zai-org/GLM-5.3-Flash"
-    },
-    {
       "id": "liquid/lfm-2.5-2.6b",
       "name": "LiquidAI: LFM2.5-2.6B",
       "context_length": 128000,
@@ -12027,6 +12086,73 @@
       "hugging_face_id": "Qwen/Qwen3-30B-A3B"
     },
     {
+      "id": "mancer/weaver",
+      "name": "Mancer: Weaver (alpha)",
+      "context_length": 8000,
+      "input": 0.3,
+      "output": 0.5,
+      "cache_read_price": 0.3,
+      "max_completion_tokens": 6000,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "temperature",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1690934400,
+      "description": "An attempt to recreate Claude-style verbosity, but don't expect the same level of coherence or memory. Meant for use in roleplay/narrative situations.",
+      "hugging_face_id": null
+    },
+    {
+      "id": "undi95/remm-slerp-l2-13b",
+      "name": "ReMM SLERP 13B",
+      "context_length": 6144,
+      "input": 0.3,
+      "output": 0.5,
+      "cache_read_price": 0.19999999999999998,
+      "max_completion_tokens": 5529,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1689984000,
+      "description": "A recreation trial of the original MythoMax-L2-B13 but with updated models. #merge",
+      "hugging_face_id": "Undi95/ReMM-SLERP-L2-13B"
+    },
+    {
       "id": "nvidia/nemotron-3.5-super-vl",
       "name": "NVIDIA: Nemotron 3.5 Super VL",
       "context_length": 1048576,
@@ -12063,7 +12189,7 @@
       ],
       "created": 1792076662,
       "description": "NVIDIA Nemotron 3.5 Super VL is an open multimodal mixture-of-experts model from NVIDIA, with 12B active parameters out of 120B total. It takes text, images, do",
-      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-BF16"
     },
     {
       "id": "qwen/qwen3.8-omni-flash",
@@ -12278,7 +12404,7 @@
     {
       "id": "nvidia/nemotron-3-super-120b-a12b",
       "name": "NVIDIA: Nemotron 3 Super",
-      "context_length": 1048576,
+      "context_length": 262144,
       "input": 0.075,
       "output": 0.39999999999999997,
       "cache_read_price": null,
@@ -13889,78 +14015,6 @@
       "hugging_face_id": "RekaAI/reka-flash-3"
     },
     {
-      "id": "qwen/qwen-2.5-7b-instruct",
-      "name": "Qwen: Qwen2.5 7B Instruct",
-      "context_length": 32768,
-      "input": 0.09999999999999999,
-      "output": 0.19999999999999998,
-      "cache_read_price": null,
-      "max_completion_tokens": 29491,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1729036800,
-      "description": "Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: - Significantly more knowledge and has grea",
-      "hugging_face_id": "Qwen/Qwen2.5-7B-Instruct"
-    },
-    {
-      "id": "deepseek/deepseek-v4-flash",
-      "name": "DeepSeek: DeepSeek V4 Flash 0423",
-      "context_length": 1048576,
-      "input": 0.091,
-      "output": 0.182,
-      "cache_read_price": 0.0182,
-      "max_completion_tokens": 943717,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1777000666,
-      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
-    },
-    {
       "id": "inclusionai/ling-3.0-flash-vl",
       "name": "inclusionAI: Ling 3.0 Flash VL",
       "context_length": 131072,
@@ -13996,6 +14050,46 @@
       "created": 1789056114,
       "description": "Ling 3.0 Flash VL builds on Ling 3.0 Flash (124B total / 5.5B active MoE from InclusionAI), further strengthening its language capabilities while adding native ",
       "hugging_face_id": "inclusionAI/Ling-3.0-flash-VL"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek: DeepSeek V4 Flash 0423",
+      "context_length": 1048576,
+      "input": 0.09,
+      "output": 0.18,
+      "cache_read_price": 0.018,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1777000666,
+      "description": "DeepSeek V4 Flash is an efficiency-optimized Mixture-of-Experts model from DeepSeek with 284B total parameters and 13B activated parameters, supporting a 1M-tok",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "meta-llama/llama-guard-4-12b",
@@ -14172,7 +14266,7 @@
       ],
       "created": 1734158152,
       "description": "Command R7B (12-2024) is a small, fast update of the Command R+ model, delivered in December 2024. It excels at RAG, tool use, agents, and similar tasks requiri",
-      "hugging_face_id": null
+      "hugging_face_id": "CohereLabs/c4ai-command-r7b-12-2024"
     },
     {
       "id": "deepseek/deepseek-v4-flash-0731:batch",
@@ -14336,7 +14430,7 @@
       ],
       "created": 1790950024,
       "description": "Ling 3.1 Flash is a hybrid reasoning mixture-of-experts model from inclusionAI, with 25B active parameters out of 560B total.",
-      "hugging_face_id": null
+      "hugging_face_id": "inclusionAI/Ling-3.1-flash"
     },
     {
       "id": "prism-ml/ternary-bonsai-2-9b",
@@ -14753,6 +14847,47 @@
       "hugging_face_id": null
     },
     {
+      "id": "z-ai/glm-5.3-flash",
+      "name": "Z.ai: GLM 5.3 Flash",
+      "context_length": 1048576,
+      "input": 0.0399,
+      "output": 0.0784,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 131072,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787752741,
+      "description": "GLM-5.3-Flash is a native multimodal model from Z.ai. It is suited for efficient coding and long-horizon agent tasks. Its hybrid sparse and linear attention arc",
+      "hugging_face_id": "zai-org/GLM-5.3-Flash"
+    },
+    {
       "id": "inclusionai/ling-3.0-flash",
       "name": "inclusionAI: Ling 3.0 Flash",
       "context_length": 262144,
@@ -14792,9 +14927,9 @@
       "id": "z-ai/glm-5.3-flash:batch",
       "name": "Z.ai: GLM 5.3 Flash (batch)",
       "context_length": 1048576,
-      "input": 0.03,
+      "input": 0.047,
       "output": 0.061000000000000006,
-      "cache_read_price": 0.013000000000000001,
+      "cache_read_price": 0.02,
       "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
