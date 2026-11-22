@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-11-21T13:14:42.318Z",
+  "syncedAt": "2026-11-22T13:05:03.481Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
@@ -544,8 +544,8 @@
       "label": "Kimi K3.1 Pro",
       "openrouterId": "moonshotai/kimi-k3.1-pro",
       "provider": "Moonshot",
-      "input": 0.253,
-      "output": 8.8,
+      "input": 0.2403,
+      "output": 8.402299999999999,
       "context_length": 1048576,
       "created": 1792778188,
       "source": "banner-slot"
@@ -2972,7 +2972,7 @@
       "id": "~moonshotai/kimi-latest",
       "name": "MoonshotAI: Kimi Latest",
       "context_length": 1048576,
-      "input": 0.18050000000000002,
+      "input": 0.18239999999999998,
       "output": 11.0055,
       "cache_read_price": 0.18,
       "max_completion_tokens": 943718,
@@ -4022,12 +4022,45 @@
       "hugging_face_id": null
     },
     {
+      "id": "xiaomi/mimo-v2.6-pro-ultraspeed",
+      "name": "Xiaomi: MiMo-V2.6-Pro-UltraSpeed",
+      "context_length": 1048576,
+      "input": 4.35,
+      "output": 8.7,
+      "cache_read_price": 0.036,
+      "max_completion_tokens": 131072,
+      "modality": "text+image+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "audio"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "response_format",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "created": 1790021267,
+      "description": "MiMo-V2.6-Pro-UltraSpeed is the fast speed edition of Xiaomi's flagship foundation model, MiMo-V2.6-Pro. Built from the same 1T MiMo-V2.6-Pro checkpoint, it mat",
+      "hugging_face_id": null
+    },
+    {
       "id": "moonshotai/kimi-k3.1-pro",
       "name": "MoonshotAI: Kimi K3.1 Pro",
       "context_length": 1048576,
-      "input": 0.253,
-      "output": 8.8,
-      "cache_read_price": 0.18,
+      "input": 0.2403,
+      "output": 8.402299999999999,
+      "cache_read_price": 0.19999999999999998,
       "max_completion_tokens": 943718,
       "modality": "text+image+video->text",
       "input_modalities": [
@@ -4060,39 +4093,6 @@
       "created": 1792778188,
       "description": "Kimi K3.1 Pro is Moonshot AI's flagship open-weight multimodal reasoning model and a post-trained successor to Kimi K3, with a 1M-token context window. It is bu",
       "hugging_face_id": "moonshotai/Kimi-K3.1-Pro"
-    },
-    {
-      "id": "xiaomi/mimo-v2.6-pro-ultraspeed",
-      "name": "Xiaomi: MiMo-V2.6-Pro-UltraSpeed",
-      "context_length": 1048576,
-      "input": 4.35,
-      "output": 8.7,
-      "cache_read_price": 0.036,
-      "max_completion_tokens": 131072,
-      "modality": "text+image+audio+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video",
-        "audio"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "response_format",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_p"
-      ],
-      "created": 1790021267,
-      "description": "MiMo-V2.6-Pro-UltraSpeed is the fast speed edition of Xiaomi's flagship foundation model, MiMo-V2.6-Pro. Built from the same 1T MiMo-V2.6-Pro checkpoint, it mat",
-      "hugging_face_id": null
     },
     {
       "id": "~deepseek/deepseek-pro-latest",
@@ -4715,7 +4715,7 @@
       "input": 2,
       "output": 6,
       "cache_read_price": 0.25,
-      "max_completion_tokens": 131072,
+      "max_completion_tokens": 65536,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -4723,6 +4723,7 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
+        "logit_bias",
         "logprobs",
         "max_tokens",
         "presence_penalty",
@@ -7149,6 +7150,45 @@
       "hugging_face_id": "stepfun-ai/Step-5-Preview"
     },
     {
+      "id": "qwen/qwen3.5-27b",
+      "name": "Qwen: Qwen3.5-27B",
+      "context_length": 262144,
+      "input": 0.26,
+      "output": 2.6,
+      "cache_read_price": null,
+      "max_completion_tokens": 81920,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1772053810,
+      "description": "The Qwen3.5 27B native vision-language Dense model incorporates a linear attention mechanism, delivering fast response times while balancing inference speed and",
+      "hugging_face_id": "Qwen/Qwen3.5-27B"
+    },
+    {
       "id": "tencent/hy4-preview",
       "name": "Tencent: Hy4 preview",
       "context_length": 1048576,
@@ -7884,6 +7924,42 @@
       "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
     },
     {
+      "id": "z-ai/glm-4.7",
+      "name": "Z.ai: GLM 4.7",
+      "context_length": 204800,
+      "input": 0.6,
+      "output": 2.2,
+      "cache_read_price": 0.11,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1766378014,
+      "description": "GLM-4.7 is Z.ai’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. ",
+      "hugging_face_id": "zai-org/GLM-4.7"
+    },
+    {
       "id": "mistralai/mistral-medium-3.1",
       "name": "Mistral: Mistral Medium 3.1",
       "context_length": 131072,
@@ -8425,47 +8501,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "qwen/qwen3.8-27b",
-      "name": "Qwen: Qwen3.8 27B",
-      "context_length": 1024000,
-      "input": 0.06,
-      "output": 1.96,
-      "cache_read_price": 0.059,
-      "max_completion_tokens": 235929,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786722910,
-      "description": "Qwen3.8 27B is an open-weight dense vision-language model from Qwen. It is suited for coding, professional workflows, research, multimodal interaction, and long",
-      "hugging_face_id": "Qwen/Qwen3.8-27B"
-    },
-    {
       "id": "qwen/qwen3.6-plus",
       "name": "Qwen: Qwen3.6 Plus",
       "context_length": 1000000,
@@ -8821,42 +8856,6 @@
       "hugging_face_id": "zai-org/GLM-4.5V"
     },
     {
-      "id": "z-ai/glm-4.7",
-      "name": "Z.ai: GLM 4.7",
-      "context_length": 204800,
-      "input": 0.39999999999999997,
-      "output": 1.75,
-      "cache_read_price": 0.08,
-      "max_completion_tokens": 131072,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1766378014,
-      "description": "GLM-4.7 is Z.ai’s latest flagship model, featuring upgrades in two key areas: enhanced programming capabilities and more stable multi-step reasoning/execution. ",
-      "hugging_face_id": "zai-org/GLM-4.7"
-    },
-    {
       "id": "aion-labs/aion-2.0",
       "name": "AionLabs: Aion-2.0",
       "context_length": 131072,
@@ -8931,45 +8930,6 @@
       "created": 1738696718,
       "description": "Aion-RP-Llama-3.1-8B ranks the highest in the character evaluation portion of the RPBench-Auto benchmark, a roleplaying-specific variant of Arena-Hard-Auto, whe",
       "hugging_face_id": "aion-labs/Aion-RP-Llama-3.1-8B"
-    },
-    {
-      "id": "qwen/qwen3.5-27b",
-      "name": "Qwen: Qwen3.5-27B",
-      "context_length": 262144,
-      "input": 0.195,
-      "output": 1.56,
-      "cache_read_price": null,
-      "max_completion_tokens": 65536,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1772053810,
-      "description": "The Qwen3.5 27B native vision-language Dense model incorporates a linear attention mechanism, delivering fast response times while balancing inference speed and",
-      "hugging_face_id": "Qwen/Qwen3.5-27B"
     },
     {
       "id": "qwen/qwen3.5-plus-02-15",
@@ -9072,6 +9032,47 @@
       "created": 1790102896,
       "description": "Command A+ is Cohere's flagship model for enterprise agentic workflows. It accepts text and image inputs with a 192K context window, supports native tool callin",
       "hugging_face_id": "CohereLabs/command-a-plus-05-2026-bf16"
+    },
+    {
+      "id": "qwen/qwen3.8-27b",
+      "name": "Qwen: Qwen3.8 27B",
+      "context_length": 1024000,
+      "input": 0.035,
+      "output": 1.5,
+      "cache_read_price": 0.0175,
+      "max_completion_tokens": 131072,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786722910,
+      "description": "Qwen3.8 27B is an open-weight dense vision-language model from Qwen. It is suited for coding, professional workflows, research, multimodal interaction, and long",
+      "hugging_face_id": "Qwen/Qwen3.8-27B"
     },
     {
       "id": "meta/muse-glimmer-30b",
@@ -9531,6 +9532,7 @@
         "reasoning_effort",
         "repetition_penalty",
         "response_format",
+        "seed",
         "stop",
         "structured_outputs",
         "temperature",
@@ -11818,6 +11820,41 @@
       "hugging_face_id": null
     },
     {
+      "id": "tencent/hy3",
+      "name": "Tencent: Hy3",
+      "context_length": 262144,
+      "input": 0.14,
+      "output": 0.58,
+      "cache_read_price": 0.035,
+      "max_completion_tokens": 235929,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1783344048,
+      "description": "Hy3 is a 295B-parameter Mixture-of-Experts model from Tencent (21B active, 192 experts with top-8 routing) built for reasoning, agentic workflows, and real-worl",
+      "hugging_face_id": "tencent/Hy3"
+    },
+    {
       "id": "mistralai/mistral-small-3.1-24b-instruct",
       "name": "Mistral: Mistral Small 3.1 24B",
       "context_length": 128000,
@@ -11851,41 +11888,6 @@
       "created": 1742238937,
       "description": "Mistral Small 3.1 24B Instruct is an upgraded variant of Mistral Small 3 (2501), featuring 24 billion parameters with advanced multimodal capabilities. It provi",
       "hugging_face_id": "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
-    },
-    {
-      "id": "tencent/hy3",
-      "name": "Tencent: Hy3",
-      "context_length": 262144,
-      "input": 0.13199999999999998,
-      "output": 0.5279999999999999,
-      "cache_read_price": 0.032999999999999995,
-      "max_completion_tokens": 128000,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_completion_tokens",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1783344048,
-      "description": "Hy3 is a 295B-parameter Mixture-of-Experts model from Tencent (21B active, 192 experts with top-8 routing) built for reasoning, agentic workflows, and real-worl",
-      "hugging_face_id": "tencent/Hy3"
     },
     {
       "id": "meta/muse-ember",
@@ -11928,7 +11930,7 @@
       "context_length": 1048576,
       "input": 0.07,
       "output": 0.5,
-      "cache_read_price": 0.006,
+      "cache_read_price": 0.03,
       "max_completion_tokens": 131072,
       "modality": "text+image->text",
       "input_modalities": [
@@ -12163,6 +12165,47 @@
       "hugging_face_id": null
     },
     {
+      "id": "z-ai/glm-5.3-flash",
+      "name": "Z.ai: GLM 5.3 Flash",
+      "context_length": 1048576,
+      "input": 0.15,
+      "output": 0.5,
+      "cache_read_price": 0.03,
+      "max_completion_tokens": 943717,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1787752741,
+      "description": "GLM-5.3-Flash is a native multimodal model from Z.ai. It is suited for efficient coding and long-horizon agent tasks. Its hybrid sparse and linear attention arc",
+      "hugging_face_id": "zai-org/GLM-5.3-Flash"
+    },
+    {
       "id": "~anthropic/claude-haiku-latest",
       "name": "Anthropic: Claude Haiku Latest",
       "context_length": 1000000,
@@ -12326,6 +12369,40 @@
       "created": 1689984000,
       "description": "A recreation trial of the original MythoMax-L2-B13 but with updated models. #merge",
       "hugging_face_id": "Undi95/ReMM-SLERP-L2-13B"
+    },
+    {
+      "id": "gryphe/mythomax-l2-13b",
+      "name": "MythoMax 13B",
+      "context_length": 8192,
+      "input": 0.3,
+      "output": 0.5,
+      "cache_read_price": 0.19999999999999998,
+      "max_completion_tokens": 7372,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1688256000,
+      "description": "One of the highest performing and most popular fine-tunes of Llama 2 13B, with rich descriptions and roleplay. #merge",
+      "hugging_face_id": "Gryphe/MythoMax-L2-13b"
     },
     {
       "id": "nvidia/nemotron-3.5-super-vl",
@@ -12503,45 +12580,6 @@
       "created": 1759150481,
       "description": "DeepSeek-V3.2-Exp is an experimental large language model released by DeepSeek as an intermediate step between V3.1 and future architectures. It introduces Deep",
       "hugging_face_id": "deepseek-ai/DeepSeek-V3.2-Exp"
-    },
-    {
-      "id": "thinkingmachines/inkling-2-mini",
-      "name": "Thinking Machines: Inkling 2 Mini",
-      "context_length": 1048576,
-      "input": 0.09999999999999999,
-      "output": 0.39999999999999997,
-      "cache_read_price": 0.02,
-      "max_completion_tokens": 65536,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1795227585,
-      "description": "Inkling 2 Mini is an open-weight multimodal looped transformer from Thinking Machines Lab, with 3.4B active parameters out of 26.4B total (MoE). Its middle laye",
-      "hugging_face_id": "thinkingmachines/Inkling-2-Mini"
     },
     {
       "id": "nex-agi/nex-n2.6",
@@ -12986,6 +13024,45 @@
       "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
     },
     {
+      "id": "thinkingmachines/inkling-2-mini",
+      "name": "Thinking Machines: Inkling 2 Mini",
+      "context_length": 1048576,
+      "input": 0.075,
+      "output": 0.3,
+      "cache_read_price": 0.015,
+      "max_completion_tokens": 65536,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1795227585,
+      "description": "Inkling 2 Mini is an open-weight multimodal looped transformer from Thinking Machines Lab, with 3.4B active parameters out of 26.4B total (MoE). Its middle laye",
+      "hugging_face_id": "thinkingmachines/Inkling-2-Mini"
+    },
+    {
       "id": "ricursiveai/ripple-65b-preview",
       "name": "Ricursive: Ripple 65B Preview",
       "context_length": 1048576,
@@ -13122,6 +13199,44 @@
       "created": 1761752836,
       "description": "gpt-oss-safeguard-20b is a safety reasoning model from OpenAI built upon gpt-oss-20b. This open-weight, 21B-parameter Mixture-of-Experts (MoE) model offers lowe",
       "hugging_face_id": "openai/gpt-oss-safeguard-20b"
+    },
+    {
+      "id": "openai/gpt-oss-20b",
+      "name": "OpenAI: gpt-oss-20b",
+      "context_length": 131072,
+      "input": 0.075,
+      "output": 0.3,
+      "cache_read_price": 0.0375,
+      "max_completion_tokens": 65536,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1754414229,
+      "description": "gpt-oss-20b is an open-weight 21B parameter model released by OpenAI under the Apache 2.0 license. It uses a Mixture-of-Experts (MoE) architecture with 3.6B act",
+      "hugging_face_id": "openai/gpt-oss-20b"
     },
     {
       "id": "qwen/qwen3-30b-a3b-instruct-2507",
@@ -14879,40 +14994,6 @@
       "hugging_face_id": "openai/gpt-oss-20b"
     },
     {
-      "id": "gryphe/mythomax-l2-13b",
-      "name": "MythoMax 13B",
-      "context_length": 8192,
-      "input": 0.08,
-      "output": 0.11,
-      "cache_read_price": null,
-      "max_completion_tokens": 3686,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1688256000,
-      "description": "One of the highest performing and most popular fine-tunes of Llama 2 13B, with rich descriptions and roleplay. #merge",
-      "hugging_face_id": "Gryphe/MythoMax-L2-13b"
-    },
-    {
       "id": "nex-agi/nex-n2.5-mini",
       "name": "Nex AGI: Nex-N2.5-Mini",
       "context_length": 262144,
@@ -15005,78 +15086,6 @@
       "hugging_face_id": "mistralai/Ministral-3-3B-Instruct-2512"
     },
     {
-      "id": "google/gemma-3-4b-it",
-      "name": "Google: Gemma 3 4B",
-      "context_length": 131072,
-      "input": 0.049999999999999996,
-      "output": 0.09999999999999999,
-      "cache_read_price": null,
-      "max_completion_tokens": 16384,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1741905510,
-      "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
-      "hugging_face_id": "google/gemma-3-4b-it"
-    },
-    {
-      "id": "openai/gpt-oss-20b",
-      "name": "OpenAI: gpt-oss-20b",
-      "context_length": 131072,
-      "input": 0.017,
-      "output": 0.08499999999999999,
-      "cache_read_price": 0.0085,
-      "max_completion_tokens": 117964,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1754414229,
-      "description": "gpt-oss-20b is an open-weight 21B parameter model released by OpenAI under the Apache 2.0 license. It uses a Mixture-of-Experts (MoE) architecture with 3.6B act",
-      "hugging_face_id": "openai/gpt-oss-20b"
-    },
-    {
       "id": "mistralai/mistral-small-24b-instruct-2501",
       "name": "Mistral: Mistral Small 3",
       "context_length": 32768,
@@ -15111,8 +15120,8 @@
       "id": "~z-ai/glm-flash-latest",
       "name": "Z.ai: GLM Flash Latest",
       "context_length": 1048576,
-      "input": 0.0399,
-      "output": 0.0784,
+      "input": 0.0463,
+      "output": 0.07289999999999999,
       "cache_read_price": 0.03,
       "max_completion_tokens": 131072,
       "modality": "text+image+video->text",
@@ -15147,47 +15156,6 @@
       "created": 1787817633,
       "description": "This model always redirects to the latest model in the GLM Flash family.",
       "hugging_face_id": null
-    },
-    {
-      "id": "z-ai/glm-5.3-flash",
-      "name": "Z.ai: GLM 5.3 Flash",
-      "context_length": 1048576,
-      "input": 0.0399,
-      "output": 0.0784,
-      "cache_read_price": 0.03,
-      "max_completion_tokens": 131072,
-      "modality": "text+image+video->text",
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1787752741,
-      "description": "GLM-5.3-Flash is a native multimodal model from Z.ai. It is suited for efficient coding and long-horizon agent tasks. Its hybrid sparse and linear attention arc",
-      "hugging_face_id": "zai-org/GLM-5.3-Flash"
     },
     {
       "id": "z-ai/glm-5.3-flash:batch",
@@ -15264,6 +15232,40 @@
       "created": 1784818580,
       "description": "*Ling-3.0-flash* is a *124B-parameter Mixture-of-Experts (MoE) model*, with approximately *5.1B parameters activated per token*. The model is designed with *tok",
       "hugging_face_id": "inclusionAI/Ling-3.0-flash"
+    },
+    {
+      "id": "google/gemma-3-4b-it",
+      "name": "Google: Gemma 3 4B",
+      "context_length": 131072,
+      "input": 0.04,
+      "output": 0.049999999999999996,
+      "cache_read_price": 0.02,
+      "max_completion_tokens": 117964,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1741905510,
+      "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
+      "hugging_face_id": "google/gemma-3-4b-it"
     },
     {
       "id": "sao10k/l3-lunaris-8b",
