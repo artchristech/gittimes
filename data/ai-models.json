@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-11-26T14:44:18.350Z",
+  "syncedAt": "2026-11-27T14:43:18.449Z",
   "source": "openrouter",
   "stats": {
     "total": 12,
     "matched": 12,
     "missed": 0,
-    "catalog": 452,
+    "catalog": 455,
     "bannerSlots": 7
   },
   "models": [
@@ -269,11 +269,11 @@
       "openrouterId": "deepseek/deepseek-v4-pro-0813",
       "label": "DeepSeek V4 Pro 0813",
       "provider": "DeepSeek",
-      "input": 0.111,
-      "output": 4.4399999999999995,
+      "input": 0.0999,
+      "output": 5,
       "context_length": 1048576,
-      "cache_read_price": 0.09699999999999999,
-      "max_completion_tokens": 943718,
+      "cache_read_price": 0.0999,
+      "max_completion_tokens": 393216,
       "modality": "text->text",
       "input_modalities": [
         "text"
@@ -522,8 +522,8 @@
       "label": "DeepSeek V4 Pro 0813",
       "openrouterId": "deepseek/deepseek-v4-pro-0813",
       "provider": "DeepSeek",
-      "input": 0.111,
-      "output": 4.4399999999999995,
+      "input": 0.0999,
+      "output": 5,
       "context_length": 1048576,
       "created": 1786549364,
       "source": "banner-slot"
@@ -4649,7 +4649,7 @@
     {
       "id": "qwen/qwen3.8-2.4t-a95b",
       "name": "Qwen: Qwen3.8 2.4T A95B",
-      "context_length": 1048576,
+      "context_length": 1000000,
       "input": 2,
       "output": 6,
       "cache_read_price": 0.25,
@@ -5432,6 +5432,44 @@
       "hugging_face_id": null
     },
     {
+      "id": "~deepseek/deepseek-pro-latest",
+      "name": "DeepSeek: DeepSeek Pro Latest",
+      "context_length": 1048576,
+      "input": 0.0999,
+      "output": 5,
+      "cache_read_price": 0.0999,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1789399174,
+      "description": "This model always redirects to the latest model in the DeepSeek Pro family.",
+      "hugging_face_id": null
+    },
+    {
       "id": "~openai/gpt-terra-latest",
       "name": "OpenAI: GPT Terra Latest",
       "context_length": 1050000,
@@ -5461,6 +5499,44 @@
       "created": 1789130925,
       "description": "This model always redirects to the latest model in the GPT Terra family.",
       "hugging_face_id": null
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek: DeepSeek V4 Pro 0813",
+      "context_length": 1048576,
+      "input": 0.0999,
+      "output": 5,
+      "cache_read_price": 0.0999,
+      "max_completion_tokens": 393216,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786549364,
+      "description": "DeepSeek V4 Pro 0813 is a large-scale mixture-of-experts model from DeepSeek. This is the GA release of DeepSeek V4 Pro.",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro-0813"
     },
     {
       "id": "anthropic/claude-sonnet-5:batch",
@@ -5815,82 +5891,6 @@
       "created": 1773748178,
       "description": "GPT-5.4 mini brings the core capabilities of GPT-5.4 to a faster, more efficient model optimized for high-throughput workloads. It supports text and image input",
       "hugging_face_id": null
-    },
-    {
-      "id": "~deepseek/deepseek-pro-latest",
-      "name": "DeepSeek: DeepSeek Pro Latest",
-      "context_length": 1048576,
-      "input": 0.111,
-      "output": 4.4399999999999995,
-      "cache_read_price": 0.09699999999999999,
-      "max_completion_tokens": 943718,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1789399174,
-      "description": "This model always redirects to the latest model in the DeepSeek Pro family.",
-      "hugging_face_id": null
-    },
-    {
-      "id": "deepseek/deepseek-v4-pro-0813",
-      "name": "DeepSeek: DeepSeek V4 Pro 0813",
-      "context_length": 1048576,
-      "input": 0.111,
-      "output": 4.4399999999999995,
-      "cache_read_price": 0.09699999999999999,
-      "max_completion_tokens": 943718,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786549364,
-      "description": "DeepSeek V4 Pro 0813 is a large-scale mixture-of-experts model from DeepSeek. This is the GA release of DeepSeek V4 Pro.",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro-0813"
     },
     {
       "id": "qwen/qwen3.7-max",
@@ -6922,6 +6922,38 @@
       "hugging_face_id": null
     },
     {
+      "id": "moonshotai/kimi-k2.5",
+      "name": "MoonshotAI: Kimi K2.5",
+      "context_length": 262144,
+      "input": 0.6,
+      "output": 3,
+      "cache_read_price": null,
+      "max_completion_tokens": 131072,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1769487076,
+      "description": "Kimi K2.5 is Moonshot AI's native multimodal model, delivering state-of-the-art visual coding capability and a self-directed agent swarm paradigm. Built on Kimi",
+      "hugging_face_id": "moonshotai/Kimi-K2.5"
+    },
+    {
       "id": "google/gemini-3-flash-preview",
       "name": "Google: Gemini 3 Flash Preview",
       "context_length": 1048576,
@@ -7140,16 +7172,12 @@
       "supported_parameters": [
         "frequency_penalty",
         "include_reasoning",
-        "logit_bias",
         "max_completion_tokens",
         "max_tokens",
-        "min_p",
         "presence_penalty",
         "reasoning",
         "reasoning_effort",
-        "repetition_penalty",
         "response_format",
-        "seed",
         "stop",
         "structured_outputs",
         "temperature",
@@ -7434,38 +7462,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "moonshotai/kimi-k2.5",
-      "name": "MoonshotAI: Kimi K2.5",
-      "context_length": 262144,
-      "input": 0.5,
-      "output": 2.5,
-      "cache_read_price": 0.15,
-      "max_completion_tokens": 235929,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "reasoning",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1769487076,
-      "description": "Kimi K2.5 is Moonshot AI's native multimodal model, delivering state-of-the-art visual coding capability and a self-directed agent swarm paradigm. Built on Kimi",
-      "hugging_face_id": "moonshotai/Kimi-K2.5"
-    },
-    {
       "id": "amazon/nova-2-lite-v1",
       "name": "Amazon: Nova 2 Lite",
       "context_length": 1000000,
@@ -7551,6 +7547,39 @@
       "created": 1759870431,
       "description": "Gemini 2.5 Flash Image, a.k.a. \"Nano Banana,\" is now generally available. It is a state of the art image generation model with contextual understanding. It is c",
       "hugging_face_id": null
+    },
+    {
+      "id": "moonshotai/kimi-k2-0905",
+      "name": "MoonshotAI: Kimi K2 0905",
+      "context_length": 262144,
+      "input": 0.6,
+      "output": 2.5,
+      "cache_read_price": null,
+      "max_completion_tokens": 98304,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1757021147,
+      "description": "Kimi K2 0905 is the September update of [Kimi K2 0711](moonshotai/kimi-k2). It is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI",
+      "hugging_face_id": "moonshotai/Kimi-K2-Instruct-0905"
     },
     {
       "id": "google/gemini-2.5-flash",
@@ -7964,7 +7993,6 @@
         "max_tokens",
         "presence_penalty",
         "reasoning",
-        "repetition_penalty",
         "response_format",
         "seed",
         "stop",
@@ -8176,7 +8204,7 @@
     {
       "id": "z-ai/glm-4.6",
       "name": "Z.ai: GLM 4.6",
-      "context_length": 204800,
+      "context_length": 202752,
       "input": 0.5,
       "output": 2,
       "cache_read_price": 0.09999999999999999,
@@ -8290,6 +8318,7 @@
         "include_reasoning",
         "logit_bias",
         "logprobs",
+        "max_completion_tokens",
         "max_tokens",
         "min_p",
         "presence_penalty",
@@ -8749,8 +8778,8 @@
       "id": "deepseek/deepseek-v4-pro",
       "name": "DeepSeek: DeepSeek V4 Pro 0423",
       "context_length": 1048576,
-      "input": 0.855302,
-      "output": 1.5228000000000002,
+      "input": 0.81641,
+      "output": 1.5381,
       "cache_read_price": 0.19999999999999998,
       "max_completion_tokens": 393216,
       "modality": "text->text",
@@ -8849,45 +8878,6 @@
       "created": 1790102896,
       "description": "Command A+ is Cohere's flagship model for enterprise agentic workflows. It accepts text and image inputs with a 192K context window, supports native tool callin",
       "hugging_face_id": "CohereLabs/command-a-plus-05-2026-bf16"
-    },
-    {
-      "id": "meta/muse-glimmer-30b",
-      "name": "Meta: Muse Glimmer 30B",
-      "context_length": 131072,
-      "input": 0.35,
-      "output": 1.5,
-      "cache_read_price": 0.04,
-      "max_completion_tokens": 117964,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1786302394,
-      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
-      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
     },
     {
       "id": "google/gemini-3.1-flash-lite-image",
@@ -9209,43 +9199,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "deepseek/deepseek-v4-flash-vision-exp",
-      "name": "DeepSeek: DeepSeek V4 Flash Vision Exp",
-      "context_length": 1048576,
-      "input": 0.44,
-      "output": 1.32,
-      "cache_read_price": 0.028,
-      "max_completion_tokens": 393216,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "created": 1787311563,
-      "description": "DeepSeek V4 Flash Vision Exp is an experimental vision-enabled version of [DeepSeek V4 Flash 0731](https://openrouter.ai/deepseek/deepseek-v4-flash-0731) from D",
-      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp"
-    },
-    {
       "id": "qwen/qwen3.7-plus",
       "name": "Qwen: Qwen3.7 Plus",
       "context_length": 1000000,
@@ -9536,6 +9489,45 @@
       "created": 1793655334,
       "description": "Motif 3 is a Mixture-of-Experts language model from Motif Technologies, with 314B total and 13.2B active parameters. It is a general-purpose multilingual model ",
       "hugging_face_id": "Motif-Technologies/Motif-3"
+    },
+    {
+      "id": "meta/muse-glimmer-30b",
+      "name": "Meta: Muse Glimmer 30B",
+      "context_length": 131072,
+      "input": 0.3,
+      "output": 1.2,
+      "cache_read_price": 0.04,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1786302394,
+      "description": "Muse Glimmer 30B is a dense, open-weight multimodal model from Meta Superintelligence Labs, distilled from Muse Spark and optimized for autonomous agents on con",
+      "hugging_face_id": "meta-models/Muse-Glimmer-30B"
     },
     {
       "id": "thinkingmachines/inkling-small",
@@ -10534,6 +10526,39 @@
       "hugging_face_id": null
     },
     {
+      "id": "inclusionai/ling-3.2-flash",
+      "name": "inclusionAI: Ling 3.2 Flash",
+      "context_length": 1048576,
+      "input": 0.3,
+      "output": 0.8999999999999999,
+      "cache_read_price": 0.06,
+      "max_completion_tokens": 262144,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1794591958,
+      "description": "Ling 3.2 Flash is a hybrid reasoning model from inclusionAI that accepts text and image input, with a 1M-token context window and up to 200 images per request. ",
+      "hugging_face_id": "inclusionAI/Ling-3.2-flash"
+    },
+    {
       "id": "z-ai/glm-4.6v",
       "name": "Z.ai: GLM 4.6V",
       "context_length": 131072,
@@ -10926,6 +10951,41 @@
       "hugging_face_id": "TheDrummer/Skyfall-36B-v2"
     },
     {
+      "id": "meta-llama/llama-3.3-70b-instruct",
+      "name": "Meta: Llama 3.3 70B Instruct",
+      "context_length": 131072,
+      "input": 0.59,
+      "output": 0.7899999999999999,
+      "cache_read_price": 0.295,
+      "max_completion_tokens": 32768,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1733506137,
+      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
+      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
+    },
+    {
       "id": "qwen/qwen-plus",
       "name": "Qwen: Qwen-Plus",
       "context_length": 1000000,
@@ -11083,41 +11143,6 @@
       "hugging_face_id": "meta-llama/Meta-Llama-3.1-70B-Instruct"
     },
     {
-      "id": "meta-llama/llama-3.3-70b-instruct",
-      "name": "Meta: Llama 3.3 70B Instruct",
-      "context_length": 131072,
-      "input": 0.71,
-      "output": 0.71,
-      "cache_read_price": 0.71,
-      "max_completion_tokens": 115200,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1733506137,
-      "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instr",
-      "hugging_face_id": "meta-llama/Llama-3.3-70B-Instruct"
-    },
-    {
       "id": "liquid/lfm-2.5-24b-a2b",
       "name": "LiquidAI: LFM2.5-24B-A2B",
       "context_length": 128000,
@@ -11181,6 +11206,43 @@
       "created": 1720828800,
       "description": "Gemma 2 27B by Google is an open model built from the same research and technology used to create the [Gemini models](/models?q=gemini). Gemma models are well-s",
       "hugging_face_id": "google/gemma-2-27b-it"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-vision-exp",
+      "name": "DeepSeek: DeepSeek V4 Flash Vision Exp",
+      "context_length": 1048576,
+      "input": 0.21559999999999999,
+      "output": 0.6468,
+      "cache_read_price": 0.00686,
+      "max_completion_tokens": 262144,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1787311563,
+      "description": "DeepSeek V4 Flash Vision Exp is an experimental vision-enabled version of [DeepSeek V4 Flash 0731](https://openrouter.ai/deepseek/deepseek-v4-flash-0731) from D",
+      "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp"
     },
     {
       "id": "openai/gpt-5.4-nano:batch",
@@ -12334,42 +12396,6 @@
       "hugging_face_id": null
     },
     {
-      "id": "google/gemma-3-27b-it",
-      "name": "Google: Gemma 3 27B",
-      "context_length": 131072,
-      "input": 0.08,
-      "output": 0.44999999999999996,
-      "cache_read_price": 0.04,
-      "max_completion_tokens": 117964,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1741756359,
-      "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
-      "hugging_face_id": "google/gemma-3-27b-it"
-    },
-    {
       "id": "deepseek/deepseek-v3.2-exp",
       "name": "DeepSeek: DeepSeek V3.2 Exp",
       "context_length": 163840,
@@ -12829,46 +12855,6 @@
       "hugging_face_id": "meta-llama/Llama-3.2-3B-Instruct"
     },
     {
-      "id": "thinkingmachines/inkling-2-mini",
-      "name": "Thinking Machines: Inkling 2 Mini",
-      "context_length": 1048576,
-      "input": 0.075,
-      "output": 0.3,
-      "cache_read_price": 0.015,
-      "max_completion_tokens": 65536,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_completion_tokens",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1795227585,
-      "description": "Inkling 2 Mini is an open-weight multimodal looped transformer from Thinking Machines Lab, with 3.4B active parameters out of 26.4B total (MoE). Its middle laye",
-      "hugging_face_id": "thinkingmachines/Inkling-2-Mini"
-    },
-    {
       "id": "ricursiveai/ripple-65b-preview",
       "name": "Ricursive: Ripple 65B Preview",
       "context_length": 1048576,
@@ -12906,50 +12892,10 @@
       "hugging_face_id": "ricursiveAI/Ripple-65B-Preview"
     },
     {
-      "id": "~deepseek/deepseek-v4-flash-latest",
-      "name": "DeepSeek: DeepSeek V4 Flash Latest",
-      "context_length": 1048576,
-      "input": 0.047,
-      "output": 0.3,
-      "cache_read_price": 0.035,
-      "max_completion_tokens": 943718,
-      "modality": "text->text",
-      "input_modalities": [
-        "text"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "parallel_tool_calls",
-        "presence_penalty",
-        "reasoning",
-        "reasoning_effort",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1785606009,
-      "description": "This model always redirects to the latest model in the DeepSeek V4 Flash family.",
-      "hugging_face_id": null
-    },
-    {
       "id": "deepseek/deepseek-v4-flash-0731",
       "name": "DeepSeek: DeepSeek V4 Flash 0731",
       "context_length": 1048576,
-      "input": 0.047,
+      "input": 0.045599999999999995,
       "output": 0.3,
       "cache_read_price": 0.035,
       "max_completion_tokens": 943718,
@@ -13611,6 +13557,46 @@
       "hugging_face_id": "openai/gpt-oss-120b"
     },
     {
+      "id": "thinkingmachines/inkling-2-mini",
+      "name": "Thinking Machines: Inkling 2 Mini",
+      "context_length": 1048576,
+      "input": 0.06,
+      "output": 0.24,
+      "cache_read_price": 0.012,
+      "max_completion_tokens": 65536,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1795227585,
+      "description": "Inkling 2 Mini is an open-weight multimodal looped transformer from Thinking Machines Lab, with 3.4B active parameters out of 26.4B total (MoE). Its middle laye",
+      "hugging_face_id": "thinkingmachines/Inkling-2-Mini"
+    },
+    {
       "id": "nvidia/nemotron-3-nano-30b-a3b",
       "name": "NVIDIA: Nemotron 3 Nano 30B A3B",
       "context_length": 262144,
@@ -14203,6 +14189,42 @@
       "hugging_face_id": "RekaAI/reka-flash-3"
     },
     {
+      "id": "inclusionai/lingsante-3.1-air-vl",
+      "name": "inclusionAI: LingSante 3.1 Air VL",
+      "context_length": 131072,
+      "input": 0.06,
+      "output": 0.18,
+      "cache_read_price": 0.012,
+      "max_completion_tokens": 32768,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ],
+      "created": 1795705284,
+      "description": "LingSante 3.1 Air VL is inclusionAI's medical vision-language model, a 124B total / 5.5B active MoE. It takes text and up to 16 images (scans, skin and meal pho",
+      "hugging_face_id": "inclusionAI/LingSante-3.1-air-VL"
+    },
+    {
       "id": "inclusionai/ling-3.0-flash-vl",
       "name": "inclusionAI: Ling 3.0 Flash VL",
       "context_length": 131072,
@@ -14330,6 +14352,42 @@
       "created": 1787231581,
       "description": "Hy-MT2-1.8B is a compact 1.8B-parameter translation model from Tencent. It supports 33 language pairs and five Chinese dialect and minority-language pairs, with",
       "hugging_face_id": "tencent/Hy-MT2-1.8B"
+    },
+    {
+      "id": "google/gemma-3-27b-it",
+      "name": "Google: Gemma 3 27B",
+      "context_length": 131072,
+      "input": 0.08,
+      "output": 0.16,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1741756359,
+      "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
+      "hugging_face_id": "google/gemma-3-27b-it"
     },
     {
       "id": "inference-net/schematron-v2-turbo",
@@ -14739,6 +14797,46 @@
       "hugging_face_id": "openai/gpt-oss-120b"
     },
     {
+      "id": "~deepseek/deepseek-v4-flash-latest",
+      "name": "DeepSeek: DeepSeek V4 Flash Latest",
+      "context_length": 1048576,
+      "input": 0.04532,
+      "output": 0.13596,
+      "cache_read_price": 0.001442,
+      "max_completion_tokens": 131072,
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1785606009,
+      "description": "This model always redirects to the latest model in the DeepSeek V4 Flash family.",
+      "hugging_face_id": null
+    },
+    {
       "id": "prism-ml/ternary-bonsai-2-9b",
       "name": "PrismML: Ternary Bonsai 2 9B",
       "context_length": 262144,
@@ -14973,6 +15071,40 @@
       "hugging_face_id": "mistralai/Ministral-3-3B-Instruct-2512"
     },
     {
+      "id": "google/gemma-3-4b-it",
+      "name": "Google: Gemma 3 4B",
+      "context_length": 131072,
+      "input": 0.049999999999999996,
+      "output": 0.09999999999999999,
+      "cache_read_price": null,
+      "max_completion_tokens": 16384,
+      "modality": "text+image->text",
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supported_parameters": [
+        "frequency_penalty",
+        "logit_bias",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "created": 1741905510,
+      "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
+      "hugging_face_id": "google/gemma-3-4b-it"
+    },
+    {
       "id": "~z-ai/glm-flash-latest",
       "name": "Z.ai: GLM Flash Latest",
       "context_length": 1048576,
@@ -15185,40 +15317,6 @@
       "created": 1784818580,
       "description": "*Ling-3.0-flash* is a *124B-parameter Mixture-of-Experts (MoE) model*, with approximately *5.1B parameters activated per token*. The model is designed with *tok",
       "hugging_face_id": "inclusionAI/Ling-3.0-flash"
-    },
-    {
-      "id": "google/gemma-3-4b-it",
-      "name": "Google: Gemma 3 4B",
-      "context_length": 131072,
-      "input": 0.04,
-      "output": 0.049999999999999996,
-      "cache_read_price": 0.02,
-      "max_completion_tokens": 117964,
-      "modality": "text+image->text",
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "created": 1741905510,
-      "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 language",
-      "hugging_face_id": "google/gemma-3-4b-it"
     },
     {
       "id": "sao10k/l3-lunaris-8b",
